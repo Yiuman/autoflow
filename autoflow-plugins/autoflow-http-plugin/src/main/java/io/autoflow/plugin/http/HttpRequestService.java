@@ -1,0 +1,63 @@
+package io.autoflow.plugin.http;
+
+import cn.hutool.core.net.url.UrlBuilder;
+import cn.hutool.core.net.url.UrlQuery;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSONObject;
+import io.autoflow.spi.Service;
+import io.autoflow.spi.context.ExecutionContext;
+import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.Property;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author yiuman
+ * @date 2023/7/11
+ */
+public class HttpRequestService implements Service {
+
+    @Override
+    public String getName() {
+        return "HTTP";
+    }
+
+    @Override
+    public List<Property> getProperties() {
+        return null;
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
+    @Override
+    public ExecutionData[] execute(ExecutionContext executionContext) {
+        Map<String, ExecutionData[]> inputData = executionContext.getInputData();
+        Map<String, Object> parameter = executionContext.getParameters();
+        ExecutionData[] inputNames = inputData.get(parameter.get("inputName"));
+        ExecutionData nodeInputData = ArrayUtil.get(inputNames, (Integer) parameter.get("inputIndex"));
+        JSONObject json = nodeInputData.getJson();
+
+        HttpRequestParameter httpRequestParameter = json.to(HttpRequestParameter.class);
+        String url = UrlBuilder.of(httpRequestParameter.getUrl())
+                .setQuery(UrlQuery.of(httpRequestParameter.getParams(), true))
+                .build();
+        HttpRequest request = HttpUtil.createRequest(httpRequestParameter.getMethod(), url);
+        request.addHeaders(httpRequestParameter.getHeaders());
+        try (HttpResponse response = request.execute()) {
+            //todo 根据不同的响应类型作处理
+            return new ExecutionData[]{
+                    ExecutionData.builder()
+                            .raw(response.body())
+                            .build()
+            };
+        }
+
+    }
+}
