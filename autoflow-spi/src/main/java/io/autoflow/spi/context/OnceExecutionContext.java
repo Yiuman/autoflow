@@ -1,9 +1,11 @@
 package io.autoflow.spi.context;
 
+import cn.hutool.core.collection.CollUtil;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.Data;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,15 +20,15 @@ public final class OnceExecutionContext implements ExecutionContext {
         put(Constants.INPUT_NAME, Constants.DEFAULT_INPUT_NAME);
         put(Constants.INPUT_INDEX, Constants.DEFAULT_INPUT_INDEX);
     }};
-    private Map<String, ExecutionData[]> inputData = new HashMap<>();
+    private Map<String, List<ExecutionData>> inputData = new HashMap<>();
 
-    public static OnceExecutionContext create(ExecutionData[] executionData) {
+    public static OnceExecutionContext create(List<ExecutionData> executionData) {
         OnceExecutionContext onceExecutionContext = new OnceExecutionContext();
         onceExecutionContext.getInputData().put(Constants.DEFAULT_INPUT_NAME, executionData);
         return onceExecutionContext;
     }
 
     public static OnceExecutionContext create(ExecutionData executionData) {
-        return create(new ExecutionData[]{executionData});
+        return create(CollUtil.newArrayList(executionData));
     }
 }

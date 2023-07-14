@@ -24,6 +24,7 @@
         <lombok.version>1.18.24</lombok.version>
         <typesafe-config.version>1.4.2</typesafe-config.version>
         <fastjson2.version>2.0.12</fastjson2.version>
+        <flowbale.version>7.0.0.M1</flowbale.version>
         <junit-jupiter.version>5.7.2</junit-jupiter.version>
     </properties>
 

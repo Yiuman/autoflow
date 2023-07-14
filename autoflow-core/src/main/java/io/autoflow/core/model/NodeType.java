@@ -5,7 +5,9 @@ package io.autoflow.core.model;
  * @date 2023/7/13
  */
 public enum NodeType {
+    EVENT,
     SERVICE,
     GATEWAY,
-    CONDITION
+    CONDITION,
+    USER
 }

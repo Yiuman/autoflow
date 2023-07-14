@@ -2,6 +2,7 @@ package io.autoflow.spi.context;
 
 import io.autoflow.spi.model.ExecutionData;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Map;
  */
 public interface ExecutionContext {
 
-    Map<String, ExecutionData[]> getInputData();
+    Map<String, List<ExecutionData>> getInputData();
 
     Map<String, Object> getParameters();
 

@@ -17,4 +17,5 @@ public class Node {
     private Map<String, Object> parameters;
     private Float[] position;
     private NodeType type;
+    private String impl;
 }
