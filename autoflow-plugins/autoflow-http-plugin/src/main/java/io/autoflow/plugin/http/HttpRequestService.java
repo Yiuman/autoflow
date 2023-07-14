@@ -3,7 +3,6 @@ package io.autoflow.plugin.http;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -40,10 +39,10 @@ public class HttpRequestService implements Service {
 
     @Override
     public List<ExecutionData> execute(ExecutionContext executionContext) {
-        Map<String, ExecutionData[]> inputData = executionContext.getInputData();
+        Map<String, List<ExecutionData>> inputData = executionContext.getInputData();
         Map<String, Object> parameter = executionContext.getParameters();
-        ExecutionData[] inputNames = inputData.get(parameter.get(Constants.INPUT_NAME));
-        ExecutionData nodeInputData = ArrayUtil.get(inputNames, (Integer) parameter.get(Constants.INPUT_INDEX));
+        List<ExecutionData> inputNames = inputData.get(parameter.get(Constants.INPUT_NAME));
+        ExecutionData nodeInputData = CollUtil.get(inputNames, (Integer) parameter.get(Constants.INPUT_INDEX));
         JSONObject json = nodeInputData.getJson();
 
         HttpRequestParameter httpRequestParameter = json.to(HttpRequestParameter.class);
