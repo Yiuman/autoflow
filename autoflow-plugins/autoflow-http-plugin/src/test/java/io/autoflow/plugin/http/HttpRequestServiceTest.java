@@ -9,6 +9,8 @@ import io.autoflow.spi.model.ExecutionData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 /**
  * @author yiuman
  * @date 2023/7/13
@@ -20,13 +22,13 @@ class HttpRequestServiceTest {
         HttpRequestService httpRequestService = new HttpRequestService();
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/");
-        ExecutionData[] execute = httpRequestService.execute(OnceExecutionContext.create(ExecutionData.builder()
+        List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(ExecutionData.builder()
                 .json(JSONObject.parseObject(JSON.toJSONString(httpRequestParameter)))
                 .build()));
 
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)
-                        && StrUtil.isNotBlank(execute[0].getRaw())
+                        && StrUtil.isNotBlank(execute.get(0).getRaw())
         );
     }
 }
