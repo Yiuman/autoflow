@@ -1,6 +1,7 @@
 package io.autoflow.core.model;
 
 import cn.hutool.core.collection.CollUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Collections;
@@ -22,7 +23,12 @@ public class Flow {
     private List<Connection> connections;
     private String description;
 
+    /**
+     * 下面这两个属性只读
+     */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<String> connectionSources;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<String> connectionTargets;
 
     public Set<String> getConnectionSources() {

@@ -15,6 +15,10 @@ import org.flowable.bpmn.model.ServiceTask;
 import java.util.Map;
 
 /**
+ * 服务节点转换器
+ * 将节点定义的插件信息转成服务任务
+ * 使用io.autoflow.core.delegate.ExecuteServiceTask驱动
+ *
  * @author yiuman
  * @date 2023/7/14
  */
@@ -24,7 +28,7 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
     @Override
     public ServiceTask convert(Node node) {
         Assert.equals(NodeType.SERVICE, node.getType());
-        Service service = Services.getServiceMap().get(node.getImpl());
+        Service service = Services.getServiceMap().get(node.getServiceName());
         Assert.notNull(service);
         ServiceTask serviceTask = new ServiceTask();
         serviceTask.setId(node.getId());

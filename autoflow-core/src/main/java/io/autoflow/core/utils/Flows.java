@@ -43,10 +43,22 @@ public final class Flows {
     private Flows() {
     }
 
+    /**
+     * Flow实例的JSON字符串转成Bpmn模型
+     *
+     * @param jsonStr Flow实例的JSON字符串
+     * @return Bpmn模型
+     */
     public static BpmnModel convert(String jsonStr) {
         return convert(JSON.parseObject(jsonStr, Flow.class));
     }
 
+    /**
+     * Flow实例转换Bpmn模型
+     *
+     * @param flow Flow流程定义实例
+     * @return Bpmn模型
+     */
     public static BpmnModel convert(Flow flow) {
         BpmnModel bpmnModel = new BpmnModel();
         Process process = createProcess(flow);
@@ -67,10 +79,21 @@ public final class Flows {
         return bpmnModel;
     }
 
+    /**
+     * Bpmn模型自动排版
+     *
+     * @param bpmnModel Bpmn模型
+     */
     public static void autoLayout(BpmnModel bpmnModel) {
         new BpmnAutoLayout(bpmnModel).execute();
     }
 
+    /**
+     * 创建bpmn连线
+     *
+     * @param connection Flow的Connection连线对象
+     * @return bpmn的SequenceFlow连线对象
+     */
     public static SequenceFlow createSequenceFlow(Connection connection) {
         SequenceFlow sequenceFlow = new SequenceFlow();
         String id = String.format("%s_%s", connection.getSource(), connection.getTarget());
@@ -102,6 +125,14 @@ public final class Flows {
         return endEvent;
     }
 
+    /**
+     * 添加扩展属性
+     *
+     * @param flowElement 需要添加扩展属性的节点
+     * @param name        属性名
+     * @param value       属性值
+     * @param <T>         节点类型
+     */
     public static <T extends BaseElement> void addExtensionElement(T flowElement, String name, Object value) {
         if (StrUtil.isBlank(name) || Objects.isNull(value)) {
             return;
@@ -142,6 +173,12 @@ public final class Flows {
 
     }
 
+    /**
+     * 获取流程节点的扩展属
+     *
+     * @param flowElement 流程节点
+     * @return Key为属性名, value属性值的Map对象
+     */
     public static Map<String, Object> getElementProperties(FlowElement flowElement) {
         Map<String, Object> elementProperties = new HashMap<>();
         Map<String, List<ExtensionElement>> extensionElements = flowElement.getExtensionElements();

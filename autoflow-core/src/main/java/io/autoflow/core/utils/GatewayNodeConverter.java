@@ -4,6 +4,8 @@ import io.autoflow.core.model.Node;
 import org.flowable.bpmn.model.ParallelGateway;
 
 /**
+ * 网关节点转换器
+ *
  * @author yiuman
  * @date 2023/7/14
  */

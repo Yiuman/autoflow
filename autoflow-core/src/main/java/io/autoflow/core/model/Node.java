@@ -14,8 +14,20 @@ import java.util.Map;
 public class Node {
     private String id;
     private String name;
+    /**
+     * 节点的静态配置参数
+     */
     private Map<String, Object> parameters;
+    /**
+     * 节点在前端显示的位置定位
+     */
     private Float[] position;
+    /**
+     * 节点类型
+     */
     private NodeType type;
-    private String impl;
+    /**
+     * 实现类（即插件）
+     */
+    private String serviceName;
 }
