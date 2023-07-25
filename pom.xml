@@ -13,6 +13,8 @@
         <module>autoflow-plugins</module>
         <module>autoflow-core</module>
         <module>autoflow-common</module>
+        <module>autoflow-app</module>
+        <module>autoflow-modules</module>
     </modules>
 
     <properties>
@@ -28,7 +30,9 @@
         <lombok.version>1.18.24</lombok.version>
         <typesafe-config.version>1.4.2</typesafe-config.version>
         <fastjson2.version>2.0.12</fastjson2.version>
+        <qlexpress.version>3.3.1</qlexpress.version>
         <flowbale.version>7.0.0.M1</flowbale.version>
+        <mybatis.plus.version>3.5.3.1</mybatis.plus.version>
         <junit-jupiter.version>5.7.2</junit-jupiter.version>
     </properties>
 

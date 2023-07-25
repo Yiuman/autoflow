@@ -16,4 +16,5 @@ import lombok.NoArgsConstructor;
 public class Connection {
     private String source;
     private String target;
+    private String express;
 }
