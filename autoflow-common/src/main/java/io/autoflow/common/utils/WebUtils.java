@@ -1,4 +1,4 @@
-package io.autoflow.app.utils;
+package io.autoflow.common.utils;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;

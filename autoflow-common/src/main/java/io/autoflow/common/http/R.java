@@ -1,4 +1,4 @@
-package io.autoflow.app.common;
+package io.autoflow.common.http;
 
 import lombok.Data;
 

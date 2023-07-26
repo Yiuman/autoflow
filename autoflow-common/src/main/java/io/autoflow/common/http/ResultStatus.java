@@ -1,4 +1,4 @@
-package io.autoflow.app.common;
+package io.autoflow.common.http;
 
 /**
  * 影响结果状态枚举

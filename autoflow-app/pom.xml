@@ -28,9 +28,9 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mybatis.plus.version}</version>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-common</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
