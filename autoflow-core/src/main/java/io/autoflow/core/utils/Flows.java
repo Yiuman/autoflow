@@ -1,6 +1,7 @@
 package io.autoflow.core.utils;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -60,7 +61,8 @@ public final class Flows {
      * @return Bpmn模型
      */
     public static BpmnModel convert(Flow flow) {
-        BpmnModel bpmnModel = new BpmnModel();
+        Assert.notNull(flow);
+        Assert.notEmpty(flow.getNodes());
         Process process = createProcess(flow);
         List<Node> nodes = flow.getNodes();
         StartEvent startEvent = createStartEvent();
@@ -69,12 +71,18 @@ public final class Flows {
                 createSequenceFlow(new Connection(startEvent.getId(), startNode.getId()))
         ));
         nodes.forEach(node -> process.addFlowElement(NODE_CONVERTER_MAP.get(node.getType()).convert(node)));
-        flow.getConnections().forEach(connection -> process.addFlowElement(createSequenceFlow(connection)));
+        List<Connection> connections = flow.getConnections();
+        if (CollUtil.isNotEmpty(connections)) {
+            flow.getConnections().forEach(connection -> process.addFlowElement(createSequenceFlow(connection)));
+        }
+
         EndEvent endEvent = createEndEvent();
         process.addFlowElement(endEvent);
         flow.getEndNodes().forEach(endNode -> process.addFlowElement(
                 createSequenceFlow(new Connection(endNode.getId(), endEvent.getId()))
         ));
+        BpmnModel bpmnModel = new BpmnModel();
+        bpmnModel.addProcess(process);
         autoLayout(bpmnModel);
         return bpmnModel;
     }

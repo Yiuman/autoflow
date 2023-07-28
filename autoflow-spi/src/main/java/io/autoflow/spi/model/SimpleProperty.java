@@ -16,5 +16,5 @@ public class SimpleProperty implements Property {
     private String description;
     private Object defaultValue;
     private List<Option> options;
-    private List<SimpleProperty> properties;
+    private List<Property> properties;
 }

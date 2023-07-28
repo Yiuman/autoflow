@@ -1,5 +1,6 @@
 package io.autoflow.spi.context;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.Data;
@@ -30,5 +31,11 @@ public final class OnceExecutionContext implements ExecutionContext {
 
     public static OnceExecutionContext create(ExecutionData executionData) {
         return create(CollUtil.newArrayList(executionData));
+    }
+
+    public static <T> OnceExecutionContext create(T inputData) {
+        OnceExecutionContext onceExecutionContext = new OnceExecutionContext();
+        onceExecutionContext.getParameters().putAll(BeanUtil.beanToMap(inputData));
+        return onceExecutionContext;
     }
 }

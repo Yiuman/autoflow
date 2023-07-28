@@ -46,14 +46,18 @@ public class Flow {
     }
 
     public List<Node> getStartNodes() {
-        return getNodes().stream()
+        List<Node> startNodes = getNodes().stream()
                 .filter(node -> !getConnectionTargets().contains(node.getId())
-                        && getConnectionSources().contains(node.getId())).collect(Collectors.toList());
+                        && getConnectionSources().contains(node.getId()))
+                .collect(Collectors.toList());
+        return CollUtil.isNotEmpty(startNodes) ? startNodes : getNodes();
     }
 
     public List<Node> getEndNodes() {
-        return getNodes().stream()
+        List<Node> endNodes = getNodes().stream()
                 .filter(node -> !getConnectionSources().contains(node.getId())
-                        && getConnectionTargets().contains(node.getId())).collect(Collectors.toList());
+                        && getConnectionTargets().contains(node.getId()))
+                .collect(Collectors.toList());
+        return CollUtil.isNotEmpty(endNodes) ? endNodes : getNodes();
     }
 }

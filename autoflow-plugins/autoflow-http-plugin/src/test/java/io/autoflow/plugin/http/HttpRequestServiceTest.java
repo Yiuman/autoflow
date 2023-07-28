@@ -2,8 +2,6 @@ package io.autoflow.plugin.http;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import io.autoflow.spi.context.OnceExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import org.junit.jupiter.api.Assertions;
@@ -22,9 +20,8 @@ class HttpRequestServiceTest {
         HttpRequestService httpRequestService = new HttpRequestService();
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/");
-        List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(ExecutionData.builder()
-                .json(JSONObject.parseObject(JSON.toJSONString(httpRequestParameter)))
-                .build()));
+
+        List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
 
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)

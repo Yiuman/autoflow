@@ -28,12 +28,12 @@
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-engine</artifactId>
-            <version>${flowbale.version}</version>
+            <version>${flowable.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-bpmn-layout</artifactId>
-            <version>${flowbale.version}</version>
+            <version>${flowable.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -17,4 +17,9 @@ public class Connection {
     private String source;
     private String target;
     private String express;
+
+    public Connection(String source, String target) {
+        this.source = source;
+        this.target = target;
+    }
 }

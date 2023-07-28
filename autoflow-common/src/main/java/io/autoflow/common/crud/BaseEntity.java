@@ -1,4 +1,4 @@
-package io.autoflow.app.entity;
+package io.autoflow.common.crud;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;

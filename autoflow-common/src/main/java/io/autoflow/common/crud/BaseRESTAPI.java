@@ -2,6 +2,7 @@ package io.autoflow.common.crud;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.lang.TypeReference;
+import cn.hutool.core.util.TypeUtil;
 import cn.hutool.db.Page;
 import cn.hutool.db.PageResult;
 import cn.hutool.extra.spring.SpringUtil;
@@ -11,8 +12,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import io.autoflow.common.http.R;
 import io.autoflow.common.utils.WebUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.ResolvableType;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -21,11 +27,24 @@ import java.util.Objects;
  * @date 2023/7/25
  */
 public interface BaseRESTAPI<ENTITY> {
+    Map<Class<?>, IService<?>> SERVICE_MAP = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     default IService<ENTITY> getService() {
-        //noinspection Convert2Diamond
-        return SpringUtil.getBean(new TypeReference<IService<ENTITY>>() {
-        });
+        IService<ENTITY> iService = (IService<ENTITY>) SERVICE_MAP.get(getClass());
+        if (Objects.nonNull(iService)) {
+            return iService;
+        }
+        TypeReference<IService<ENTITY>> reference = new TypeReference<>() {
+        };
+        Type typeArgument = TypeUtil.getTypeArgument(getClass(), 0);
+        final ParameterizedType parameterizedType = (ParameterizedType) reference.getType();
+        final Class<IService<ENTITY>> rawType = (Class<IService<ENTITY>>) parameterizedType.getRawType();
+        final Class<?>[] genericTypes = new Class[]{(Class<?>) typeArgument};
+        final String[] beanNames = SpringUtil.getBeanFactory().getBeanNamesForType(ResolvableType.forClassWithGenerics(rawType, genericTypes));
+        iService = SpringUtil.getBean(beanNames[0], rawType);
+        SERVICE_MAP.put(getClass(), iService);
+        return iService;
     }
 
     @GetMapping

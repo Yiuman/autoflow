@@ -10,6 +10,7 @@ import lombok.Data;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.engine.impl.el.FixedValue;
 
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,11 @@ import java.util.Optional;
 @Data
 public class ExecuteServiceTask implements JavaDelegate {
 
-    private String serviceName;
+    private FixedValue serviceName;
 
     @Override
     public void execute(DelegateExecution execution) {
-        Service service = Services.getService(serviceName);
+        Service service = Services.getService((String) serviceName.getValue(null));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
         flowExecutionContext.getParameters().putAll(
@@ -43,6 +44,6 @@ public class ExecuteServiceTask implements JavaDelegate {
                 .ofNullable(inputData.get(currentFlowElement.getName()))
                 .orElse(CollUtil.newArrayList());
         nodeExecutionDataList.addAll(currentExecutionData);
-        inputData.put(currentFlowElement.getName(), nodeExecutionDataList);
+        inputData.put(currentFlowElement.getId(), nodeExecutionDataList);
     }
 }

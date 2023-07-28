@@ -5,6 +5,7 @@ server:
       force: true
       enabled: true
     context-path: /api
+  port: 8096
 spring:
   application:
     name: autoflow
@@ -13,8 +14,8 @@ spring:
       max-file-size: ${MAX_FILE_SIZE:100MB}
       max-request-size: ${MAX_REQUEST_SIZE:200MB}
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DATASOURCE_URL:jdbc:mysql://10.0.0.161:9030/xiaobaogong?zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false}
+    driver-class-name: org.h2.Driver
+    url: ${DATASOURCE_URL:jdbc:h2:file:~/.h2/test}
     username: root
     password:
 #mybatis-plus相关

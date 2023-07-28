@@ -34,5 +34,10 @@
             <artifactId>QLExpress</artifactId>
             <version>${qlexpress.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.aviator</groupId>
+            <artifactId>aviator</artifactId>
+            <version>${aviator.version}</version>
+        </dependency>
     </dependencies>
 </project>

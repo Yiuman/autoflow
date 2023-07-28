@@ -7,6 +7,7 @@ package io.autoflow.spi.context;
 public final class Constants {
     public static final String INPUT_NAME = "inputName";
     public static final String INPUT_INDEX = "inputIndex";
+    public static final String INPUT_DATA = "inputData";
     public static final String DEFAULT_INPUT_NAME = "local";
     public static final Integer DEFAULT_INPUT_INDEX = 0;
 
