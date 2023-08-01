@@ -1,8 +1,10 @@
 package io.autoflow.app.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.autoflow.app.dao.FlowDefinitionDao;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
 import io.autoflow.app.entity.FlowDefinition;
+import io.autoflow.app.mapper.FlowDefinitionMapper;
 import io.autoflow.app.service.FlowDefinitionService;
 import io.autoflow.core.utils.Flows;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
-public class FlowDefinitionServiceImpl extends ServiceImpl<FlowDefinitionDao, FlowDefinition>
+public class FlowDefinitionServiceImpl extends ServiceImpl<FlowDefinitionMapper, FlowDefinition>
         implements FlowDefinitionService {
     private final RepositoryService repositoryService;
 
@@ -36,4 +38,8 @@ public class FlowDefinitionServiceImpl extends ServiceImpl<FlowDefinitionDao, Fl
         return flowDefinition.getId();
     }
 
+    @Override
+    public Page<FlowDefinition> page(Page<FlowDefinition> page, QueryWrapper query) {
+        return super.page(page, query);
+    }
 }

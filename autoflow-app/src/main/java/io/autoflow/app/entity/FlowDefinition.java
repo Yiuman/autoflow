@@ -1,6 +1,6 @@
 package io.autoflow.app.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Table;
 import io.autoflow.common.crud.BaseEntity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("af_flow_def")
+@Table("af_flow_def")
 public class FlowDefinition extends BaseEntity<String> {
     private String name;
     @NotBlank

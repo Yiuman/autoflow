@@ -33,8 +33,10 @@
         <qlexpress.version>3.3.1</qlexpress.version>
         <aviator.version>5.3.3</aviator.version>
         <flowable.version>7.0.0.M1</flowable.version>
-        <mybatis.plus.version>3.5.3.1</mybatis.plus.version>
+        <mybatis-flex.version>1.5.4</mybatis-flex.version>
         <junit-jupiter.version>5.7.2</junit-jupiter.version>
+        <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
+
     </properties>
 
     <dependencies>
@@ -76,6 +78,16 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.mybatis-flex</groupId>
+                            <artifactId>mybatis-flex-processor</artifactId>
+                            <version>${mybatis-flex.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

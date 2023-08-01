@@ -1,10 +1,10 @@
 package io.autoflow.common.crud;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReflectUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.mybatisflex.core.query.QueryWrapper;
+import io.autoflow.common.utils.SpringUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.MergedAnnotation;
 
@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * @author yiuman
@@ -23,29 +24,36 @@ public final class QueryHelper {
 
     private final static Map<Class<?>, List<QueryFieldMeta>> CLASS_QUERY_FIELD_META_MAP = new ConcurrentHashMap<>();
 
+    private final static ConditionHandler DEFAULT_CONDITION_HANDLER = DefaultConditionHandler.INSTANCE;
+
     private QueryHelper() {
     }
 
-    public static Wrapper<?> build(Object any) {
+    public static QueryWrapper build(Object any) {
         if (Objects.isNull(any)) {
-            return Wrappers.emptyWrapper();
+            return QueryWrapper.create();
         }
         Class<?> objectClass = any.getClass();
         List<QueryFieldMeta> queryFieldMetas = getQueryFieldMetas(objectClass);
         if (CollUtil.isEmpty(queryFieldMetas)) {
-            return Wrappers.emptyWrapper();
+            return QueryWrapper.create();
         }
-        QueryWrapper<?> wrapper = Wrappers.query();
+        QueryWrapper wrapper = QueryWrapper.create();
         for (QueryFieldMeta queryFieldMeta : queryFieldMetas) {
-            Boolean require = queryFieldMeta.getRequire();
+            boolean require = BooleanUtil.isTrue(queryFieldMeta.getRequire());
             Clauses clauses = queryFieldMeta.getClauses();
-            //todo 处理不同类型的查询
-            if (Clauses.AND == clauses) {
-                wrapper.and(require, queryWrapper -> {
-                });
+            Class<? extends ConditionHandler> handleClass = queryFieldMeta.getHandleClass();
+            Consumer<QueryWrapper> queryWrapperConsumer;
+            if (Objects.nonNull(handleClass)) {
+                ConditionHandler conditionHandler = SpringUtils.getBean(handleClass, true);
+                queryWrapperConsumer = conditionHandler.handle(queryFieldMeta, ReflectUtil.getFieldValue(any, queryFieldMeta.getField()));
             } else {
-                wrapper.or(require, queryWrapper -> {
-                });
+                queryWrapperConsumer = DEFAULT_CONDITION_HANDLER.handle(queryFieldMeta, ReflectUtil.getFieldValue(any, queryFieldMeta.getField()));
+            }
+            if (Clauses.AND == clauses) {
+                wrapper.and(queryWrapperConsumer, require);
+            } else {
+                wrapper.or(queryWrapperConsumer, require);
             }
 
         }

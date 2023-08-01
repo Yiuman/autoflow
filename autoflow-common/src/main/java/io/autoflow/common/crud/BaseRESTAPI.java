@@ -3,12 +3,10 @@ package io.autoflow.common.crud;
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.TypeUtil;
-import cn.hutool.db.Page;
-import cn.hutool.db.PageResult;
 import cn.hutool.extra.spring.SpringUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.core.service.IService;
 import io.autoflow.common.http.R;
 import io.autoflow.common.utils.WebUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,29 +46,19 @@ public interface BaseRESTAPI<ENTITY> {
     }
 
     @GetMapping
-    default PageResult<ENTITY> page(HttpServletRequest request) {
-        Page pageRequest = WebUtils.getPageRequest();
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<ENTITY> mpPage
-                = com.baomidou.mybatisplus.extension.plugins.pagination.Page.of(pageRequest.getPageNumber(), pageRequest.getPageSize());
-        com.baomidou.mybatisplus.extension.plugins.pagination.Page<ENTITY> mpPageResult
-                = getService().page(mpPage, buildWrapper(request));
-        PageResult<ENTITY> pageResult = new PageResult<>(
-                (int) mpPageResult.getCurrent(),
-                (int) mpPageResult.getSize(),
-                (int) mpPageResult.getTotal()
-        );
-        pageResult.addAll(mpPageResult.getRecords());
-        return pageResult;
+    default Page<ENTITY> page(HttpServletRequest request) {
+        cn.hutool.db.Page pageRequest = WebUtils.getPageRequest();
+        Page<ENTITY> mfPage = Page.of(pageRequest.getPageNumber(), pageRequest.getPageSize());
+        return getService().page(mfPage, buildWrapper(request));
     }
 
-    @SuppressWarnings("unchecked")
-    default Wrapper<ENTITY> buildWrapper(HttpServletRequest request) {
+    default QueryWrapper buildWrapper(HttpServletRequest request) {
         Query query = AnnotationUtil.getAnnotation(getClass(), Query.class);
         if (Objects.isNull(query)) {
-            return Wrappers.emptyWrapper();
+            return QueryWrapper.create();
         }
         Object queryObject = WebUtils.requestDataBind(query.value(), request);
-        return (Wrapper<ENTITY>) QueryHelper.build(queryObject);
+        return QueryHelper.build(queryObject);
     }
 
     @GetMapping("/{id}")

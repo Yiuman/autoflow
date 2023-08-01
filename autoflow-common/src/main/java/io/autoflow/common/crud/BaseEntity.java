@@ -1,6 +1,6 @@
 package io.autoflow.common.crud;
 
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.mybatisflex.annotation.Id;
 import lombok.Data;
 
 import java.util.Date;
@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Data
 public class BaseEntity<KEY> {
-    @TableId
+    @Id
     private KEY id;
     private String creator;
     private String lastModifier;

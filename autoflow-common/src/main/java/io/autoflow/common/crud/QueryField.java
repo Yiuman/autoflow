@@ -12,11 +12,13 @@ import java.lang.annotation.*;
 @Inherited
 public @interface QueryField {
 
-    String method() default "eq";
+    String method() default "EQUALS";
 
     String mapping() default "";
 
     Clauses clauses() default Clauses.AND;
 
     boolean require() default false;
+
+    Class<? extends ConditionHandler> handler() default ConditionHandler.class;
 }
