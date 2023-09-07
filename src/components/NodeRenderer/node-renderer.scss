@@ -1,0 +1,85 @@
+.node-renderer {
+  height: 80px;
+  width: 80px;
+  border-radius: 5px;
+  background-color: rgb(248 250 252);
+  border: 2px solid #eee;
+}
+
+.node-action{
+  border: 2px solid rgba(var(--primary-6),.5);
+  outline: rgba(var(--primary-6),.5) solid 2px;
+  animation: action 1s infinite linear  ;
+}
+
+.node-avatar {
+  padding: 8px;
+}
+
+.selected {
+  .node-renderer {
+    box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .node-renderer-toolbar {
+    display: block;
+  }
+}
+
+.toolbar-btn{
+  font-size: 14px;
+}
+
+.node-renderer-toolbar {
+  display: none;
+  position: absolute;
+  top: -27px;
+  right: 1px;
+  z-index: 1;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  .toolbar-stop-btn{
+
+  }
+
+  .toolbar-delete-btn {
+    &:hover {
+      color: red;
+    }
+  }
+}
+
+@keyframes action {
+  0%{
+    outline-offset: -1px;
+  }
+  50%{
+    outline-offset: -3px;
+  }
+  100%{
+    outline-offset: -1px;
+  }
+}
+
+.vue-flow__node-custom {
+  .vue-flow__handle {
+    height: 10px;
+    width: 10px;
+  }
+
+  .vue-flow__handle-left {
+    height: 15px;
+    width: 6px;
+    left: -3px;
+    border-radius: unset;
+  }
+
+  .vue-flow__handle-right {
+    background: white;
+    border: 2px solid var(--vf-handle);
+    right: -7px;
+  }
+}

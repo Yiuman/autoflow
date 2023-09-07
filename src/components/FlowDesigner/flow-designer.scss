@@ -1,0 +1,88 @@
+
+.vue-flow__node a {
+  font-weight: 700;
+  color: #111;
+}
+
+.vue-flow__node.dark-node {
+  background: #0041d0;
+  color: #f8f8f8;
+}
+
+.vue-flow__node.dark {
+  background: #557;
+  color: #f8f8f8;
+}
+
+.vue-flow__node-selectorNode {
+  font-size: 14px;
+  background: #f0f2f3;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.vue-flow__node-selectorNode .vue-flow__handle {
+  border-color: #f0f2f3;
+}
+
+@media screen and (min-width: 768px) {
+  .overview-example__add {
+    display: block;
+  }
+}
+
+.vue-flow-basic.dark {
+  background: #57534e;
+  color: #fffffb
+}
+
+.vue-flow-basic.dark .vue-flow__node {
+  background: #292524;
+  color: #fffffb
+}
+
+.vue-flow-basic.dark .vue-flow__controls .vue-flow__controls-button {
+  background: #292524;
+  fill: #fffffb;
+  border-color: #fffffb
+}
+
+.vue-flow-basic.dark .vue-flow__edge-textbg {
+  fill: #292524
+}
+
+.vue-flow-basic.dark .vue-flow__edge-text {
+  fill: #fffffb
+}
+
+.vue-flow-basic .controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px
+}
+
+.vue-flow-basic .controls button {
+  padding: 4px;
+  border-radius: 5px;
+  font-weight: 600;
+  -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, .3);
+  box-shadow: 0 5px 10px #0000004d;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center
+}
+
+.vue-flow-basic .controls button:hover {
+  transform: scale(102%);
+  transition: .25s all ease
+}
+
+.panel-item {
+  color: #000000 !important;
+
+  .arco-switch {
+    background-color: #000000 !important;
+  }
+}
