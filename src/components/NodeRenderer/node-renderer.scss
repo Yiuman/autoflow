@@ -4,12 +4,18 @@
   border-radius: 5px;
   background-color: rgb(248 250 252);
   border: 2px solid #eee;
+
+  &:hover {
+    .node-renderer-toolbar {
+      display: block;
+    }
+  }
 }
 
-.node-action{
-  border: 2px solid rgba(var(--primary-6),.5);
-  outline: rgba(var(--primary-6),.5) solid 2px;
-  animation: action 1s infinite linear  ;
+.node-action {
+  border: 2px solid rgba(var(--primary-6), .5);
+  outline: rgba(var(--primary-6), .5) solid 2px;
+  animation: action 1.2s infinite linear;
 }
 
 .node-avatar {
@@ -26,7 +32,7 @@
   }
 }
 
-.toolbar-btn{
+.toolbar-btn {
   font-size: 14px;
 }
 
@@ -41,7 +47,7 @@
     cursor: pointer;
   }
 
-  .toolbar-stop-btn{
+  .toolbar-stop-btn {
 
   }
 
@@ -53,18 +59,18 @@
 }
 
 @keyframes action {
-  0%{
+  0% {
     outline-offset: -1px;
   }
-  50%{
+  50% {
     outline-offset: -3px;
   }
-  100%{
+  100% {
     outline-offset: -1px;
   }
 }
 
-.vue-flow__node-custom {
+.vue-flow__node-service {
   .vue-flow__handle {
     height: 10px;
     width: 10px;

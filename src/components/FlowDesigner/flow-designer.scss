@@ -81,8 +81,7 @@
 
 .panel-item {
   color: #000000 !important;
-
-  .arco-switch {
-    background-color: #000000 !important;
+  .arco-switch-checked .arco-switch-handle{
+    color: #000000 !important;
   }
 }

@@ -12,6 +12,7 @@ import { Connection } from '@vue-flow/core/dist/types/connection'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
+import { randomRgba } from '@/utils/util-func'
 
 const { removeNodes } = useVueFlow()
 
@@ -39,12 +40,6 @@ watch(action, () => {
   }
 })
 
-const rgb = `rgb(
-${Math.floor(Math.random() * 256)}
-,${Math.floor(Math.random() * 256)}
-,${Math.floor(Math.random() * 256)}
-)`
-
 function getHandleDirection(handle: string | null | undefined): string {
   return handle?.substring(handle?.lastIndexOf('-') + 1) ?? ''
 }
@@ -52,6 +47,8 @@ function getHandleDirection(handle: string | null | undefined): string {
 const validConnection: ValidConnectionFunc = (connection: Connection) => {
   return getHandleDirection(connection.sourceHandle) !== getHandleDirection(connection.targetHandle)
 }
+
+const rgba = randomRgba(0.8)
 </script>
 <template>
   <div class="node-renderer" :class="action ? 'node-action' : ''">
@@ -76,7 +73,7 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
       </AButtonGroup>
     </div>
     <div class="node-avatar">
-      <AAvatar shape="square" :size="64" :style="{ backgroundColor: rgb }">Arco Design</AAvatar>
+      <AAvatar shape="square" :size="64" :style="{ backgroundColor: rgba }">{{ label }}</AAvatar>
     </div>
 
     <Handle type="target" :position="Position.Left" :is-valid-connection="validConnection" />

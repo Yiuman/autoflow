@@ -15,6 +15,7 @@ declare module 'vue' {
     ALayoutContent: typeof import('@arco-design/web-vue')['LayoutContent']
     ASpin: typeof import('@arco-design/web-vue')['Spin']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
+    AUpload: typeof import('@arco-design/web-vue')['Upload']
     FlowDesigner: typeof import('./src/components/FlowDesigner/FlowDesigner.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
