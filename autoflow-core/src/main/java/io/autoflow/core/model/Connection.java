@@ -14,9 +14,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Connection {
+    /**
+     * 源节点ID
+     */
     private String source;
+    /**
+     * 目标节点ID
+     */
     private String target;
-    private String express;
+    /**
+     * 表达式
+     */
+    private String expression;
+    /**
+     * 源节点连接位置
+     */
+    private Float sourceX;
+    private Float sourceY;
+    /**
+     * 目标节点连接位置
+     */
+    private Float targetX;
+    private Float targetY;
 
     public Connection(String source, String target) {
         this.source = source;

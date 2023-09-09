@@ -56,7 +56,7 @@ public class FlowableExecutor implements Executor {
     public List<ExecutionData> executeNode(Node node) {
         io.autoflow.spi.Service service = Services.getService(node.getServiceName());
         Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceName())));
-        Map<String, Object> parameters = Optional.of(node.getParameters()).orElse(MapUtil.newHashMap());
+        Map<String, Object> parameters = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
         ExecutionData executionData = new ExecutionData();
         executionData.setJson(JSON.parseObject(JSON.toJSONString(parameters)));
         return service.execute(OnceExecutionContext.create(executionData));

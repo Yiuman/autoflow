@@ -22,7 +22,6 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
         return "HTTP";
     }
 
-
     @Override
     public String getDescription() {
         return "";

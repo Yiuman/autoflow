@@ -13,15 +13,15 @@ import java.util.Map;
 @Data
 public class Node {
     private String id;
-    private String name;
+    private String label;
     /**
      * 节点的静态配置参数
      */
-    private Map<String, Object> parameters;
+    private Map<String, Object> data;
     /**
      * 节点在前端显示的位置定位
      */
-    private Float[] position;
+    private Position position;
     /**
      * 节点类型
      */

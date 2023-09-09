@@ -32,7 +32,7 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
         Assert.notNull(service);
         ServiceTask serviceTask = new ServiceTask();
         serviceTask.setId(node.getId());
-        serviceTask.setName(node.getName());
+        serviceTask.setName(node.getLabel());
         serviceTask.setImplementation(ExecuteServiceTask.class.getName());
         serviceTask.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
         //字段属性注入
@@ -41,7 +41,7 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
         fieldExtension.setStringValue(service.getName());
         serviceTask.setFieldExtensions(CollUtil.newArrayList(fieldExtension));
         //扩展属性注入
-        Map<String, Object> parameters = node.getParameters();
+        Map<String, Object> parameters = node.getData();
         if (MapUtil.isNotEmpty(parameters)) {
             parameters.forEach((key, value) -> Flows.addExtensionElement(serviceTask, key, value));
         }

@@ -16,7 +16,7 @@ public enum GatewayNodeConverter implements NodeConverter<ParallelGateway> {
     public ParallelGateway convert(Node node) {
         ParallelGateway parallelGateway = new ParallelGateway();
         parallelGateway.setId(node.getId());
-        parallelGateway.setName(node.getName());
+        parallelGateway.setName(node.getLabel());
         return parallelGateway;
     }
 }
