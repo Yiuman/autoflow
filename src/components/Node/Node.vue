@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ElementData, Node } from '@vue-flow/core'
+import type { ElementData, Node, NodeProps } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import {
   IconDelete,
@@ -20,30 +20,35 @@ interface ToolBarData {
   toolbarVisible: boolean
   toolbarPosition: Position
 }
-
-interface Props extends Node {
-  data: ElementData & ToolBarData
+export interface NodeEvents {
+  edit: (node: Props) => void
+  action: (node: Props) => void
+  stop: (node: Props) => void
 }
+export interface Props extends NodeProps<ElementData & ToolBarData, NodeEvents> {}
 
 const props = defineProps<Props>()
-const emits = defineEmits<{
-  (e: 'action', item: string): void
-  (e: 'stop', item: string): void
-}>()
 
 const [action, toggleAction] = useToggle(false)
 watch(action, () => {
   if (action) {
-    emits('action', props.id)
+    props.events.action(props)
   } else {
-    emits('stop', props.id)
+    props.events.action(props)
   }
 })
 
+/**
+ * 获取连接的处理器的类型（input\output）
+ * @param handle 连接处理器的ID
+ */
 function getHandleDirection(handle: string | null | undefined): string {
   return handle?.substring(handle?.lastIndexOf('-') + 1) ?? ''
 }
 
+/**
+ * 校验连接
+ */
 const validConnection: ValidConnectionFunc = (connection: Connection) => {
   return getHandleDirection(connection.sourceHandle) !== getHandleDirection(connection.targetHandle)
 }
@@ -51,23 +56,23 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
 const rgba = randomRgba(0.8)
 </script>
 <template>
-  <div class="node-renderer" :class="action ? 'node-action' : ''">
-    <div class="node-renderer-toolbar">
+  <div class="autoflow-node" :class="action ? 'node-action' : ''">
+    <div class="node-toolbar">
       <AButtonGroup size="mini">
-        <AButton @click="toggleAction()">
+        <AButton @click="toggleAction()" class="toolbar-btn">
           <template #icon>
-            <IconPauseCircleFill v-if="action" class="toolbar-btn toolbar-stop-btn" />
-            <IconPlayCircleFill v-else class="toolbar-btn toolbar-action-btn" />
+            <IconPauseCircleFill v-if="action" class="toolbar-stop-btn" />
+            <IconPlayCircleFill v-else class="toolbar-action-btn" />
           </template>
         </AButton>
-        <AButton>
+        <AButton class="toolbar-btn" @click="props.events.edit(props)">
           <template #icon>
-            <IconEdit class="toolbar-btn" />
+            <IconEdit />
           </template>
         </AButton>
-        <AButton @click="removeNodes(id)">
+        <AButton class="toolbar-btn toolbar-delete-btn" @click="removeNodes(id)">
           <template #icon>
-            <IconDelete class="toolbar-btn toolbar-delete-btn" />
+            <IconDelete />
           </template>
         </AButton>
       </AButtonGroup>
@@ -82,5 +87,5 @@ const rgba = randomRgba(0.8)
 </template>
 
 <style scoped lang="scss">
-@import 'node-renderer';
+@import 'node';
 </style>

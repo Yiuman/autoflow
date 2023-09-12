@@ -1,4 +1,4 @@
-.node-renderer {
+.autoflow-node {
   height: 80px;
   width: 80px;
   border-radius: 5px;
@@ -6,7 +6,7 @@
   border: 2px solid #eee;
 
   &:hover {
-    .node-renderer-toolbar {
+    .node-toolbar {
       display: block;
     }
   }
@@ -23,11 +23,11 @@
 }
 
 .selected {
-  .node-renderer {
+  .autoflow-node {
     box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
 
-  .node-renderer-toolbar {
+  .node-toolbar {
     display: block;
   }
 }
@@ -36,7 +36,7 @@
   font-size: 14px;
 }
 
-.node-renderer-toolbar {
+.node-toolbar {
   display: none;
   position: absolute;
   top: -27px;
@@ -45,10 +45,6 @@
 
   &:hover {
     cursor: pointer;
-  }
-
-  .toolbar-stop-btn {
-
   }
 
   .toolbar-delete-btn {

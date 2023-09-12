@@ -9,23 +9,39 @@ import {
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import NodeRenderer from '@/components/NodeRenderer/NodeRenderer.vue'
+import Node, { Props } from '@/components/Node/Node.vue'
 import { toFlow } from '@/utils/converter'
 import type { FileItem } from '@arco-design/web-vue'
 import type { Flow } from '@/types/flow'
+import FromRenderer, { Property } from '@/components/FromRenderer/FromRenderer.vue'
 
 const nodeTypes = {
-  service: markRaw(NodeRenderer)
+  service: markRaw(Node)
 }
 
-const elements = ref<Elements>([
-  { id: '1', type: 'service', label: 'Node 1', position: { x: 250, y: 5 }, class: 'light' },
-  { id: '2', type: 'service', label: 'Node 2', position: { x: 100, y: 100 }, class: 'light' },
-  { id: '3', type: 'service', label: 'Node 3', position: { x: 400, y: 100 }, class: 'light' },
-  { id: '4', type: 'service', label: 'Node 4', position: { x: 400, y: 200 }, class: 'light' },
-  { id: '5', type: 'service', label: 'Node 5', position: { x: 400, y: 200 }, class: 'light' },
-  { id: 'e1-2', source: '1', target: '2', animated: true, markerEnd: MarkerType.ArrowClosed },
-  { id: 'e1-3', source: '1', target: '3' }
+const nodeData = ref({})
+const [formVisible, toggleForm] = useToggle(false)
+
+const properties = ref<Property[]>([
+  { name: 'test_input', displayName: '测试输入', type: 'String' }
+])
+
+const defaultEditFunc = (node: Props) => {
+  nodeData.value = node.data
+  toggleForm()
+}
+
+const elements = ref([
+  {
+    id: '1',
+    type: 'service',
+    label: 'Node 1',
+    position: { x: 250, y: 5 },
+    class: 'light',
+    events: {
+      edit: defaultEditFunc
+    }
+  }
 ])
 
 const { onConnect, addEdges, getNodes, getEdges } = useVueFlow({
@@ -37,11 +53,7 @@ onConnect((param) => {
   addEdges({ ...param, markerEnd: MarkerType.ArrowClosed })
 })
 
-const dark = ref(false)
-
-function toggleClass() {
-  return (dark.value = !dark.value)
-}
+const [dark, toggleClass] = useToggle(false)
 
 function exportJson() {
   let link = document.createElement('a')
@@ -83,7 +95,7 @@ function importJson(fileList: FileItem[]): void {
         size="large"
       >
         <template #checked-icon>
-          <IconMoonFill style="color: yellow" />
+          <IconMoonFill style="color: orange" />
         </template>
         <template #unchecked-icon>
           <IconSunFill style="color: orange" />
@@ -106,6 +118,9 @@ function importJson(fileList: FileItem[]): void {
         </template>
       </AUpload>
     </Panel>
+    <AModal v-model:visible="formVisible">
+      <FromRenderer v-model="nodeData" :properties="properties" />
+    </AModal>
   </VueFlow>
 </template>
 
