@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2023/7/13
  */
 @Data
-public class File {
-    private byte[] binary;
+public class Binary {
+    private String base64;
     private String filename;
 }

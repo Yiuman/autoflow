@@ -1,5 +1,6 @@
 package io.autoflow.spi.model;
 
+import cn.hutool.core.lang.func.LambdaUtil;
 import com.alibaba.fastjson2.JSON;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -9,22 +10,18 @@ import com.typesafe.config.ConfigFactory;
  * @date 2023/7/11
  */
 public class ConfigProperty extends SimpleProperty {
-    private static final String NAME_ = "name";
-    private static final String TYPE_ = "type";
-    private static final String DISPLAY_NAME_ = "displayName";
-    private static final String DEFAULT_VALUE_ = "displayName";
-    private static final String OPTIONS_ = "displayName";
 
     public ConfigProperty(Config config) {
-        setName(config.getString(NAME_));
-        setType(config.getString(TYPE_));
-        setDisplayName(config.getString(DISPLAY_NAME_));
-        setDescription(config.getString(DISPLAY_NAME_));
-        setDefaultValue(config.getAnyRef(DEFAULT_VALUE_));
-        setOptions(JSON.parseArray(config.getString(OPTIONS_), Option.class));
+        setName(config.getString(LambdaUtil.getFieldName(SimpleProperty::getName)));
+        setType(config.getString(LambdaUtil.getFieldName(SimpleProperty::getType)));
+        setDisplayName(config.getString(LambdaUtil.getFieldName(SimpleProperty::getDisplayName)));
+        setDescription(config.getString(LambdaUtil.getFieldName(SimpleProperty::getDescription)));
+        setDefaultValue(config.getAnyRef(LambdaUtil.getFieldName(SimpleProperty::getDefaultValue)));
+        setOptions(JSON.parseArray(config.getString(LambdaUtil.getFieldName(SimpleProperty::getOptions)), Option.class));
     }
 
     public ConfigProperty(String configStr) {
         this(ConfigFactory.parseString(configStr));
     }
+
 }
