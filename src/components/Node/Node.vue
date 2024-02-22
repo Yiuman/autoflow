@@ -7,8 +7,8 @@ import {
   IconPauseCircleFill,
   IconEdit
 } from '@arco-design/web-vue/es/icon'
-import type { ValidConnectionFunc } from '@vue-flow/core/dist/types/handle'
-import { Connection } from '@vue-flow/core/dist/types/connection'
+import type { ValidConnectionFunc } from '@vue-flow/core'
+import type { Connection } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
