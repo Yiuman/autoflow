@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Elements } from '@vue-flow/core'
+import type { ElementData } from '@vue-flow/core'
 import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import {
   IconSunFill,
@@ -9,11 +9,11 @@ import {
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import Node, { Props } from '@/components/Node/Node.vue'
+import Node, { type Props } from '@/components/Node/Node.vue'
 import { toFlow } from '@/utils/converter'
 import type { FileItem } from '@arco-design/web-vue'
 import type { Flow } from '@/types/flow'
-import FromRenderer, { Property } from '@/components/FromRenderer/FromRenderer.vue'
+import FromRenderer, { type Property } from '@/components/FromRenderer/FromRenderer.vue'
 
 const nodeTypes = {
   service: markRaw(Node)
@@ -31,7 +31,7 @@ const defaultEditFunc = (node: Props) => {
   toggleForm()
 }
 
-const elements = ref([
+const elements:ElementData = ref([
   {
     id: '1',
     type: 'service',
@@ -68,32 +68,23 @@ function importJson(fileList: FileItem[]): void {
   reader.readAsText(fileItem.file as Blob)
   reader.onload = function () {
     const flowDefine: Flow = JSON.parse(reader.result as string)
+    const nodes= flowDefine.nodes || []
     const edges = flowDefine.connections?.map((connection) => ({
       ...connection,
       id: `e${connection.source}_${connection.target}`,
       markerEnd: MarkerType.ArrowClosed
-    }))
-    elements.value = [...flowDefine.nodes, ...edges]
+    })) ||[]
+    elements.value = [...nodes, ...edges]
   }
 }
 </script>
 
 <template>
   <VueFlow v-model="elements" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes">
-    <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" gap="8" />
+    <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
     <Controls />
-    <Panel
-      class="flow-designer-panel"
-      position="top-right"
-      style="display: flex; align-items: center"
-    >
-      <ASwitch
-        class="panel-item"
-        type="line"
-        @change="toggleClass"
-        checked-color="black"
-        size="large"
-      >
+    <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
+      <ASwitch class="panel-item" type="line" @change="(v) => toggleClass(v as boolean)" checked-color="black">
         <template #checked-icon>
           <IconMoonFill style="color: orange" />
         </template>

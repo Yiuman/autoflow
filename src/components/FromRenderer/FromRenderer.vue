@@ -25,7 +25,7 @@ const emits = defineEmits<{
   (e: 'update:value', item: Object): void
 }>()
 
-const form = computed({
+const form: Record<string, any> = computed({
   get() {
     return props.modelValue
   },
@@ -45,18 +45,9 @@ function getComponentName(property: Property) {
 <template>
   <div class="from-renderer">
     <AForm :model="form" :layout="props.layout">
-      <AFormItem
-        v-for="property in properties"
-        v-bind:key="property.name"
-        :field="property.name"
-        :label="property.displayName"
-        :tooltip="property.description"
-      >
-        <Component
-          :is="getComponentName(property)"
-          v-model="form[property.name]"
-          v-bind="property"
-        />
+      <AFormItem v-for="property in properties" v-bind:key="property.name" :field="property.name"
+        :label="property.displayName" :tooltip="property.description">
+        <Component :is="getComponentName(property)" v-model="form[property.name]" v-bind="property" />
       </AFormItem>
     </AForm>
   </div>

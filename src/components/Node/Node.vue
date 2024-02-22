@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ElementData, Node, NodeProps } from '@vue-flow/core'
+import type { ElementData,  NodeProps } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import {
   IconDelete,
