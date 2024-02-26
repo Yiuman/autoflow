@@ -2,8 +2,10 @@ package io.autoflow.plugin.http;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.OnceExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +15,7 @@ import java.util.List;
  * @author yiuman
  * @date 2023/7/13
  */
+@Slf4j
 class HttpRequestServiceTest {
 
     @Test
@@ -27,5 +30,6 @@ class HttpRequestServiceTest {
                 ArrayUtil.isNotEmpty(execute)
                         && StrUtil.isNotBlank(execute.get(0).getRaw())
         );
+        log.info(JSONUtil.toJsonStr(execute));
     }
 }

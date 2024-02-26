@@ -1,6 +1,6 @@
 package io.autoflow.spi.model;
 
-import com.alibaba.fastjson2.JSONObject;
+import cn.hutool.json.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

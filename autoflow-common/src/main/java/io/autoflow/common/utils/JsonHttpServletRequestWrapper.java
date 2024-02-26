@@ -3,9 +3,9 @@ package io.autoflow.common.utils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +46,7 @@ public class JsonHttpServletRequestWrapper extends HttpServletRequestWrapper {
             return;
         }
 
-        parsedObject = JSON.parse(bytes);
+        parsedObject = JSONUtil.parse(bytes);
     }
 
     public List<?> getArray() {

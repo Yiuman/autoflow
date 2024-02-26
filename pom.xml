@@ -25,11 +25,10 @@
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
 
-        <hutool.version>5.8.20</hutool.version>
+        <hutool.version>5.8.25</hutool.version>
         <spring-boot.version>3.1.1</spring-boot.version>
         <lombok.version>1.18.24</lombok.version>
         <typesafe-config.version>1.4.2</typesafe-config.version>
-        <fastjson2.version>2.0.12</fastjson2.version>
         <qlexpress.version>3.3.1</qlexpress.version>
         <aviator.version>5.3.3</aviator.version>
         <flowable.version>7.0.0.M1</flowable.version>

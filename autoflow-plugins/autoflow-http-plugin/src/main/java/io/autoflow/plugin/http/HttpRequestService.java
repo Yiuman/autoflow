@@ -6,6 +6,7 @@ import cn.hutool.core.net.url.UrlQuery;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.ExecutionData;
 
@@ -35,9 +36,12 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
         HttpRequest request = HttpUtil.createRequest(httpRequestParameter.getMethod(), url);
         request.addHeaders(httpRequestParameter.getHeaders());
         try (HttpResponse response = request.execute()) {
+            String body = response.body();
+            boolean typeJSON = JSONUtil.isTypeJSON(body);
             //todo 根据不同的响应类型作处理
             return CollUtil.newArrayList(ExecutionData.builder()
-                    .raw(response.body())
+                    .raw(body)
+                    .json(typeJSON ? null : JSONUtil.parseObj(typeJSON))
                     .build());
         }
     }
