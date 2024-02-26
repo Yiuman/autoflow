@@ -26,7 +26,7 @@ public final class PropertyUtils {
             simpleProperty.setName(field.getName());
             simpleProperty.setType(type.getSimpleName());
             if (!ClassUtil.isBasicType(type)) {
-                simpleProperty.setType("Object");
+                simpleProperty.setType(Object.class.getSimpleName());
                 simpleProperty.setProperties(buildProperty(type));
             }
 

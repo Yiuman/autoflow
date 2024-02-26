@@ -11,5 +11,4 @@ public class Option {
     private String name;
     private Object value;
     private String description;
-
 }

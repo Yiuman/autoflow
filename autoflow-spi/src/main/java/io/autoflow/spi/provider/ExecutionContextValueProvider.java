@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * 执行器上下文值提供器
+ * 用于将上下文中的变量值/表达式解释后填充到对象
+ *
  * @author yiuman
  * @date 2023/7/27
  */
