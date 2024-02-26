@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 @Getter
 public enum RegexMethod {
+    split(p -> p.getContent().split(p.getRegex())),
     findAll(p -> ReUtil.replaceAll(p.getContent(), p.getRegex(), p.getReplace())),
     findFirst(p -> {
         Pattern pattern = Pattern.compile(p.getRegex());
