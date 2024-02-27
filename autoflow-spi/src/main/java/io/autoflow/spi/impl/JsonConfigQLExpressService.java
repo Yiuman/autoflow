@@ -3,8 +3,8 @@ package io.autoflow.spi.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
 import io.autoflow.spi.Service;
@@ -44,27 +44,27 @@ public abstract class JsonConfigQLExpressService implements Service {
     }
 
     public JsonConfigQLExpressService(String json, ExpressRunner expressRunner) throws Exception {
-        this.jsonObject = JSON.parseObject(json);
+        this.jsonObject = JSONUtil.parseObj(json);
         this.expressRunner = expressRunner;
         Assert.notBlank(getName());
-        String expressString = jsonObject.getString(EXPRESS);
+        String expressString = jsonObject.getStr(EXPRESS);
         Assert.notBlank(expressString);
         instructionSet = expressRunner.parseInstructionSet(expressString);
     }
 
     @Override
     public String getName() {
-        return jsonObject.getString(NAME);
+        return jsonObject.getStr(NAME);
     }
 
     @Override
     public List<Property> getProperties() {
-        return jsonObject.getList(PROPERTIES, Property.class);
+        return jsonObject.getBeanList(PROPERTIES, Property.class);
     }
 
     @Override
     public String getDescription() {
-        return jsonObject.getString(DESCRIPTION);
+        return jsonObject.getStr(DESCRIPTION);
     }
 
     @Override
@@ -84,9 +84,9 @@ public abstract class JsonConfigQLExpressService implements Service {
         ExecutionData executionData = new ExecutionData();
         if (Objects.nonNull(expressResult)) {
             try {
-                String jsonString = JSON.toJSONString(expressResult);
+                String jsonString = JSONUtil.toJsonStr(expressResult);
                 executionData.setRaw(jsonString);
-                executionData.setJson(JSON.parseObject(jsonString));
+                executionData.setJson(JSONUtil.parseObj(jsonString));
             } catch (Throwable throwable) {
                 executionData.setRaw(expressResult.toString());
             }

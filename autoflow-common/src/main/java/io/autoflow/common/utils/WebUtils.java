@@ -1,10 +1,14 @@
 package io.autoflow.common.utils;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ByteUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Page;
 import cn.hutool.extra.spring.SpringUtil;
-import com.alibaba.fastjson2.JSON;
+import cn.hutool.json.JSONUtil;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -213,7 +217,7 @@ public final class WebUtils {
                 } else {
                     ServletInputStream inputStream = request.getInputStream();
                     if (!inputStream.isFinished()) {
-                        T realT = (T) JSON.parseObject(inputStream.readAllBytes(), object.getClass());
+                        T realT = (T) JSONUtil.toBean(IoUtil.readUtf8(inputStream), object.getClass());
                         BeanUtils.copyProperties(realT, object);
                     }
 
@@ -255,7 +259,7 @@ public final class WebUtils {
      */
     public static String getIpAddress(HttpServletRequest request) {
         String ip = request.getHeader(IpHeaders.X_FORWARDED_FOR);
-        final Predicate<String> ipPredicate = ip1 -> ip1 == null || ip1.length() == 0 || IpHeaders.UNKNOWN.equalsIgnoreCase(ip1);
+        final Predicate<String> ipPredicate = ip1 -> ip1 == null || ip1.isEmpty() || IpHeaders.UNKNOWN.equalsIgnoreCase(ip1);
         if (ipPredicate.test(ip)) {
             ip = request.getHeader(IpHeaders.PROXY_CLIENT_IP);
         }
@@ -275,7 +279,7 @@ public final class WebUtils {
     }
 
     public static String getClientIpAddress() {
-        return getIpAddress(WebUtils.getRequest());
+        return getIpAddress(Objects.requireNonNull(WebUtils.getRequest()));
     }
 
     /**
@@ -368,9 +372,10 @@ public final class WebUtils {
             beanPath = CollUtil.getFirst(sourcePaths);
         }
 
+        assert beanPath != null;
         String combinePath = requestMappingHandlerMapping
                 .getPathMatcher()
-                .combine(beanPath, getAnnotatedElementMapping(handlerHandler.getMethod()));
+                .combine(beanPath, Objects.requireNonNull(getAnnotatedElementMapping(handlerHandler.getMethod())));
         if (StringUtils.hasLength(combinePath) && !combinePath.startsWith(slash)) {
             combinePath = slash + combinePath;
         }
