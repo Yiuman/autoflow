@@ -18,4 +18,11 @@ public class ExecutionData {
     private JSONObject json;
     private String raw;
     private Binary binary;
+    private Error error;
+
+    public static ExecutionData error(String serviceName, Throwable throwable) {
+        return ExecutionData.builder()
+                .error(Error.builder().node(serviceName).message(throwable.getMessage()).build())
+                .build();
+    }
 }

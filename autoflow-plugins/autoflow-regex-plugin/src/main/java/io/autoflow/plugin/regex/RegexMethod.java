@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 @Getter
 public enum RegexMethod {
     split(p -> p.getContent().split(p.getRegex())),
-    findAll(p -> ReUtil.replaceAll(p.getContent(), p.getRegex(), p.getReplace())),
+    findAll(p -> ReUtil.findAllGroup0(p.getRegex(), p.getContent())),
     findFirst(p -> {
         Pattern pattern = Pattern.compile(p.getRegex());
         Matcher matcher = pattern.matcher(p.getContent());

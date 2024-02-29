@@ -19,13 +19,26 @@ import java.util.List;
 class HttpRequestServiceTest {
 
     @Test
-    public void testHttpService() {
+    public void testRequestHtml() {
         HttpRequestService httpRequestService = new HttpRequestService();
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/");
 
         List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
 
+        Assertions.assertTrue(
+                ArrayUtil.isNotEmpty(execute)
+                        && StrUtil.isNotBlank(execute.get(0).getRaw())
+        );
+        log.info(JSONUtil.toJsonStr(execute));
+    }
+
+    @Test
+    public void testRequestFile() {
+        HttpRequestService httpRequestService = new HttpRequestService();
+        HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
+        httpRequestParameter.setUrl("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png");
+        List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)
                         && StrUtil.isNotBlank(execute.get(0).getRaw())
