@@ -1,6 +1,6 @@
 package io.autoflow.spi.model;
 
-import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExecutionData {
-    private JSONObject json;
+    private JSON json;
     private String raw;
     private Binary binary;
     private Error error;

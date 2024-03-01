@@ -22,7 +22,6 @@ import java.util.List;
  * @date 2023/7/11
  */
 public class HttpRequestService extends BaseService<HttpRequestParameter> {
-    private static final String DISPOSITION_FILENAME_MATCH = "filename=";
 
     @Override
     public String getName() {

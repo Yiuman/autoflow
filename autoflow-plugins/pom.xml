@@ -15,6 +15,7 @@
         <module>autoflow-http-plugin</module>
         <module>autoflow-all-plugin</module>
         <module>autoflow-regex-plugin</module>
+        <module>autoflow-sql-plugin</module>
     </modules>
 
     <properties>

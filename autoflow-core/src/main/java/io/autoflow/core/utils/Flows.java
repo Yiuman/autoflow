@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
+import cn.hutool.json.JSONUtil;
 import io.autoflow.core.model.Connection;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
@@ -51,7 +51,7 @@ public final class Flows {
      * @return Bpmn模型
      */
     public static BpmnModel convert(String jsonStr) {
-        return convert(JSON.parseObject(jsonStr, Flow.class));
+        return convert(JSONUtil.toBean(jsonStr, Flow.class));
     }
 
     /**
@@ -117,7 +117,7 @@ public final class Flows {
         process.setId(flow.getId());
         process.setName(flow.getName());
         process.setDocumentation(flow.getDescription());
-        addExtensionElement(process, AUTOFLOW_JSON, JSON.toJSONString(flow));
+        addExtensionElement(process, AUTOFLOW_JSON, JSONUtil.toJsonStr(flow));
         return process;
     }
 
