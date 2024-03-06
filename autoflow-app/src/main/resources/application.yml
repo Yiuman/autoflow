@@ -18,9 +18,6 @@ spring:
     url: ${DATASOURCE_URL:jdbc:h2:file:~/.h2/test}
     username: root
     password:
-#mybatis-plus相关
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 
 

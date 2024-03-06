@@ -25,5 +25,17 @@
             <artifactId>autoflow-http-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-regex-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-sql-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

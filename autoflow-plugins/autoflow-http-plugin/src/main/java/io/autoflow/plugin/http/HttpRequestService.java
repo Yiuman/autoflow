@@ -28,11 +28,6 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
         return "HTTP";
     }
 
-    @Override
-    public String getDescription() {
-        return "";
-    }
-
     private static String extractFilename(String contentDisposition) {
         if (StrUtil.isBlank(contentDisposition)) {
             return null;

@@ -29,11 +29,6 @@ public class SqlService extends BaseService<SqlParameter> {
     }
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public List<ExecutionData> execute(SqlParameter sqlParameter) {
         try {
             Setting setting = Setting.create();

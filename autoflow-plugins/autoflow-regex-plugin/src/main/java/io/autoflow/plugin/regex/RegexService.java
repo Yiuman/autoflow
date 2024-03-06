@@ -17,11 +17,6 @@ public class RegexService extends BaseService<RegexParameter> {
     }
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public List<ExecutionData> execute(RegexParameter regexParameter) {
         Object result = regexParameter.getMethod().getFunc().apply(regexParameter);
         JSONObject jsonObject = JSONUtil.createObj();

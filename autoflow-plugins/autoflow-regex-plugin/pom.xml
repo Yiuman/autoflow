@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.autoflow</groupId>
         <artifactId>autoflow-plugins</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>autoflow-regex-plugin</artifactId>

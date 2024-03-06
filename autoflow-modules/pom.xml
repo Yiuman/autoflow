@@ -6,11 +6,12 @@
     <parent>
         <groupId>io.autoflow</groupId>
         <artifactId>root</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>autoflow-modules</artifactId>
     <packaging>pom</packaging>
+    <version>${revision}</version>
     <modules>
         <module>autoflow-user</module>
         <module>autoflow-user/autoflow-user-api</module>
