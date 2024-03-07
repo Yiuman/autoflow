@@ -2,16 +2,16 @@
 export interface Option {
   name: string
   value: Object
-  description?: string
+  description?: string | null
 }
 export interface Property {
   type: string
   name: string
-  displayName?: string
-  description?: string
-  defaultValue?: any
-  options?: Option[]
-  properties?: Property[]
+  displayName?: string | null
+  description?: string | null
+  defaultValue?: any | null
+  options?: Option[] | null
+  properties?: Property[] | null
 }
 export interface FormProps {
   modelValue: Object
@@ -37,6 +37,10 @@ const form = computed({
 function getComponentName(property: Property) {
   if (!property.type || property.type == 'String') {
     return 'AInput'
+  }
+
+  if (property.options) {
+    return 'ASelect'
   }
 
   return 'ASwitch'
