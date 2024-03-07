@@ -1,0 +1,55 @@
+{
+    "nodes": [
+        {
+            "id": "1",
+            "label": "Node 1",
+            "serviceName": "",
+            "type": "service",
+            "position": {
+                "x": 487,
+                "y": 259
+            },
+            "data": {}
+        },
+        {
+            "id": "2",
+            "label": "Node 2",
+            "serviceName": "",
+            "type": "service",
+            "position": {
+                "x": 771,
+                "y": 144
+            },
+            "data": {}
+        },
+        {
+            "id": "3",
+            "label": "Node 3",
+            "serviceName": "",
+            "type": "service",
+            "position": {
+                "x": 778,
+                "y": 331
+            },
+            "data": {}
+        }
+    ],
+    "connections": [
+        {
+            "source": "1",
+            "target": "2",
+            "sourceX": 578,
+            "sourceY": 301,
+            "targetX": 768,
+            "targetY": 186
+        },
+        {
+            "source": "1",
+            "target": "3",
+            "sourceX": 578,
+            "sourceY": 301,
+            "targetX": 775,
+            "targetY": 373
+        }
+    ]
+}

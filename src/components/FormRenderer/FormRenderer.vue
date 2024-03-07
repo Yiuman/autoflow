@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MapEditor from '@/components/MapEditor/MapEditor.vue'
 export interface Option {
   name: string
   value: Object
@@ -14,9 +15,9 @@ export interface Property {
   properties?: Property[] | null
 }
 export interface FormProps {
-  modelValue: Object
+  modelValue?: Object
   layout?: 'inline' | 'horizontal' | 'vertical'
-  properties: Property[]
+  properties?: Property[]
 }
 const props = withDefaults(defineProps<FormProps>(), {
   layout: 'vertical'
@@ -25,11 +26,11 @@ const emits = defineEmits<{
   (e: 'update:value', item: Object): void
 }>()
 
-const form = computed({
+const form = computed<any>({
   get() {
     return props.modelValue
   },
-  set(value) {
+  set(value: Object) {
     emits('update:value', value)
   }
 })
@@ -43,6 +44,10 @@ function getComponentName(property: Property) {
     return 'ASelect'
   }
 
+  if(property.type==='Map'){
+    return MapEditor
+  }
+
   return 'ASwitch'
 }
 </script>
@@ -53,8 +58,8 @@ function getComponentName(property: Property) {
         v-for="property in properties"
         v-bind:key="property.name"
         :field="property.name"
-        :label="property.displayName"
-        :tooltip="property.description"
+        :label="property.displayName || property.name"
+        :tooltip="property.description || undefined"
       >
         <Component
           :is="getComponentName(property)"

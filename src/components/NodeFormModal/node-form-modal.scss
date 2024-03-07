@@ -1,0 +1,17 @@
+.node-form-modal {
+    .arco-modal-body {
+        overflow: visible;
+        padding: 2px;
+    }
+
+    .node-form-model-desc{
+        position:absolute;
+    }
+}
+
+.node-form-modal-btn{
+    position: absolute;
+    top: 8px;
+    right: -32px;
+    z-index: 1;
+}

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { Elements } from '@vue-flow/core'
-import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
+import type { Node, Edge } from '@vue-flow/core'
+import { Panel, VueFlow, useVueFlow, MarkerType, type ElementData } from '@vue-flow/core'
 import {
   IconSunFill,
   IconMoonFill,
@@ -9,51 +9,133 @@ import {
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import Node, { Props } from '@/components/Node/Node.vue'
 import { toFlow } from '@/utils/converter'
+import ServiceNode, {
+  type NodeAction,
+  type Props,
+  type ToolBarData
+} from '@/components/ServiceNode/SeviceNode.vue'
 import type { FileItem } from '@arco-design/web-vue'
 import type { Flow } from '@/types/flow'
-import FromRenderer, { Property } from '@/components/FromRenderer/FromRenderer.vue'
-
+import { type Property } from '@/components/FormRenderer/FormRenderer.vue'
+import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
+import json from './defaultFlow.json'
+import { computed } from 'vue'
 const nodeTypes = {
-  service: markRaw(Node)
+  service: markRaw(ServiceNode)
 }
 
-const nodeData = ref({})
+const nodes = ref<Node<ElementData & ToolBarData, NodeAction>[]>()
+const edges = ref<Edge[]>()
+const selectedNodeId = ref<string>();
 const [formVisible, toggleForm] = useToggle(false)
-
+const [dark, toggleClass] = useToggle(false)
 const properties = ref<Property[]>([
-  { name: 'test_input', displayName: '测试输入', type: 'String' }
-])
+  {
+    type: 'Map',
+    name: 'headers',
+    displayName: null,
+    description: null,
+    defaultValue: null,
+    options: null,
+    properties: null
+  },
+  {
+    type: 'String',
+    name: 'url',
+    displayName: null,
+    description: null,
+    defaultValue: null,
+    options: null,
+    properties: null
+  },
+  {
+    type: 'Method',
+    name: 'method',
+    displayName: null,
+    description: null,
+    defaultValue: null,
+    options: [
+      {
+        name: 'GET',
+        value: 'GET',
+        description: null
+      },
+      {
+        name: 'POST',
+        value: 'POST',
+        description: null
+      },
+      {
+        name: 'HEAD',
+        value: 'HEAD',
+        description: null
+      },
+      {
+        name: 'OPTIONS',
+        value: 'OPTIONS',
+        description: null
+      },
+      {
+        name: 'PUT',
+        value: 'PUT',
+        description: null
+      },
+      {
+        name: 'DELETE',
+        value: 'DELETE',
+        description: null
+      },
+      {
+        name: 'TRACE',
+        value: 'TRACE',
+        description: null
+      },
+      {
+        name: 'CONNECT',
+        value: 'CONNECT',
+        description: null
+      },
+      {
+        name: 'PATCH',
+        value: 'PATCH',
+        description: null
+      }
+    ],
+    properties: null
+  },
+  {
+    type: 'Map',
+    name: 'params',
+    displayName: null,
+    description: null,
+    defaultValue: null,
+    options: null,
+    properties: null
+  }])
+
 
 const defaultEditFunc = (node: Props) => {
-  nodeData.value = node.data
+  selectedNodeId.value = node.id
   toggleForm()
 }
 
-const elements = ref([
-  {
-    id: '1',
-    type: 'service',
-    label: 'Node 1',
-    position: { x: 250, y: 5 },
-    class: 'light',
-    events: {
-      edit: defaultEditFunc
-    }
-  }
-])
+const defaultEvents = {
+  edit: defaultEditFunc
+}
 
-const { onConnect, addEdges, getNodes, getEdges } = useVueFlow({
+const { onConnect, addEdges, getNodes, getEdges, findNode } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
+
+
+const selectedNode = computed(() => findNode(selectedNodeId.value))
 
 onConnect((param) => {
   addEdges({ ...param, markerEnd: MarkerType.ArrowClosed })
 })
 
-const [dark, toggleClass] = useToggle(false)
 
 function exportJson() {
   let link = document.createElement('a')
@@ -67,48 +149,50 @@ function importJson(fileList: FileItem[]): void {
   const fileItem = fileList[0]
   reader.readAsText(fileItem.file as Blob)
   reader.onload = function () {
-    const flowDefine: Flow = JSON.parse(reader.result as string)
-    const edges = flowDefine.connections?.map((connection) => ({
-      ...connection,
-      id: `e${connection.source}_${connection.target}`,
-      markerEnd: MarkerType.ArrowClosed
-    }))
-    elements.value = [...flowDefine.nodes, ...edges]
+    doParseJson(reader.result as string)
   }
 }
+
+function doParseJson(json: string) {
+  const flowDefine: Flow = JSON.parse(json)
+  const flowNodes = flowDefine.nodes as Node<ElementData & ToolBarData, NodeAction>[];
+  nodes.value = flowNodes.map(node => ({ ...node, events: defaultEvents }))
+  edges.value = flowDefine.connections?.map((connection) => ({
+    ...connection,
+    id: `e${connection.source}_${connection.target}`,
+    markerEnd: MarkerType.ArrowClosed
+  })) as Edge[]
+}
+
+onMounted(() => {
+  doParseJson(JSON.stringify(json));
+})
 </script>
 
 <template>
-  <VueFlow v-model="elements" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes">
-    <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" gap="8" />
+  <VueFlow :nodes="nodes" :edges="edges" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes">
+    <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
     <Controls />
-    <Panel
-      class="flow-designer-panel"
-      position="top-right"
-      style="display: flex; align-items: center"
-    >
-      <ASwitch
-        class="panel-item"
-        type="line"
-        @change="toggleClass"
-        checked-color="black"
-        size="large"
-      >
+    <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
+      <ASwitch class="panel-item" type="line" @change="() => toggleClass()" checked-color="black" size="medium">
         <template #checked-icon>
           <IconMoonFill style="color: orange" />
         </template>
+
         <template #unchecked-icon>
           <IconSunFill style="color: orange" />
         </template>
       </ASwitch>
       <ADivider direction="vertical" margin="5px" />
       <AButton class="panel-item" type="text" @click="exportJson">
+
         <template #icon>
           <IconCloudDownload size="22px" />
         </template>
       </AButton>
       <ADivider direction="vertical" margin="5px" />
       <AUpload class="panel-item" @change="importJson" :auto-upload="false" :show-file-list="false">
+
         <template #upload-button>
           <AButton class="panel-item" type="text">
             <template #icon>
@@ -118,9 +202,7 @@ function importJson(fileList: FileItem[]): void {
         </template>
       </AUpload>
     </Panel>
-    <AModal v-model:visible="formVisible">
-      <FromRenderer v-model="nodeData" :properties="properties" />
-    </AModal>
+    <NodeFormModel v-if="selectedNode" v-model="selectedNode" v-model:visible="formVisible" :properties="properties" />
   </VueFlow>
 </template>
 
