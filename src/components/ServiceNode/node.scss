@@ -7,9 +7,11 @@
 
   &:hover {
     .node-toolbar {
-      display: block;
+      opacity: 1;
+      transition-delay: 0s;
     }
   }
+
 }
 
 .node-action {
@@ -37,11 +39,12 @@
 }
 
 .node-toolbar {
-  display: none;
   position: absolute;
-  top: -27px;
+  top: -26px;
   right: 1px;
   z-index: 1;
+  transition: 0.5s;
+  opacity: 0;
 
   &:hover {
     cursor: pointer;

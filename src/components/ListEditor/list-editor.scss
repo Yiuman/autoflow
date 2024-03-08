@@ -1,12 +1,22 @@
-.list-editor{
+.list-editor {
     width: 100%;
+
     .list-editor-cell {
-        .arco-table-cell{
+        .arco-table-cell {
             padding: 2px 1px !important;
         }
     }
 
-    .list-editor-add{
-        text-align:center;
+    .list-editor-add-btn {
+        text-align: left;
+        margin-top: 5px;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .list-editor-del-btn:hover {
+        cursor: pointer;
     }
 }

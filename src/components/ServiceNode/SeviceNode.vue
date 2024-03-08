@@ -67,13 +67,11 @@ const rgba = randomRgba(0.8)
           </template>
         </AButton>
         <AButton class="toolbar-btn" @click="props.events.edit(props)">
-
           <template #icon>
             <IconEdit />
           </template>
         </AButton>
         <AButton class="toolbar-btn toolbar-delete-btn" @click="removeNodes(id)">
-
           <template #icon>
             <IconDelete />
           </template>

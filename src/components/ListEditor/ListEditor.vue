@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TableColumnData } from '@arco-design/web-vue';
-import { IconDelete, IconPlusCircleFill } from '@arco-design/web-vue/es/icon'
+import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
 
 interface ListEditorProps {
     columns: TableColumnData[]
@@ -70,13 +70,18 @@ function doEmitChange(record: Record<string, any>, val: string) {
                 </ATableColumn>
                 <ATableColumn align="center" title="" cellClass="list-editor-cell map-editor-opt-cell">
                     <template #cell="{ record }">
-                        <IconDelete :size="15" @click="() => deleteRecord(record)" />
+                        <IconDelete class="list-editor-del-btn" :size="15" @click="() => deleteRecord(record)" />
                     </template>
                 </ATableColumn>
             </template>
         </ATable>
-        <div class="list-editor-add">
-            <IconPlusCircleFill @click="() => addRecord()" />
+        <div class="list-editor-add-btn">
+            <AButton size="mini" @click="() => addRecord()">
+                <template #icon>
+                    <IconPlus/>
+                </template>
+             </AButton>
+            <!-- <IconPlusCircle :size="20" @click="() => addRecord()" /> -->
         </div>
     </div>
 </template>

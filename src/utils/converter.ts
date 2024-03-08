@@ -1,32 +1,30 @@
-// @ts-ignore
-import type { GraphEdge } from '@vue-flow/core/dist/types/edge'
-// @ts-ignore
-import type { GraphNode } from '@vue-flow/core/dist/types/node'
-import type { Flow, Connection, Node } from '@/types/flow'
+import { MarkerType, type GraphEdge, type Node as FlowNode } from '@vue-flow/core'
+
+import type { Flow, Connection, Node, } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
 
-export function toNode(graphNode: GraphNode): Node {
+export function toNode(graphNode: FlowNode): Node {
   const position = graphNode.position
-  const parameters= graphNode.data.parameters || {};
-  const serviceName= graphNode.data.serviceName || '';
+  const parameters = graphNode.data.parameters || {};
+  const serviceName = graphNode.data.serviceName || '';
   return {
     id: graphNode.id,
-    label: graphNode.label,
+    label: graphNode.label as string,
     serviceName: serviceName,
-    type: graphNode.type,
+    type: graphNode.type as string,
     position: { ...position },
     data: parameters
   }
 }
 
-export function toGraphNode(node:Node):GraphNode{
-  const nodeData:Record<string,any> =  {};
+export function toGraphNode(node: Node): FlowNode {
+  const nodeData: Record<string, any> = {};
   nodeData.serviceName = node.serviceName
   nodeData.parameters = node.data
   return {
     ...node,
-    data:nodeData
-  }
+    data: nodeData
+  } 
 }
 
 export function toConnect(edge: GraphEdge): Connection {
@@ -40,13 +38,15 @@ export function toConnect(edge: GraphEdge): Connection {
   }
 }
 
-export function toGraphEdge(connect:Connection):GraphEdge{
+export function toGraphEdge(connection: Connection): GraphEdge {
   return {
-   ...connect
-  }
+    ...connection,
+    id: `e${connection.source}_${connection.target}`,
+    markerEnd: MarkerType.ArrowClosed,
+  } as GraphEdge
 }
 
-export function toFlow(nodes: GraphNode[], edges: GraphEdge[]): Flow {
+export function toFlow(nodes: FlowNode[], edges: GraphEdge[]): Flow {
   const buildUUID = uuid(32)
   return {
     id: buildUUID,
