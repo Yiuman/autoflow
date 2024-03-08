@@ -3,7 +3,7 @@
         {
             "id": "1",
             "label": "Node 1",
-            "serviceName": "",
+            "serviceName": "HTTP",
             "type": "service",
             "position": {
                 "x": 487,
@@ -14,7 +14,7 @@
         {
             "id": "2",
             "label": "Node 2",
-            "serviceName": "",
+            "serviceName": "Regex",
             "type": "service",
             "position": {
                 "x": 771,
@@ -25,7 +25,7 @@
         {
             "id": "3",
             "label": "Node 3",
-            "serviceName": "",
+            "serviceName": "SQL",
             "type": "service",
             "position": {
                 "x": 778,

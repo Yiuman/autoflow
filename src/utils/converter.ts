@@ -7,13 +7,25 @@ import { uuid } from '@/utils/util-func'
 
 export function toNode(graphNode: GraphNode): Node {
   const position = graphNode.position
+  const parameters= graphNode.data.parameters || {};
+  const serviceName= graphNode.data.serviceName || '';
   return {
     id: graphNode.id,
     label: graphNode.label,
-    serviceName: '',
+    serviceName: serviceName,
     type: graphNode.type,
     position: { ...position },
-    data: graphNode.data
+    data: parameters
+  }
+}
+
+export function toGraphNode(node:Node):GraphNode{
+  const nodeData:Record<string,any> =  {};
+  nodeData.serviceName = node.serviceName
+  nodeData.parameters = node.data
+  return {
+    ...node,
+    data:nodeData
   }
 }
 
@@ -25,6 +37,12 @@ export function toConnect(edge: GraphEdge): Connection {
     sourceY: edge.sourceY,
     targetX: edge.targetX,
     targetY: edge.targetY
+  }
+}
+
+export function toGraphEdge(connect:Connection):GraphEdge{
+  return {
+   ...connect
   }
 }
 

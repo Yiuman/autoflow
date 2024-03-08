@@ -4,9 +4,12 @@ import {
   IconCloseCircleFill
 } from '@arco-design/web-vue/es/icon'
 import type { Node } from '@vue-flow/core';
+import { MdPreview } from 'md-editor-v3';
+import 'md-editor-v3/lib/style.css';
 interface Props {
-  visible?: boolean
   modelValue: Node
+  description?: string
+  visible?: boolean
   properties?: Property[]
 }
 
@@ -19,7 +22,7 @@ const props = defineProps<Props>()
 
 const nodeData = computed({
   get() {
-    return props.modelValue.data
+    return props.modelValue.data?.parameters
   },
   set(value) {
     emits('update:modelValue', {
@@ -48,10 +51,8 @@ function doClose() {
   <AModal class="node-form-modal" :align-center="false" :visible="modalVisible" :top="'100px'" :hide-title="true" :footer="false"
     :closable="true">
     <div class="node-form-modal-body">
-      <div class="node-form-model-desc">
-        {{ props.modelValue?.label }}
-      </div>
       <div class="node-form-modal-btn">
+        <!-- 按钮 -->
         <AButtonGroup type="primary" status="warning">
           <AButton @click="() => doClose()">
             <template #icon>
@@ -60,18 +61,20 @@ function doClose() {
           </AButton>
         </AButtonGroup>
       </div>
-      <ASplit style="height: calc(100vh - 50px)">
 
-        <template #first>
-          <div style="padding: 5px">
+      <div class="node-form-model-desc">
+        {{ props.modelValue.data.serviceName }}
+        <ATabs>
+          <ATabPane key="1" title="Parameters">
+            <div style="padding: 5px">
             <FromRenderer v-model="nodeData" :properties="props.properties" />
           </div>
-        </template>
-
-        <template #second>
-          <div>content</div>
-        </template>
-      </ASplit>
+          </ATabPane>
+          <ATabPane key="2" title="Doc" v-if="props.description">
+            <MdPreview :modelValue="props.description"/>
+          </ATabPane>
+        </ATabs>
+      </div>
     </div>
   </AModal>
 </template>

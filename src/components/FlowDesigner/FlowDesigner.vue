@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Node, Edge } from '@vue-flow/core'
+import { toGraphNode, toGraphEdge } from '@/utils/converter'
 import { Panel, VueFlow, useVueFlow, MarkerType, type ElementData } from '@vue-flow/core'
 import {
   IconSunFill,
@@ -54,7 +55,7 @@ const properties = ref<Property[]>([
     name: 'method',
     displayName: null,
     description: null,
-    defaultValue: null,
+    defaultValue: 'GET',
     options: [
       {
         name: 'GET',
@@ -120,8 +121,13 @@ const defaultEditFunc = (node: Props) => {
   toggleForm()
 }
 
+function defaultRun(){
+
+}
+
 const defaultEvents = {
-  edit: defaultEditFunc
+  edit: defaultEditFunc,
+  run: defaultRun
 }
 
 const { onConnect, addEdges, getNodes, getEdges, findNode } = useVueFlow({
@@ -129,13 +135,11 @@ const { onConnect, addEdges, getNodes, getEdges, findNode } = useVueFlow({
   maxZoom: 4
 })
 
-
 const selectedNode = computed(() => findNode(selectedNodeId.value))
 
 onConnect((param) => {
   addEdges({ ...param, markerEnd: MarkerType.ArrowClosed })
 })
-
 
 function exportJson() {
   let link = document.createElement('a')
@@ -155,13 +159,9 @@ function importJson(fileList: FileItem[]): void {
 
 function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
-  const flowNodes = flowDefine.nodes as Node<ElementData & ToolBarData, NodeAction>[];
-  nodes.value = flowNodes.map(node => ({ ...node, events: defaultEvents }))
-  edges.value = flowDefine.connections?.map((connection) => ({
-    ...connection,
-    id: `e${connection.source}_${connection.target}`,
-    markerEnd: MarkerType.ArrowClosed
-  })) as Edge[]
+  const flowNodes = flowDefine.nodes;
+  nodes.value = flowNodes?.map(node => ({ ...toGraphNode(node), events: defaultEvents }))
+  edges.value = flowDefine.connections?.map((connection) => ({ ...toGraphEdge(connection) }))
 }
 
 onMounted(() => {
@@ -202,7 +202,8 @@ onMounted(() => {
         </template>
       </AUpload>
     </Panel>
-    <NodeFormModel v-if="selectedNode" v-model="selectedNode" v-model:visible="formVisible" :properties="properties" />
+    <NodeFormModel v-if="selectedNode" v-model="selectedNode" v-model:visible="formVisible" :properties="properties"
+      :description="'## HTTP Request'" />
   </VueFlow>
 </template>
 

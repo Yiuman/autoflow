@@ -18,6 +18,8 @@
     "@vue-flow/minimap": "^1.4.0",
     "@vue-flow/node-resizer": "^1.3.6",
     "@vue-flow/node-toolbar": "^1.1.0",
+    "lodash": "^4.17.21",
+    "md-editor-v3": "^4.12.1",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"

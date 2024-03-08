@@ -1,9 +1,12 @@
 <script setup lang="ts">
-
 interface MapEditorProps {
-    modelValue: Record<string, any> | undefined
+    modelValue: KeyValue[]
 }
-const props = withDefaults(defineProps<MapEditorProps>(), {});
+
+// import { concat, isArray } from 'lodash'
+const props = withDefaults(defineProps<MapEditorProps>(), {
+    modelValue: () => [{ dataKey: '', dataValue: '' }]
+});
 const emits = defineEmits<{
     (e: 'update:modelValue', item: Record<string, any>): void
 }>()
@@ -13,42 +16,51 @@ interface KeyValue {
     dataValue: any
 }
 
-function mapToKeyValueArr() {
-    if (!props.modelValue || !Object.keys(props.modelValue)) {
-        return [{ dataKey: 'a', dataValue: 'b' }]
-    }
+const columns = [{
+    title: 'key',
+    dataIndex: 'dataKey'
+}, {
+    title: 'value',
+    dataIndex: 'dataValue'
+}]
 
-    return Object.keys(props.modelValue).map(key => {
-        return { dataKey: key, dataValue: props.modelValue?.[key] }
-    })
-}
+// function mapToKeyValueArr() {
+//     if (!props.modelValue || !Object.keys(props.modelValue)) {
+//         return [{ dataKey: '', dataValue: '' }]
+//     }
 
-function doEmitModelValue(keyValueArr: KeyValue[]) {
-    const reuslt: Record<string, any> = {};
-    keyValueArr.forEach(keyValueItem => {
-        reuslt[keyValueItem.dataKey] = keyValueItem.dataValue;
-    })
-    emits('update:modelValue', reuslt)
-}
+//     return Object.keys(props.modelValue).map(key => {
+//         const dataValue = props.modelValue?.[key];
+//         if (isArray(dataValue)) {
+//             return dataValue.map(valueItem => ({ dataKey: key, dataValue: valueItem }))
+//         }
+//         return [{ dataKey: key, dataValue: dataValue }]
+//     }).reduce((pre, cur) => pre.concat(cur));
+// }
 
-const data = reactive(mapToKeyValueArr())
-const [stopWatchData, toggleStopWatchData] = useToggle(false)
-watch(
-    () => data,
-    (newVal) => {
-        if (!stopWatchData.value) {
-            doEmitModelValue(newVal)
-        }
+// function doEmitModelValue(keyValueArr: KeyValue[]) {
+//     const reuslt: Record<string, any> = {};
+//     keyValueArr.forEach(keyValueItem => {
+//         const value = reuslt[keyValueItem.dataKey];
+//         if (keyValueItem.dataKey in reuslt) {
+//             reuslt[keyValueItem.dataKey] = concat(value, keyValueItem.dataValue)
+//         } else {
+//             reuslt[keyValueItem.dataKey] = keyValueItem.dataValue
+//         }
 
+//     })
+//     emits('update:modelValue', reuslt)
+// }
+
+const data = computed({
+    get() {
+        // return mapToKeyValueArr()
+        return props.modelValue
     },
-    { deep: true }
-);
-watch(() => props.modelValue, async () => {
-    toggleStopWatchData();
-    const newValArray = mapToKeyValueArr();
-    data.splice(0, data.length, ...newValArray);
-    await nextTick()
-    toggleStopWatchData();
+    set(value) {
+        emits('update:modelValue', value)
+        // doEmitModelValue(value)
+    }
 })
 
 
@@ -56,29 +68,7 @@ watch(() => props.modelValue, async () => {
 
 <template>
     <div class="map-editor">
-        <ATable :data="data" size="mini" :pagination="false" :stripe="true">
-            <!-- <template #dataKey="{ record }">
-                <AInput v-model="record.dataKey" />
-            </template>
-
-<template #dataValue="{ record }">
-                <AInput v-model="record.dataValue" />
-            </template> -->
-
-            <template #columns>
-                <ATableColumn align="center" title="key" cellClass="map-editor-cell map-editor-key-cell">
-                    <template #cell="{ record }">
-                        <AInput v-model="record.dataKey" />
-                    </template>
-                </ATableColumn>
-                <ATableColumn align="center" title="value" cellClass="map-editor-cell map-editor-value-cell">
-
-                    <template #cell="{ record }">
-                        <AInput v-model="record.dataValue" />
-                    </template>
-                </ATableColumn>
-            </template>
-        </ATable>
+        <ListEditor v-model="data" :columns="columns" />
     </div>
 </template>
 

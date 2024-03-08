@@ -81,7 +81,7 @@ const rgba = randomRgba(0.8)
       </AButtonGroup>
     </div>
     <div class="node-avatar">
-      <AAvatar shape="square" :size="64" :style="{ backgroundColor: rgba }">{{ label }}</AAvatar>
+      <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.serviceName }}</AAvatar>
     </div>
 
     <Handle type="target" :position="Position.Left" :is-valid-connection="validConnection" />
