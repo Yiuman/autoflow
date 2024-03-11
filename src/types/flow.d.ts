@@ -30,4 +30,21 @@ interface Position {
   y: number
 }
 
-export { Flow, Node, Connection, Position }
+interface Binary {
+  filename: string,
+  base64: string
+}
+
+interface ExecutionError {
+  node?: string,
+  messgae?: string
+}
+
+interface ExecutionData {
+  json?: JSON;
+  raw?: string;
+  binary?: Binary;
+  error?: ExecutionError;
+}
+
+export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError }

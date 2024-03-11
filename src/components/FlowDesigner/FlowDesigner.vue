@@ -22,6 +22,9 @@ import { type Property } from '@/components/FormRenderer/FormRenderer.vue'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
+import { downloadByUrl } from '@/utils/download'
+
+
 const nodeTypes = {
   service: markRaw(ServiceNode)
 }
@@ -121,7 +124,7 @@ const defaultEditFunc = (node: Props) => {
   toggleForm()
 }
 
-function defaultRun(){
+function defaultRun() {
 
 }
 
@@ -142,10 +145,10 @@ onConnect((param) => {
 })
 
 function exportJson() {
-  let link = document.createElement('a')
-  link.download = 'config.json'
-  link.href = 'data:text/plain,' + JSON.stringify(toFlow(getNodes.value, getEdges.value))
-  link.click()
+  downloadByUrl({
+    url: 'data:text/plain,' + JSON.stringify(toFlow(getNodes.value, getEdges.value)),
+    fileName: 'config.json'
+  })
 }
 
 function importJson(fileList: FileItem[]): void {
