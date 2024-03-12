@@ -17,6 +17,7 @@ declare module 'vue' {
     ALayout: typeof import('@arco-design/web-vue')['Layout']
     ALayoutContent: typeof import('@arco-design/web-vue')['LayoutContent']
     AModal: typeof import('@arco-design/web-vue')['Modal']
+    ASplit: typeof import('@arco-design/web-vue')['Split']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
     ATable: typeof import('@arco-design/web-vue')['Table']
     ATableColumn: typeof import('@arco-design/web-vue')['TableColumn']

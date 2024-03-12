@@ -5,7 +5,9 @@ import {
   IconDelete,
   IconPlayCircleFill,
   IconPauseCircleFill,
-  IconEdit
+  IconEdit,
+  IconExclamationCircle,
+  IconCheckCircle
 } from '@arco-design/web-vue/es/icon'
 import type { ValidConnectionFunc } from '@vue-flow/core'
 import type { Connection } from '@vue-flow/core'
@@ -25,16 +27,18 @@ export interface NodeAction extends Record<string, CustomEvent> {
   run: (node: Props) => void
   stop: (node: Props) => void
 }
-export interface Props extends NodeProps<ElementData & ToolBarData, NodeAction> { }
+type Data = ElementData & ToolBarData & Record<string, ElementData>;
+export interface Props extends NodeProps<Data, NodeAction> {
+}
 
 const props = defineProps<Props>()
-
 const [action, toggleAction] = useToggle(false)
-watch(action, () => {
-  if (action) {
-    props.events.run(props)
+watch(action, async () => {
+  if (action.value) {
+    await props.events.run(props);
+    toggleAction();
   } else {
-    props.events.run(props)
+    props.events.stop && props.events.stop(props)
   }
 })
 
@@ -54,6 +58,7 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
 }
 
 const rgba = randomRgba(0.8)
+
 </script>
 
 <template>
@@ -78,8 +83,14 @@ const rgba = randomRgba(0.8)
         </AButton>
       </AButtonGroup>
     </div>
+
     <div class="node-avatar">
       <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.serviceName }}</AAvatar>
+
+      <div class="node-status-icon" v-if="data.executionData">
+        <IconExclamationCircle class="node-status-error" v-if="data.executionData.error" />
+        <IconCheckCircle class="node-status-sucess" v-else />
+      </div>
     </div>
 
     <Handle type="target" :position="Position.Left" :is-valid-connection="validConnection" />

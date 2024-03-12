@@ -1,9 +1,9 @@
-import { MarkerType, type GraphEdge, type Node as FlowNode } from '@vue-flow/core'
+import { MarkerType, type GraphEdge, type Node as VueFlowNode } from '@vue-flow/core'
 
 import type { Flow, Connection, Node, } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
 
-export function toNode(graphNode: FlowNode): Node {
+export function toNode(graphNode: VueFlowNode): Node {
   const position = graphNode.position
   const parameters = graphNode.data.parameters || {};
   const serviceName = graphNode.data.serviceName || '';
@@ -17,14 +17,14 @@ export function toNode(graphNode: FlowNode): Node {
   }
 }
 
-export function toGraphNode(node: Node): FlowNode {
+export function toGraphNode(node: Node): VueFlowNode {
   const nodeData: Record<string, any> = {};
   nodeData.serviceName = node.serviceName
   nodeData.parameters = node.data
   return {
     ...node,
     data: nodeData
-  } 
+  }
 }
 
 export function toConnect(edge: GraphEdge): Connection {
@@ -46,12 +46,12 @@ export function toGraphEdge(connection: Connection): GraphEdge {
   } as GraphEdge
 }
 
-export function toFlow(nodes: FlowNode[], edges: GraphEdge[]): Flow {
+export function toFlow<N extends VueFlowNode, E extends GraphEdge>(nodes: N[] | undefined, edges: E[] | undefined): Flow {
   const buildUUID = uuid(32)
   return {
     id: buildUUID,
     name: `autoflow_${buildUUID}`,
-    nodes: nodes.map((node) => toNode(node)),
-    connections: edges.map((edge) => toConnect(edge))
+    nodes: nodes?.map((node) => toNode(node)),
+    connections: edges?.map((edge) => toConnect(edge))
   }
 }

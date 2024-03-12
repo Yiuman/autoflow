@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { Node, Edge } from '@vue-flow/core'
-import { toGraphNode, toGraphEdge } from '@/utils/converter'
+import type { Node, GraphEdge } from '@vue-flow/core'
+import { toGraphNode, toGraphEdge, toNode } from '@/utils/converter'
 import { Panel, VueFlow, useVueFlow, MarkerType, type ElementData } from '@vue-flow/core'
 import {
   IconSunFill,
@@ -12,133 +12,65 @@ import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { toFlow } from '@/utils/converter'
 import ServiceNode, {
-  type NodeAction,
-  type Props,
   type ToolBarData
 } from '@/components/ServiceNode/SeviceNode.vue'
 import type { FileItem } from '@arco-design/web-vue'
-import type { Flow } from '@/types/flow'
-import { type Property } from '@/components/FormRenderer/FormRenderer.vue'
+import type { Flow, Property } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByUrl } from '@/utils/download'
+import { executeNode } from '@/api/execution'
+import { useServiceStore } from '@/stores/service'
 
-
+type NodeElementData = ToolBarData & Record<string, ElementData>
+type FlowNode = Node<NodeElementData>
 const nodeTypes = {
   service: markRaw(ServiceNode)
 }
 
-const nodes = ref<Node<ElementData & ToolBarData, NodeAction>[]>()
-const edges = ref<Edge[]>()
+const serviceStore = useServiceStore();
+const nodes = ref<FlowNode[]>()
+const edges = ref<GraphEdge[]>()
 const selectedNodeId = ref<string>();
 const [formVisible, toggleForm] = useToggle(false)
 const [dark, toggleClass] = useToggle(false)
-const properties = ref<Property[]>([
-  {
-    type: 'Map',
-    name: 'headers',
-    displayName: null,
-    description: null,
-    defaultValue: null,
-    options: null,
-    properties: null
-  },
-  {
-    type: 'String',
-    name: 'url',
-    displayName: null,
-    description: null,
-    defaultValue: null,
-    options: null,
-    properties: null
-  },
-  {
-    type: 'Method',
-    name: 'method',
-    displayName: null,
-    description: null,
-    defaultValue: 'GET',
-    options: [
-      {
-        name: 'GET',
-        value: 'GET',
-        description: null
-      },
-      {
-        name: 'POST',
-        value: 'POST',
-        description: null
-      },
-      {
-        name: 'HEAD',
-        value: 'HEAD',
-        description: null
-      },
-      {
-        name: 'OPTIONS',
-        value: 'OPTIONS',
-        description: null
-      },
-      {
-        name: 'PUT',
-        value: 'PUT',
-        description: null
-      },
-      {
-        name: 'DELETE',
-        value: 'DELETE',
-        description: null
-      },
-      {
-        name: 'TRACE',
-        value: 'TRACE',
-        description: null
-      },
-      {
-        name: 'CONNECT',
-        value: 'CONNECT',
-        description: null
-      },
-      {
-        name: 'PATCH',
-        value: 'PATCH',
-        description: null
-      }
-    ],
-    properties: null
-  },
-  {
-    type: 'Map',
-    name: 'params',
-    displayName: null,
-    description: null,
-    defaultValue: null,
-    options: null,
-    properties: null
-  }])
+const properties = computed<Property[]>(() => {
+  if (!selectedNode.value) {
+    return [];
+  }
+  return serviceStore.getServiceByName(selectedNode.value?.data.serviceName).properties;
+})
+
+const description = computed<string | undefined>(() => serviceStore.getServiceByName(selectedNode.value?.data.serviceName)?.description)
 
 
-const defaultEditFunc = (node: Props) => {
+
+
+const { onConnect, addEdges, findNode, updateNodeData } = useVueFlow({
+  minZoom: 0.2,
+  maxZoom: 4
+})
+
+
+const defaultEditFunc = (node: FlowNode) => {
   selectedNodeId.value = node.id
   toggleForm()
-}
-
-function defaultRun() {
-
 }
 
 const defaultEvents = {
   edit: defaultEditFunc,
   run: defaultRun
 }
+async function defaultRun(node: FlowNode) {
+  selectedNodeId.value = node.id
+  const executionData = await executeNode(toNode(toRaw(node)));
+  console.warn("executeData", toNode(toRaw(node)), executionData)
+  updateNodeData(node.id, { executionData })
+}
 
-const { onConnect, addEdges, getNodes, getEdges, findNode } = useVueFlow({
-  minZoom: 0.2,
-  maxZoom: 4
-})
 
-const selectedNode = computed(() => findNode(selectedNodeId.value))
+const selectedNode = computed(() => findNode<NodeElementData>(selectedNodeId.value))
 
 onConnect((param) => {
   addEdges({ ...param, markerEnd: MarkerType.ArrowClosed })
@@ -146,7 +78,7 @@ onConnect((param) => {
 
 function exportJson() {
   downloadByUrl({
-    url: 'data:text/plain,' + JSON.stringify(toFlow(getNodes.value, getEdges.value)),
+    url: 'data:text/plain,' + JSON.stringify(toFlow(nodes.value, edges.value)),
     fileName: 'config.json'
   })
 }
@@ -169,6 +101,7 @@ function doParseJson(json: string) {
 
 onMounted(() => {
   doParseJson(JSON.stringify(json));
+  serviceStore.fetchServices();
 })
 </script>
 
@@ -188,7 +121,6 @@ onMounted(() => {
       </ASwitch>
       <ADivider direction="vertical" margin="5px" />
       <AButton class="panel-item" type="text" @click="exportJson">
-
         <template #icon>
           <IconCloudDownload size="22px" />
         </template>
@@ -206,7 +138,7 @@ onMounted(() => {
       </AUpload>
     </Panel>
     <NodeFormModel v-if="selectedNode" v-model="selectedNode" v-model:visible="formVisible" :properties="properties"
-      :description="'## HTTP Request'" />
+      :description="description" />
   </VueFlow>
 </template>
 

@@ -81,7 +81,6 @@ function doEmitChange(record: Record<string, any>, val: string) {
                     <IconPlus/>
                 </template>
              </AButton>
-            <!-- <IconPlusCircle :size="20" @click="() => addRecord()" /> -->
         </div>
     </div>
 </template>

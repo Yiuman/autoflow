@@ -1,14 +1,49 @@
 .node-form-modal {
-    .arco-modal-body {
-        overflow: visible;
-        padding: 2px;
+    :global(.arco-modal-body) {
+        overflow: visible !important;
+        padding: 2px !important;
     }
 
-}
+    .node-form-modal-body {
+        :deep(.arco-tabs-nav) {
+            height: 46px;
+            background: #f2f3f5;
+        }
+    }
 
-.node-form-modal-btn{
-    position: absolute;
-    top: 8px;
-    right: -32px;
-    z-index: 1;
+    .node-form-service {
+        position: absolute;
+        top: -48px;
+        left: 0px;
+        padding: 10px;
+        font-size: 18px;
+        margin: 0;
+        color: #fff;
+        background-color: #ff7d00;
+        font-weight: bold;
+        border-bottom: 1px solid #f2f3f5;
+    }
+
+    .node-form-title {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #f2f3f5;
+        color: #5b6574;
+        border-bottom: 1px solid #f2f3f5;
+    }
+
+    .node-form-modal-btn {
+        position: absolute;
+        top: 8px;
+        right: -32px;
+        z-index: 1;
+    }
+
+    .splitpanes {
+        :deep(.splitpanes__splitter) {
+            background-color: #f2f3f5;
+            min-width: 4px;
+        }
+    }
+
 }

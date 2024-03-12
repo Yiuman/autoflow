@@ -30,5 +30,16 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    // 设置反向代理，跨域
+    proxy: {
+      '/api': {
+        // 后台地址
+        target: 'http://localhost:8096/',
+        changeOrigin: true
+      }
+    }
   }
+
 })

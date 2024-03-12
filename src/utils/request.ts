@@ -47,7 +47,7 @@ axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 });
 axiosInstance.interceptors.response.use((response: AxiosResponse<any>) => {
     const data = response.data;
-    if (data.code === 200) {
+    if (data.code === 100200) {
         return data;
     } else {
         return Promise.reject(data);
@@ -64,13 +64,13 @@ const request = {
         return request.request<T>(RequestEnum.GET, url, { params: data });
     },
     post<T = any>(url: string, data?: any): Promise<T> {
-        return request.request<T>(RequestEnum.POST, url, { data });
+        return request.request<T>(RequestEnum.POST, url, data);
     },
     put<T = any>(url: string, data?: any): Promise<T> {
-        return request.request<T>(RequestEnum.PUT, url, { data });
+        return request.request<T>(RequestEnum.PUT, url, data);
     },
     delete<T = any>(url: string, data?: any): Promise<T> {
-        return request.request<T>(RequestEnum.DELETE, url, { params: data });
+        return request.request<T>(RequestEnum.DELETE, url, data);
     },
     uploadFile<T = any>(url: string, params: UploadFileParams): Promise<T> {
         const formData = new window.FormData();

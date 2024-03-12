@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import FlowDesigner from '@/components/FlowDesigner/FlowDesigner.vue'
+import FlowDesigner from '@/views/FlowDesigner/FlowDesigner.vue'
 </script>
 
 <template>

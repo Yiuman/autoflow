@@ -47,4 +47,20 @@ interface ExecutionData {
   error?: ExecutionError;
 }
 
-export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError }
+interface Property {
+  type: string
+  name: string
+  displayName?: string | null
+  description?: string | null
+  defaultValue?: any | null
+  options?: Option[] | null
+  properties?: Property[] | null
+}
+
+interface Service {
+  name: string,
+  properties: Property[],
+  description?: string
+}
+
+export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError,Property, Service }
