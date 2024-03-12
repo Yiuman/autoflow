@@ -5,8 +5,6 @@ import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 /**
  * @author yiuman
  * @date 2024/3/1
@@ -22,7 +20,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        List<ExecutionData> execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -38,7 +36,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        List<ExecutionData> execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -53,7 +51,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        List<ExecutionData> execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -68,7 +66,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        List<ExecutionData> execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 

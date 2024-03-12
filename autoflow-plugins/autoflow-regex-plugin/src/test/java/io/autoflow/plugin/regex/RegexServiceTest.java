@@ -5,8 +5,6 @@ import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 @Slf4j
 class RegexServiceTest {
 
@@ -19,7 +17,7 @@ class RegexServiceTest {
                 "谎言是一个无尽的黑洞，让人坠入罪恶的深渊万劫不复");
         regexParameter.setRegex("；");
         regexParameter.setMethod(RegexMethod.split);
-        List<ExecutionData> execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -32,7 +30,7 @@ class RegexServiceTest {
                 "谎言是一个无尽的黑洞，让人坠入罪恶的深渊万劫不复");
         regexParameter.setRegex("谎言");
         regexParameter.setMethod(RegexMethod.findAll);
-        List<ExecutionData> execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -43,10 +41,10 @@ class RegexServiceTest {
         regexParameter.setContent("爱上你，只用了一瞬间。");
         regexParameter.setRegex("^爱上你.*");
         regexParameter.setMethod(RegexMethod.isMatch);
-        List<ExecutionData> execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter);
         log.info(JSONUtil.toJsonStr(execute));
         regexParameter.setRegex("什么鬼");
-        List<ExecutionData> execute2 = regexService.execute(regexParameter);
+        ExecutionData execute2 = regexService.execute(regexParameter);
         log.info(JSONUtil.toJsonStr(execute2));
     }
 
@@ -58,7 +56,7 @@ class RegexServiceTest {
         regexParameter.setRegex("爱");
         regexParameter.setReplace("");
         regexParameter.setMethod(RegexMethod.replace);
-        List<ExecutionData> execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -72,7 +70,7 @@ class RegexServiceTest {
         regexParameter.setRegex("谎言");
         regexParameter.setReplace("旺旺");
         regexParameter.setMethod(RegexMethod.replaceAll);
-        List<ExecutionData> execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
