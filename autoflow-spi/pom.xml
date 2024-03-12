@@ -34,5 +34,10 @@
             <artifactId>aviator</artifactId>
             <version>${aviator.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${validation.version}</version>
+        </dependency>
     </dependencies>
 </project>

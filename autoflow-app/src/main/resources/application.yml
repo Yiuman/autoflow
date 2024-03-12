@@ -15,9 +15,13 @@ spring:
       max-request-size: ${MAX_REQUEST_SIZE:200MB}
   datasource:
     driver-class-name: org.h2.Driver
-    url: ${DATASOURCE_URL:jdbc:h2:file:~/.h2/test}
+    url: ${DATASOURCE_URL:jdbc:h2:mem:test;mode=LEGACY;NON_KEYWORDS=USER}
     username: root
     password:
+  sql:
+    init:
+      schema-locations: classpath:sql/schema.sql
+      mode: always
 
 
 

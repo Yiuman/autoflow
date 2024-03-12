@@ -3,7 +3,6 @@ package io.autoflow.app.service.impl;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import io.autoflow.core.Services;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
@@ -54,17 +53,15 @@ public class FlowableExecutor implements Executor {
     }
 
     @Override
-    public List<ExecutionData> executeNode(Node node) {
+    public ExecutionData executeNode(Node node) {
         try {
             io.autoflow.spi.Service service = Services.getService(node.getServiceName());
-            Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceName())));
+            Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceName()), node.getServiceName()));
             Map<String, Object> parameters = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
-            ExecutionData executionData = new ExecutionData();
-            executionData.setJson(JSONUtil.parseObj(parameters));
-            return service.execute(OnceExecutionContext.create(executionData));
+            return service.execute(OnceExecutionContext.create(parameters));
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", node.getServiceName()), throwable);
-            return List.of(ExecutionData.error(node.getServiceName(), throwable));
+            return ExecutionData.error(node.getServiceName(), throwable);
         }
 
     }

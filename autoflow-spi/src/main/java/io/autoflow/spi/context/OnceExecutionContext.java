@@ -33,9 +33,13 @@ public final class OnceExecutionContext implements ExecutionContext {
         return create(CollUtil.newArrayList(executionData));
     }
 
-    public static <T> OnceExecutionContext create(T inputData) {
+    public static OnceExecutionContext create(Map<String, Object> parameters) {
         OnceExecutionContext onceExecutionContext = new OnceExecutionContext();
-        onceExecutionContext.getParameters().putAll(BeanUtil.beanToMap(inputData));
+        onceExecutionContext.getParameters().putAll(parameters);
         return onceExecutionContext;
+    }
+
+    public static <T> OnceExecutionContext create(T inputData) {
+        return create(BeanUtil.beanToMap(inputData));
     }
 }

@@ -46,10 +46,10 @@ public interface BaseRESTAPI<ENTITY> {
     }
 
     @GetMapping
-    default Page<ENTITY> page(HttpServletRequest request) {
+    default R<Page<ENTITY>> page(HttpServletRequest request) {
         cn.hutool.db.Page pageRequest = WebUtils.getPageRequest();
         Page<ENTITY> mfPage = Page.of(pageRequest.getPageNumber(), pageRequest.getPageSize());
-        return getService().page(mfPage, buildWrapper(request));
+        return R.ok(getService().page(mfPage, buildWrapper(request)));
     }
 
     default QueryWrapper buildWrapper(HttpServletRequest request) {

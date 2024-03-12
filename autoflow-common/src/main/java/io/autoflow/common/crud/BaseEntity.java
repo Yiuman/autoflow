@@ -3,7 +3,7 @@ package io.autoflow.common.crud;
 import com.mybatisflex.annotation.Id;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author yiuman
@@ -15,6 +15,6 @@ public class BaseEntity<KEY> {
     private KEY id;
     private String creator;
     private String lastModifier;
-    private Date createTime;
-    private Date updateTime;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }

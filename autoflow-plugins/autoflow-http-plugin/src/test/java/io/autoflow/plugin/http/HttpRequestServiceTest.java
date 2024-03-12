@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 /**
  * @author yiuman
  * @date 2023/7/13
@@ -24,11 +22,11 @@ class HttpRequestServiceTest {
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/");
 
-        List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
+        ExecutionData execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
 
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)
-                        && StrUtil.isNotBlank(execute.get(0).getRaw())
+                        && StrUtil.isNotBlank(execute.getRaw())
         );
         log.info(JSONUtil.toJsonStr(execute));
     }
@@ -38,10 +36,10 @@ class HttpRequestServiceTest {
         HttpRequestService httpRequestService = new HttpRequestService();
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png");
-        List<ExecutionData> execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
+        ExecutionData execute = httpRequestService.execute(OnceExecutionContext.create(httpRequestParameter));
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)
-                        && StrUtil.isNotBlank(execute.get(0).getRaw())
+                        && StrUtil.isNotBlank(execute.getRaw())
         );
         log.info(JSONUtil.toJsonStr(execute));
     }

@@ -29,7 +29,7 @@ public class SqlService extends BaseService<SqlParameter> {
     }
 
     @Override
-    public List<ExecutionData> execute(SqlParameter sqlParameter) {
+    public ExecutionData execute(SqlParameter sqlParameter) {
         try {
             Setting setting = Setting.create();
             setting.put(LambdaUtil.getFieldName(SqlParameter::getUrl), sqlParameter.getUrl());
@@ -52,7 +52,7 @@ public class SqlService extends BaseService<SqlParameter> {
                             .json(JSONUtil.createObj().set("hit", execute))
                             .build();
                 }
-                return List.of(executionData);
+                return executionData;
             }
         } catch (Throwable throwable) {
             throw new ExecuteException(throwable, getName());

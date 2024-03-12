@@ -1,7 +1,6 @@
 package io.autoflow.plugin.http;
 
 import cn.hutool.core.codec.Base64Encoder;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
@@ -14,8 +13,6 @@ import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.Binary;
 import io.autoflow.spi.model.ExecutionData;
-
-import java.util.List;
 
 /**
  * @author yiuman
@@ -44,7 +41,7 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
     }
 
     @Override
-    public List<ExecutionData> execute(HttpRequestParameter httpRequestParameter) {
+    public ExecutionData execute(HttpRequestParameter httpRequestParameter) {
         String url = UrlBuilder.of(httpRequestParameter.getUrl())
                 .setQuery(UrlQuery.of(httpRequestParameter.getParams(), true))
                 .build();
@@ -72,7 +69,7 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
                 );
             }
 
-            return CollUtil.newArrayList(executionData);
+            return executionData;
         }
     }
 

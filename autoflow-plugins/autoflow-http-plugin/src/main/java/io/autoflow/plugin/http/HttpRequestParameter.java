@@ -2,6 +2,7 @@ package io.autoflow.plugin.http;
 
 import cn.hutool.http.Header;
 import cn.hutool.http.Method;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -17,7 +18,9 @@ public class HttpRequestParameter {
     private Map<String, String> headers = new HashMap<>() {{
         put(Header.USER_AGENT.name(), CHROME_USER_AGENT);
     }};
+    @NotBlank
     private String url;
     private Method method = Method.GET;
     private Map<String, Object> params;
+    private String body;
 }

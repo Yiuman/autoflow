@@ -1,6 +1,5 @@
 package io.autoflow.spi.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.json.JSONObject;
@@ -68,7 +67,7 @@ public abstract class JsonConfigQLExpressService implements Service {
     }
 
     @Override
-    public List<ExecutionData> execute(ExecutionContext executionContext) {
+    public ExecutionData execute(ExecutionContext executionContext) {
         List<String> errorList = new ArrayList<>();
         Object expressResult;
         try {
@@ -91,7 +90,7 @@ public abstract class JsonConfigQLExpressService implements Service {
                 executionData.setRaw(expressResult.toString());
             }
         }
-        return CollUtil.newArrayList(executionData);
+        return executionData;
 
     }
 }

@@ -35,7 +35,7 @@
         <mybatis-flex.version>1.5.4</mybatis-flex.version>
         <junit-jupiter.version>5.7.2</junit-jupiter.version>
         <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
-
+        <validation.version>3.0.2</validation.version>
     </properties>
 
     <dependencies>

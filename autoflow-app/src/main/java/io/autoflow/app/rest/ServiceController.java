@@ -14,8 +14,8 @@ import java.util.List;
  * @date 2023/7/27
  */
 @RestController
-@RequestMapping("/nodes")
-public class NodeController {
+@RequestMapping("/services")
+public class ServiceController {
 
     @GetMapping
     public R<List<Service>> services() {

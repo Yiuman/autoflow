@@ -32,7 +32,7 @@ public class ExecutionController {
     }
 
     @PostMapping("/node")
-    public R<List<ExecutionData>> executeNode(@RequestBody Node node) {
+    public R<ExecutionData> executeNode(@RequestBody Node node) {
         return R.ok(executor.executeNode(node));
     }
 }

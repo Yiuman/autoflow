@@ -43,14 +43,12 @@ public class ExecuteServiceTask implements JavaDelegate {
         flowExecutionContext.getParameters().putAll(
                 Flows.getElementProperties(currentFlowElement)
         );
-        List<ExecutionData> currentExecutionData;
+        ExecutionData currentExecutionData;
         try {
             currentExecutionData = service.execute(flowExecutionContext);
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", serviceNameValue), throwable);
-            currentExecutionData = List.of(
-                    ExecutionData.error(serviceNameValue, throwable)
-            );
+            currentExecutionData = ExecutionData.error(serviceNameValue, throwable);
         }
 
         Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
@@ -58,7 +56,7 @@ public class ExecuteServiceTask implements JavaDelegate {
         List<ExecutionData> nodeExecutionDataList = Optional
                 .ofNullable(inputData.get(currentFlowElement.getName()))
                 .orElse(CollUtil.newArrayList());
-        nodeExecutionDataList.addAll(currentExecutionData);
+        nodeExecutionDataList.add(currentExecutionData);
         inputData.put(currentFlowElement.getId(), nodeExecutionDataList);
     }
 }

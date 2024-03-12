@@ -20,6 +20,6 @@ public interface Service {
 
     String getDescription();
 
-    List<ExecutionData> execute(ExecutionContext executionContext);
+    ExecutionData execute(ExecutionContext executionContext);
 
 }
