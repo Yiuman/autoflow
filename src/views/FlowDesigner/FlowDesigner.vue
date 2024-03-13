@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import type { Node, GraphEdge } from '@vue-flow/core'
+import type { GraphEdge } from '@vue-flow/core'
 import { toGraphNode, toGraphEdge, toNode } from '@/utils/converter'
-import { Panel, VueFlow, useVueFlow, MarkerType, type ElementData } from '@vue-flow/core'
+import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import {
   IconSunFill,
   IconMoonFill,
@@ -11,11 +11,9 @@ import {
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { toFlow } from '@/utils/converter'
-import ServiceNode, {
-  type ToolBarData
-} from '@/components/ServiceNode/SeviceNode.vue'
+import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
 import type { FileItem } from '@arco-design/web-vue'
-import type { Flow, Property } from '@/types/flow'
+import type { Flow, Property, VueFlowNode, NodeElementData } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
@@ -23,14 +21,13 @@ import { downloadByUrl } from '@/utils/download'
 import { executeNode } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
 
-type NodeElementData = ToolBarData & Record<string, ElementData>
-type FlowNode = Node<NodeElementData>
+
 const nodeTypes = {
   service: markRaw(ServiceNode)
 }
 
 const serviceStore = useServiceStore();
-const nodes = ref<FlowNode[]>()
+const nodes = ref<VueFlowNode[]>()
 const edges = ref<GraphEdge[]>()
 const selectedNodeId = ref<string>();
 const [formVisible, toggleForm] = useToggle(false)
@@ -45,15 +42,13 @@ const properties = computed<Property[]>(() => {
 const description = computed<string | undefined>(() => serviceStore.getServiceByName(selectedNode.value?.data.serviceName)?.description)
 
 
-
-
 const { onConnect, addEdges, findNode, updateNodeData } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
 
 
-const defaultEditFunc = (node: FlowNode) => {
+const defaultEditFunc = (node: VueFlowNode) => {
   selectedNodeId.value = node.id
   toggleForm()
 }
@@ -62,11 +57,11 @@ const defaultEvents = {
   edit: defaultEditFunc,
   run: defaultRun
 }
-async function defaultRun(node: FlowNode) {
+async function defaultRun(node: VueFlowNode) {
   selectedNodeId.value = node.id
+  updateNodeData(node.id, { running: true })
   const executionData = await executeNode(toNode(toRaw(node)));
-  console.warn("executeData", toNode(toRaw(node)), executionData)
-  updateNodeData(node.id, { executionData })
+  updateNodeData(node.id, { executionData, running: false })
 }
 
 

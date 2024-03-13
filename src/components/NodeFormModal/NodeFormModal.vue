@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue';
-import { type Property } from '@/types/flow'
+import type { Property, VueFlowNode } from '@/types/flow'
 import {
-  IconCloseCircleFill
+  IconCloseCircleFill,
+  IconPlayCircleFill,
+  IconPauseCircleFill
 } from '@arco-design/web-vue/es/icon'
-import type { Node } from '@vue-flow/core';
 import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
 
 interface Props {
-  modelValue: Node
+  modelValue: VueFlowNode
   description?: string
   visible?: boolean
   properties?: Property[]
@@ -45,6 +48,7 @@ const modalVisible = computed({
   }
 })
 
+
 const outputData = computed(() => {
   return props.modelValue.data?.executionData;
 })
@@ -52,11 +56,22 @@ const outputData = computed(() => {
 function doClose() {
   modalVisible.value = false;
 }
+
+const [action, toggleAction] = useToggle(false)
+watch(action, async () => {
+  const node = props.modelValue;
+  if (action.value) {
+    await node.events.run(node);
+    toggleAction();
+  } else {
+    node.events.stop && node.stop(node)
+  }
+})
 </script>
 
 <template>
   <!--    节点的表单-->
-  <AModal class="node-form-modal" :align-center="false" :width="'90%'" :visible="modalVisible" :hide-title="true"
+  <AModal class="node-form-modal" :align-center="false" :width="'90%'" :height="'90%'" :visible="modalVisible" :hide-title="true"
     :footer="false" :closable="true">
     <div class="node-form-modal-body">
       <div class="node-form-modal-btn">
@@ -78,9 +93,16 @@ function doClose() {
         <Pane>
           <div class="node-form-title">Input</div>
         </Pane>
-        <Pane>
+        <Pane size="30">
           <div class="node-form-model-desc">
-
+            <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
+              <AButton shape="circle" @click="() => toggleAction()">
+                <template #icon>
+                  <IconPauseCircleFill v-if="action" />
+                  <IconPlayCircleFill v-else />
+                </template>
+              </AButton>
+            </div>
             <ATabs>
               <ATabPane key="1" title="Parameters">
                 <div style="padding: 5px">
@@ -99,12 +121,18 @@ function doClose() {
               Output
             </div>
             <ATabs v-if="outputData">
-              <ATabPane :title="executeDataKey" v-for="executeDataKey in Object.keys(outputData)" :key="executeDataKey">
-                <div>{{ outputData[executeDataKey] }}</div>
-              </ATabPane>
+              <template v-for="executeDataKey in Object.keys(outputData)" :key="executeDataKey">
+                <ATabPane v-if="outputData[executeDataKey]" :title="executeDataKey" :key="executeDataKey">
+                  <VueJsonPretty
+                    v-if="outputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
+                    :data="outputData[executeDataKey]" :show-icon="true" />
+                  <div v-else>{{ outputData[executeDataKey] }}</div>
+                </ATabPane>
+              </template>
+
             </ATabs>
-            <div v-else>
-              未知
+            <div class="node-form-modal-output-empty" v-else>
+              <AEmpty />
             </div>
           </div>
         </Pane>

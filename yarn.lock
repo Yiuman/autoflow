@@ -3769,6 +3769,11 @@ vue-eslint-parser@^9.1.1, vue-eslint-parser@^9.4.2:
     lodash "^4.17.21"
     semver "^7.3.6"
 
+vue-json-pretty@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/vue-json-pretty/-/vue-json-pretty-2.3.0.tgz#ad85a161575d7fcd7b3e6baad559b2af0df663fa"
+  integrity sha512-iBul6Xg7vZfMV2MQC/gGtzbyg8FLk6cJ8KG91f37UEkQyXqHg91VQJ24bDBXNVuOSP04BUKxWagD3V2N/WEy0g==
+
 vue-router@^4.2.4:
   version "4.3.0"
   resolved "https://registry.npmjs.org/vue-router/-/vue-router-4.3.0.tgz"

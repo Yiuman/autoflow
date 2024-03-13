@@ -63,4 +63,7 @@ interface Service {
   description?: string
 }
 
+export type NodeElementData = ToolBarData & Record<string, ElementData>
+export type VueFlowNode = Node<NodeElementData>
+
 export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError,Property, Service }

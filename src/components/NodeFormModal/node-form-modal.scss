@@ -1,3 +1,17 @@
+@keyframes action {
+    0% {
+        outline-offset: -1px;
+    }
+
+    50% {
+        outline-offset: -3px;
+    }
+
+    100% {
+        outline-offset: -1px;
+    }
+}
+
 .node-form-modal {
     :global(.arco-modal-body) {
         overflow: visible !important;
@@ -5,6 +19,8 @@
     }
 
     .node-form-modal-body {
+        height: 90%;
+
         :deep(.arco-tabs-nav) {
             height: 46px;
             background: #f2f3f5;
@@ -44,6 +60,30 @@
             background-color: #f2f3f5;
             min-width: 4px;
         }
+    }
+
+    .node-form-model-desc {
+        position: relative;
+
+        .node-form-model-action-btn {
+            position: absolute;
+            z-index: 1;
+            right: 5px;
+            top: 5px;
+            border-radius: 50%;
+            border: 1px solid;
+            border-color: transparent;
+        }
+
+        .node-action {
+            border: 1px solid rgba(var(--primary-6), .5);
+            outline: rgba(var(--primary-6), .5) solid 2px;
+            animation: action 1.2s infinite linear;
+        }
+    }
+
+    .ode-form-modal-output-empty {
+        height: 100%;
     }
 
 }
