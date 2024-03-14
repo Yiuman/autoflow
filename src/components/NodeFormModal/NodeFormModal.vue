@@ -114,7 +114,7 @@ function isHtml(data: string) {
             </div>
             <ATabs>
               <ATabPane key="1" title="Parameters">
-                <div style="padding: 5px">
+                <div>
                   <FromRenderer v-model="nodeData" :properties="props.properties" />
                 </div>
               </ATabPane>
@@ -138,7 +138,7 @@ function isHtml(data: string) {
                   <div v-else-if="isHtml(outputData[executeDataKey])">
                     <Codemirror v-model="outputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
                   </div>
-                  <div v-else>{{ outputData[executeDataKey] }}}</div>
+                  <div v-else>{{ outputData[executeDataKey] }}</div>
                 </ATabPane>
               </template>
 

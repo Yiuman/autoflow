@@ -24,7 +24,6 @@
     }
 
     .node-form-modal-body {
-        overflow: scroll;
         height: 100%;
 
         :deep(.arco-tabs-nav) {
@@ -96,8 +95,8 @@
         }
 
         :deep(.arco-tabs-content) {
-            height: calc(100vh - 50px);
-            overflow: scroll;
+            height: calc(100% - 50px);
+            overflow: auto;
         }
     }
 

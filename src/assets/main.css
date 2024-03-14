@@ -14,3 +14,24 @@ body,
     display: flex;
     flex-direction: column;
 }
+
+::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 6px; /*高宽分别对应横竖滚动条的尺寸*/
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    background-color: #8c8c8c;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f6f6f6;
+}
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-track {
+    border: 0;
+}
