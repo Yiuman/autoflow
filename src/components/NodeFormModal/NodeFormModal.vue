@@ -71,7 +71,7 @@ watch(action, async () => {
 
 <template>
   <!--    节点的表单-->
-  <AModal class="node-form-modal" :align-center="false" :width="'90%'" :height="'90%'" :visible="modalVisible" :hide-title="true"
+  <AModal class="node-form-modal" :align-center="false" :width="'90%'" :visible="modalVisible" :hide-title="true"
     :footer="false" :closable="true">
     <div class="node-form-modal-body">
       <div class="node-form-modal-btn">
@@ -91,10 +91,12 @@ watch(action, async () => {
 
       <Splitpanes>
         <Pane>
-          <div class="node-form-title">Input</div>
+          <div class="node-form-modal-pane node-form-modal-input">
+            <div class="node-form-title">Input</div>
+          </div>
         </Pane>
         <Pane size="30">
-          <div class="node-form-model-desc">
+          <div class="node-form-modal-pane node-form-model-desc">
             <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
               <AButton shape="circle" @click="() => toggleAction()">
                 <template #icon>
@@ -116,7 +118,7 @@ watch(action, async () => {
           </div>
         </Pane>
         <Pane>
-          <div class="node-form-modal-output">
+          <div class="node-form-modal-pane node-form-modal-output">
             <div class="node-form-title">
               Output
             </div>

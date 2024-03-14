@@ -13,13 +13,19 @@
 }
 
 .node-form-modal {
+    :global(.arco-modal) {
+        height: 80% !important;
+    }
+
     :global(.arco-modal-body) {
         overflow: visible !important;
-        padding: 2px !important;
+        padding: 0 !important;
+        height: 100%;
     }
 
     .node-form-modal-body {
-        height: 90%;
+        overflow: scroll;
+        height: 100%;
 
         :deep(.arco-tabs-nav) {
             height: 46px;
@@ -82,7 +88,20 @@
         }
     }
 
-    .ode-form-modal-output-empty {
+    .node-form-modal-pane {
+        height: 100%;
+
+        :deep(.arco-tabs) {
+            height: 100%;
+        }
+
+        :deep(.arco-tabs-content) {
+            height: calc(100vh - 50px);
+            overflow: scroll;
+        }
+    }
+
+    .node-form-modal-output-empty {
         height: 100%;
     }
 
