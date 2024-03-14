@@ -12,6 +12,8 @@ import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+import { Codemirror } from 'vue-codemirror'
+import { html } from '@codemirror/lang-html'
 
 interface Props {
   modelValue: VueFlowNode
@@ -67,6 +69,11 @@ watch(action, async () => {
     node.events.stop && node.stop(node)
   }
 })
+
+function isHtml(data: string) {
+  const htmlRegex = /<([a-z]+)([^<]+|[^>]+)*>|<([a-z]+)([^<]+|[^>]+)*\/>/i;
+  return htmlRegex.test(data);
+}
 </script>
 
 <template>
@@ -128,7 +135,10 @@ watch(action, async () => {
                   <VueJsonPretty
                     v-if="outputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
                     :data="outputData[executeDataKey]" :show-icon="true" />
-                  <div v-else>{{ outputData[executeDataKey] }}</div>
+                  <div v-else-if="isHtml(outputData[executeDataKey])">
+                    <Codemirror v-model="outputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
+                  </div>
+                  <div v-else>{{ outputData[executeDataKey] }}}</div>
                 </ATabPane>
               </template>
 
