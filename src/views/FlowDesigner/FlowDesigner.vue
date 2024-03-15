@@ -6,12 +6,13 @@ import {
   IconSunFill,
   IconMoonFill,
   IconCloudDownload,
-  IconImport
+  IconUpload
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { toFlow } from '@/utils/converter'
 import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
+import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import type { FileItem } from '@arco-design/web-vue'
 import type { Flow, Property, VueFlowNode, NodeElementData } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
@@ -26,12 +27,15 @@ const nodeTypes = {
   service: markRaw(ServiceNode)
 }
 
+const edgeTypes = {
+  edge: markRaw(EditableEdge)
+}
+
 const serviceStore = useServiceStore();
 const nodes = ref<VueFlowNode[]>()
 const edges = ref<GraphEdge[]>()
 const selectedNodeId = ref<string>();
 const [formVisible, toggleForm] = useToggle(false)
-const [dark, toggleClass] = useToggle(false)
 const properties = computed<Property[]>(() => {
   if (!selectedNode.value) {
     return [];
@@ -45,6 +49,16 @@ const description = computed<string | undefined>(() => serviceStore.getServiceBy
 const { onConnect, addEdges, findNode, updateNodeData } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
+})
+
+//切换主题
+const [dark, toggleClass] = useToggle(false)
+watch(dark, () => {
+  if (dark.value) {
+    document.body.setAttribute('arco-theme', 'dark')
+  } else {
+    document.body.removeAttribute('arco-theme');
+  }
 })
 
 
@@ -101,7 +115,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <VueFlow :nodes="nodes" :edges="edges" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes">
+  <VueFlow :nodes="nodes" :edges="edges" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes"
+    :edge-types="edgeTypes">
     <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
     <Controls />
     <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
@@ -122,11 +137,10 @@ onMounted(() => {
       </AButton>
       <ADivider direction="vertical" margin="5px" />
       <AUpload class="panel-item" @change="importJson" :auto-upload="false" :show-file-list="false">
-
         <template #upload-button>
           <AButton class="panel-item" type="text">
             <template #icon>
-              <IconImport size="22px" />
+              <IconUpload size="22px" />
             </template>
           </AButton>
         </template>

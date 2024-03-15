@@ -28,7 +28,6 @@
 
         :deep(.arco-tabs-nav) {
             height: 46px;
-            background: #f2f3f5;
         }
     }
 
@@ -42,15 +41,15 @@
         color: #fff;
         background-color: #ff7d00;
         font-weight: bold;
-        border-bottom: 1px solid #f2f3f5;
+        border-bottom: 1px solid var(--color-border);
     }
 
     .node-form-title {
         padding: 10px 20px;
         font-size: 16px;
-        background-color: #f2f3f5;
+        // background-color: #f2f3f5;
         color: #5b6574;
-        border-bottom: 1px solid #f2f3f5;
+        border-bottom: 1px solid var(--color-border);
     }
 
     .node-form-modal-btn {
@@ -62,7 +61,7 @@
 
     .splitpanes {
         :deep(.splitpanes__splitter) {
-            background-color: #f2f3f5;
+            background-color: var(--color-border);
             min-width: 4px;
         }
     }
@@ -96,6 +95,7 @@
 
         :deep(.arco-tabs-content) {
             height: calc(100% - 50px);
+            padding: 10px;
             overflow: auto;
         }
     }

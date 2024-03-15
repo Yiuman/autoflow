@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue';
 import type { Property, VueFlowNode } from '@/types/flow'
+import { useVueFlow } from '@vue-flow/core'
 import {
   IconCloseCircleFill,
   IconPlayCircleFill,
@@ -41,6 +42,7 @@ const nodeData = computed({
   }
 })
 
+const { getIncomers, findNode } = useVueFlow();
 const modalVisible = computed({
   get() {
     return props.visible
@@ -50,6 +52,22 @@ const modalVisible = computed({
   }
 })
 
+
+
+//input
+const incomers = computed(() => getIncomers(props.modelValue.id));
+const selectedIncomerNodeId = ref<string>();
+watch(incomers, () => {
+  if (incomers.value && incomers.value.length) {
+    selectedIncomerNodeId.value = incomers.value[0].id
+  }
+})
+const inputData = computed(() => {
+  if (!selectedIncomerNodeId.value) {
+    return null;
+  }
+  return findNode(selectedIncomerNodeId.value)?.data.executionData;
+})
 
 const outputData = computed(() => {
   return props.modelValue.data?.executionData;
@@ -97,15 +115,35 @@ function isHtml(data: string) {
       </div>
 
       <Splitpanes>
-        <Pane>
+        <Pane v-if="incomers && incomers.length">
           <div class="node-form-modal-pane node-form-modal-input">
             <div class="node-form-title">Input</div>
+            <ASelect v-model="selectedIncomerNodeId">
+              <AOption v-for="incomer in incomers" :key="incomer.id" :value="incomer.id"
+                :label="`${incomer.data.serviceName}-${incomer.id}`" />
+            </ASelect>
+            <ATabs v-if="inputData">
+              <template v-for="executeDataKey in Object.keys(inputData)" :key="executeDataKey">
+                <ATabPane v-if="inputData[executeDataKey]" :title="executeDataKey" :key="executeDataKey">
+                  <VueJsonPretty
+                    v-if="inputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
+                    :data="inputData[executeDataKey]" :show-icon="true" />
+                  <div v-else-if="isHtml(inputData[executeDataKey])">
+                    <Codemirror v-model="inputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
+                  </div>
+                  <div v-else>{{ inputData[executeDataKey] }}</div>
+                </ATabPane>
+              </template>
+            </ATabs>
+            <div class="node-form-modal-output-empty" v-else>
+              <AEmpty />
+            </div>
           </div>
         </Pane>
         <Pane size="30">
           <div class="node-form-modal-pane node-form-model-desc">
             <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
-              <AButton shape="circle" @click="() => toggleAction()">
+              <AButton type="outline" shape="circle" @click="() => toggleAction()">
                 <template #icon>
                   <IconPauseCircleFill v-if="action" />
                   <IconPlayCircleFill v-else />
