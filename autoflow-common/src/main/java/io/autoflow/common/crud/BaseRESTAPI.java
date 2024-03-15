@@ -21,6 +21,7 @@ import java.util.Objects;
 
 
 /**
+ * @param <ENTITY> 实体类型
  * @author yiuman
  * @date 2023/7/25
  */

@@ -60,7 +60,6 @@ public class JsonHttpServletRequestWrapper extends HttpServletRequestWrapper {
     public Map<String, String[]> getParameterMap() {
         parameterMap = Optional.ofNullable(parameterMap).orElse(new ParameterMap<>());
         parameterMap.putAll(super.getParameterMap());
-        Map<String, String[]> parameterMap = super.getParameterMap();
         if (parsedObject instanceof JSONObject) {
             ((JSONObject) parsedObject).forEach((key, vaule) -> {
                 parameterMap.put(key, new String[]{vaule.toString()});

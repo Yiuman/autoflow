@@ -6,6 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
+ * @param <KEY> 主键类型
  * @author yiuman
  * @date 2023/7/25
  */

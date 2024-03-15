@@ -22,6 +22,8 @@ spring:
     init:
       schema-locations: classpath:sql/schema.sql
       mode: always
+flowable:
+  async-executor-activate: false
 
 
 
