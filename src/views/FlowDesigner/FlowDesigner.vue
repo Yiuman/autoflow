@@ -21,10 +21,12 @@ import { computed } from 'vue'
 import { downloadByUrl } from '@/utils/download'
 import { executeNode } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
+import ConditionNode from '@/components/ConditionNode/ConditionNode.vue'
 
 
 const nodeTypes = {
-  service: markRaw(ServiceNode)
+  service: markRaw(ServiceNode),
+  condition: markRaw(ConditionNode)
 }
 
 const edgeTypes = {

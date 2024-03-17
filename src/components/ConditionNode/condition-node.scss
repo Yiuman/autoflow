@@ -1,0 +1,99 @@
+.autoflow-node {
+    height: 80px;
+    width: 80px;
+    border-radius: 5px;
+
+    &:hover {
+        .node-toolbar {
+            opacity: 1;
+            transition-delay: 0s;
+        }
+    }
+
+}
+
+.condition-node {
+    transform: rotate(45deg);
+}
+
+.node-action {
+    border: 2px solid rgba(var(--primary-6), .5);
+    outline: rgba(var(--primary-6), .5) solid 2px;
+    animation: action 1.2s infinite linear;
+}
+
+.node-avatar {
+    padding: 6px;
+    position: relative;
+
+    .node-status-icon {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+
+        font-size: 18px;
+
+        .node-status-sucess {
+            color: green;
+        }
+
+        .node-status-error {
+            color: orange;
+        }
+    }
+}
+
+.selected {
+    .autoflow-node {
+        box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    .node-toolbar {
+        display: block;
+    }
+}
+
+.toolbar-btn {
+    font-size: 14px;
+}
+
+.node-toolbar {
+    position: absolute;
+    top: -26px;
+    right: 1px;
+    z-index: 1;
+    transition: 0.5s;
+    opacity: 0;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    .toolbar-delete-btn {
+        &:hover {
+            color: red;
+        }
+    }
+}
+
+
+.vue-flow__node-condition {
+    .vue-flow__handle {
+        height: 10px;
+        width: 10px;
+    }
+
+    .vue-flow__handle-left {
+        height: 15px;
+        width: 6px;
+        left: 1px;
+        border-radius: unset;
+    }
+
+    .vue-flow__handle-right {
+        background: white;
+        border: 2px solid var(--vf-handle);
+        right: 0px;
+    }
+
+}

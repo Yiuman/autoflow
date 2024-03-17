@@ -26,6 +26,7 @@ declare module 'vue' {
     ATabPane: typeof import('@arco-design/web-vue')['TabPane']
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
+    ConditionNode: typeof import('./src/components/ConditionNode/ConditionNode.vue')['default']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']
