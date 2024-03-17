@@ -2,11 +2,9 @@
 import type { EdgeProps } from '@vue-flow/core';
 import { BezierEdge, EdgeLabelRenderer, getBezierPath, useVueFlow } from '@vue-flow/core';
 import type { StyleValue } from 'vue';
-import {
-    IconDelete
-} from '@arco-design/web-vue/es/icon'
+import { IconClose } from '@arco-design/web-vue/es/icon'
 
-// props were passed from the slot using `v-bind="customEdgeProps"`
+
 const props = defineProps<EdgeProps<any>>();
 const { removeEdges } = useVueFlow()
 
@@ -23,12 +21,11 @@ const toolBarStyle = computed(() => {
 <template>
     <BezierEdge v-bind="props" />
     <EdgeLabelRenderer>
-        <div :style="toolBarStyle">
-            <AButton class="toolbar-btn toolbar-delete-btn" @click="removeEdges(id)">
-                <template #icon>
-                    <IconDelete />
-                </template>
-            </AButton>
+        <div :id="`edge-toolbar-${id}`" :style="toolBarStyle" class="edge-toolbar">
+            <IconClose class="edge-delete-btn" @click="removeEdges(id)" />
         </div>
     </EdgeLabelRenderer>
 </template>
+<style lang="scss">
+@import 'editable-edge';
+</style>

@@ -43,6 +43,7 @@ export function toGraphEdge(connection: Connection): GraphEdge {
     ...connection,
     id: `e${connection.source}_${connection.target}`,
     markerEnd: MarkerType.ArrowClosed,
+    type:'edge'
   } as GraphEdge
 }
 

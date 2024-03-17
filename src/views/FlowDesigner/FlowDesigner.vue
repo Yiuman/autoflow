@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { GraphEdge } from '@vue-flow/core'
+import type { EdgeMouseEvent, GraphEdge } from '@vue-flow/core'
 import { toGraphNode, toGraphEdge, toNode } from '@/utils/converter'
 import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import {
@@ -67,10 +67,7 @@ const defaultEditFunc = (node: VueFlowNode) => {
   toggleForm()
 }
 
-const defaultEvents = {
-  edit: defaultEditFunc,
-  run: defaultRun
-}
+
 async function defaultRun(node: VueFlowNode) {
   selectedNodeId.value = node.id
   updateNodeData(node.id, { running: true })
@@ -78,11 +75,16 @@ async function defaultRun(node: VueFlowNode) {
   updateNodeData(node.id, { executionData, running: false })
 }
 
+const defaultEvents = {
+  edit: defaultEditFunc,
+  run: defaultRun
+}
+
 
 const selectedNode = computed(() => findNode<NodeElementData>(selectedNodeId.value))
 
 onConnect((param) => {
-  addEdges({ ...param, markerEnd: MarkerType.ArrowClosed })
+  addEdges({ ...param, markerEnd: MarkerType.ArrowClosed, type: 'edge' })
 })
 
 function exportJson() {
@@ -112,11 +114,20 @@ onMounted(() => {
   doParseJson(JSON.stringify(json));
   serviceStore.fetchServices();
 })
+
+function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
+  const edgeToolBar = document.getElementById(`edge-toolbar-${edgeMouseEvent.edge.id}`);
+  if (edgeMouseEvent.event.type === 'mousemove') {
+    edgeToolBar?.classList.add('edge-toolbar-show')
+  } else {
+    edgeToolBar?.classList.remove('edge-toolbar-show')
+  }
+}
 </script>
 
 <template>
-  <VueFlow :nodes="nodes" :edges="edges" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes"
-    :edge-types="edgeTypes">
+  <VueFlow :nodes="nodes" :edges="edges" @edge-mouse-move="edgeMouseMove" @edge-mouse-leave="edgeMouseMove"
+    :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes" :edge-types="edgeTypes">
     <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
     <Controls />
     <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
