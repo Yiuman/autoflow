@@ -15,6 +15,8 @@ import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
+import { getAllIncomers } from '@/utils/converter';
+
 
 interface Props {
   modelValue: VueFlowNode
@@ -52,10 +54,11 @@ const modalVisible = computed({
   }
 })
 
-
-
 //input
-const incomers = computed(() => getIncomers(props.modelValue.id));
+const incomers = computed(() => {
+  return getAllIncomers(props.modelValue.id, getIncomers)
+});
+
 const selectedIncomerNodeId = ref<string>();
 watch(incomers, () => {
   if (incomers.value && incomers.value.length) {

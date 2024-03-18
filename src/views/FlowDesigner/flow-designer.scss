@@ -1,4 +1,3 @@
-
 .vue-flow__node a {
   font-weight: 700;
   color: #111;
@@ -81,7 +80,24 @@
 
 .panel-item {
   color: #000000 !important;
-  .arco-switch-checked .arco-switch-handle{
+
+  .arco-switch-checked .arco-switch-handle {
     color: #000000 !important;
   }
+}
+
+.flow-designer-node-selector{
+  z-index: 10;
+  position: absolute;
+  width: 300px;
+  right: 10px;
+  top:50px
+}
+
+.execute-flow-btn {
+  z-index: 99;
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translate(-50%, -50%);   
 }

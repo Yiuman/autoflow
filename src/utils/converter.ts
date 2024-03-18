@@ -1,7 +1,24 @@
-import { MarkerType, type GraphEdge, type Node as VueFlowNode } from '@vue-flow/core'
+import { MarkerType, type GraphEdge, type Node as VueFlowNode, type GraphNode } from '@vue-flow/core'
 
 import type { Flow, Connection, Node, } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
+import { uniq } from 'lodash';
+
+//获取当前节点所有的前置节点
+export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrId: Node | string) => GraphNode[]): VueFlowNode[] {
+  if (!nodeId) {
+    return [];
+  }
+  let nodeIncomers = getIncomers(nodeId);
+  if (nodeIncomers.length) {
+    for (const node of nodeIncomers) {
+      const preIncomers = getIncomers(node.id);
+      nodeIncomers = [...preIncomers, ...nodeIncomers,]
+    }
+  }
+  return uniq(nodeIncomers);
+
+}
 
 export function toNode(graphNode: VueFlowNode): Node {
   const position = graphNode.position
@@ -34,7 +51,8 @@ export function toConnect(edge: GraphEdge): Connection {
     sourceX: edge.sourceX,
     sourceY: edge.sourceY,
     targetX: edge.targetX,
-    targetY: edge.targetY
+    targetY: edge.targetY,
+    expression: edge.data.expression
   }
 }
 
@@ -43,7 +61,7 @@ export function toGraphEdge(connection: Connection): GraphEdge {
     ...connection,
     id: `e${connection.source}_${connection.target}`,
     markerEnd: MarkerType.ArrowClosed,
-    type:'edge'
+    type: 'edge'
   } as GraphEdge
 }
 

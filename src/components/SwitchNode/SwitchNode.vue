@@ -14,7 +14,6 @@ import type { Connection } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
-import { randomRgba } from '@/utils/util-func'
 
 const { removeNodes } = useVueFlow()
 
@@ -57,7 +56,6 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
   return getHandleDirection(connection.sourceHandle) !== getHandleDirection(connection.targetHandle)
 }
 
-const rgba = randomRgba(0.8)
 
 </script>
 
@@ -84,8 +82,10 @@ const rgba = randomRgba(0.8)
       </AButtonGroup>
     </div>
 
-    <div class="node-avatar condition-node">
-      <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.serviceName }}</AAvatar>
+    <div class="node-avatar switch-node">
+      <AAvatar shape="square" :size="68" >
+        <div class="node-switch-label">Switch</div>
+      </AAvatar>
 
       <div class="node-status-icon" v-if="data.executionData">
         <IconExclamationCircle class="node-status-error" v-if="data.executionData.error" />
@@ -94,11 +94,15 @@ const rgba = randomRgba(0.8)
     </div>
 
     <Handle type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-    <Handle type="source" :position="Position.Top" :is-valid-connection="validConnection" />
-    <Handle type="source" :position="Position.Bottom" :is-valid-connection="validConnection" />
+    <Handle type="source" :position="Position.Top" :is-valid-connection="validConnection">
+      <div class="true-label">true</div>
+    </Handle>
+    <Handle type="source" :position="Position.Bottom" :is-valid-connection="validConnection">
+      <div class="false-label">false</div>
+    </Handle>
   </div>
 </template>
 
-<style lang="scss">
-@import 'condition-node';
+<style scoped lang="scss">
+@import 'switch-node';
 </style>

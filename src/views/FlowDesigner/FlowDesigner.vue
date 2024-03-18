@@ -6,27 +6,30 @@ import {
   IconSunFill,
   IconMoonFill,
   IconCloudDownload,
-  IconUpload
+  IconUpload,
+  IconPlayCircleFill,
+  IconPauseCircleFill
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import { toFlow } from '@/utils/converter'
+import { toFlow, getAllIncomers } from '@/utils/converter'
 import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
-import type { FileItem } from '@arco-design/web-vue'
-import type { Flow, Property, VueFlowNode, NodeElementData } from '@/types/flow'
+import { type FileItem } from '@arco-design/web-vue'
+import type { Flow, Property, VueFlowNode, NodeElementData, ExecutionData } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByUrl } from '@/utils/download'
 import { executeNode } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
-import ConditionNode from '@/components/ConditionNode/ConditionNode.vue'
+import SwitchNode from '@/components/SwitchNode/SwitchNode.vue'
+import SearchModal from '@/components/SearchModal/SearchModal.vue'
 
 
 const nodeTypes = {
-  service: markRaw(ServiceNode),
-  condition: markRaw(ConditionNode)
+  SERVICE: markRaw(ServiceNode),
+  SWITCH: markRaw(SwitchNode)
 }
 
 const edgeTypes = {
@@ -34,6 +37,7 @@ const edgeTypes = {
 }
 
 const serviceStore = useServiceStore();
+serviceStore.fetchServices();
 const nodes = ref<VueFlowNode[]>()
 const edges = ref<GraphEdge[]>()
 const selectedNodeId = ref<string>();
@@ -47,8 +51,7 @@ const properties = computed<Property[]>(() => {
 
 const description = computed<string | undefined>(() => serviceStore.getServiceByName(selectedNode.value?.data.serviceName)?.description)
 
-
-const { onConnect, addEdges, findNode, updateNodeData } = useVueFlow({
+const { onConnect, addEdges, findNode, updateNodeData, getIncomers } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
@@ -73,7 +76,17 @@ const defaultEditFunc = (node: VueFlowNode) => {
 async function defaultRun(node: VueFlowNode) {
   selectedNodeId.value = node.id
   updateNodeData(node.id, { running: true })
-  const executionData = await executeNode(toNode(toRaw(node)));
+
+  const executeNodeData = toNode(toRaw(node));
+  const nodeData = executeNodeData.data || {};
+  const allIncomers = getAllIncomers(node.id, getIncomers);
+  const inputData: Record<string, ExecutionData[]> = {}
+  for (const incomer of allIncomers) {
+    inputData[incomer.id] = [incomer.data.executionData]
+  }
+  nodeData.inputData = inputData;
+  executeNodeData.data = nodeData;
+  const executionData = await executeNode(executeNodeData);
   updateNodeData(node.id, { executionData, running: false })
 }
 
@@ -85,8 +98,18 @@ const defaultEvents = {
 
 const selectedNode = computed(() => findNode<NodeElementData>(selectedNodeId.value))
 
+//处理连线逻辑
 onConnect((param) => {
-  addEdges({ ...param, markerEnd: MarkerType.ArrowClosed, type: 'edge' })
+  const sourceNode = findNode<NodeElementData>(param.source);
+  const addEdge: GraphEdge = { ...param, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
+  if (sourceNode && sourceNode.type === 'SWITCH') {
+    if (param.sourceHandle == `${sourceNode.id}__handel-top`) {
+      addEdge.data.expression = "${" + `inputeData[${sourceNode.id}].json.result` + "}"
+    } else {
+      addEdge.data.expression = "${!" + `inputeData[${sourceNode.id}].json.result` + "}"
+    }
+  }
+  addEdges(addEdge)
 })
 
 function exportJson() {
@@ -117,6 +140,7 @@ onMounted(() => {
   serviceStore.fetchServices();
 })
 
+//处理连线的toolbar显示与隐藏
 function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
   const edgeToolBar = document.getElementById(`edge-toolbar-${edgeMouseEvent.edge.id}`);
   if (edgeMouseEvent.event.type === 'mousemove') {
@@ -125,14 +149,24 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
     edgeToolBar?.classList.remove('edge-toolbar-show')
   }
 }
+
+
+const [executeFlow, toggelExecute] = useToggle(false);
+
+
 </script>
 
 <template>
   <VueFlow :nodes="nodes" :edges="edges" @edge-mouse-move="edgeMouseMove" @edge-mouse-leave="edgeMouseMove"
     :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes" :edge-types="edgeTypes">
+    <!-- 背景 -->
     <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
+    <!-- 面板控制器 -->
     <Controls />
+    <!-- 左上角的操作按钮 -->
     <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
+      <SearchModal/>
+      <ADivider direction="vertical" margin="5px" />
       <ASwitch class="panel-item" type="line" @change="() => toggleClass()" checked-color="black" size="medium">
         <template #checked-icon>
           <IconMoonFill style="color: orange" />
@@ -158,7 +192,21 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
           </AButton>
         </template>
       </AUpload>
+
     </Panel>
+
+    <!-- 执行按钮 -->
+    <div class="execute-flow-btn" @click="() => toggelExecute()">
+      <AButton type="primary">
+        <template #icon>
+          <IconPauseCircleFill v-if="executeFlow" />
+          <IconPlayCircleFill v-else />
+        </template>
+        Execute Flow
+      </AButton>
+    </div>
+
+    <!-- 节点的表单弹窗 -->
     <NodeFormModel v-if="selectedNode" v-model="selectedNode" v-model:visible="formVisible" :properties="properties"
       :description="description" />
   </VueFlow>

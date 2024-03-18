@@ -4,7 +4,7 @@
             "id": "1",
             "label": "Node 1",
             "serviceName": "HTTP",
-            "type": "service",
+            "type": "SERVICE",
             "position": {
                 "x": 487,
                 "y": 259
@@ -15,7 +15,7 @@
             "id": "2",
             "label": "Node 2",
             "serviceName": "Regex",
-            "type": "service",
+            "type": "SERVICE",
             "position": {
                 "x": 771,
                 "y": 144
@@ -26,7 +26,7 @@
             "id": "3",
             "label": "Node 3",
             "serviceName": "SQL",
-            "type": "service",
+            "type": "SERVICE",
             "position": {
                 "x": 778,
                 "y": 331
@@ -35,8 +35,9 @@
         },
         {
             "id": "4",
-            "label": "Condition",
-            "type": "condition",
+            "label": "Switch",
+            "serviceName": "Switch",
+            "type": "SWITCH",
             "position": {
                 "x": 778,
                 "y": 331
