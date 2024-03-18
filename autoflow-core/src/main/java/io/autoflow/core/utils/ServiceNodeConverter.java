@@ -27,7 +27,7 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
 
     @Override
     public ServiceTask convert(Node node) {
-        Assert.equals(NodeType.service, node.getType());
+        Assert.equals(NodeType.SERVICE, node.getType());
         Service service = Services.getServiceMap().get(node.getServiceName());
         Assert.notNull(service);
         ServiceTask serviceTask = new ServiceTask();

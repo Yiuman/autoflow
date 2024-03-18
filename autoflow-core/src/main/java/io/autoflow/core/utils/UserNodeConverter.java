@@ -16,7 +16,7 @@ public enum UserNodeConverter implements NodeConverter<UserTask> {
 
     @Override
     public UserTask convert(Node node) {
-        Assert.equals(NodeType.user, node.getType());
+        Assert.equals(NodeType.USER, node.getType());
         UserTask userTask = new UserTask();
         userTask.setId(node.getId());
         return userTask;

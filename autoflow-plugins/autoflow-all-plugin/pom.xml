@@ -37,5 +37,11 @@
             <artifactId>autoflow-sql-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>Ï
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-switch-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -9,6 +9,9 @@ server:
 spring:
   application:
     name: autoflow
+  jackson:
+    serialization:
+      write-null-map-values: true
   servlet:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:100MB}

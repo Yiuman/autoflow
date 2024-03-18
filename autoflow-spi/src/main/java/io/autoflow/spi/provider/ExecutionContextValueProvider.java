@@ -2,6 +2,8 @@ package io.autoflow.spi.provider;
 
 import cn.hutool.core.bean.copier.ValueProvider;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
 import com.googlecode.aviator.AviatorEvaluator;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.ExecutionContext;
@@ -20,6 +22,7 @@ import java.util.Objects;
  */
 public class ExecutionContextValueProvider implements ValueProvider<String> {
     private final Map<String, Object> variables = new HashMap<>();
+    private static final String EXPRESS_REGEX = "^\\$\\{(.*)}";
 
     public ExecutionContextValueProvider(ExecutionContext executionContext) {
         variables.putAll(executionContext.getParameters());
@@ -31,7 +34,11 @@ public class ExecutionContextValueProvider implements ValueProvider<String> {
         Object result = variables.get(key);
         if (result instanceof String) {
             try {
-                return AviatorEvaluator.execute((String) result, variables);
+                String express = ReUtil.get(EXPRESS_REGEX, (String) result, 1);
+                if (StrUtil.isNotBlank(express)) {
+                    return AviatorEvaluator.execute(express, variables);
+                }
+
             } catch (Throwable ignore) {
             }
         }

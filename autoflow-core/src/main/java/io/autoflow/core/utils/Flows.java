@@ -36,9 +36,10 @@ public final class Flows {
     public static final String PROPERTY_VALUE = "value";
 
     private static final Map<NodeType, NodeConverter<? extends FlowNode>> NODE_CONVERTER_MAP = new HashMap<>() {{
-        put(NodeType.service, ServiceNodeConverter.INSTANCE);
-        put(NodeType.gateway, GatewayNodeConverter.INSTANCE);
-        put(NodeType.user, UserNodeConverter.INSTANCE);
+        put(NodeType.SERVICE, ServiceNodeConverter.INSTANCE);
+        put(NodeType.SWITCH, ServiceNodeConverter.INSTANCE);
+        put(NodeType.GATEWAY, GatewayNodeConverter.INSTANCE);
+        put(NodeType.USER, UserNodeConverter.INSTANCE);
     }};
 
     private Flows() {
@@ -107,6 +108,10 @@ public final class Flows {
         String id = String.format("%s_%s", connection.getSource(), connection.getTarget());
         sequenceFlow.setId(id);
         sequenceFlow.setName(id);
+        //设置条件表达式
+        if (StrUtil.isNotBlank(connection.getExpression())) {
+            sequenceFlow.setConditionExpression(connection.getExpression());
+        }
         sequenceFlow.setSourceRef(connection.getSource());
         sequenceFlow.setTargetRef(connection.getTarget());
         return sequenceFlow;

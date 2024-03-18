@@ -8,6 +8,7 @@ import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.core.utils.Flows;
+import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.context.OnceExecutionContext;
 import io.autoflow.spi.exception.ExecuteException;
@@ -52,13 +53,16 @@ public class FlowableExecutor implements Executor {
         return flowExecutionContext.getInputData();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public ExecutionData executeNode(Node node) {
         try {
             io.autoflow.spi.Service service = Services.getService(node.getServiceName());
             Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceName()), node.getServiceName()));
-            Map<String, Object> parameters = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
-            return service.execute(OnceExecutionContext.create(parameters));
+            Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
+            Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) runOnceData.get(Constants.INPUT_DATA);
+            runOnceData.remove(Constants.INPUT_DATA);
+            return service.execute(OnceExecutionContext.create(runOnceData, inputData));
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", node.getServiceName()), throwable);
             return ExecutionData.error(node.getServiceName(), throwable);
