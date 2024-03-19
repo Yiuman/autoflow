@@ -43,24 +43,38 @@
     border-radius: 8px 8px 0 0;
 
 
-    input {
-        width: auto;
-        border: none;
-        outline: none;
-        height: 32px;
-        line-height: 32px;
-        font-size: 16px;
-        background-color: transparent;
-        color: var(--color-text-1);
-    }
 
     .search-modal-input-left {
         align-items: center;
         display: flex;
+
+        .arco-icon-search {
+            color: rgb(var(--primary-6));
+        }
+
+        :first-child {
+            margin: 0 4px;
+        }
+
+
+        input {
+            width: auto;
+            border: none;
+            outline: none;
+            height: 40px;
+            line-height: 40px;
+            font-size: 16px;
+            background-color: transparent;
+            color: var(--color-text-1);
+        }
     }
 
     .search-modal-input-right {
         display: flex;
+
+        .input-key-desc {
+            color: var(--color-text-3);
+        }
 
         :first-child {
             margin: 0 4px;

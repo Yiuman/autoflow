@@ -153,6 +153,19 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
 
 const [executeFlow, toggelExecute] = useToggle(false);
 
+const searchModalValue = ref<string>()
+const matchServices = computed(() => {
+  if (searchModalValue.value) {
+    return serviceStore.getServices.filter(service => {
+      return service.name.toLowerCase().indexOf(searchModalValue.value || '') > -1;
+    })
+  }
+  return serviceStore.getServices;
+})
+
+function searchModalInput(event: InputEvent) {
+  searchModalValue.value = (event.data) as string
+}
 
 </script>
 
@@ -165,7 +178,19 @@ const [executeFlow, toggelExecute] = useToggle(false);
     <Controls />
     <!-- 左上角的操作按钮 -->
     <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
-      <SearchModal/>
+      <SearchModal @input="(event) => searchModalInput(event as InputEvent)">
+        <AList>
+          <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name">
+            <AListItemMeta :title="serviceItem.name">
+              <template #avatar>
+                <AAvatar shape="square" :size="68">
+                  <div class="node-switch-label">{{ serviceItem.name }}</div>
+                </AAvatar>
+              </template>
+            </AListItemMeta>
+          </AListItem>
+        </AList>
+      </SearchModal>
       <ADivider direction="vertical" margin="5px" />
       <ASwitch class="panel-item" type="line" @change="() => toggleClass()" checked-color="black" size="medium">
         <template #checked-icon>
