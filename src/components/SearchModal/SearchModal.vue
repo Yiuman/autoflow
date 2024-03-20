@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { getOS } from '@/utils/util-func';
 import { IconSearch, } from '@arco-design/web-vue/es/icon'
 const [showSearchModal, toggelSearchModal] = useToggle(false)
 const searchInput = ref();
 const { focused } = useFocus(searchInput);
 const keys = useMagicKeys()
-const commandK = keys['Command+K']
+const os = getOS();
+const commandK = os === 'Mac' ? keys['Command+K'] : keys['Ctrl+K']
+const hotkeyDesc = os === 'Mac' ? "⌘ K" : "Ctrl K"
 watch(commandK, () => {
     showSearchModal.value = true;
 })
@@ -16,6 +19,12 @@ const emits = defineEmits<{
 function emitInput(event: InputEvent) {
     emits('input', event)
 }
+
+window.addEventListener("keydown", (e) => {
+    if (e.key.toUpperCase() === 'K' && e.ctrlKey) {
+        e.preventDefault();
+    }
+});
 </script>
 
 <template>
@@ -26,7 +35,7 @@ function emitInput(event: InputEvent) {
             </template>
             <template #suffix>
                 <div class="hot-key">
-                    <div class="input-key">⌘ K</div>
+                    <div class="input-key">{{ hotkeyDesc }}</div>
                 </div>
             </template>
         </AInput>
@@ -37,7 +46,8 @@ function emitInput(event: InputEvent) {
                 <div class="search-modal-input">
                     <div class="search-modal-input-left">
                         <IconSearch size="24" />
-                        <input @input="(event) => emitInput(event as InputEvent)" autofocus ref="searchInput" type="text" />
+                        <input @input="(event) => emitInput(event as InputEvent)" autofocus ref="searchInput"
+                            type="text" />
                     </div>
 
                     <div class="search-modal-input-right">

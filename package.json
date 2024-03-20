@@ -36,6 +36,7 @@
     "@arco-plugins/vite-vue": "^1.4.5",
     "@rushstack/eslint-patch": "^1.3.2",
     "@tsconfig/node18": "^18.2.0",
+    "@types/lodash": "^4.17.0",
     "@types/node": "^18.17.5",
     "@types/qs": "^6.9.12",
     "@types/splitpanes": "^2.2.6",

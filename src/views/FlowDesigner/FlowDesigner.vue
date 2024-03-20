@@ -16,7 +16,7 @@ import { toFlow, getAllIncomers } from '@/utils/converter'
 import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem } from '@arco-design/web-vue'
-import type { Flow, Property, VueFlowNode, NodeElementData, ExecutionData } from '@/types/flow'
+import type { Flow, Property, VueFlowNode, NodeElementData, ExecutionData, Service } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
@@ -167,6 +167,10 @@ function searchModalInput(event: InputEvent) {
   searchModalValue.value = (event.data) as string
 }
 
+function addNode(node: Service) {
+
+}
+
 </script>
 
 <template>
@@ -180,7 +184,7 @@ function searchModalInput(event: InputEvent) {
     <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
       <SearchModal @input="(event) => searchModalInput(event as InputEvent)">
         <AList>
-          <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name">
+          <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name" @click="() => addNode(serviceItem)">
             <AListItemMeta :title="serviceItem.name">
               <template #avatar>
                 <AAvatar shape="square" :size="68">
