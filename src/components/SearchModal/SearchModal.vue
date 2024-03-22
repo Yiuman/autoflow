@@ -1,20 +1,45 @@
 <script setup lang="ts">
 import { getOS } from '@/utils/util-func';
 import { IconSearch, } from '@arco-design/web-vue/es/icon'
-const [showSearchModal, toggelSearchModal] = useToggle(false)
 const searchInput = ref();
 const { focused } = useFocus(searchInput);
 const keys = useMagicKeys()
 const os = getOS();
 const commandK = os === 'Mac' ? keys['Command+K'] : keys['Ctrl+K']
 const hotkeyDesc = os === 'Mac' ? "⌘ K" : "Ctrl K"
+
+interface Props {
+    visible?: boolean,
+    placeholder?: string,
+    width?: number | string,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    width: '200px'
+})
+const showSearchModal = computed({
+    get() {
+        return props.visible
+    },
+    set(value) {
+        emits('update:visible', value)
+    }
+})
+
 watch(commandK, () => {
     showSearchModal.value = true;
 })
 
+function toggelSearchModal() {
+    showSearchModal.value = !showSearchModal.value
+}
+
+
+
 const emits = defineEmits<{
     (e: 'input', event: Event): void
     (e: 'close'): void
+    (e: 'update:visible', item: boolean): void
 }>()
 function emitInput(event: InputEvent) {
     emits('input', event)
@@ -28,8 +53,8 @@ window.addEventListener("keydown", (e) => {
 </script>
 
 <template>
-    <div class="search-modal" @click="() => toggelSearchModal()">
-        <AInput @focus.stop="">
+    <div class="search-modal" :style="{ width: '200px' }" @click="() => toggelSearchModal()">
+        <AInput :placeholder="placeholder" @focus.stop="">
             <template #prefix>
                 <IconSearch />
             </template>

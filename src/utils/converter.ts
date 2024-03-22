@@ -1,8 +1,9 @@
 import { MarkerType, type GraphEdge, type Node as VueFlowNode, type GraphNode } from '@vue-flow/core'
 
-import type { Flow, Connection, Node, } from '@/types/flow'
+import type { Flow, Connection, Node, Service } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
 import { uniq } from 'lodash';
+import type { Position } from '@vueuse/core';
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrId: Node | string) => GraphNode[]): VueFlowNode[] {
@@ -40,6 +41,17 @@ export function toGraphNode(node: Node): VueFlowNode {
   nodeData.parameters = node.data
   return {
     ...node,
+    data: nodeData
+  }
+}
+
+export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
+  const nodeData: Record<string, any> = {};
+  nodeData.serviceName = service.name
+  return {
+    type: service.name === 'Switch' ? 'SWITCH' : 'SERVICE',
+    id: uuid(32),
+    position: position || { x: 0, y: 0 },
     data: nodeData
   }
 }

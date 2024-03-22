@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { EdgeMouseEvent, GraphEdge } from '@vue-flow/core'
-import { toGraphNode, toGraphEdge, toNode } from '@/utils/converter'
+import { toGraphNode, toGraphEdge, toNode, serviceToGraphNode } from '@/utils/converter'
 import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import {
   IconSunFill,
@@ -51,7 +51,7 @@ const properties = computed<Property[]>(() => {
 
 const description = computed<string | undefined>(() => serviceStore.getServiceByName(selectedNode.value?.data.serviceName)?.description)
 
-const { onConnect, addEdges, findNode, updateNodeData, getIncomers } = useVueFlow({
+const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
@@ -153,7 +153,9 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
 
 const [executeFlow, toggelExecute] = useToggle(false);
 
+
 const searchModalValue = ref<string>()
+const searchModalVisible = ref<boolean>()
 const matchServices = computed(() => {
   if (searchModalValue.value) {
     return serviceStore.getServices.filter(service => {
@@ -167,22 +169,28 @@ function searchModalInput(event: InputEvent) {
   searchModalValue.value = (event.data) as string
 }
 
+const vueFlow = ref();
 function addNode(node: Service) {
-
+  const { bottom, right } = useElementBounding(vueFlow);
+  console.warn("bottom, right", bottom.value, right.value);
+  addNodes(serviceToGraphNode(node, { x: right.value / 2, y: bottom.value / 2 }));
+  searchModalVisible.value = false;
 }
 
 </script>
 
 <template>
-  <VueFlow :nodes="nodes" :edges="edges" @edge-mouse-move="edgeMouseMove" @edge-mouse-leave="edgeMouseMove"
-    :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes" :edge-types="edgeTypes">
+  <VueFlow ref="vueFlow" :nodes="nodes" :edges="edges" @edge-mouse-move="edgeMouseMove"
+    @edge-mouse-leave="edgeMouseMove" :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes"
+    :edge-types="edgeTypes">
     <!-- 背景 -->
     <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
     <!-- 面板控制器 -->
     <Controls />
     <!-- 左上角的操作按钮 -->
     <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
-      <SearchModal @input="(event) => searchModalInput(event as InputEvent)">
+      <SearchModal :placeholder="'搜索添加节点'" v-model:visible="searchModalVisible"
+        @input="(event) => searchModalInput(event as InputEvent)">
         <AList>
           <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name" @click="() => addNode(serviceItem)">
             <AListItemMeta :title="serviceItem.name">
