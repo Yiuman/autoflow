@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import io.autoflow.core.Services;
 import io.autoflow.core.utils.Flows;
 import io.autoflow.spi.Service;
+import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.Data;
@@ -45,6 +46,9 @@ public class ExecuteServiceTask implements JavaDelegate {
         );
         ExecutionData currentExecutionData;
         try {
+            //添加瞬态变量（不会序列化保存，只作用与当前的流程流转相关）
+            execution.setTransientVariablesLocal(flowExecutionContext.getParameters());
+            execution.setTransientVariableLocal(Constants.INPUT_DATA, flowExecutionContext.getInputData());
             currentExecutionData = service.execute(flowExecutionContext);
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", serviceNameValue), throwable);
@@ -58,5 +62,6 @@ public class ExecuteServiceTask implements JavaDelegate {
                 .orElse(CollUtil.newArrayList());
         nodeExecutionDataList.add(currentExecutionData);
         inputData.put(currentFlowElement.getId(), nodeExecutionDataList);
+
     }
 }

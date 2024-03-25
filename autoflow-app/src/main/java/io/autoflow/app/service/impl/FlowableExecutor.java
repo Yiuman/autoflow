@@ -15,6 +15,7 @@ import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -22,6 +23,7 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +42,8 @@ public class FlowableExecutor implements Executor {
     @Override
     public Map<String, List<ExecutionData>> execute(Flow flow) {
         BpmnModel bpmnModel = Flows.convert(flow);
+        BpmnXMLConverter converter = new BpmnXMLConverter();
+        log.info(StrUtil.str(converter.convertToXML(bpmnModel), StandardCharsets.UTF_8));
         Deployment deploy = repositoryService.createDeployment()
                 .name(flow.getName())
                 .key(flow.getId())

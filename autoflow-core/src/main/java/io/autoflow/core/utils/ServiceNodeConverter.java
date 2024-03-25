@@ -6,8 +6,8 @@ import cn.hutool.core.map.MapUtil;
 import io.autoflow.core.Services;
 import io.autoflow.core.delegate.ExecuteServiceTask;
 import io.autoflow.core.model.Node;
-import io.autoflow.core.model.NodeType;
 import io.autoflow.spi.Service;
+import io.autoflow.spi.context.Constants;
 import org.flowable.bpmn.model.FieldExtension;
 import org.flowable.bpmn.model.ImplementationType;
 import org.flowable.bpmn.model.ServiceTask;
@@ -27,7 +27,6 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
 
     @Override
     public ServiceTask convert(Node node) {
-        Assert.equals(NodeType.SERVICE, node.getType());
         Service service = Services.getServiceMap().get(node.getServiceName());
         Assert.notNull(service);
         ServiceTask serviceTask = new ServiceTask();
@@ -43,7 +42,13 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
         //扩展属性注入
         Map<String, Object> parameters = node.getData();
         if (MapUtil.isNotEmpty(parameters)) {
-            parameters.forEach((key, value) -> Flows.addExtensionElement(serviceTask, key, value));
+            for (Map.Entry<String, Object> stringObjectEntry : parameters.entrySet()) {
+                //输入的data不作为参数字段输入
+                if (Constants.INPUT_DATA.equals(stringObjectEntry.getKey())) {
+                    continue;
+                }
+                Flows.addExtensionElement(serviceTask, stringObjectEntry.getKey(), stringObjectEntry.getValue());
+            }
         }
 
         return serviceTask;

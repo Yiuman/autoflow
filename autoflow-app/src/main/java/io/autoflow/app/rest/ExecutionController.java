@@ -1,5 +1,6 @@
 package io.autoflow.app.rest;
 
+import io.autoflow.app.request.StopRequest;
 import io.autoflow.common.http.R;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
@@ -31,8 +32,15 @@ public class ExecutionController {
         return R.ok(executor.execute(flow));
     }
 
+    @PostMapping("/stop")
+    public R<Void> stop(@RequestBody StopRequest stopRequest) {
+        //todo 根据类型去停止在执行的任务
+        return R.ok();
+    }
+
     @PostMapping("/node")
     public R<ExecutionData> executeNode(@RequestBody Node node) {
         return R.ok(executor.executeNode(node));
     }
+
 }
