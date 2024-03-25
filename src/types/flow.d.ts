@@ -1,3 +1,4 @@
+import type { Node as VueFlowCordNode } from '@vue-flow/core'
 interface Flow {
   id: string
   name: string
@@ -16,13 +17,14 @@ interface Node {
 }
 
 interface Connection {
+  id: string,
   source: string
   target: string
-  expression?: string
   sourceX: number
   sourceY: number
   targetX: number
   targetY: number
+  expression?: string
 }
 
 interface Position {
@@ -64,6 +66,6 @@ interface Service {
 }
 
 export type NodeElementData = ToolBarData & Record<string, ElementData>
-export type VueFlowNode = Node<NodeElementData>
+export type VueFlowNode = VueFlowCordNode<NodeElementData>
 
-export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError,Property, Service }
+export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError, Property, Service }

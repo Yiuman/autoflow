@@ -46,7 +46,7 @@ function emitInput(event: InputEvent) {
 }
 
 window.addEventListener("keydown", (e) => {
-    if (e.key.toUpperCase() === 'K' && e.ctrlKey) {
+    if (e.key && e.key.toUpperCase() === 'K' && e.ctrlKey) {
         e.preventDefault();
     }
 });

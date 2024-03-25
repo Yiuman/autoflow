@@ -1,10 +1,10 @@
-import { MarkerType, type GraphEdge, type Node as VueFlowNode, type GraphNode } from '@vue-flow/core'
+import { MarkerType, isNode, isEdge } from '@vue-flow/core'
+import type { GraphEdge, Node as VueFlowNode, GraphNode, Elements } from '@vue-flow/core'
 
-import type { Flow, Connection, Node, Service } from '@/types/flow'
+import type { Flow, Connection, Node, Service, NodeElementData } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
 import { uniq } from 'lodash';
 import type { Position } from '@vueuse/core';
-
 //获取当前节点所有的前置节点
 export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrId: Node | string) => GraphNode[]): VueFlowNode[] {
   if (!nodeId) {
@@ -48,9 +48,10 @@ export function toGraphNode(node: Node): VueFlowNode {
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
   const nodeData: Record<string, any> = {};
   nodeData.serviceName = service.name
+  nodeData.parameters = {};
   return {
     type: service.name === 'Switch' ? 'SWITCH' : 'SERVICE',
-    id: uuid(32),
+    id: `node_${uuid(32)}`,
     position: position || { x: 0, y: 0 },
     data: nodeData
   }
@@ -58,13 +59,14 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
 
 export function toConnect(edge: GraphEdge): Connection {
   return {
+    id: edge.id,
     source: edge.source,
     target: edge.target,
     sourceX: edge.sourceX,
     sourceY: edge.sourceY,
     targetX: edge.targetX,
     targetY: edge.targetY,
-    expression: edge.data.expression
+    expression: edge.data?.expression
   }
 }
 
@@ -78,11 +80,29 @@ export function toGraphEdge(connection: Connection): GraphEdge {
 }
 
 export function toFlow<N extends VueFlowNode, E extends GraphEdge>(nodes: N[] | undefined, edges: E[] | undefined): Flow {
-  const buildUUID = uuid(32)
+  const id = `autoflow_${uuid(32)}`
   return {
-    id: buildUUID,
-    name: `autoflow_${buildUUID}`,
+    id: id,
+    name: id,
     nodes: nodes?.map((node) => toNode(node)),
     connections: edges?.map((edge) => toConnect(edge))
   }
+}
+
+export function elementsToFlow(elements: Elements<NodeElementData>): Flow {
+  const id = `autoflow_${uuid(32)}`
+  return {
+    id: id,
+    name: id,
+    nodes: getNodes(elements)?.map((node) => toNode(node)),
+    connections: getEdges(elements)?.map((edge) => toConnect(edge))
+  }
+}
+
+export function getNodes(elements: Elements<NodeElementData>): VueFlowNode[] {
+  return elements.filter(item => isNode(item)) as VueFlowNode[];
+}
+
+export function getEdges(elements: Elements<NodeElementData>): GraphEdge[] {
+  return elements.filter(item => isEdge(item)) as GraphEdge[];
 }

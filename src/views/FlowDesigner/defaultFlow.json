@@ -1,7 +1,7 @@
 {
     "nodes": [
         {
-            "id": "1",
+            "id": "node_1",
             "label": "Node 1",
             "serviceName": "HTTP",
             "type": "SERVICE",
@@ -12,7 +12,7 @@
             "data": {}
         },
         {
-            "id": "2",
+            "id": "node_2",
             "label": "Node 2",
             "serviceName": "Regex",
             "type": "SERVICE",
@@ -23,7 +23,7 @@
             "data": {}
         },
         {
-            "id": "3",
+            "id": "node_3",
             "label": "Node 3",
             "serviceName": "SQL",
             "type": "SERVICE",
@@ -34,7 +34,7 @@
             "data": {}
         },
         {
-            "id": "4",
+            "id": "node_4",
             "label": "Switch",
             "serviceName": "Switch",
             "type": "SWITCH",
@@ -47,16 +47,16 @@
     ],
     "connections": [
         {
-            "source": "1",
-            "target": "2",
+            "source": "node_1",
+            "target": "node_2",
             "sourceX": 578,
             "sourceY": 301,
             "targetX": 768,
             "targetY": 186
         },
         {
-            "source": "1",
-            "target": "3",
+            "source": "node_1",
+            "target": "node_3",
             "sourceX": 578,
             "sourceY": 301,
             "targetX": 775,

@@ -9,4 +9,10 @@ export function executeNode(node: Node) {
     return request.post<ExecutionData[]>("/executions/node", node)
 }
 
+type ExecutionType = 'FLOW' | 'NODE';
+
+export function stopExecution(node: { id: string, type: ExecutionType }) {
+    return request.post<ExecutionData[]>("/executions/stop", node)
+}
+
 
