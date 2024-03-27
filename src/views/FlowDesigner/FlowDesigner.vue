@@ -131,7 +131,6 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
 const vueFlow = ref();
 function addNode(node: Service) {
   const { bottom, right } = useElementBounding(vueFlow);
-  console.warn("bottom, right", bottom.value, right.value);
   const newNode = {
     ...serviceToGraphNode(node, { x: right.value / 2, y: bottom.value / 2 }),
     events: defaultEvents
@@ -186,16 +185,31 @@ function searchModalInput(event: InputEvent) {
 
 //---------------------------- 工作流执行 ----------------------------
 const [isExecuteFlow, toggelExecute] = useToggle(false);
+const running = ref<boolean>(false);
 const executeFlowId = ref<string>();
+async function runFlow() {
+  running.value = true;
+  const flow = elementsToFlow(elements.value);
+  executeFlowId.value = flow.id
+  await executeFlow(flow)
+  executeFlowId.value = '';
+  running.value = false;
+}
 
-watch(isExecuteFlow, async () => {
+async function stopFlow() {
+  if (executeFlowId.value) {
+    await stopExecution({ id: executeFlowId.value, type: "FLOW" })
+    executeFlowId.value = '';
+  }
+
+  running.value = false;
+}
+
+watch(isExecuteFlow, () => {
   if (isExecuteFlow.value) {
-    const flow = elementsToFlow(elements.value);
-    executeFlowId.value = flow.id
-    await executeFlow(flow)
-    toggelExecute();
-  } else {
-    executeFlowId.value && stopExecution({ id: executeFlowId.value, type: "FLOW" });
+    runFlow();
+  }else{
+    stopFlow();
   }
 })
 
@@ -257,7 +271,7 @@ watch(isExecuteFlow, async () => {
     <div class="execute-flow-btn" @click="() => toggelExecute()">
       <AButton type="primary">
         <template #icon>
-          <IconPauseCircleFill v-if="isExecuteFlow" />
+          <IconPauseCircleFill v-if="running" />
           <IconPlayCircleFill v-else />
         </template>
         Execute Flow

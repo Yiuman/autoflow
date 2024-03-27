@@ -23,7 +23,9 @@ export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrI
 
 export function toNode(graphNode: VueFlowNode): Node {
   const position = graphNode.position
-  const parameters = graphNode.data.parameters || {};
+  const parameters = {...graphNode.data.parameters} || {};
+  //删除输入
+  delete parameters['inputData']
   const serviceName = graphNode.data.serviceName || '';
   return {
     id: graphNode.id,
