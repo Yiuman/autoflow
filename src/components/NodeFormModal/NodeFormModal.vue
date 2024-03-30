@@ -84,10 +84,10 @@ const [action, toggleAction] = useToggle(false)
 watch(action, async () => {
   const node = props.modelValue;
   if (action.value) {
-    await node.events.run(node);
+    await node.events?.run(node);
     toggleAction();
   } else {
-    node.events.stop && node.stop(node)
+    node.events?.stop && node.events?.stop(node)
   }
 })
 
@@ -114,7 +114,7 @@ function isHtml(data: string) {
       </div>
 
       <div class="node-form-service">
-        {{ props.modelValue.data.serviceName }}
+        {{ props.modelValue.data.label }}
       </div>
 
       <Splitpanes>
@@ -123,7 +123,7 @@ function isHtml(data: string) {
             <div class="node-form-title">Input</div>
             <ASelect v-model="selectedIncomerNodeId">
               <AOption v-for="incomer in incomers" :key="incomer.id" :value="incomer.id"
-                :label="`${incomer.data.serviceName}-${incomer.id}`" />
+                :label="`${incomer.data.label}-${incomer.id}`" />
             </ASelect>
             <ATabs v-if="inputData">
               <template v-for="executeDataKey in Object.keys(inputData)" :key="executeDataKey">

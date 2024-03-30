@@ -2,6 +2,7 @@ import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosRespon
 import axios from "axios";
 import { useEnv } from "@/hooks/env";
 
+
 /**
  * @description:  contentType
  */
@@ -128,4 +129,5 @@ const request = {
 };
 
 
-export default request;
+
+export default request ;

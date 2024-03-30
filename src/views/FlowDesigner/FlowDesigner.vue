@@ -21,11 +21,12 @@ import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByData } from '@/utils/download'
-import { executeNode, executeFlow, stopExecution } from '@/api/execution'
+import { executeNode, stopExecution } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
 import SwitchNode from '@/components/SwitchNode/SwitchNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
-
+import { fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source"
+import { useEnv } from "@/hooks/env";
 
 //---------------------------- 切换主题 ----------------------------
 const [dark, toggleClass] = useToggle(false)
@@ -69,10 +70,10 @@ const properties = computed<Property[]>(() => {
   if (!selectedNode.value) {
     return [];
   }
-  return serviceStore.getServiceByName(selectedNode.value?.data.serviceName).properties;
+  return serviceStore.getServiceById(selectedNode.value?.data.serviceId).properties;
 })
 
-const description = computed<string | undefined>(() => serviceStore.getServiceByName(selectedNode.value?.data.serviceName)?.description)
+const description = computed<string | undefined>(() => serviceStore.getServiceById(selectedNode.value?.data.serviceId)?.description)
 
 
 //---------------------------- 节点事件 ----------------------------
@@ -184,16 +185,60 @@ function searchModalInput(event: InputEvent) {
 }
 
 //---------------------------- 工作流执行 ----------------------------
-const [isExecuteFlow, toggelExecute] = useToggle(false);
 const running = ref<boolean>(false);
 const executeFlowId = ref<string>();
-async function runFlow() {
+
+const { VITE_BASE_URL } = useEnv();
+
+function executeFlowSSE(flow: Flow) {
+  const ctrl = new AbortController();
+  const url = VITE_BASE_URL || '/api' + "/executions/sse";
+  fetchEventSource(url, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    }
+    ,
+    body: JSON.stringify(flow),
+    async onmessage(message: EventSourceMessage) {
+      console.warn("event", message, new Date());
+      switch (message.event) {
+        case "ACTIVITY_STARTED":
+          updateNodeData(message.id, { running: true })
+          break;
+        case "ACTIVITY_COMPLETED":
+          if (message.data) {
+            updateNodeData(message.id, { executionData: JSON.parse(message.data), running: false })
+          }
+          break;
+        default:
+      }
+
+    },
+    signal: ctrl.signal,
+    async onopen(response: Response) {
+      console.warn("open", response);
+    },
+    onclose() {
+      console.warn("closeclose")
+      executeFlowId.value = '';
+      running.value = false;
+      ctrl.abort()
+    },
+    onerror(error: Error) {
+      throw error;
+    }
+
+
+  })
+}
+
+function runFlow() {
   running.value = true;
   const flow = elementsToFlow(elements.value);
   executeFlowId.value = flow.id
-  await executeFlow(flow)
-  executeFlowId.value = '';
-  running.value = false;
+  executeFlowSSE(flow)
+
 }
 
 async function stopFlow() {
@@ -204,14 +249,6 @@ async function stopFlow() {
 
   running.value = false;
 }
-
-watch(isExecuteFlow, () => {
-  if (isExecuteFlow.value) {
-    runFlow();
-  }else{
-    stopFlow();
-  }
-})
 
 </script>
 
@@ -268,7 +305,7 @@ watch(isExecuteFlow, () => {
     </Panel>
 
     <!-- 执行按钮 -->
-    <div class="execute-flow-btn" @click="() => toggelExecute()">
+    <div class="execute-flow-btn" @click="running ? stopFlow() : runFlow()">
       <AButton type="primary">
         <template #icon>
           <IconPauseCircleFill v-if="running" />

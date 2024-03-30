@@ -13,7 +13,7 @@ interface Node {
   data?: Record<string, any>
   position: Position
   type: string
-  serviceName: string
+  serviceId: string
 }
 
 interface Connection {
@@ -60,6 +60,7 @@ interface Property {
 }
 
 interface Service {
+  id:string,
   name: string,
   properties: Property[],
   description?: string

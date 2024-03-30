@@ -16,7 +16,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
 
-const { removeNodes } = useVueFlow()
+const { removeNodes,updateNodeData } = useVueFlow()
 
 export interface ToolBarData {
   toolbarVisible: boolean
@@ -32,15 +32,18 @@ export interface Props extends NodeProps<Data, NodeAction> {
 }
 
 const props = defineProps<Props>()
-const [action, toggleAction] = useToggle(false)
-watch(action, async () => {
-  if (action.value) {
-    await props.events.run(props);
-    toggleAction();
-  } else {
-    props.events.stop && props.events.stop(props)
+async function runNode() {
+  updateNodeData(props.id, { running: true })
+  await props.events.run(props);
+  updateNodeData(props.id, { running: false })
+}
+
+async function stopNode() {
+  if (props.data.running) {
+    props.events.stop && props.events.stop(props);
+    updateNodeData(props.id, { running: false })
   }
-})
+}
 
 /**
  * 获取连接的处理器的类型（input\output）
@@ -62,12 +65,12 @@ const rgba = randomRgba(0.8)
 </script>
 
 <template>
-  <div class="autoflow-node" :class="action ? 'node-action' : ''">
+  <div class="autoflow-node" :class="data.running ? 'node-action' : ''">
     <div class="node-toolbar">
       <AButtonGroup size="mini">
-        <AButton @click="toggleAction()" class="toolbar-btn">
+        <AButton @click="data.running ? stopNode() : runNode()" class="toolbar-btn">
           <template #icon>
-            <IconPauseCircleFill v-if="action" class="toolbar-stop-btn" />
+            <IconPauseCircleFill v-if="data.running" class="toolbar-stop-btn" />
             <IconPlayCircleFill v-else class="toolbar-action-btn" />
           </template>
         </AButton>
@@ -85,7 +88,7 @@ const rgba = randomRgba(0.8)
     </div>
 
     <div class="node-avatar">
-      <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.serviceName }}</AAvatar>
+      <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.label }}</AAvatar>
 
       <div class="node-status-icon" v-if="data.executionData">
         <IconExclamationCircle class="node-status-error" v-if="data.executionData.error" />

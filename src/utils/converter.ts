@@ -26,11 +26,11 @@ export function toNode(graphNode: VueFlowNode): Node {
   const parameters = {...graphNode.data.parameters} || {};
   //删除输入
   delete parameters['inputData']
-  const serviceName = graphNode.data.serviceName || '';
+  const serviceId = graphNode.data.serviceId || '';
   return {
     id: graphNode.id,
-    label: graphNode.label as string,
-    serviceName: serviceName,
+    label: graphNode.data.label || graphNode.label  as string,
+    serviceId: serviceId,
     type: graphNode.type as string,
     position: { ...position },
     data: parameters
@@ -39,7 +39,8 @@ export function toNode(graphNode: VueFlowNode): Node {
 
 export function toGraphNode(node: Node): VueFlowNode {
   const nodeData: Record<string, any> = {};
-  nodeData.serviceName = node.serviceName
+  nodeData.serviceId = node.serviceId
+  nodeData.label = node.label;
   nodeData.parameters = node.data
   return {
     ...node,
@@ -49,7 +50,8 @@ export function toGraphNode(node: Node): VueFlowNode {
 
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
   const nodeData: Record<string, any> = {};
-  nodeData.serviceName = service.name
+  nodeData.serviceId = service.id
+  nodeData.label = service.name
   nodeData.parameters = {};
   return {
     type: service.name === 'Switch' ? 'SWITCH' : 'SERVICE',

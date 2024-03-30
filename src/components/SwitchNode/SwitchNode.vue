@@ -15,7 +15,7 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
-const { removeNodes } = useVueFlow()
+const { removeNodes, updateNodeData } = useVueFlow()
 
 export interface ToolBarData {
   toolbarVisible: boolean
@@ -31,15 +31,19 @@ export interface Props extends NodeProps<Data, NodeAction> {
 }
 
 const props = defineProps<Props>()
-const [action, toggleAction] = useToggle(false)
-watch(action, async () => {
-  if (action.value) {
-    await props.events.run(props);
-    toggleAction();
-  } else {
-    props.events.stop && props.events.stop(props)
+async function runNode() {
+  updateNodeData(props.id, { running: true })
+  await props.events.run(props);
+  updateNodeData(props.id, { running: false })
+}
+
+async function stopNode() {
+  if (props.data.running) {
+    props.events.stop && props.events.stop(props);
+    updateNodeData(props.id, { running: false })
   }
-})
+}
+
 
 /**
  * 获取连接的处理器的类型（input\output）
@@ -60,12 +64,12 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
 </script>
 
 <template>
-  <div class="autoflow-node" :class="action ? 'node-action' : ''">
+  <div class="autoflow-node">
     <div class="node-toolbar">
       <AButtonGroup size="mini">
-        <AButton @click="toggleAction()" class="toolbar-btn">
+        <AButton @click="data.running ? stopNode() : runNode()" class="toolbar-btn">
           <template #icon>
-            <IconPauseCircleFill v-if="action" class="toolbar-stop-btn" />
+            <IconPauseCircleFill v-if="data.running" class="toolbar-stop-btn" />
             <IconPlayCircleFill v-else class="toolbar-action-btn" />
           </template>
         </AButton>
@@ -83,7 +87,7 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
     </div>
 
     <div class="node-avatar switch-node">
-      <AAvatar shape="square" :size="68" >
+      <AAvatar shape="square" :size="68" :class="data.running ? 'node-action' : ''">
         <div class="node-switch-label">Switch</div>
       </AAvatar>
 

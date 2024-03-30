@@ -1,66 +1,69 @@
 {
+    "id": "autoflow_Z6ABoUq8iZwpRVFP24ucVqfWas70A9te",
+    "name": "autoflow_Z6ABoUq8iZwpRVFP24ucVqfWas70A9te",
     "nodes": [
         {
-            "id": "node_1",
-            "label": "Node 1",
-            "serviceName": "HTTP",
+            "id": "node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1",
+            "serviceId": "io.autoflow.plugin.http.HttpRequestService",
             "type": "SERVICE",
+            "label": "HTTP",
             "position": {
-                "x": 487,
-                "y": 259
+                "x": 413.0557914999945,
+                "y": 194.04016251860207
             },
-            "data": {}
+            "data": {
+                "url": "https://www.baidu.com",
+                "method": "GET"
+            }
         },
         {
-            "id": "node_2",
-            "label": "Node 2",
-            "serviceName": "Regex",
-            "type": "SERVICE",
-            "position": {
-                "x": 771,
-                "y": 144
-            },
-            "data": {}
-        },
-        {
-            "id": "node_3",
-            "label": "Node 3",
-            "serviceName": "SQL",
-            "type": "SERVICE",
-            "position": {
-                "x": 778,
-                "y": 331
-            },
-            "data": {}
-        },
-        {
-            "id": "node_4",
-            "label": "Switch",
-            "serviceName": "Switch",
+            "id": "node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6",
+            "serviceId": "io.autoflow.plugin.switches.SwitchService",
             "type": "SWITCH",
+            "label": "SWITCH",
             "position": {
-                "x": 778,
-                "y": 331
+                "x": 654.1651023523169,
+                "y": 182.32090517836969
             },
-            "data": {}
+            "data": {
+                "express": "${inputData['node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1'][0]['json']['status']==200}"
+            }
+        },
+        {
+            "id": "node_tLbBZrRCQWQQh2H8L11mqReMqkWnvwZw",
+            "serviceId": "io.autoflow.plugin.regex.RegexService",
+            "type": "SERVICE",
+            "label": "Regex",
+            "position": {
+                "x": 903.9197669802205,
+                "y": 193.0795676546486
+            },
+            "data": {
+                "regex": "href=\"(.*?)\".*?>",
+                "content": "${inputData['node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1'][0]['raw']}",
+                "method": "findAll"
+            }
         }
     ],
     "connections": [
         {
-            "source": "node_1",
-            "target": "node_2",
-            "sourceX": 578,
-            "sourceY": 301,
-            "targetX": 768,
-            "targetY": 186
+            "id": "vueflow__edge-node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1__handle-right-node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6__handle-left",
+            "source": "node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1",
+            "target": "node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6",
+            "sourceX": 504.0557914999945,
+            "sourceY": 236.04016251860207,
+            "targetX": 645.1650891034426,
+            "targetY": 222.32095235101383
         },
         {
-            "source": "node_1",
-            "target": "node_3",
-            "sourceX": 578,
-            "sourceY": 301,
-            "targetX": 775,
-            "targetY": 373
+            "id": "vueflow__edge-node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6__handle-top-node_tLbBZrRCQWQQh2H8L11mqReMqkWnvwZwnode_tLbBZrRCQWQQh2H8L11mqReMqkWnvwZw__handle-left",
+            "source": "node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6",
+            "target": "node_tLbBZrRCQWQQh2H8L11mqReMqkWnvwZw",
+            "sourceX": 694.1651553593204,
+            "sourceY": 170.32088598637716,
+            "targetX": 900.9197621822224,
+            "targetY": 235.07961741522746,
+            "expression": "${!inputData['node_BXhbFGR1CeZGZzkesupYGXEhHZp5Mba6'][0].json.result}"
         }
     ]
 }

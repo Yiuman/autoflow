@@ -18,12 +18,12 @@ export const useServiceStore = defineStore('serivce', {
             if (!this.services.length) {
                 this.services = await getServiceList();
                 this.services.forEach(service => {
-                    this.serviceMap[service.name] = service;
+                    this.serviceMap[service.id] = service;
                 })
             }
         },
-        getServiceByName(name: string): Service {
-            return this.serviceMap[name]
+        getServiceById(id: string): Service {
+            return this.serviceMap[id]
         }
     },
 })
