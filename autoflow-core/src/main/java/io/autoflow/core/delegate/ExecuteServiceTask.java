@@ -1,6 +1,7 @@
 package io.autoflow.core.delegate;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import io.autoflow.core.Services;
@@ -19,6 +20,7 @@ import org.flowable.engine.impl.el.FixedValue;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 执行服务任务
@@ -32,13 +34,16 @@ import java.util.Optional;
 @Slf4j
 public class ExecuteServiceTask implements JavaDelegate {
 
-    private FixedValue serviceName;
+    private FixedValue serviceId;
 
     @Override
     public void execute(DelegateExecution execution) {
-        String serviceNameValue = (String) serviceName.getValue(null);
-        Service service = Services.getService(serviceNameValue);
-        Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceNameValue)));
+
+        String serviceIdValue = (String) serviceId.getValue(null);
+        StopWatch stopWatch = new StopWatch(StrUtil.format("【{} Task】", serviceIdValue));
+        stopWatch.start();
+        Service service = Services.getService(serviceIdValue);
+        Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
         flowExecutionContext.getParameters().putAll(
@@ -51,8 +56,8 @@ public class ExecuteServiceTask implements JavaDelegate {
             execution.setTransientVariableLocal(Constants.INPUT_DATA, flowExecutionContext.getInputData());
             currentExecutionData = service.execute(flowExecutionContext);
         } catch (Throwable throwable) {
-            log.error(StrUtil.format("'{}' node execute error", serviceNameValue), throwable);
-            currentExecutionData = ExecutionData.error(serviceNameValue, throwable);
+            log.error(StrUtil.format("'{}' node execute error", serviceIdValue), throwable);
+            currentExecutionData = ExecutionData.error(serviceIdValue, throwable);
         }
 
         Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
@@ -62,6 +67,7 @@ public class ExecuteServiceTask implements JavaDelegate {
                 .orElse(CollUtil.newArrayList());
         nodeExecutionDataList.add(currentExecutionData);
         inputData.put(currentFlowElement.getId(), nodeExecutionDataList);
-
+        stopWatch.stop();
+        log.debug("\n" + stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
     }
 }

@@ -76,7 +76,7 @@ public abstract class JsonConfigQLExpressService implements Service {
             throw new ExecuteException(
                     String.format("An exception occurred during the execution of the service named '%s'", getName()),
                     throwable,
-                    getName()
+                    getId()
             );
         }
 

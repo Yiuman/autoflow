@@ -55,7 +55,7 @@ public class SqlService extends BaseService<SqlParameter> {
                 return executionData;
             }
         } catch (Throwable throwable) {
-            throw new ExecuteException(throwable, getName());
+            throw new ExecuteException(throwable, getId());
         }
 
     }

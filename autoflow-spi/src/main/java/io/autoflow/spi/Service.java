@@ -14,6 +14,10 @@ import java.util.List;
  */
 public interface Service {
 
+    default String getId() {
+        return getClass().getName();
+    }
+
     String getName();
 
     List<Property> getProperties();

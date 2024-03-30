@@ -24,8 +24,8 @@ public class ExecutionData {
     private Error error;
     private List<ExecutionData> batch;
 
-    public static ExecutionData error(String serviceName, Throwable throwable) {
-        Error error = Error.builder().node(serviceName)
+    public static ExecutionData error(String serviceId, Throwable throwable) {
+        Error error = Error.builder().node(serviceId)
                 .message(throwable.getMessage())
                 .build();
         if (throwable instanceof InputValidateException) {

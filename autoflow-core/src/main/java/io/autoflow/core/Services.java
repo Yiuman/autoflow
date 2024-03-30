@@ -19,7 +19,7 @@ public class Services {
     static {
         ServiceLoader<Service> load = ServiceLoader.load(Service.class);
         load.forEach(SERVICE_LIST::add);
-        SERVICE_MAP = SERVICE_LIST.stream().collect(Collectors.toMap(Service::getName, service -> service));
+        SERVICE_MAP = SERVICE_LIST.stream().collect(Collectors.toMap(Service::getId, service -> service));
     }
 
     public static List<Service> getServiceList() {

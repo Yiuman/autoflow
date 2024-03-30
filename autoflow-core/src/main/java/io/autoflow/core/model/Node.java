@@ -29,5 +29,5 @@ public class Node {
     /**
      * 实现类（即插件）
      */
-    private String serviceName;
+    private String serviceId;
 }

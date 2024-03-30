@@ -27,6 +27,8 @@ spring:
       mode: always
 flowable:
   async-executor-activate: false
-
+logging:
+  level:
+    io.autoflow.*: debug
 
 

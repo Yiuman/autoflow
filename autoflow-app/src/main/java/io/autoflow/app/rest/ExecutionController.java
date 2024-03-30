@@ -1,5 +1,6 @@
 package io.autoflow.app.rest;
 
+import io.autoflow.app.flowable.SSEContext;
 import io.autoflow.app.request.StopRequest;
 import io.autoflow.common.http.R;
 import io.autoflow.core.model.Flow;
@@ -7,10 +8,12 @@ import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,14 @@ public class ExecutionController {
     @PostMapping
     public R<Map<String, List<ExecutionData>>> execute(@RequestBody Flow flow) {
         return R.ok(executor.execute(flow));
+    }
+
+    @PostMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter executeSSE(@RequestBody Flow flow) {
+        SseEmitter sseEmitter = new SseEmitter(0L);
+        SSEContext.add(flow.getId(), sseEmitter);
+        executor.execute(flow);
+        return sseEmitter;
     }
 
     @PostMapping("/stop")

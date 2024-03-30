@@ -15,7 +15,6 @@ import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -23,7 +22,6 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,8 +40,6 @@ public class FlowableExecutor implements Executor {
     @Override
     public Map<String, List<ExecutionData>> execute(Flow flow) {
         BpmnModel bpmnModel = Flows.convert(flow);
-        BpmnXMLConverter converter = new BpmnXMLConverter();
-        log.info(StrUtil.str(converter.convertToXML(bpmnModel), StandardCharsets.UTF_8));
         Deployment deploy = repositoryService.createDeployment()
                 .name(flow.getName())
                 .key(flow.getId())
@@ -61,15 +57,15 @@ public class FlowableExecutor implements Executor {
     @Override
     public ExecutionData executeNode(Node node) {
         try {
-            io.autoflow.spi.Service service = Services.getService(node.getServiceName());
-            Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceName()), node.getServiceName()));
+            io.autoflow.spi.Service service = Services.getService(node.getServiceId());
+            Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceId()), node.getServiceId()));
             Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
             Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) runOnceData.get(Constants.INPUT_DATA);
             runOnceData.remove(Constants.INPUT_DATA);
             return service.execute(OnceExecutionContext.create(runOnceData, inputData));
         } catch (Throwable throwable) {
-            log.error(StrUtil.format("'{}' node execute error", node.getServiceName()), throwable);
-            return ExecutionData.error(node.getServiceName(), throwable);
+            log.error(StrUtil.format("'{}' node execute error", node.getServiceId()), throwable);
+            return ExecutionData.error(node.getServiceId(), throwable);
         }
 
     }

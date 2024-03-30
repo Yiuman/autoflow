@@ -27,7 +27,7 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
 
     @Override
     public ServiceTask convert(Node node) {
-        Service service = Services.getServiceMap().get(node.getServiceName());
+        Service service = Services.getServiceMap().get(node.getServiceId());
         Assert.notNull(service);
         ServiceTask serviceTask = new ServiceTask();
         serviceTask.setId(node.getId());
@@ -36,8 +36,8 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
         serviceTask.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_CLASS);
         //字段属性注入
         FieldExtension fieldExtension = new FieldExtension();
-        fieldExtension.setFieldName("serviceName");
-        fieldExtension.setStringValue(service.getName());
+        fieldExtension.setFieldName("serviceId");
+        fieldExtension.setStringValue(service.getId());
         serviceTask.setFieldExtensions(CollUtil.newArrayList(fieldExtension));
         //扩展属性注入
         Map<String, Object> parameters = node.getData();

@@ -6,29 +6,29 @@ package io.autoflow.spi.exception;
  * @date 2023/7/25
  */
 public class ExecuteException extends RuntimeException {
-    private final String serviceName;
+    private final String serviceId;
 
-    public ExecuteException(String serviceName) {
-        this.serviceName = serviceName;
+    public ExecuteException(String serviceId) {
+        this.serviceId = serviceId;
     }
 
-    public ExecuteException(String message, String serviceName) {
+    public ExecuteException(String message, String serviceId) {
         super(message);
-        this.serviceName = serviceName;
+        this.serviceId = serviceId;
     }
 
-    public ExecuteException(String message, Throwable cause, String serviceName) {
+    public ExecuteException(String message, Throwable cause, String serviceId) {
         super(message, cause);
-        this.serviceName = serviceName;
+        this.serviceId = serviceId;
     }
 
     public ExecuteException(Throwable cause, String serviceName) {
         super(cause);
-        this.serviceName = serviceName;
+        this.serviceId = serviceName;
     }
 
-    public ExecuteException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, String serviceName) {
+    public ExecuteException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, String serviceId) {
         super(message, cause, enableSuppression, writableStackTrace);
-        this.serviceName = serviceName;
+        this.serviceId = serviceId;
     }
 }
