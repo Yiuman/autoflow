@@ -22,6 +22,14 @@ public interface Executor {
     Map<String, List<ExecutionData>> execute(Flow flow);
 
     /**
+     * 获取可执行的ID
+     *
+     * @param flow 流程定义
+     * @return 可执行的ID（流程定义ID）
+     */
+    String getExecutableId(Flow flow);
+
+    /**
      * 执行单个节点
      *
      * @param node 节点定义

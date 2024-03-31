@@ -69,6 +69,12 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
                 );
             }
 
+            try {
+                Thread.sleep(10000);
+            }catch (Throwable ignore){
+            }
+
+
             return executionData;
         }
     }

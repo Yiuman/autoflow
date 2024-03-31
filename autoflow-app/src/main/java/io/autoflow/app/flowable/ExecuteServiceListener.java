@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEventListener;
+import org.flowable.common.engine.api.delegate.event.FlowableEventType;
 import org.flowable.engine.delegate.event.impl.FlowableProcessEventImpl;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -51,10 +52,11 @@ public class ExecuteServiceListener implements FlowableEventListener {
 
                 }
 
-                sseEmitter.send(SseEmitter.event()
+                SseEmitter.SseEventBuilder data = SseEmitter.event()
                         .id(activityId)
                         .name(event.getType().name())
-                        .data(sseData));
+                        .data(sseData);
+                sseEmitter.send(data);
                 log.debug("Match executeService send sse" + event.getType() + " nodeId:" + activityId);
             } catch (Throwable throwable) {
                 log.error("SSE send data happen error", throwable);

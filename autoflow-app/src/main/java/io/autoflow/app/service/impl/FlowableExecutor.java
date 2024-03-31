@@ -39,6 +39,13 @@ public class FlowableExecutor implements Executor {
 
     @Override
     public Map<String, List<ExecutionData>> execute(Flow flow) {
+        runtimeService.startProcessInstanceById(getExecutableId(flow));
+        FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
+        return flowExecutionContext.getInputData();
+    }
+
+    @Override
+    public String getExecutableId(Flow flow) {
         BpmnModel bpmnModel = Flows.convert(flow);
         Deployment deploy = repositoryService.createDeployment()
                 .name(flow.getName())
@@ -48,9 +55,7 @@ public class FlowableExecutor implements Executor {
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                 .deploymentId(deploy.getId())
                 .singleResult();
-        runtimeService.startProcessInstanceById(processDefinition.getId());
-        FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
-        return flowExecutionContext.getInputData();
+        return processDefinition.getId();
     }
 
     @SuppressWarnings("unchecked")
