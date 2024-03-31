@@ -103,4 +103,5 @@ const rgba = randomRgba(0.8)
 
 <style scoped lang="scss">
 @import 'node';
+@import '../../assets/action.scss'
 </style>

@@ -109,4 +109,5 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
 
 <style scoped lang="scss">
 @import 'switch-node';
+@import '../../assets/action.scss'
 </style>

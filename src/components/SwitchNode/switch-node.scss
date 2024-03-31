@@ -16,12 +16,6 @@
     transform: rotate(45deg);
 }
 
-.node-action {
-    border: 2px solid rgba(var(--primary-6), .5);
-    outline: rgba(var(--primary-6), .5) solid 2px;
-    animation: action 1.2s infinite linear;
-}
-
 .node-avatar {
     padding: 6px;
     position: relative;
