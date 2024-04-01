@@ -4,7 +4,10 @@ import cn.hutool.core.bean.copier.ValueProvider;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import com.googlecode.aviator.AviatorEvaluator;
+import cn.hutool.json.JSONUtil;
+import com.jayway.jsonpath.JsonPath;
+import com.ql.util.express.ExpressRunner;
+import com.ql.util.express.IExpressContext;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.ExecutionContext;
 
@@ -20,9 +23,17 @@ import java.util.Objects;
  * @author yiuman
  * @date 2023/7/27
  */
-public class ExecutionContextValueProvider implements ValueProvider<String> {
+public class ExecutionContextValueProvider implements ValueProvider<String>, IExpressContext<String, Object> {
     private final Map<String, Object> variables = new HashMap<>();
+    /**
+     * 表达式匹配
+     */
     private static final String EXPRESS_REGEX = "^\\$\\{(.*)}";
+    /**
+     * JSON-PATH匹配
+     */
+    private static final String JSON_PATH_REGEX = "^\\$\\..*$";
+    private static final ExpressRunner EXPRESS_RUNNER = new ExpressRunner();
 
     public ExecutionContextValueProvider(ExecutionContext executionContext) {
         variables.putAll(executionContext.getParameters());
@@ -32,22 +43,49 @@ public class ExecutionContextValueProvider implements ValueProvider<String> {
     @Override
     public Object value(String key, Type valueType) {
         Object result = variables.get(key);
-        if (result instanceof String) {
-            try {
-                String express = ReUtil.get(EXPRESS_REGEX, (String) result, 1);
-                if (StrUtil.isNotBlank(express)) {
-                    return AviatorEvaluator.execute(express, variables);
-                }
 
-            } catch (Throwable ignore) {
+        if (result instanceof String strValue) {
+            //JSONPATH
+            Object jsonPathValue = extractByJsonPath(strValue);
+            if (Objects.nonNull(jsonPathValue)) {
+                return jsonPathValue;
+            }
+
+            //Express
+            Object aviatorValue = extractByExpress(strValue);
+            if (Objects.nonNull(aviatorValue)) {
+                return aviatorValue;
             }
         }
 
         if (Objects.nonNull(result)) {
-            result = Convert.convertWithCheck(valueType, result, null, true);
+            result = Convert.convertWithCheck(valueType, result, result, true);
         }
 
         return result;
+    }
+
+    private Object extractByJsonPath(String strValue) {
+        try {
+            if (ReUtil.isMatch(JSON_PATH_REGEX, strValue)) {
+                return JsonPath.read(JSONUtil.parseObj(variables), strValue);
+            }
+        } catch (Throwable ignore) {
+        }
+        return null;
+
+    }
+
+    private Object extractByExpress(String strValue) {
+        try {
+            String express = ReUtil.get(EXPRESS_REGEX, strValue, 1);
+            if (StrUtil.isNotBlank(express)) {
+                return EXPRESS_RUNNER.execute(express, this, null, false, false);
+            }
+
+        } catch (Throwable ignore) {
+        }
+        return null;
     }
 
 
@@ -56,5 +94,14 @@ public class ExecutionContextValueProvider implements ValueProvider<String> {
         return variables.containsKey(key);
     }
 
+    @Override
+    public Object get(Object key) {
+        return variables.get(key);
+    }
 
+    @Override
+    public Object put(String name, Object object) {
+        variables.put(name, object);
+        return object;
+    }
 }

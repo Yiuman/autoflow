@@ -11,9 +11,11 @@ import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
-import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
@@ -46,8 +48,9 @@ public class ExecutionController {
     @PostMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter executeSSE(@RequestBody Flow flow) {
         SseEmitter sseEmitter = new SseEmitter(0L);
-        SSEContext.add(flow.getId(), sseEmitter);
-        ThreadUtil.execute(() -> runtimeService.startProcessInstanceById(executor.getExecutableId(flow)));
+        String executableId = executor.getExecutableId(flow);
+        SSEContext.add(executableId, sseEmitter);
+        ThreadUtil.execute(() -> runtimeService.startProcessInstanceById(executableId));
         return sseEmitter;
     }
 

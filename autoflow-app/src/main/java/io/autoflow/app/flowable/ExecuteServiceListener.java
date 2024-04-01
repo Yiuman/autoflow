@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEventListener;
-import org.flowable.common.engine.api.delegate.event.FlowableEventType;
 import org.flowable.engine.delegate.event.impl.FlowableProcessEventImpl;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -29,15 +28,17 @@ public class ExecuteServiceListener implements FlowableEventListener {
     private final Map<FlowableEngineEventType, Consumer<FlowableEvent>> engineEventTypeConsumerMap = new HashMap<>() {{
         put(FlowableEngineEventType.ACTIVITY_STARTED, ExecuteServiceListener::sseSendData);
         put(FlowableEngineEventType.ACTIVITY_COMPLETED, ExecuteServiceListener::sseSendData);
-        put(FlowableEngineEventType.PROCESS_COMPLETED, ExecuteServiceListener::sseSendData);
+        put(FlowableEngineEventType.PROCESS_COMPLETED, (event) -> {
+            sseSendData(event);
+            SSEContext.close(((FlowableProcessEventImpl) event).getProcessDefinitionId());
+        });
     }};
 
     @SuppressWarnings("unchecked")
     private static void sseSendData(FlowableEvent event) {
         FlowableProcessEventImpl entityEvent = (FlowableProcessEventImpl) event;
         ExecutionEntityImpl execution = (ExecutionEntityImpl) entityEvent.getExecution();
-        String processDefinitionKey = execution.getProcessDefinitionKey();
-        SseEmitter sseEmitter = SSEContext.get(processDefinitionKey);
+        SseEmitter sseEmitter = SSEContext.get(execution.getProcessDefinitionId());
         if (Objects.nonNull(sseEmitter)) {
             try {
                 Map<String, Object> transientVariables = execution.getTransientVariables();
@@ -57,13 +58,10 @@ public class ExecuteServiceListener implements FlowableEventListener {
                         .name(event.getType().name())
                         .data(sseData);
                 sseEmitter.send(data);
-                log.debug("Match executeService send sse" + event.getType() + " nodeId:" + activityId);
+                log.debug("Match executeService send sse " + event.getType() + " activityId:" + activityId);
             } catch (Throwable throwable) {
                 log.error("SSE send data happen error", throwable);
             }
-        }
-        if (FlowableEngineEventType.PROCESS_COMPLETED == event.getType()) {
-            SSEContext.close(processDefinitionKey);
         }
     }
 
@@ -88,6 +86,6 @@ public class ExecuteServiceListener implements FlowableEventListener {
 
     @Override
     public String getOnTransaction() {
-        throw new UnsupportedOperationException("Method not implemented.");
+        return null;
     }
 }
