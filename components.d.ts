@@ -21,6 +21,7 @@ declare module 'vue' {
     AList: typeof import('@arco-design/web-vue')['List']
     AListItem: typeof import('@arco-design/web-vue')['ListItem']
     AListItemMeta: typeof import('@arco-design/web-vue')['ListItemMeta']
+    AMention: typeof import('@arco-design/web-vue')['Mention']
     AModal: typeof import('@arco-design/web-vue')['Modal']
     AOptgroup: typeof import('@arco-design/web-vue')['Optgroup']
     AOption: typeof import('@arco-design/web-vue')['Option']

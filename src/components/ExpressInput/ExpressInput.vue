@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject, computed, type Ref } from 'vue';
-import { INCOMMER } from '@/symbols/index'
+import { INCOMMER } from '@/symbols'
 import { type VueFlowNode } from '@/types/flow';
 import { flatten } from '@/utils/util-func'
 
@@ -25,25 +25,38 @@ const data = computed({
 const incommers = inject<Ref<VueFlowNode[]>>(INCOMMER);
 
 const options = computed(() => {
-    const jsonPaths: string[] = [];
+    let jsonPaths: string[] = [];
     if (incommers) {
+        const nodeExecutionData: Record<string, any> = {};
         for (const incommer of incommers.value) {
-            console.warn("flatten(incommer.data?.executionData)", flatten(incommer.data?.executionData))
-            jsonPaths.concat(Object.keys(flatten(incommer.data?.executionData)))
-        }
-    }
+            const executionDataList = nodeExecutionData[incommer.id];
+            if (executionDataList && executionDataList.length) {
+                executionDataList.push(incommer.data?.executionData)
+            } else {
+                nodeExecutionData[incommer.id] = [incommer.data?.executionData]
+            }
 
-    console.warn("jsonPaths", jsonPaths)
+
+        }
+        jsonPaths = jsonPaths.concat(Object.keys(flatten({ 'inputData': nodeExecutionData })))
+    }
 
     return jsonPaths
 })
 
+const prefix = "$."
+const isIncludePath = computed(()=>{
+    return options.value.includes(data.value?.replace(prefix,'') || '')
+})
+
+
 </script>
 
 <template>
-    <div class="express-input">
-        <AAutoComplete v-model="data" :data="options"></AAutoComplete>
+    <div class="express-input " :class="isIncludePath?'expressed':''">
+        <AMention  v-model="data" :prefix="prefix" :data="options" />
     </div>
+  
 </template>
 
 <style lang="scss">
