@@ -57,4 +57,36 @@ function getOS() {
   }
 }
 
-export { uuid, randomRgb, randomRgba, getOS }
+/**
+ * 扁平化对象
+ */
+function flatten(data: Object): Record<string, any> {
+  const result: Record<string, any> = {};
+  const isEmpty = (x: Record<string, any>) => Object.keys(x).length === 0;
+  const recurse = (cur: Record<string, any>, prop: string) => {
+    if (Object(cur) !== cur) {
+      result[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      const length = cur.length;
+      for (let i = 0; i < length; i++) {
+        recurse(cur[i], `${prop}[${i}]`);
+      }
+      if (length === 0) {
+        result[prop] = [];
+      }
+    } else {
+      if (!isEmpty(cur)) {
+        Object.keys(cur).forEach((key) =>
+          recurse(cur[key], prop ? `${prop}.${key}` : key)
+        );
+      } else {
+        result[prop] = {};
+      }
+    }
+  };
+  recurse(data, "");
+  return result;
+};
+
+
+export { uuid, randomRgb, randomRgba, getOS, flatten }

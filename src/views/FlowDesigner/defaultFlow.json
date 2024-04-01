@@ -26,7 +26,7 @@
                 "y": 182.32090517836969
             },
             "data": {
-                "express": "${inputData['node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1'][0]['json']['status']==200}"
+                "express": "${inputData.node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1[0]['json']['status']==200}"
             }
         },
         {
@@ -40,7 +40,7 @@
             },
             "data": {
                 "regex": "href=\"(.*?)\".*?>",
-                "content": "${inputData['node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1'][0]['raw']}",
+                "content": "$.inputData['node_y3RcBvJymnWhvPEP02kL3uHpmxN1ESy1'][0]['raw']",
                 "method": "findAll"
             }
         }

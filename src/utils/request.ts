@@ -38,7 +38,7 @@ const { VITE_BASE_URL } = useEnv();
 
 const axiosInstance: AxiosInstance = axios.create({
     baseURL: VITE_BASE_URL || '/api',
-    timeout: 10 * 1000, // 请求超时时间
+    timeout: 120 * 1000, // 请求超时时间
     headers: { "Content-Type": "application/json;charset=UTF-8" }
 });
 

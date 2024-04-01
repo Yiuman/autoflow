@@ -16,6 +16,8 @@ import 'vue-json-pretty/lib/styles.css';
 import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
 import { getAllIncomers } from '@/utils/converter';
+import { groupBy } from 'lodash';
+import { INCOMMER, CURRENT_NODE } from '@/symbols';
 
 
 interface Props {
@@ -65,11 +67,27 @@ watch(incomers, () => {
     selectedIncomerNodeId.value = incomers.value[0].id
   }
 })
+
+const incomerGroups = computed(() => {
+  return groupBy(incomers.value, (node: VueFlowNode) => node.label);
+})
+
+const selectedNode = computed(() => {
+  if (!selectedIncomerNodeId.value) {
+    return null;
+  }
+  return findNode(selectedIncomerNodeId.value)
+})
+
+//提供当前的有用变量
+provide(CURRENT_NODE, props.modelValue);
+provide(INCOMMER, incomers);
+
 const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null;
   }
-  return findNode(selectedIncomerNodeId.value)?.data.executionData;
+  return selectedNode.value?.data.executionData;
 })
 
 const outputData = computed(() => {
@@ -122,8 +140,17 @@ function isHtml(data: string) {
           <div class="node-form-modal-pane node-form-modal-input">
             <div class="node-form-title">Input</div>
             <ASelect v-model="selectedIncomerNodeId">
-              <AOption v-for="incomer in incomers" :key="incomer.id" :value="incomer.id"
-                :label="`${incomer.data.label}-${incomer.id}`" />
+              <template #label="{ data }">
+                <span>
+                  <ATag color="orangered">{{ selectedNode?.label }}</ATag>
+                  <ATag>{{ data?.value }}</ATag>
+                </span>
+              </template>
+              <AOptgroup v-for="groupKey in Object.keys(incomerGroups)" :key="groupKey" :label="groupKey">
+                <AOption v-for="incomer in incomerGroups[groupKey]" :key="incomer.id" :value="incomer.id"
+                  :label="`${incomer.id}`" />
+              </AOptgroup>
+
             </ASelect>
             <ATabs v-if="inputData">
               <template v-for="executeDataKey in Object.keys(inputData)" :key="executeDataKey">

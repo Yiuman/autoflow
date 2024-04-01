@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
+import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 export interface Option {
   name: string
   value: Object
@@ -37,7 +38,7 @@ const form = computed<any>({
 
 function getComponentName(property: Property) {
   if (!property.type || property.type == 'String') {
-    return 'AInput'
+    return ExpressInput;
   }
 
   if (property.options) {

@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AAutoComplete: typeof import('@arco-design/web-vue')['AutoComplete']
     AAvatar: typeof import('@arco-design/web-vue')['Avatar']
     AButton: typeof import('@arco-design/web-vue')['Button']
     AButtonGroup: typeof import('@arco-design/web-vue')['ButtonGroup']
@@ -21,6 +22,7 @@ declare module 'vue' {
     AListItem: typeof import('@arco-design/web-vue')['ListItem']
     AListItemMeta: typeof import('@arco-design/web-vue')['ListItemMeta']
     AModal: typeof import('@arco-design/web-vue')['Modal']
+    AOptgroup: typeof import('@arco-design/web-vue')['Optgroup']
     AOption: typeof import('@arco-design/web-vue')['Option']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
@@ -28,8 +30,10 @@ declare module 'vue' {
     ATableColumn: typeof import('@arco-design/web-vue')['TableColumn']
     ATabPane: typeof import('@arco-design/web-vue')['TabPane']
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
+    ATag: typeof import('@arco-design/web-vue')['Tag']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
+    ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']
     MapEditor: typeof import('./src/components/MapEditor/MapEditor.vue')['default']

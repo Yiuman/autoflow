@@ -201,7 +201,6 @@ function executeFlowSSE(flow: Flow) {
     ,
     body: JSON.stringify(flow),
     async onmessage(message: EventSourceMessage) {
-      console.warn("event", message, new Date());
       switch (message.event) {
         case "ACTIVITY_STARTED":
           updateNodeData(message.id, { running: true })
