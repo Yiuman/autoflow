@@ -30,4 +30,8 @@ public class Node {
      * 实现类（即插件）
      */
     private String serviceId;
+    /**
+     * 循环参数
+     */
+    private Loop loop;
 }

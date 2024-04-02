@@ -5,18 +5,12 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import io.autoflow.core.model.Connection;
-import io.autoflow.core.model.Flow;
-import io.autoflow.core.model.Node;
-import io.autoflow.core.model.NodeType;
+import io.autoflow.core.model.*;
 import org.flowable.bpmn.BpmnAutoLayout;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 流程工具
@@ -213,6 +207,29 @@ public final class Flows {
                 item.getAttributeValue(null, PROPERTY_VALUE)
         ));
         return elementProperties;
+    }
+
+
+    /**
+     * 添加循环变量
+     *
+     * @param activity 活动
+     * @param loop     循环配置参数
+     */
+    public static void addMultiInstanceLoopCharacteristics(Activity activity, Loop loop) {
+        if (Objects.isNull(loop)) {
+            return;
+        }
+        MultiInstanceLoopCharacteristics multiInstanceLoopCharacteristics = new MultiInstanceLoopCharacteristics();
+        multiInstanceLoopCharacteristics.setSequential(Optional.ofNullable(loop.getSequential()).orElse(false));
+        multiInstanceLoopCharacteristics.setCompletionCondition(loop.getCompletionCondition());
+        if (Objects.nonNull(loop.getLoopCardinality())) {
+            multiInstanceLoopCharacteristics.setLoopCardinality(StrUtil.toString(loop.getLoopCardinality()));
+        } else {
+            multiInstanceLoopCharacteristics.setCollectionString(String.format("${expressResolver.resolve(execution,'%s')}", loop.getCollectionString()));
+            multiInstanceLoopCharacteristics.setElementVariable(loop.getElementVariable());
+        }
+        activity.setLoopCharacteristics(multiInstanceLoopCharacteristics);
     }
 
 

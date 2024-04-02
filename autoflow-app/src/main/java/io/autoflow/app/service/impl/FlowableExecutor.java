@@ -41,7 +41,9 @@ public class FlowableExecutor implements Executor {
     public Map<String, List<ExecutionData>> execute(Flow flow) {
         runtimeService.startProcessInstanceById(getExecutableId(flow));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
-        return flowExecutionContext.getInputData();
+        Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
+        FlowExecutionContext.remove();
+        return inputData;
     }
 
     @Override

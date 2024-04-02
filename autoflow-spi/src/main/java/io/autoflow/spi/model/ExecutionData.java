@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * @author yiuman
  * @date 2023/7/11
@@ -22,7 +20,6 @@ public class ExecutionData {
     private String raw;
     private Binary binary;
     private Error error;
-    private List<ExecutionData> batch;
 
     public static ExecutionData error(String serviceId, Throwable throwable) {
         Error error = Error.builder().node(serviceId)

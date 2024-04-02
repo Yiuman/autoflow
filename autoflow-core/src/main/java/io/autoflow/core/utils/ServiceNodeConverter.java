@@ -50,7 +50,8 @@ public enum ServiceNodeConverter implements NodeConverter<ServiceTask> {
                 Flows.addExtensionElement(serviceTask, stringObjectEntry.getKey(), stringObjectEntry.getValue());
             }
         }
-
+        //添加循环参数
+        Flows.addMultiInstanceLoopCharacteristics(serviceTask, node.getLoop());
         return serviceTask;
     }
 }

@@ -1,6 +1,8 @@
 package io.autoflow.app.config;
 
 import io.autoflow.app.flowable.ExecuteServiceListener;
+import io.autoflow.core.delegate.DefaultExpressResolver;
+import io.autoflow.core.delegate.ExpressResolver;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +39,11 @@ public class FlowableConfiguration {
         corsConfigurationSource.registerCorsConfiguration("/**", config);
         // 3.返回 CorsFilter 对象
         return new CorsFilter(corsConfigurationSource);
+    }
+
+    @Bean("expressResolver")
+    public ExpressResolver<Object> expressResolver() {
+        return new DefaultExpressResolver();
     }
 
     @Bean
