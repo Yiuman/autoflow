@@ -17,7 +17,8 @@ import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
 import { getAllIncomers } from '@/utils/converter';
 import { groupBy } from 'lodash';
-import { INCOMMER, CURRENT_NODE } from '@/symbols';
+import { INCOMMER, CURRENT_NODE, INPUT_DATA_FLAT } from '@/symbols';
+import { flatten } from '@/utils/util-func'
 
 
 interface Props {
@@ -62,7 +63,7 @@ const incomers = computed(() => {
 });
 
 const selectedIncomerNodeId = ref<string>();
-watch(incomers, () => {
+watch(() => incomers, () => {
   if (incomers.value && incomers.value.length) {
     selectedIncomerNodeId.value = incomers.value[0].id
   }
@@ -82,6 +83,25 @@ const selectedNode = computed(() => {
 //提供当前的有用变量
 provide(CURRENT_NODE, props.modelValue);
 provide(INCOMMER, incomers);
+const inputDataFlat = computed(() => {
+  if (incomers) {
+    const nodeExecutionData: Record<string, any> = {};
+    for (const incommer of incomers.value) {
+      const executionDataList = nodeExecutionData[incommer.id];
+      if (executionDataList && executionDataList.length) {
+        executionDataList.push(incommer.data?.executionData)
+      } else {
+        nodeExecutionData[incommer.id] = [incommer.data?.executionData]
+      }
+
+
+    }
+    return flatten({ 'inputData': nodeExecutionData })
+  }
+
+  return {};
+})
+provide(INPUT_DATA_FLAT, inputDataFlat);
 
 const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {

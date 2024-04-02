@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { inject, computed, type Ref } from 'vue';
-import { INCOMMER } from '@/symbols'
-import { type VueFlowNode } from '@/types/flow';
-import { flatten } from '@/utils/util-func'
+import { INPUT_DATA_FLAT } from '@/symbols'
+import { useVueFlow } from '@vue-flow/core'
 
 interface ExpressInputProps {
     modelValue?: string
@@ -13,6 +12,7 @@ const emits = defineEmits<{
     (e: 'update:modelValue', item: string): void
 }>()
 
+const { findNode } = useVueFlow();
 const data = computed({
     get() {
         return props.modelValue
@@ -22,43 +22,63 @@ const data = computed({
     }
 })
 
-const incommers = inject<Ref<VueFlowNode[]>>(INCOMMER);
+//----------------------- 处理提及  --------------------------------
+const inputDataFlat = inject<Ref<Record<string, any>>>(INPUT_DATA_FLAT);
+const prefix = "$."
+const expressRegexStr = /^\$\{(.*)\}$/;
 
-const options = computed(() => {
-    let jsonPaths: string[] = [];
-    if (incommers) {
-        const nodeExecutionData: Record<string, any> = {};
-        for (const incommer of incommers.value) {
-            const executionDataList = nodeExecutionData[incommer.id];
-            if (executionDataList && executionDataList.length) {
-                executionDataList.push(incommer.data?.executionData)
-            } else {
-                nodeExecutionData[incommer.id] = [incommer.data?.executionData]
-            }
+const inputDataKeys = computed(() => {
+    return Object.keys(inputDataFlat?.value || {});
+})
+//处理样式
+const expressClassName = computed<string>(() => {
+    const dataValue = data.value || '';
+    if (inputDataKeys?.value.includes(dataValue.replace(prefix, '') || '')) {
+        return "jsonpath"
+    } else if (dataValue.match(expressRegexStr)) {
+        return "expression"
+    } else {
+        return ""
+    }
+})
 
+const searchOptions = ref<string[]>();
+function handleSearch(value: string, prefix: string) {
+    searchOptions.value = inputDataKeys?.value.filter(key => key.indexOf(value.replace(prefix, '')) > -1)
+}
 
-        }
-        jsonPaths = jsonPaths.concat(Object.keys(flatten({ 'inputData': nodeExecutionData })))
+const nodeIdRegex = /inputData\.(.+?)[\\.\\[]/;
+const descData = computed(() => {
+    const dataValue = data.value;
+    const nodeIdMatch = dataValue?.match(nodeIdRegex);
+    const dataKey = dataValue?.replace(prefix, '');
+    if (nodeIdMatch) {
+        const nodeId = nodeIdMatch[1];
+        const node = findNode(nodeId);
+        return [
+            { label: 'node', value: node?.label },
+            { label: 'nodeId', value: nodeId },
+            { label: 'value', value: inputDataFlat?.value[dataKey || ''] },
+        ]
+    } else {
+        return []
     }
 
-    return jsonPaths
 })
 
-const prefix = "$."
-const isIncludePath = computed(()=>{
-    return options.value.includes(data.value?.replace(prefix,'') || '')
-})
-
+const popoverVisiable = computed(() => expressClassName.value === 'jsonpath')
 
 </script>
 
 <template>
-    <div class="express-input " :class="isIncludePath?'expressed':''">
-        <AMention  v-model="data" :prefix="prefix" :data="options" />
+    <div class="express-input " :class="expressClassName">
+        <AMention v-model="data" :prefix="prefix" @search="handleSearch" :data="searchOptions" />
+        <div v-if="popoverVisiable && descData" class="jsonpath-desc">
+            <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
+        </div>
     </div>
-  
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'express-input';
 </style>

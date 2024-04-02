@@ -1,12 +1,20 @@
-function uuid(len: number, radix: number = 62): string {
-  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('')
+function uuid(len: number, nonnumericBeginning: boolean = false, radix: number = 62): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  const chars = ('0123456789' + alphabet).split('')
   const uuid = []
   let i
   radix = radix || chars.length
 
   if (len) {
     // Compact form
-    for (i = 0; i < len; i++) uuid[i] = chars[0 | (Math.random() * radix)]
+    for (i = 0; i < len; i++) {
+      if (nonnumericBeginning && i == 0) {
+        uuid[i] = alphabet[0 | (Math.random() * alphabet.length)]
+      } else {
+        uuid[i] = chars[0 | (Math.random() * radix)]
+      }
+
+    }
   } else {
     // rfc4122, version 4 form
     let r

@@ -23,13 +23,13 @@ export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrI
 
 export function toNode(graphNode: VueFlowNode): Node {
   const position = graphNode.position
-  const parameters = {...graphNode.data.parameters} || {};
+  const parameters = { ...graphNode.data.parameters } || {};
   //删除输入
   delete parameters['inputData']
   const serviceId = graphNode.data.serviceId || '';
   return {
     id: graphNode.id,
-    label: graphNode.data.label || graphNode.label  as string,
+    label: graphNode.data.label || graphNode.label as string,
     serviceId: serviceId,
     type: graphNode.type as string,
     position: { ...position },
@@ -55,9 +55,10 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
   nodeData.parameters = {};
   return {
     type: service.name === 'Switch' ? 'SWITCH' : 'SERVICE',
-    id: `node_${uuid(32)}`,
+    id: uuid(8, true),
     position: position || { x: 0, y: 0 },
-    data: nodeData
+    data: nodeData,
+    label: service.name
   }
 }
 
@@ -84,7 +85,7 @@ export function toGraphEdge(connection: Connection): GraphEdge {
 }
 
 export function toFlow<N extends VueFlowNode, E extends GraphEdge>(nodes: N[] | undefined, edges: E[] | undefined): Flow {
-  const id = `autoflow_${uuid(32)}`
+  const id = uuid(8, true)
   return {
     id: id,
     name: id,
@@ -94,7 +95,7 @@ export function toFlow<N extends VueFlowNode, E extends GraphEdge>(nodes: N[] | 
 }
 
 export function elementsToFlow(elements: Elements<NodeElementData>): Flow {
-  const id = `autoflow_${uuid(32)}`
+  const id = uuid(8, true)
   return {
     id: id,
     name: id,
