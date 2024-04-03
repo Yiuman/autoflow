@@ -3,7 +3,6 @@ interface MapEditorProps {
     modelValue: KeyValue[]
 }
 
-// import { concat, isArray } from 'lodash'
 const props = withDefaults(defineProps<MapEditorProps>(), {
     modelValue: () => [{ dataKey: '', dataValue: '' }]
 });
@@ -23,35 +22,6 @@ const columns = [{
     title: 'value',
     dataIndex: 'dataValue'
 }]
-
-// function mapToKeyValueArr() {
-//     if (!props.modelValue || !Object.keys(props.modelValue)) {
-//         return [{ dataKey: '', dataValue: '' }]
-//     }
-
-//     return Object.keys(props.modelValue).map(key => {
-//         const dataValue = props.modelValue?.[key];
-//         if (isArray(dataValue)) {
-//             return dataValue.map(valueItem => ({ dataKey: key, dataValue: valueItem }))
-//         }
-//         return [{ dataKey: key, dataValue: dataValue }]
-//     }).reduce((pre, cur) => pre.concat(cur));
-// }
-
-// function doEmitModelValue(keyValueArr: KeyValue[]) {
-//     const reuslt: Record<string, any> = {};
-//     keyValueArr.forEach(keyValueItem => {
-//         const value = reuslt[keyValueItem.dataKey];
-//         if (keyValueItem.dataKey in reuslt) {
-//             reuslt[keyValueItem.dataKey] = concat(value, keyValueItem.dataValue)
-//         } else {
-//             reuslt[keyValueItem.dataKey] = keyValueItem.dataValue
-//         }
-
-//     })
-//     emits('update:modelValue', reuslt)
-// }
-
 const data = computed({
     get() {
         // return mapToKeyValueArr()
@@ -62,7 +32,6 @@ const data = computed({
         // doEmitModelValue(value)
     }
 })
-
 
 </script>
 

@@ -13,7 +13,16 @@ interface Node {
   data?: Record<string, any>
   position: Position
   type: string
-  serviceId: string
+  serviceId: string,
+  loop?: Loop
+}
+
+interface Loop {
+  loopCardinality?: number;
+  collectionString?: string;
+  elementVariable?: string;
+  sequential?: boolean;
+  completionCondition?: string;
 }
 
 interface Connection {
@@ -60,7 +69,7 @@ interface Property {
 }
 
 interface Service {
-  id:string,
+  id: string,
   name: string,
   properties: Property[],
   description?: string
@@ -69,4 +78,4 @@ interface Service {
 export type NodeElementData = ToolBarData & Record<string, ElementData>
 export type VueFlowNode = VueFlowCordNode<NodeElementData>
 
-export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError, Property, Service }
+export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError, Property, Service, Loop }

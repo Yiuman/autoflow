@@ -24,6 +24,7 @@ export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrI
 export function toNode(graphNode: VueFlowNode): Node {
   const position = graphNode.position
   const parameters = { ...graphNode.data.parameters } || {};
+  const loop = graphNode.data?.loop;
   //删除输入
   delete parameters['inputData']
   const serviceId = graphNode.data.serviceId || '';
@@ -33,7 +34,8 @@ export function toNode(graphNode: VueFlowNode): Node {
     serviceId: serviceId,
     type: graphNode.type as string,
     position: { ...position },
-    data: parameters
+    data: parameters,
+    loop
   }
 }
 
@@ -42,6 +44,7 @@ export function toGraphNode(node: Node): VueFlowNode {
   nodeData.serviceId = node.serviceId
   nodeData.label = node.label;
   nodeData.parameters = node.data
+  nodeData.loop = node.loop || {};
   return {
     ...node,
     data: nodeData
@@ -53,6 +56,7 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
   nodeData.serviceId = service.id
   nodeData.label = service.name
   nodeData.parameters = {};
+  nodeData.loop = {};
   return {
     type: service.name === 'Switch' ? 'SWITCH' : 'SERVICE',
     id: uuid(8, true),

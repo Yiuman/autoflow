@@ -8,6 +8,7 @@ import {
   IconPauseCircleFill
 } from '@arco-design/web-vue/es/icon'
 import { MdPreview } from 'md-editor-v3';
+import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 import 'md-editor-v3/lib/style.css';
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
@@ -47,6 +48,18 @@ const nodeData = computed({
   }
 })
 
+const loopData = computed({
+  get() {
+    return props.modelValue.data?.loop;
+  },
+  set(value) {
+    emits('update:modelValue', {
+      ...props.modelValue,
+      data: { ...props.modelValue.data, loop: value }
+    })
+  }
+})
+
 const { getIncomers, findNode } = useVueFlow();
 const modalVisible = computed({
   get() {
@@ -63,7 +76,7 @@ const incomers = computed(() => {
 });
 
 const selectedIncomerNodeId = ref<string>();
-watch(() => incomers, () => {
+watch(incomers, () => {
   if (incomers.value && incomers.value.length) {
     selectedIncomerNodeId.value = incomers.value[0].id
   }
@@ -133,6 +146,12 @@ function isHtml(data: string) {
   const htmlRegex = /<([a-z]+)([^<]+|[^>]+)*>|<([a-z]+)([^<]+|[^>]+)*\/>/i;
   return htmlRegex.test(data);
 }
+
+const excludeShowLoopSettingNode = ["SWITCH"];
+const showLoopSetting = computed(() => {
+  return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1);
+})
+
 </script>
 
 <template>
@@ -142,7 +161,7 @@ function isHtml(data: string) {
     <div class="node-form-modal-body">
       <div class="node-form-modal-btn">
         <!-- 按钮 -->
-        <AButtonGroup type="primary" status="warning">
+        <AButtonGroup type="primary" status="danger">
           <AButton @click="() => doClose()">
             <template #icon>
               <IconCloseCircleFill />
@@ -208,6 +227,9 @@ function isHtml(data: string) {
               </ATabPane>
               <ATabPane key="2" title="Doc" v-if="props.description">
                 <MdPreview :modelValue="props.description" />
+              </ATabPane>
+              <ATabPane key="3" title="Settings" v-if="showLoopSetting">
+                <LoopSetting v-model="loopData" />
               </ATabPane>
             </ATabs>
           </div>

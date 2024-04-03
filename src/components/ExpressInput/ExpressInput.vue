@@ -2,6 +2,7 @@
 import { inject, computed, type Ref } from 'vue';
 import { INPUT_DATA_FLAT } from '@/symbols'
 import { useVueFlow } from '@vue-flow/core'
+import { debounce } from 'lodash'
 
 interface ExpressInputProps {
     modelValue?: string
@@ -43,9 +44,14 @@ const expressClassName = computed<string>(() => {
 })
 
 const searchOptions = ref<string[]>();
-function handleSearch(value: string, prefix: string) {
+function doSearch(value: string, prefix: string) {
     searchOptions.value = inputDataKeys?.value.filter(key => key.indexOf(value.replace(prefix, '')) > -1)
 }
+const debounceSearch = debounce(doSearch, 300)
+function handleSearch(value: string, prefix: string) {
+    debounceSearch(value, prefix)
+}
+
 
 const nodeIdRegex = /inputData\.(.+?)[\\.\\[]/;
 const descData = computed(() => {
