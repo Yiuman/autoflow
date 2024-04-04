@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue';
-import type { Property, VueFlowNode } from '@/types/flow'
+import type { ExecutionData, Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconCloseCircleFill,
@@ -120,11 +120,13 @@ const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null;
   }
-  return selectedNode.value?.data.executionData;
+  const inputDataList =selectedNode.value?.data.executionData;
+  return inputDataList?.length === 1 ? inputDataList[0] : inputDataList;
 })
 
 const outputData = computed(() => {
-  return props.modelValue.data?.executionData;
+  const outputDatas = props.modelValue.data?.executionData;
+  return outputDatas?.length === 1 ? outputDatas[0] : outputDatas;
 })
 
 function doClose() {

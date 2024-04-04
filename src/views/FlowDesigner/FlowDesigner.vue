@@ -91,7 +91,7 @@ async function defaultRun(node: VueFlowNode) {
   const allIncomers = getAllIncomers(node.id, getIncomers);
   const inputData: Record<string, ExecutionData[]> = {}
   for (const incomer of allIncomers) {
-    inputData[incomer.id] = [incomer.data.executionData]
+    inputData[incomer.id] = incomer.data.executionData
   }
   nodeData.inputData = inputData;
   executeNodeData.data = nodeData;
@@ -215,11 +215,7 @@ function executeFlowSSE(flow: Flow) {
 
     },
     signal: ctrl.signal,
-    async onopen(response: Response) {
-      console.warn("open", response);
-    },
     onclose() {
-      console.warn("closeclose")
       executeFlowId.value = '';
       running.value = false;
       ctrl.abort()

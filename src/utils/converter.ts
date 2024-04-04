@@ -3,7 +3,7 @@ import type { GraphEdge, Node as VueFlowNode, GraphNode, Elements } from '@vue-f
 
 import type { Flow, Connection, Node, Service, NodeElementData } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
-import { uniq } from 'lodash';
+import { uniq,reverse } from 'lodash';
 import type { Position } from '@vueuse/core';
 //获取当前节点所有的前置节点
 export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrId: Node | string) => GraphNode[]): VueFlowNode[] {
@@ -13,13 +13,14 @@ export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrI
   let nodeIncomers = getIncomers(nodeId);
   if (nodeIncomers.length) {
     for (const node of nodeIncomers) {
-      const preIncomers = getIncomers(node.id);
-      nodeIncomers = [...preIncomers, ...nodeIncomers,]
+      const preIncomers = getAllIncomers(node.id, getIncomers) as GraphNode[]
+      nodeIncomers = nodeIncomers.concat(preIncomers)
     }
   }
   return uniq(nodeIncomers);
 
 }
+
 
 export function toNode(graphNode: VueFlowNode): Node {
   const position = graphNode.position

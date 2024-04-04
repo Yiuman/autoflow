@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    AAutoComplete: typeof import('@arco-design/web-vue')['AutoComplete']
     AAvatar: typeof import('@arco-design/web-vue')['Avatar']
     AButton: typeof import('@arco-design/web-vue')['Button']
     AButtonGroup: typeof import('@arco-design/web-vue')['ButtonGroup']
@@ -27,7 +26,6 @@ declare module 'vue' {
     AModal: typeof import('@arco-design/web-vue')['Modal']
     AOptgroup: typeof import('@arco-design/web-vue')['Optgroup']
     AOption: typeof import('@arco-design/web-vue')['Option']
-    APopover: typeof import('@arco-design/web-vue')['Popover']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
     ATable: typeof import('@arco-design/web-vue')['Table']
@@ -35,7 +33,6 @@ declare module 'vue' {
     ATabPane: typeof import('@arco-design/web-vue')['TabPane']
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     ATag: typeof import('@arco-design/web-vue')['Tag']
-    ATrigger: typeof import('@arco-design/web-vue')['Trigger']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
     ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
