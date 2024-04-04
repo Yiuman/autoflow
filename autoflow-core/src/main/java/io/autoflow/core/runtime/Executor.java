@@ -35,6 +35,6 @@ public interface Executor {
      * @param node 节点定义
      * @return 单个节点的数据
      */
-    ExecutionData executeNode(Node node);
+    List<ExecutionData> executeNode(Node node);
 
 }

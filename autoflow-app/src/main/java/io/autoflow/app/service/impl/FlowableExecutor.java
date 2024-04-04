@@ -4,7 +4,9 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import io.autoflow.core.Services;
+import io.autoflow.core.delegate.ExpressResolver;
 import io.autoflow.core.model.Flow;
+import io.autoflow.core.model.Loop;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.core.utils.Flows;
@@ -13,6 +15,7 @@ import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.context.OnceExecutionContext;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.BpmnModel;
@@ -22,9 +25,7 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author yiuman
@@ -62,17 +63,27 @@ public class FlowableExecutor implements Executor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ExecutionData executeNode(Node node) {
+    public List<ExecutionData> executeNode(Node node) {
+        io.autoflow.spi.Service service = Services.getService(node.getServiceId());
+        Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceId()), node.getServiceId()));
         try {
-            io.autoflow.spi.Service service = Services.getService(node.getServiceId());
-            Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceId()), node.getServiceId()));
             Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
             Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) runOnceData.get(Constants.INPUT_DATA);
-            runOnceData.remove(Constants.INPUT_DATA);
-            return service.execute(OnceExecutionContext.create(runOnceData, inputData));
+            Loop loop = node.getLoop();
+            if (Objects.nonNull(loop)) {
+                FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
+                flowExecutionContext.getInputData().putAll(inputData);
+                Map<String, List<ExecutionData>> execute = execute(Flow.singleNodeFlow(node));
+                return execute.get(node.getId());
+            } else {
+                runOnceData.remove(Constants.INPUT_DATA);
+                OnceExecutionContext onceExecutionContext = OnceExecutionContext.create(runOnceData, inputData);
+                return List.of(service.execute(onceExecutionContext));
+            }
+
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", node.getServiceId()), throwable);
-            return ExecutionData.error(node.getServiceId(), throwable);
+            return List.of(ExecutionData.error(node.getServiceId(), throwable));
         }
 
     }

@@ -46,9 +46,8 @@ public class ExecuteServiceTask implements JavaDelegate {
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
-        flowExecutionContext.getParameters().putAll(
-                Flows.getElementProperties(currentFlowElement)
-        );
+        flowExecutionContext.getParameters().putAll(execution.getVariables());
+        flowExecutionContext.getParameters().putAll(Flows.getElementProperties(currentFlowElement));
         ExecutionData currentExecutionData;
         try {
             //添加瞬态变量（不会序列化保存，只作用与当前的流程流转相关）
@@ -63,7 +62,7 @@ public class ExecuteServiceTask implements JavaDelegate {
         Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
 
         List<ExecutionData> nodeExecutionDataList = Optional
-                .ofNullable(inputData.get(currentFlowElement.getName()))
+                .ofNullable(inputData.get(currentFlowElement.getId()))
                 .orElse(CollUtil.newArrayList());
         nodeExecutionDataList.add(currentExecutionData);
         inputData.put(currentFlowElement.getId(), nodeExecutionDataList);

@@ -68,7 +68,7 @@ public class ExecutionContextValueProvider implements ValueProvider<String>, IEx
     private Object extractByJsonPath(String strValue) {
         try {
             if (ReUtil.isMatch(JSON_PATH_REGEX, strValue)) {
-                return JsonPath.read(JSONUtil.parseObj(variables), strValue);
+                return JsonPath.read(JSONUtil.toJsonStr(variables), strValue);
             }
         } catch (Throwable ignore) {
         }
@@ -96,6 +96,20 @@ public class ExecutionContextValueProvider implements ValueProvider<String>, IEx
 
     @Override
     public Object get(Object key) {
+        if (key instanceof String strValue) {
+            //JSONPATH
+            Object jsonPathValue = extractByJsonPath(strValue);
+            if (Objects.nonNull(jsonPathValue)) {
+                return jsonPathValue;
+            }
+
+            //Express
+            Object aviatorValue = extractByExpress(strValue);
+            if (Objects.nonNull(aviatorValue)) {
+                return aviatorValue;
+            }
+        }
+
         return variables.get(key);
     }
 

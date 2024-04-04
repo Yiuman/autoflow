@@ -41,16 +41,14 @@ public class ExecuteServiceListener implements FlowableEventListener {
         SseEmitter sseEmitter = SSEContext.get(execution.getProcessDefinitionId());
         if (Objects.nonNull(sseEmitter)) {
             try {
-                Map<String, Object> transientVariables = execution.getTransientVariables();
-                Map<String, List<ExecutionData>> nodeExecutionDataMap = (Map<String, List<ExecutionData>>) transientVariables.get(Constants.INPUT_DATA);
-                String activityId = execution.getActivityId();
                 String sseData = "";
+                Map<String, List<ExecutionData>> nodeExecutionDataMap = (Map<String, List<ExecutionData>>) execution
+                        .getTransientVariables()
+                        .get(Constants.INPUT_DATA);
+                String activityId = execution.getActivityId();
                 if (Objects.nonNull(nodeExecutionDataMap)) {
-                    ExecutionData executionData = CollUtil.getLast(nodeExecutionDataMap.get(activityId));
-                    if (Objects.nonNull(executionData)) {
-                        sseData = JSONUtil.toJsonStr(executionData);
-                    }
-
+                    List<ExecutionData> executionDataList = nodeExecutionDataMap.get(activityId);
+                    sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
                 }
 
                 SseEmitter.SseEventBuilder data = SseEmitter.event()

@@ -31,7 +31,6 @@ import java.util.Map;
 @RequestMapping("/executions")
 @RequiredArgsConstructor
 public class ExecutionController {
-    private final RepositoryService repositoryService;
     private final RuntimeService runtimeService;
     private final Executor executor;
 
@@ -61,7 +60,7 @@ public class ExecutionController {
     }
 
     @PostMapping("/node")
-    public R<ExecutionData> executeNode(@RequestBody Node node) {
+    public R<List<ExecutionData>> executeNode(@RequestBody Node node) {
         return R.ok(executor.executeNode(node));
     }
 

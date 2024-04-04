@@ -1,6 +1,7 @@
 package io.autoflow.core.model;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -59,5 +60,14 @@ public class Flow {
                         && getConnectionTargets().contains(node.getId()))
                 .collect(Collectors.toList());
         return CollUtil.isNotEmpty(endNodes) ? endNodes : getNodes();
+    }
+
+    public static Flow singleNodeFlow(Node node){
+        Flow flow = new Flow();
+        String flowId = StrUtil.format("single_node_{}", node.getId());
+        flow.setId(flowId);
+        flow.setName(flowId);
+        flow.setNodes(List.of(node));
+        return flow;
     }
 }

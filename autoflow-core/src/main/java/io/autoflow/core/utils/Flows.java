@@ -217,7 +217,8 @@ public final class Flows {
      * @param loop     循环配置参数
      */
     public static void addMultiInstanceLoopCharacteristics(Activity activity, Loop loop) {
-        if (Objects.isNull(loop)) {
+        if (Objects.isNull(loop)
+                || (Objects.isNull(loop.getLoopCardinality()) && StrUtil.isBlank(loop.getCollectionString()))) {
             return;
         }
         MultiInstanceLoopCharacteristics multiInstanceLoopCharacteristics = new MultiInstanceLoopCharacteristics();
@@ -226,7 +227,7 @@ public final class Flows {
         if (Objects.nonNull(loop.getLoopCardinality())) {
             multiInstanceLoopCharacteristics.setLoopCardinality(StrUtil.toString(loop.getLoopCardinality()));
         } else {
-            multiInstanceLoopCharacteristics.setCollectionString(String.format("${expressResolver.resolve(execution,'%s')}", loop.getCollectionString()));
+            multiInstanceLoopCharacteristics.setInputDataItem(String.format("${expressResolver.resolve(execution,'%s')}", loop.getCollectionString()));
             multiInstanceLoopCharacteristics.setElementVariable(loop.getElementVariable());
         }
         activity.setLoopCharacteristics(multiInstanceLoopCharacteristics);
