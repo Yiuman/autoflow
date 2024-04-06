@@ -38,7 +38,6 @@ public class ExecuteServiceTask implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) {
-
         String serviceIdValue = (String) serviceId.getValue(null);
         StopWatch stopWatch = new StopWatch(StrUtil.format("【{} Task】", serviceIdValue));
         stopWatch.start();
@@ -57,6 +56,9 @@ public class ExecuteServiceTask implements JavaDelegate {
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", serviceIdValue), throwable);
             currentExecutionData = ExecutionData.error(serviceIdValue, throwable);
+        } finally {
+            flowExecutionContext.getParameters().clear();
+            execution.removeTransientVariables();
         }
 
         Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();

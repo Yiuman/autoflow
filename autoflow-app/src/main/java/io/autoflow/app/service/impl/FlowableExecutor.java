@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import io.autoflow.core.Services;
-import io.autoflow.core.delegate.ExpressResolver;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Loop;
 import io.autoflow.core.model.Node;
@@ -15,7 +14,6 @@ import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.context.OnceExecutionContext;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
-import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.BpmnModel;
@@ -25,7 +23,10 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author yiuman
@@ -42,9 +43,7 @@ public class FlowableExecutor implements Executor {
     public Map<String, List<ExecutionData>> execute(Flow flow) {
         runtimeService.startProcessInstanceById(getExecutableId(flow));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
-        Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
-        FlowExecutionContext.remove();
-        return inputData;
+        return flowExecutionContext.getInputData();
     }
 
     @Override

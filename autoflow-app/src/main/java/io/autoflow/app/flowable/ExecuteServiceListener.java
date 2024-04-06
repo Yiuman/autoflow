@@ -2,7 +2,7 @@ package io.autoflow.app.flowable;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
-import io.autoflow.spi.context.Constants;
+import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
@@ -31,10 +31,10 @@ public class ExecuteServiceListener implements FlowableEventListener {
         put(FlowableEngineEventType.PROCESS_COMPLETED, (event) -> {
             sseSendData(event);
             SSEContext.close(((FlowableProcessEventImpl) event).getProcessDefinitionId());
+            FlowExecutionContext.remove();
         });
     }};
 
-    @SuppressWarnings("unchecked")
     private static void sseSendData(FlowableEvent event) {
         FlowableProcessEventImpl entityEvent = (FlowableProcessEventImpl) event;
         ExecutionEntityImpl execution = (ExecutionEntityImpl) entityEvent.getExecution();
@@ -42,9 +42,7 @@ public class ExecuteServiceListener implements FlowableEventListener {
         if (Objects.nonNull(sseEmitter)) {
             try {
                 String sseData = "";
-                Map<String, List<ExecutionData>> nodeExecutionDataMap = (Map<String, List<ExecutionData>>) execution
-                        .getTransientVariables()
-                        .get(Constants.INPUT_DATA);
+                Map<String, List<ExecutionData>> nodeExecutionDataMap = FlowExecutionContext.get().getInputData();
                 String activityId = execution.getActivityId();
                 if (Objects.nonNull(nodeExecutionDataMap)) {
                     List<ExecutionData> executionDataList = nodeExecutionDataMap.get(activityId);
