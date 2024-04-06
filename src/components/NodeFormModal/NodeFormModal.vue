@@ -104,7 +104,7 @@ const inputDataFlat = computed(() => {
       if (executionDataList && executionDataList.length) {
         executionDataList.push(incommer.data?.executionData)
       } else {
-        nodeExecutionData[incommer.id] = [incommer.data?.executionData]
+        nodeExecutionData[incommer.id] = incommer.data?.executionData
       }
 
 

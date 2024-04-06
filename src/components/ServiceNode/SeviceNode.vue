@@ -91,7 +91,7 @@ const rgba = randomRgba(0.8)
       <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.label }}</AAvatar>
 
       <div class="node-status-icon" v-if="data.executionData">
-        <IconExclamationCircle class="node-status-error" v-if="data.executionData.error" />
+        <IconExclamationCircle class="node-status-error" v-if="data.executionData[0].error" />
         <IconCheckCircle class="node-status-sucess" v-else />
       </div>
     </div>
