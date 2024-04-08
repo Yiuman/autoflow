@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue';
-import type { ExecutionData, Property, VueFlowNode } from '@/types/flow'
+import type { Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconCloseCircleFill,
@@ -120,7 +120,7 @@ const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null;
   }
-  const inputDataList =selectedNode.value?.data.executionData;
+  const inputDataList = selectedNode.value?.data.executionData;
   return inputDataList?.length === 1 ? inputDataList[0] : inputDataList;
 })
 
@@ -222,7 +222,7 @@ const showLoopSetting = computed(() => {
               </AButton>
             </div>
             <ATabs>
-              <ATabPane key="1" title="Parameters">
+              <ATabPane key="1" title="Parameters" v-if="props.properties && props.properties.length">
                 <div>
                   <FromRenderer v-model="nodeData" :properties="props.properties" />
                 </div>

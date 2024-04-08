@@ -13,7 +13,7 @@ import {
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { getAllIncomers, elementsToFlow } from '@/utils/converter'
-import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
+
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem } from '@arco-design/web-vue'
 import type { Flow, Property, VueFlowNode, NodeElementData, ExecutionData, Service } from '@/types/flow'
@@ -23,7 +23,9 @@ import { computed } from 'vue'
 import { downloadByData } from '@/utils/download'
 import { executeNode, stopExecution } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
+import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
 import SwitchNode from '@/components/SwitchNode/SwitchNode.vue'
+import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
 import { fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source"
 import { useEnv } from "@/hooks/env";
@@ -41,7 +43,8 @@ watch(dark, () => {
 //---------------------------- 初始化定义数据 ----------------------------
 const nodeTypes = {
   SERVICE: markRaw(ServiceNode),
-  SWITCH: markRaw(SwitchNode)
+  SWITCH: markRaw(SwitchNode),
+  SUBFLOW: markRaw(LoopEachItemNode)
 }
 
 const edgeTypes = {

@@ -38,6 +38,7 @@ declare module 'vue' {
     ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']
+    LoopEachItemNode: typeof import('./src/components/LoopEachItemNode/LoopEachItemNode.vue')['default']
     LoopSetting: typeof import('./src/components/LoopSetting/LoopSetting.vue')['default']
     MapEditor: typeof import('./src/components/MapEditor/MapEditor.vue')['default']
     NodeFormModal: typeof import('./src/components/NodeFormModal/NodeFormModal.vue')['default']

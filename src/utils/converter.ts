@@ -3,8 +3,9 @@ import type { GraphEdge, Node as VueFlowNode, GraphNode, Elements } from '@vue-f
 
 import type { Flow, Connection, Node, Service, NodeElementData } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
-import { uniq,reverse } from 'lodash';
+import { uniq, reverse } from 'lodash';
 import type { Position } from '@vueuse/core';
+import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue';
 //获取当前节点所有的前置节点
 export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrId: Node | string) => GraphNode[]): VueFlowNode[] {
   if (!nodeId) {
@@ -52,6 +53,10 @@ export function toGraphNode(node: Node): VueFlowNode {
   }
 }
 
+const nodeTypeMap: Record<string, string> = {
+  Switch: 'SWITCH',
+  LoopEachItem: 'SUBFLOW'
+}
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
   const nodeData: Record<string, any> = {};
   nodeData.serviceId = service.id
@@ -59,7 +64,7 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
   nodeData.parameters = {};
   nodeData.loop = {};
   return {
-    type: service.name === 'Switch' ? 'SWITCH' : 'SERVICE',
+    type: nodeTypeMap[service.name] || 'SERVICE',
     id: uuid(8, true),
     position: position || { x: 0, y: 0 },
     data: nodeData,

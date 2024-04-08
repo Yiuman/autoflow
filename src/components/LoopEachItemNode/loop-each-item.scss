@@ -1,0 +1,102 @@
+.autoflow-node {
+    height: 80px;
+    width: 80px;
+    border-radius: 5px;
+    background-color: rgb(248 250 252);
+    border: 2px solid #eee;
+
+    &:hover {
+        .node-toolbar {
+            opacity: 1;
+            transition-delay: 0s;
+        }
+    }
+}
+
+.node-avatar {
+    padding: 6px;
+    position: relative;
+
+    .node-status-icon {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+
+        font-size: 18px;
+
+        .node-status-sucess {
+            color: green;
+        }
+
+        .node-status-error {
+            color: orange;
+        }
+    }
+}
+
+.selected {
+    .autoflow-node {
+        box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    .node-toolbar {
+        display: block;
+    }
+}
+
+.toolbar-btn {
+    font-size: 14px;
+}
+
+.node-toolbar {
+    position: absolute;
+    top: -26px;
+    right: 1px;
+    z-index: 1;
+    transition: 0.5s;
+    opacity: 0;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    .toolbar-delete-btn {
+        &:hover {
+            color: red;
+        }
+    }
+}
+
+.vue-flow__node-SUBFLOW {
+    .vue-flow__handle {
+        height: 10px;
+        width: 10px;
+        z-index: 10;
+    }
+
+    .vue-flow__handle-left {
+        height: 15px;
+        width: 6px;
+        left: 1px;
+        border-radius: unset;
+    }
+
+    .vue-flow__handle-right, .vue-flow__handle-bottom {
+        background: white;
+        border: 2px solid var(--vf-handle);
+        right: 0px;
+
+        .done-label {
+            position: absolute;
+            top: 14px;
+            left: -8px;
+        }
+
+        .loop-label {
+            position: absolute;
+            top: -18px;
+            left: 10px;
+        }
+    }
+  
+}
