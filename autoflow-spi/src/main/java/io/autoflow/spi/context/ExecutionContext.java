@@ -11,8 +11,19 @@ import java.util.Map;
  */
 public interface ExecutionContext {
 
+    /**
+     * 执行上下的参数信息（节点入参）
+     */
+    Map<String, Object> getParameters();
+
+    /**
+     * 执行上下的输入信息 （前节点的输出数据）
+     */
     Map<String, List<ExecutionData>> getInputData();
 
-    Map<String, Object> getParameters();
+    /**
+     * 执行过程中的变量信息
+     */
+    Map<String, Object> getVariables();
 
 }

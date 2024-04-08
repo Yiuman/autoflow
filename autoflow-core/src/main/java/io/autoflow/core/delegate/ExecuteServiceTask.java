@@ -45,7 +45,7 @@ public class ExecuteServiceTask implements JavaDelegate {
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
-        flowExecutionContext.getParameters().putAll(execution.getVariables());
+        flowExecutionContext.getVariables().putAll(execution.getVariables());
         flowExecutionContext.getParameters().putAll(Flows.getElementProperties(currentFlowElement));
         ExecutionData currentExecutionData;
         try {

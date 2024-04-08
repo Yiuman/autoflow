@@ -11,12 +11,14 @@
 
     <artifactId>autoflow-plugins</artifactId>
     <packaging>pom</packaging>
+
     <modules>
         <module>autoflow-http-plugin</module>
         <module>autoflow-all-plugin</module>
         <module>autoflow-regex-plugin</module>
         <module>autoflow-sql-plugin</module>
         <module>autoflow-switch-plugin</module>
+        <module>autoflow-loop-each-item-plugin</module>
     </modules>
 
     <properties>

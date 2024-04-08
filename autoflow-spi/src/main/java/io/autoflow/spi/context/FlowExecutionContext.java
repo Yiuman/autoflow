@@ -19,6 +19,7 @@ import java.util.Optional;
 public class FlowExecutionContext implements ExecutionContext {
     private static final ThreadLocal<FlowExecutionContext> CONTEXT_THREAD_LOCAL = new NamedThreadLocal<>(FlowExecutionContext.class.getName());
     private final Map<String, Object> parameters = new HashMap<>();
+    private final Map<String, Object> variables = new HashMap<>();
     private final Map<String, List<ExecutionData>> inputData = new HashMap<>();
 
     public static FlowExecutionContext get() {

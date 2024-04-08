@@ -22,6 +22,7 @@ public final class OnceExecutionContext implements ExecutionContext {
         put(Constants.INPUT_NAME, Constants.DEFAULT_INPUT_NAME);
         put(Constants.INPUT_INDEX, Constants.DEFAULT_INPUT_INDEX);
     }};
+    private final Map<String, Object> variables = new HashMap<>();
     private Map<String, List<ExecutionData>> inputData = new HashMap<>();
 
     public static OnceExecutionContext create(List<ExecutionData> executionData) {

@@ -11,6 +11,7 @@ import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 流程工具
@@ -18,6 +19,7 @@ import java.util.*;
  * @author yiuman
  * @date 2023/7/13
  */
+@SuppressWarnings("unchecked")
 public final class Flows {
     public static final String AUTOFLOW_JSON = "autoflow-json";
     public static final String PREFIX = "flowable";
@@ -34,6 +36,7 @@ public final class Flows {
         put(NodeType.SWITCH, ServiceNodeConverter.INSTANCE);
         put(NodeType.GATEWAY, GatewayNodeConverter.INSTANCE);
         put(NodeType.USER, UserNodeConverter.INSTANCE);
+        put(NodeType.SUBFLOW, SubProcessConverter.INSTANCE);
     }};
 
     private Flows() {
@@ -58,24 +61,54 @@ public final class Flows {
     public static BpmnModel convert(Flow flow) {
         Assert.notNull(flow);
         Assert.notEmpty(flow.getNodes());
+        Map<String, FlowElementsContainer> idFlowElementsContainerMap = new HashMap<>();
+        //创建主流程
         Process process = createProcess(flow);
-        List<Node> nodes = flow.getNodes();
+        idFlowElementsContainerMap.put(flow.getId(), process);
         StartEvent startEvent = createStartEvent();
-        process.addFlowElement(startEvent);
-        flow.getStartNodes().forEach(startNode -> process.addFlowElement(
-                createSequenceFlow(new Connection(startEvent.getId(), startNode.getId()))
-        ));
-        nodes.forEach(node -> process.addFlowElement(NODE_CONVERTER_MAP.get(node.getType()).convert(node)));
-        List<Connection> connections = flow.getConnections();
-        if (CollUtil.isNotEmpty(connections)) {
-            flow.getConnections().forEach(connection -> process.addFlowElement(createSequenceFlow(connection)));
-        }
-
         EndEvent endEvent = createEndEvent();
         process.addFlowElement(endEvent);
-        flow.getEndNodes().forEach(endNode -> process.addFlowElement(
-                createSequenceFlow(new Connection(endNode.getId(), endEvent.getId()))
-        ));
+        process.addFlowElement(startEvent);
+
+        List<Node> nodes = flow.getNodes();
+        //处理节点
+        nodes.forEach(node -> {
+            String dependentFlowId = flow.getDependentFlowId(node);
+            FlowNode flowNode = NODE_CONVERTER_MAP.get(node.getType()).convert(node);
+            if (flowNode instanceof SubProcess subProcess) {
+                idFlowElementsContainerMap.put(node.getId(), subProcess);
+            }
+            FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
+            flowElementsContainer.addFlowElement(flowNode);
+        });
+
+        //处理连线
+        List<Connection> connections = flow.getConnections();
+        if (CollUtil.isNotEmpty(connections)) {
+            flow.getConnections().forEach(connection -> {
+                String dependentFlowId = flow.getDependentFlowId(connection.getSource());
+                FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
+                flowElementsContainer.addFlowElement(createSequenceFlow(connection));
+            });
+        }
+
+        //处理开始所有流程的开始与结束节点
+        for (Map.Entry<String, FlowElementsContainer> idFlowElementsContainerEntry : idFlowElementsContainerMap.entrySet()) {
+            String key = idFlowElementsContainerEntry.getKey();
+            FlowElementsContainer flowElementsContainer = idFlowElementsContainerEntry.getValue();
+            StartEvent startEventElement = getElement(flowElementsContainer, StartEvent.class);
+            List<Node> startNodes = flow.getStartNodes(key);
+            for (Node startNode : startNodes) {
+                flowElementsContainer.addFlowElement(createSequenceFlow(new Connection(startEventElement.getId(), startNode.getId())));
+            }
+
+            EndEvent endEventElement = getElement(flowElementsContainer, EndEvent.class);
+            List<Node> endNodes = flow.getEndNodes(key);
+            for (Node endNode : endNodes) {
+                flowElementsContainer.addFlowElement(createSequenceFlow(new Connection(endNode.getId(), endEventElement.getId())));
+            }
+        }
+
         BpmnModel bpmnModel = new BpmnModel();
         bpmnModel.addProcess(process);
         autoLayout(bpmnModel);
@@ -121,15 +154,35 @@ public final class Flows {
     }
 
     public static StartEvent createStartEvent() {
+        return createStartEvent(START_EVENT_ID);
+    }
+
+    public static StartEvent createStartEvent(String startEventId) {
         StartEvent startEvent = new StartEvent();
-        startEvent.setId(START_EVENT_ID);
+        startEvent.setId(startEventId);
         return startEvent;
     }
 
     public static EndEvent createEndEvent() {
+        return createEndEvent(END_EVENT_ID);
+    }
+
+    public static EndEvent createEndEvent(String endEventId) {
         EndEvent endEvent = new EndEvent();
-        endEvent.setId(END_EVENT_ID);
+        endEvent.setId(endEventId);
         return endEvent;
+    }
+
+    public static <T> T getElement(FlowElementsContainer flowElementsContainer, Class<T> clazz) {
+        return (T) flowElementsContainer.getFlowElements().stream()
+                .filter(element -> clazz.isAssignableFrom(element.getClass()))
+                .findFirst().orElse(null);
+    }
+
+    public static <T> List<T> getElements(FlowElementsContainer flowElementsContainer, Class<T> clazz) {
+        return (List<T>) flowElementsContainer.getFlowElements().stream()
+                .filter(element -> clazz.isAssignableFrom(element.getClass()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -232,6 +285,5 @@ public final class Flows {
         }
         activity.setLoopCharacteristics(multiInstanceLoopCharacteristics);
     }
-
 
 }

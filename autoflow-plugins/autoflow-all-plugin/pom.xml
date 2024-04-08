@@ -38,9 +38,15 @@
             <version>${revision}</version>
         </dependency>
 
-        <dependency>Ï
+        <dependency>
             <groupId>io.autoflow</groupId>
             <artifactId>autoflow-switch-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-loop-each-item-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>

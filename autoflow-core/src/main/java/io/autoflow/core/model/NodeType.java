@@ -9,5 +9,6 @@ public enum NodeType {
     SERVICE,
     GATEWAY,
     SWITCH,
-    USER
+    USER,
+    SUBFLOW
 }

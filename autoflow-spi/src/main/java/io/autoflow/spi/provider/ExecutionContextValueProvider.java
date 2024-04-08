@@ -36,6 +36,7 @@ public class ExecutionContextValueProvider implements ValueProvider<String>, IEx
     private static final ExpressRunner EXPRESS_RUNNER = new ExpressRunner();
 
     public ExecutionContextValueProvider(ExecutionContext executionContext) {
+        variables.putAll(executionContext.getVariables());
         variables.putAll(executionContext.getParameters());
         variables.put(Constants.INPUT_DATA, executionContext.getInputData());
     }

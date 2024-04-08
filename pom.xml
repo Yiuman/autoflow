@@ -10,11 +10,11 @@
     <packaging>pom</packaging>
     <modules>
         <module>autoflow-spi</module>
-        <module>autoflow-plugins</module>
         <module>autoflow-core</module>
         <module>autoflow-common</module>
         <module>autoflow-app</module>
         <module>autoflow-modules</module>
+        <module>autoflow-plugins</module>
     </modules>
 
     <properties>
