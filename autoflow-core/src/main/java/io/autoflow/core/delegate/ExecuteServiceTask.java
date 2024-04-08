@@ -12,13 +12,16 @@ import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.bpmn.model.Activity;
 import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.MultiInstanceLoopCharacteristics;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.engine.impl.el.FixedValue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +48,15 @@ public class ExecuteServiceTask implements JavaDelegate {
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
         FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
+        if(currentFlowElement instanceof Activity activity){
+            MultiInstanceLoopCharacteristics loopCharacteristics = activity.getLoopCharacteristics();
+            if(Objects.nonNull(loopCharacteristics)){
+                flowExecutionContext.getVariables().put(
+                        "elementVariable",
+                        execution.getVariables().get(loopCharacteristics.getElementVariable())
+                );
+            }
+        }
         flowExecutionContext.getVariables().putAll(execution.getVariables());
         flowExecutionContext.getParameters().putAll(Flows.getElementProperties(currentFlowElement));
         ExecutionData currentExecutionData;

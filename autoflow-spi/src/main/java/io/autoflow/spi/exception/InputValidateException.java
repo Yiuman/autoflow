@@ -3,6 +3,7 @@ package io.autoflow.spi.exception;
 import cn.hutool.core.util.StrUtil;
 import io.autoflow.spi.model.InputValidateError;
 import jakarta.validation.ConstraintViolation;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
  * @author yiuman
  * @date 2024/3/12
  */
+@Getter
 public class InputValidateException extends RuntimeException {
 
     private final List<InputValidateError> inputValidateErrors;
@@ -30,7 +32,4 @@ public class InputValidateException extends RuntimeException {
         return message;
     }
 
-    public List<InputValidateError> getInputValidateErrors() {
-        return inputValidateErrors;
-    }
 }

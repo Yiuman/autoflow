@@ -68,8 +68,7 @@ public class FlowableExecutor implements Executor {
         try {
             Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
             Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) runOnceData.get(Constants.INPUT_DATA);
-            Loop loop = node.getLoop();
-            if (Objects.nonNull(loop)) {
+            if (node.loopIsValid()) {
                 FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
                 flowExecutionContext.getInputData().putAll(inputData);
                 Map<String, List<ExecutionData>> execute = execute(Flow.singleNodeFlow(node));

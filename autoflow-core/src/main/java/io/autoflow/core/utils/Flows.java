@@ -70,26 +70,38 @@ public final class Flows {
         process.addFlowElement(endEvent);
         process.addFlowElement(startEvent);
 
-        List<Node> nodes = flow.getNodes();
         //处理节点
-        nodes.forEach(node -> {
+        for (Node node : flow.getNodes()) {
             String dependentFlowId = flow.getDependentFlowId(node);
-            FlowNode flowNode = NODE_CONVERTER_MAP.get(node.getType()).convert(node);
+            FlowNode flowNode;
+            //子流程特别处理
+            if (NodeType.SUBFLOW == node.getType() && CollUtil.isEmpty(flow.getIncomers(node))
+                    && CollUtil.isEmpty(flow.getOutgoers(node))) {
+                flowNode = ServiceNodeConverter.INSTANCE.convert(node);
+            } else {
+                flowNode = NODE_CONVERTER_MAP.get(node.getType()).convert(node);
+            }
+
             if (flowNode instanceof SubProcess subProcess) {
-                idFlowElementsContainerMap.put(node.getId(), subProcess);
+                idFlowElementsContainerMap.put(flowNode.getId(), subProcess);
             }
             FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
             flowElementsContainer.addFlowElement(flowNode);
-        });
+        }
 
         //处理连线
         List<Connection> connections = flow.getConnections();
         if (CollUtil.isNotEmpty(connections)) {
-            flow.getConnections().forEach(connection -> {
+            for (Connection connection : flow.getConnections()) {
                 String dependentFlowId = flow.getDependentFlowId(connection.getSource());
                 FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
+                FlowElementsContainer currentSourceContainer = idFlowElementsContainerMap.get(connection.getSource());
+                if (Objects.nonNull(currentSourceContainer) && currentSourceContainer instanceof SubProcess) {
+                    continue;
+                }
                 flowElementsContainer.addFlowElement(createSequenceFlow(connection));
-            });
+            }
+
         }
 
         //处理开始所有流程的开始与结束节点

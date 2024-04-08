@@ -75,14 +75,16 @@ public class Flow {
             return getStartNodes();
         }
         List<Node> outgoers = getOutgoers(flowId);
-        return outgoers.stream().filter(node -> !getConnectionTargets().contains(node.getId())
-                        && getConnectionSources().contains(node.getId()))
+        return outgoers.stream()
+                .filter(node -> getConnectionTargets()
+                        .contains(flowId))
                 .collect(Collectors.toList());
     }
 
     public List<Node> getEndNodes() {
         List<Node> endNodes = getNodes().stream()
-                .filter(node -> !getConnectionSources().contains(node.getId())
+                .filter(node ->
+                        !getConnectionSources().contains(node.getId())
                         && getConnectionTargets().contains(node.getId()))
                 .collect(Collectors.toList());
         return CollUtil.isNotEmpty(endNodes) ? endNodes : getNodes();
@@ -134,11 +136,14 @@ public class Flow {
     public List<Node> getIncomers(String nodeId) {
         List<String> incomerIds = getIncomerIds(nodeId);
         return nodes.stream()
-                .filter(nodeItem -> incomerIds.contains(nodeId))
+                .filter(nodeItem -> incomerIds.contains(nodeItem.getId()))
                 .collect(Collectors.toList());
     }
 
     public List<String> getIncomerIds(String nodeId) {
+        if (CollUtil.isEmpty(connections)) {
+            return CollUtil.newArrayList();
+        }
         List<String> list = connections.stream()
                 .filter(connection -> Objects.equals(connection.getTarget(), nodeId))
                 .map(Connection::getSource)
@@ -160,11 +165,14 @@ public class Flow {
     public List<Node> getOutgoers(String nodeId) {
         List<String> outgoerIds = getOutgoerIds(nodeId);
         return nodes.stream()
-                .filter(nodeItem -> outgoerIds.contains(nodeId))
+                .filter(nodeItem -> outgoerIds.contains(nodeItem.getId()))
                 .collect(Collectors.toList());
     }
 
     public List<String> getOutgoerIds(String nodeId) {
+        if (CollUtil.isEmpty(connections)) {
+            return CollUtil.newArrayList();
+        }
         List<String> list = connections.stream()
                 .filter(connection -> Objects.equals(connection.getSource(), nodeId))
                 .map(Connection::getTarget)

@@ -30,8 +30,12 @@ public class ExecuteServiceListener implements FlowableEventListener {
         put(FlowableEngineEventType.ACTIVITY_COMPLETED, ExecuteServiceListener::sseSendData);
         put(FlowableEngineEventType.PROCESS_COMPLETED, (event) -> {
             sseSendData(event);
-            SSEContext.close(((FlowableProcessEventImpl) event).getProcessDefinitionId());
-            FlowExecutionContext.remove();
+            FlowableProcessEventImpl flowableProcessEvent = (FlowableProcessEventImpl) event;
+            //可能是子流程
+            if (Objects.isNull(flowableProcessEvent.getExecution().getParent())) {
+                SSEContext.close(flowableProcessEvent.getProcessDefinitionId());
+            }
+
         });
     }};
 
@@ -39,25 +43,27 @@ public class ExecuteServiceListener implements FlowableEventListener {
         FlowableProcessEventImpl entityEvent = (FlowableProcessEventImpl) event;
         ExecutionEntityImpl execution = (ExecutionEntityImpl) entityEvent.getExecution();
         SseEmitter sseEmitter = SSEContext.get(execution.getProcessDefinitionId());
-        if (Objects.nonNull(sseEmitter)) {
-            try {
-                String sseData = "";
-                Map<String, List<ExecutionData>> nodeExecutionDataMap = FlowExecutionContext.get().getInputData();
-                String activityId = execution.getActivityId();
-                if (Objects.nonNull(nodeExecutionDataMap)) {
-                    List<ExecutionData> executionDataList = nodeExecutionDataMap.get(activityId);
-                    sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
-                }
+        if (Objects.isNull(sseEmitter)) {
+            return;
+        }
 
-                SseEmitter.SseEventBuilder data = SseEmitter.event()
-                        .id(activityId)
-                        .name(event.getType().name())
-                        .data(sseData);
-                sseEmitter.send(data);
-                log.debug("Match executeService send sse " + event.getType() + " activityId:" + activityId);
-            } catch (Throwable throwable) {
-                log.error("SSE send data happen error", throwable);
+        try {
+            String sseData = "";
+            Map<String, List<ExecutionData>> nodeExecutionDataMap = FlowExecutionContext.get().getInputData();
+            String activityId = execution.getActivityId();
+            if (Objects.nonNull(nodeExecutionDataMap)) {
+                List<ExecutionData> executionDataList = nodeExecutionDataMap.get(activityId);
+                sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
             }
+
+            SseEmitter.SseEventBuilder data = SseEmitter.event()
+                    .id(activityId)
+                    .name(event.getType().name())
+                    .data(sseData);
+            sseEmitter.send(data);
+            log.debug("Match executeService send sse " + event.getType() + " activityId:" + activityId);
+        } catch (Throwable throwable) {
+            log.error("SSE send data happen error", throwable);
         }
     }
 

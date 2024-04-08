@@ -1,8 +1,11 @@
 package io.autoflow.core.model;
 
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 节点
@@ -34,4 +37,14 @@ public class Node {
      * 循环参数
      */
     private Loop loop;
+
+    public boolean loopIsValid() {
+        if (Objects.isNull(loop)) {
+            return false;
+        }
+
+        return StrUtil.isNotBlank(loop.getCollectionString())
+                || (Objects.nonNull(loop.getLoopCardinality())
+                && loop.getLoopCardinality() > 0);
+    }
 }
