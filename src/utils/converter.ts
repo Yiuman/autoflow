@@ -3,9 +3,8 @@ import type { GraphEdge, Node as VueFlowNode, GraphNode, Elements } from '@vue-f
 
 import type { Flow, Connection, Node, Service, NodeElementData } from '@/types/flow'
 import { uuid } from '@/utils/util-func'
-import { uniq, reverse } from 'lodash';
+import { uniq } from 'lodash';
 import type { Position } from '@vueuse/core';
-import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue';
 //获取当前节点所有的前置节点
 export function getAllIncomers(nodeId: string | undefined, getIncomers: (nodeOrId: Node | string) => GraphNode[]): VueFlowNode[] {
   if (!nodeId) {
@@ -55,7 +54,7 @@ export function toGraphNode(node: Node): VueFlowNode {
 
 const nodeTypeMap: Record<string, string> = {
   Switch: 'SWITCH',
-  LoopEachItem: 'SUBFLOW'
+  LoopEachItem: 'LOOP_EACH_ITEM'
 }
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
   const nodeData: Record<string, any> = {};
@@ -81,6 +80,8 @@ export function toConnect(edge: GraphEdge): Connection {
     sourceY: edge.sourceY,
     targetX: edge.targetX,
     targetY: edge.targetY,
+    sourcePointType: edge.data?.sourcePointType,
+    targetPointType: edge.data?.targetPointType,
     expression: edge.data?.expression
   }
 }

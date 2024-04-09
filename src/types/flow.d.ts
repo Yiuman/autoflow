@@ -28,6 +28,8 @@ interface Loop {
 interface Connection {
   id: string,
   source: string
+  sourcePointType?: string
+  targetPointType?: string
   target: string
   sourceX: number
   sourceY: number

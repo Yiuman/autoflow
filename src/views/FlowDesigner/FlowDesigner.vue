@@ -44,7 +44,7 @@ watch(dark, () => {
 const nodeTypes = {
   SERVICE: markRaw(ServiceNode),
   SWITCH: markRaw(SwitchNode),
-  SUBFLOW: markRaw(LoopEachItemNode)
+  LOOP_EACH_ITEM: markRaw(LoopEachItemNode)
 }
 
 const edgeTypes = {
@@ -112,13 +112,16 @@ const defaultEvents = {
 onConnect((param) => {
   const sourceNode = findNode<NodeElementData>(param.source);
   const addEdge: GraphEdge = { ...param, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
+  addEdge.data.sourcePointType = param.sourceHandle;
+  addEdge.data.targetPointType = param.targetHandle;
   if (sourceNode && sourceNode.type === 'SWITCH') {
-    if (param.sourceHandle == `${sourceNode.id}__handel-top`) {
+    if (param.sourceHandle == `switch_true_handle`) {
       addEdge.data.expression = "${" + `inputData['${sourceNode.id}'][0].json.result` + "}"
     } else {
       addEdge.data.expression = "${!" + `inputData['${sourceNode.id}'][0].json.result` + "}"
     }
   }
+
   addEdges(addEdge)
 })
 

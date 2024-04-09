@@ -96,11 +96,11 @@ const rgba = randomRgba(0.8)
             </div>
         </div>
 
-        <Handle type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-        <Handle type="source" :position="Position.Right" :is-valid-connection="validConnection">
+        <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
+        <Handle id="loop_each_item_loop_handle" type="source" :position="Position.Right" :is-valid-connection="validConnection">
             <div class="loop-label">loop</div>
         </Handle>
-        <Handle type="source" :position="Position.Bottom" :is-valid-connection="validConnection">
+        <Handle id="loop_each_item_done_handle" type="source" :position="Position.Bottom" :is-valid-connection="validConnection">
             <div class="done-label">done</div>
         </Handle>
     </div>

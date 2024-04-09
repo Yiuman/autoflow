@@ -16,7 +16,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
 
-const { removeNodes,updateNodeData } = useVueFlow()
+const { removeNodes, updateNodeData } = useVueFlow()
 
 export interface ToolBarData {
   toolbarVisible: boolean
@@ -96,8 +96,8 @@ const rgba = randomRgba(0.8)
       </div>
     </div>
 
-    <Handle type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-    <Handle type="source" :position="Position.Right" :is-valid-connection="validConnection" />
+    <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
+    <Handle id="output" type="source" :position="Position.Right" :is-valid-connection="validConnection" />
   </div>
 </template>
 
