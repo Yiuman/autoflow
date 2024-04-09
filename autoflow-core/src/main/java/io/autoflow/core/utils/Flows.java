@@ -64,8 +64,8 @@ public final class Flows {
             mainProcess.setDocumentation(flow.getDescription());
             addExtensionElement(mainProcess, AUTOFLOW_JSON, JSONUtil.toJsonStr(flow));
         }
-        process.addFlowElement(createStartEvent(flow.getId()));
-        process.addFlowElement(createEndEvent(flow.getId()));
+        process.addFlowElement(createStartEvent(flow.getId() + START_EVENT_ID));
+        process.addFlowElement(createEndEvent(flow.getId() + END_EVENT_ID));
 
         Map<String, FlowElementsContainer> idFlowElementsContainerMap = new HashMap<>();
         idFlowElementsContainerMap.put(process.getId(), process);
@@ -83,7 +83,7 @@ public final class Flows {
             }
 
             flowElementIds.add(flowNode.getId());
-            if (flow instanceof FlowElementsContainer flowElementsContainer) {
+            if (flowNode instanceof FlowElementsContainer flowElementsContainer) {
                 flowElementIds.addAll(flowElementsContainer
                         .getFlowElements()
                         .stream().map(BaseElement::getId)
@@ -98,6 +98,10 @@ public final class Flows {
         List<Connection> connections = flow.getConnections();
         if (CollUtil.isNotEmpty(connections)) {
             for (Connection connection : flow.getConnections()) {
+                String sequenceFlowId = String.format("%s_%s", connection.getSource(), connection.getTarget());
+                if (flowElementIds.contains(sequenceFlowId)) {
+                    continue;
+                }
                 String dependentFlowId = flow.getDependentFlowId(connection.getSource());
                 FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
                 FlowElementsContainer currentSourceContainer = idFlowElementsContainerMap.get(connection.getSource());
@@ -111,18 +115,20 @@ public final class Flows {
 
         //处理开始所有流程的开始与结束节点
         for (Map.Entry<String, FlowElementsContainer> idFlowElementsContainerEntry : idFlowElementsContainerMap.entrySet()) {
-            String key = idFlowElementsContainerEntry.getKey();
             FlowElementsContainer flowElementsContainer = idFlowElementsContainerEntry.getValue();
             StartEvent startEventElement = getElement(flowElementsContainer, StartEvent.class);
-            List<Node> startNodes = flow.getStartNodes(key);
-            for (Node startNode : startNodes) {
-                flowElementsContainer.addFlowElement(createSequenceFlow(new Connection(startEventElement.getId(), startNode.getId())));
-            }
-
             EndEvent endEventElement = getElement(flowElementsContainer, EndEvent.class);
-            List<Node> endNodes = flow.getEndNodes(key);
-            for (Node endNode : endNodes) {
-                flowElementsContainer.addFlowElement(createSequenceFlow(new Connection(endNode.getId(), endEventElement.getId())));
+            List<Activity> activities = getElements(flowElementsContainer, Activity.class);
+            List<SequenceFlow> elements = getElements(flowElementsContainer, SequenceFlow.class);
+            List<String> sourceRefs = elements.stream().map(SequenceFlow::getSourceRef).toList();
+            List<String> targetRefs = elements.stream().map(SequenceFlow::getTargetRef).toList();
+            for (Activity activity : activities) {
+                if (!targetRefs.contains(activity.getId())) {
+                    flowElementsContainer.addFlowElement(createSequenceFlow(new Connection(startEventElement.getId(), activity.getId())));
+                }
+                if (!sourceRefs.contains(activity.getId())) {
+                    flowElementsContainer.addFlowElement(createSequenceFlow(new Connection(activity.getId(), endEventElement.getId())));
+                }
             }
         }
 
@@ -131,38 +137,50 @@ public final class Flows {
     }
 
     public static SubProcess loopSubProcess(Node node, Flow flow) {
+        List<Connection> flowConnections = flow.getConnections();
         Map<String, Node> nodeMap = flow.getNodes().stream().collect(Collectors.toMap(Node::getId, n -> n));
-        List<Connection> connections = flow.getConnections().stream()
-                .filter(connection -> Objects.equals(node.getId(), connection.getSource())
-                        && Objects.equals("loop_item_each_loop_handle", connection.getSourcePointType()))
-                .toList();
-        List<Connection> loopConnections = new ArrayList<>(connections);
-        List<Node> loopEachItemNextNodes = connections.stream()
-                .map(connection -> nodeMap.get(connection.getTarget())).toList();
         List<Node> loopEachNodes = new ArrayList<>();
-        Node loopServiceNode = BeanUtil.copyProperties(node, Node.class);
-        loopServiceNode.setType(NodeType.SERVICE);
-        loopEachNodes.add(loopServiceNode);
-        loopEachNodes.addAll(loopEachItemNextNodes);
-        for (Node loopEachItemNextNode : loopEachItemNextNodes) {
-            loopEachNodes.addAll(flow.getOutgoers(loopEachItemNextNode));
-            loopConnections.addAll(flow.getNodeConnections(node));
+        List<Connection> loopConnections = new ArrayList<>();
+        if (CollUtil.isNotEmpty(flowConnections)) {
+            List<Connection> connections = flowConnections.stream()
+                    .filter(connection -> Objects.equals(node.getId(), connection.getSource())
+                            && Objects.equals("loop_each_item_loop_handle", connection.getSourcePointType()))
+                    .toList();
+            loopConnections.addAll(connections);
+            List<Node> loopEachItemNextNodes = connections.stream()
+                    .map(connection -> nodeMap.get(connection.getTarget())).toList();
+            loopEachNodes.addAll(loopEachItemNextNodes);
+            for (Node loopEachItemNextNode : loopEachItemNextNodes) {
+                loopEachNodes.addAll(flow.getOutgoers(loopEachItemNextNode));
+                loopConnections.addAll(flow.getNodeConnections(loopEachItemNextNode));
+            }
         }
 
+
+        Node loopServiceNode = BeanUtil.copyProperties(node, Node.class);
+        loopServiceNode.setLoop(null);
+        loopServiceNode.setType(NodeType.SERVICE);
+        loopEachNodes.add(0, loopServiceNode);
         String subFlowId = "loopProcess_" + node.getId();
         Flow subFlow = new Flow();
         subFlow.setId(subFlowId);
         subFlow.setNodes(loopEachNodes);
         subFlow.setConnections(loopConnections.stream().distinct().toList());
-        //改变连线流转
-        flow.getConnections().stream()
-                .filter(connection -> connection.getTarget().equals(node.getId()))
-                .forEach(connection -> connection.setTarget(subFlowId));
-        flow.getConnections().stream().filter(connection -> Objects.equals(
-                        connection.getSourcePointType(),
-                        "loop_each_item_done_handle") && connection.getSource().equals(node.getId()))
-                .forEach(connection -> connection.setSource(subFlowId));
-        return createProcess(SubProcess.class, subFlow);
+        if (CollUtil.isNotEmpty(flowConnections)) {
+            //改变连线流转
+            flowConnections.stream()
+                    .filter(connection -> connection.getTarget().equals(node.getId()))
+                    .forEach(connection -> connection.setTarget(subFlowId));
+            flowConnections.stream().filter(
+                            connection ->
+                                    Objects.equals(connection.getSourcePointType(), "loop_each_item_done_handle")
+                                            && connection.getSource().equals(node.getId())
+                    )
+                    .forEach(connection -> connection.setSource(subFlowId));
+        }
+        SubProcess subProcess = createProcess(SubProcess.class, subFlow);
+        Flows.addMultiInstanceLoopCharacteristics(subProcess, node.getLoop());
+        return subProcess;
     }
 
     /**

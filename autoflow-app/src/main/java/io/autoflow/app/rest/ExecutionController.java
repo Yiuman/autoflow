@@ -7,6 +7,7 @@ import io.autoflow.common.http.R;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
+import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.RuntimeService;
@@ -48,7 +49,10 @@ public class ExecutionController {
         SseEmitter sseEmitter = new SseEmitter(0L);
         String executableId = executor.getExecutableId(flow);
         SSEContext.add(executableId, sseEmitter);
-        ThreadUtil.execute(() -> runtimeService.startProcessInstanceById(executableId));
+        ThreadUtil.execute(() ->{
+            runtimeService.startProcessInstanceById(executableId);
+            FlowExecutionContext.remove();
+        });
         return sseEmitter;
     }
 
@@ -60,7 +64,9 @@ public class ExecutionController {
 
     @PostMapping("/node")
     public R<List<ExecutionData>> executeNode(@RequestBody Node node) {
-        return R.ok(executor.executeNode(node));
+        List<ExecutionData> executionDataList = executor.executeNode(node);
+        FlowExecutionContext.remove();
+        return R.ok(executionDataList);
     }
 
 }

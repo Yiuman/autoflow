@@ -29,8 +29,6 @@ public class Flow {
     private Set<String> connectionSources;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<String> connectionTargets;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<Node> subFlows;
 
     /**
      * key为nodeId,value为从属的流程ID
@@ -98,15 +96,6 @@ public class Flow {
                 .filter(node -> !getConnectionSources().contains(node.getId())
                         && getConnectionTargets().contains(node.getId()))
                 .collect(Collectors.toList());
-    }
-
-
-    public List<Node> getSubFlows() {
-        if (CollUtil.isEmpty(subFlows)) {
-            subFlows = getNodes().stream().filter(node -> NodeType.SUBFLOW == node.getType())
-                    .collect(Collectors.toList());
-        }
-        return subFlows;
     }
 
     public String getDependentFlowId(String nodeId) {
