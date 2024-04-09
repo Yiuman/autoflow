@@ -1,8 +1,10 @@
 package io.autoflow.core.utils;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.core.model.*;
@@ -36,7 +38,6 @@ public final class Flows {
         put(NodeType.SWITCH, ServiceNodeConverter.INSTANCE);
         put(NodeType.GATEWAY, GatewayNodeConverter.INSTANCE);
         put(NodeType.USER, UserNodeConverter.INSTANCE);
-        put(NodeType.SUBFLOW, SubProcessConverter.INSTANCE);
     }};
 
     private Flows() {
@@ -52,41 +53,45 @@ public final class Flows {
         return convert(JSONUtil.toBean(jsonStr, Flow.class));
     }
 
-    /**
-     * Flow实例转换Bpmn模型
-     *
-     * @param flow Flow流程定义实例
-     * @return Bpmn模型
-     */
-    public static BpmnModel convert(Flow flow) {
+    public static <T extends FlowElementsContainer> T createProcess(Class<T> processType, Flow flow) {
         Assert.notNull(flow);
         Assert.notEmpty(flow.getNodes());
-        Map<String, FlowElementsContainer> idFlowElementsContainerMap = new HashMap<>();
-        //创建主流程
-        Process process = createProcess(flow);
-        idFlowElementsContainerMap.put(flow.getId(), process);
-        StartEvent startEvent = createStartEvent();
-        EndEvent endEvent = createEndEvent();
-        process.addFlowElement(endEvent);
-        process.addFlowElement(startEvent);
+        //创建流程
+        T process = ReflectUtil.newInstance(processType);
+        ReflectUtil.setFieldValue(process, "id", flow.getId());
+        ReflectUtil.setFieldValue(process, "name", flow.getName());
+        if (process instanceof Process mainProcess) {
+            mainProcess.setDocumentation(flow.getDescription());
+            addExtensionElement(mainProcess, AUTOFLOW_JSON, JSONUtil.toJsonStr(flow));
+        }
+        process.addFlowElement(createStartEvent(flow.getId()));
+        process.addFlowElement(createEndEvent(flow.getId()));
 
+        Map<String, FlowElementsContainer> idFlowElementsContainerMap = new HashMap<>();
+        idFlowElementsContainerMap.put(process.getId(), process);
+        List<String> flowElementIds = new ArrayList<>();
         //处理节点
         for (Node node : flow.getNodes()) {
-            String dependentFlowId = flow.getDependentFlowId(node);
             FlowNode flowNode;
-            //子流程特别处理
-            if (NodeType.SUBFLOW == node.getType() && CollUtil.isEmpty(flow.getIncomers(node))
-                    && CollUtil.isEmpty(flow.getOutgoers(node))) {
-                flowNode = ServiceNodeConverter.INSTANCE.convert(node);
+            if (flowElementIds.contains(node.getId())) {
+                continue;
+            }
+            if (NodeType.LOOP_EACH_ITEM == node.getType()) {
+                flowNode = loopSubProcess(node, flow);
             } else {
                 flowNode = NODE_CONVERTER_MAP.get(node.getType()).convert(node);
             }
 
-            if (flowNode instanceof SubProcess subProcess) {
-                idFlowElementsContainerMap.put(flowNode.getId(), subProcess);
+            flowElementIds.add(flowNode.getId());
+            if (flow instanceof FlowElementsContainer flowElementsContainer) {
+                flowElementIds.addAll(flowElementsContainer
+                        .getFlowElements()
+                        .stream().map(BaseElement::getId)
+                        .toList());
+                idFlowElementsContainerMap.put(flowNode.getId(), flowElementsContainer);
             }
-            FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
-            flowElementsContainer.addFlowElement(flowNode);
+
+            process.addFlowElement(flowNode);
         }
 
         //处理连线
@@ -121,7 +126,56 @@ public final class Flows {
             }
         }
 
+        return process;
+
+    }
+
+    public static SubProcess loopSubProcess(Node node, Flow flow) {
+        Map<String, Node> nodeMap = flow.getNodes().stream().collect(Collectors.toMap(Node::getId, n -> n));
+        List<Connection> connections = flow.getConnections().stream()
+                .filter(connection -> Objects.equals(node.getId(), connection.getSource())
+                        && Objects.equals("loop_item_each_loop_handle", connection.getSourcePointType()))
+                .toList();
+        List<Connection> loopConnections = new ArrayList<>(connections);
+        List<Node> loopEachItemNextNodes = connections.stream()
+                .map(connection -> nodeMap.get(connection.getTarget())).toList();
+        List<Node> loopEachNodes = new ArrayList<>();
+        Node loopServiceNode = BeanUtil.copyProperties(node, Node.class);
+        loopServiceNode.setType(NodeType.SERVICE);
+        loopEachNodes.add(loopServiceNode);
+        loopEachNodes.addAll(loopEachItemNextNodes);
+        for (Node loopEachItemNextNode : loopEachItemNextNodes) {
+            loopEachNodes.addAll(flow.getOutgoers(loopEachItemNextNode));
+            loopConnections.addAll(flow.getNodeConnections(node));
+        }
+
+        String subFlowId = "loopProcess_" + node.getId();
+        Flow subFlow = new Flow();
+        subFlow.setId(subFlowId);
+        subFlow.setNodes(loopEachNodes);
+        subFlow.setConnections(loopConnections.stream().distinct().toList());
+        //改变连线流转
+        flow.getConnections().stream()
+                .filter(connection -> connection.getTarget().equals(node.getId()))
+                .forEach(connection -> connection.setTarget(subFlowId));
+        flow.getConnections().stream().filter(connection -> Objects.equals(
+                        connection.getSourcePointType(),
+                        "loop_each_item_done_handle") && connection.getSource().equals(node.getId()))
+                .forEach(connection -> connection.setSource(subFlowId));
+        return createProcess(SubProcess.class, subFlow);
+    }
+
+    /**
+     * Flow实例转换Bpmn模型
+     *
+     * @param flow Flow流程定义实例
+     * @return Bpmn模型
+     */
+    public static BpmnModel convert(Flow flow) {
+        Assert.notNull(flow);
+        Assert.notEmpty(flow.getNodes());
         BpmnModel bpmnModel = new BpmnModel();
+        Process process = createProcess(Process.class, flow);
         bpmnModel.addProcess(process);
         autoLayout(bpmnModel);
         return bpmnModel;

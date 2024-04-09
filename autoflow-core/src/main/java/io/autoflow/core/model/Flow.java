@@ -76,8 +76,7 @@ public class Flow {
         }
         List<Node> outgoers = getOutgoers(flowId);
         return outgoers.stream()
-                .filter(node -> getConnectionTargets()
-                        .contains(flowId))
+                .filter(node -> getConnectionTargets().contains(flowId))
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +84,7 @@ public class Flow {
         List<Node> endNodes = getNodes().stream()
                 .filter(node ->
                         !getConnectionSources().contains(node.getId())
-                        && getConnectionTargets().contains(node.getId()))
+                                && getConnectionTargets().contains(node.getId()))
                 .collect(Collectors.toList());
         return CollUtil.isNotEmpty(endNodes) ? endNodes : getNodes();
     }
@@ -173,7 +172,8 @@ public class Flow {
         if (CollUtil.isEmpty(connections)) {
             return CollUtil.newArrayList();
         }
-        List<String> list = connections.stream()
+        List<String> list = connections
+                .stream()
                 .filter(connection -> Objects.equals(connection.getSource(), nodeId))
                 .map(Connection::getTarget)
                 .collect(Collectors.toList());
@@ -186,5 +186,12 @@ public class Flow {
         }
         return CollUtil.reverse(outgoerIds);
 
+    }
+
+    public List<Connection> getNodeConnections(Node node) {
+        return connections.stream().filter(connection ->
+                        Objects.equals(connection.getSource(), node.getId())
+                                || Objects.equals(connection.getTarget(), node.getId()))
+                .collect(Collectors.toList());
     }
 }

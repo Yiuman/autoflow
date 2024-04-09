@@ -1,6 +1,5 @@
 package io.autoflow.core.model;
 
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 
@@ -16,6 +15,7 @@ import java.util.Objects;
 @Data
 public class Node {
     private String id;
+    private String parentId;
     private String label;
     /**
      * 节点的静态配置参数

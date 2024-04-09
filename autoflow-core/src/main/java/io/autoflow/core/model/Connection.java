@@ -27,6 +27,14 @@ public class Connection {
      */
     private String expression;
     /**
+     * 连线起始点的类型
+     */
+    private String sourcePointType;
+    /**
+     * 连线结束点的类型
+     */
+    private String targetPointType;
+    /**
      * 源节点连接位置
      */
     private Float sourceX;
