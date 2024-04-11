@@ -2,9 +2,11 @@ package io.autoflow.liteflow.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.builder.LiteFlowNodeBuilder;
 import com.yomahub.liteflow.builder.el.ELBus;
+import com.yomahub.liteflow.builder.el.ELWrapper;
 import io.autoflow.core.model.*;
 import io.autoflow.liteflow.cmp.IFNodeComponent;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
@@ -23,12 +25,17 @@ public final class LiteFlowConverters {
     private LiteFlowConverters() {
     }
 
-    public static String convertEl(Flow flow) {
+    public static String convertElStr(Flow flow) {
+        ELWrapper elWrapper = convertEl(flow);
+        return elWrapper.toEL(true);
+    }
+
+    public static ELWrapper convertEl(Flow flow) {
         if (CollUtil.isEmpty(flow.getNodes())) {
-            return "empty";
+            return ELBus.node("empty");
         }
         List<Node> startNodes = flow.getStartNodes();
-        List<String> stepEl = new ArrayList<>();
+        List<ELWrapper> stepEl = new ArrayList<>();
         for (Node node : startNodes) {
             LiteFlowNodeBuilder.createCommonNode().setId(node.getId())
                     .setName(node.getLabel())
@@ -48,8 +55,7 @@ public final class LiteFlowConverters {
                 stepEl.add(ELBus.forOpt(loop.getCollectionString())
                         .parallel(true)
                         .doOpt(convertEl(subFlow))
-                        .breakOpt(loop.getCompletionCondition())
-                        .toEL());
+                        .breakOpt(loop.getCompletionCondition()));
             } else if (NodeType.SWITCH == node.getType()) {
                 List<Connection> linkNextConnections = flow.getConnections().stream()
                         .filter(connection -> Objects.equals(connection.getSource(), node.getId()))
@@ -75,8 +81,7 @@ public final class LiteFlowConverters {
                 ifFalseFlow.setNodes(falseOutgoers);
                 ifFalseFlow.setConnections(getOutgoerConnections(flow, node, falseOutgoers));
                 stepEl.add(ELBus
-                        .ifOpt(StrUtil.format("IF_{}", node.getId()), convertEl(ifTrueFlow), convertEl(ifFalseFlow))
-                        .toEL());
+                        .ifOpt(StrUtil.format("IF_{}", node.getId()), convertEl(ifTrueFlow), convertEl(ifFalseFlow)));
             } else {
                 List<Node> outgoers = flow.getOutgoers(node.getId());
                 if (CollUtil.isNotEmpty(outgoers)) {
@@ -85,14 +90,15 @@ public final class LiteFlowConverters {
                     nextFlow.setId(nextFlowId);
                     nextFlow.setNodes(outgoers);
                     nextFlow.setConnections(getOutgoerConnections(flow, node, outgoers));
-                    stepEl.add(convertEl(nextFlow));
+                    stepEl.add(ELBus.then(ELBus.node(node.getId()), convertEl(nextFlow)));
                 } else {
-                    stepEl.add(node.getId());
+                    stepEl.add(ELBus.node(node.getId()));
                 }
 
             }
         }
-        return ELBus.when(stepEl.toArray()).toEL(true);
+
+        return stepEl.size() == 1 ? CollUtil.getFirst(stepEl) : ELBus.when(stepEl.toArray());
     }
 
     private static List<Connection> getOutgoerConnections(Flow flow, Node node, List<Node> outgoers) {
@@ -122,7 +128,6 @@ public final class LiteFlowConverters {
                 loopConnections.addAll(flow.getNodeConnections(loopEachItemNextNode));
             }
         }
-
 
         Node loopServiceNode = BeanUtil.copyProperties(node, Node.class);
         loopServiceNode.setLoop(null);

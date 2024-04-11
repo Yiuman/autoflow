@@ -16,7 +16,7 @@ class LiteFlowConvertersTest {
     @Test
     public void testConvertEl() {
         Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("test.json"), Flow.class);
-        log.info("\n" + LiteFlowConverters.convertEl(flow));
+        log.info("\n" + LiteFlowConverters.convertElStr(flow));
 
     }
 }
