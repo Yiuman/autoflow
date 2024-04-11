@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -146,6 +147,7 @@ public class Flow {
         return getOutgoers(node.getId());
     }
 
+
     public List<Node> getOutgoers(String nodeId) {
         List<String> outgoerIds = getOutgoerIds(nodeId);
         return nodes.stream()
@@ -153,13 +155,24 @@ public class Flow {
                 .collect(Collectors.toList());
     }
 
+    public List<Node> getOutgoers(String nodeId, Predicate<Connection> matchConnect) {
+        List<String> outgoerIds = getOutgoerIds(nodeId, matchConnect);
+        return nodes.stream()
+                .filter(nodeItem -> outgoerIds.contains(nodeItem.getId()))
+                .collect(Collectors.toList());
+    }
+
     public List<String> getOutgoerIds(String nodeId) {
+        return getOutgoerIds(nodeId, c -> true);
+    }
+
+    public List<String> getOutgoerIds(String nodeId, Predicate<Connection> matchConnect) {
         if (CollUtil.isEmpty(connections)) {
             return CollUtil.newArrayList();
         }
         List<String> list = connections
                 .stream()
-                .filter(connection -> Objects.equals(connection.getSource(), nodeId))
+                .filter(connection -> Objects.equals(connection.getSource(), nodeId) && matchConnect.test(connection))
                 .map(Connection::getTarget)
                 .collect(Collectors.toList());
         List<String> outgoerIds = new ArrayList<>(list);
