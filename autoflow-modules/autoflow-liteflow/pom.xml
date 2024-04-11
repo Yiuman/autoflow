@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.autoflow</groupId>
-        <artifactId>autoflow-plugins</artifactId>
+        <artifactId>autoflow-modules</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>autoflow-all-plugin</artifactId>
+    <artifactId>autoflow-liteflow</artifactId>
     <version>${revision}</version>
 
     <properties>
@@ -21,32 +21,19 @@
     <dependencies>
         <dependency>
             <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-http-plugin</artifactId>
+            <artifactId>autoflow-core</artifactId>
             <version>${revision}</version>
         </dependency>
-
         <dependency>
             <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-regex-plugin</artifactId>
+            <artifactId>autoflow-common</artifactId>
             <version>${revision}</version>
         </dependency>
-
         <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-sql-plugin</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-switch-plugin</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-loop-each-item-plugin</artifactId>
-            <version>${revision}</version>
+            <groupId>com.yomahub</groupId>
+            <artifactId>liteflow-core</artifactId>
+            <version>${liteflow.version}</version>
         </dependency>
     </dependencies>
+
 </project>

@@ -1,16 +1,15 @@
 package io.autoflow.app.rest;
 
 import cn.hutool.core.thread.ThreadUtil;
-import io.autoflow.app.flowable.SSEContext;
 import io.autoflow.app.request.StopRequest;
 import io.autoflow.common.http.R;
+import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
-import org.flowable.engine.RuntimeService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +30,6 @@ import java.util.Map;
 @RequestMapping("/executions")
 @RequiredArgsConstructor
 public class ExecutionController {
-    private final RuntimeService runtimeService;
     private final Executor executor;
 
     @PostMapping
@@ -49,10 +47,7 @@ public class ExecutionController {
         SseEmitter sseEmitter = new SseEmitter(0L);
         String executableId = executor.getExecutableId(flow);
         SSEContext.add(executableId, sseEmitter);
-        ThreadUtil.execute(() ->{
-            runtimeService.startProcessInstanceById(executableId);
-            FlowExecutionContext.remove();
-        });
+        ThreadUtil.execute(() -> executor.startByExecutableId(executableId));
         return sseEmitter;
     }
 

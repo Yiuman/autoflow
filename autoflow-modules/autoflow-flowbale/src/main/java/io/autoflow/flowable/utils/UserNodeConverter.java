@@ -1,4 +1,4 @@
-package io.autoflow.core.utils;
+package io.autoflow.flowable.utils;
 
 import cn.hutool.core.lang.Assert;
 import io.autoflow.core.model.Node;

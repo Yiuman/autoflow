@@ -2,7 +2,6 @@ package io.autoflow.core.model;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.*;
@@ -25,16 +24,13 @@ public class Flow {
     /**
      * 下面这两个属性只读
      */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<String> connectionSources;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<String> connectionTargets;
 
     /**
      * key为nodeId,value为从属的流程ID
      * 因为node可能是子流程
      */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Map<String, String> nodeDependentFlowCache = new HashMap<>();
 
     public static Flow singleNodeFlow(Node node) {

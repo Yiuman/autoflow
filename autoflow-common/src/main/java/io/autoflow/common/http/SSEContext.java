@@ -1,4 +1,4 @@
-package io.autoflow.app.flowable;
+package io.autoflow.common.http;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 

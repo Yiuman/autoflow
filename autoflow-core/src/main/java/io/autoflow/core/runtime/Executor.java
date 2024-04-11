@@ -37,4 +37,5 @@ public interface Executor {
      */
     List<ExecutionData> executeNode(Node node);
 
+    void startByExecutableId(String executableId);
 }

@@ -27,8 +27,13 @@ spring:
       mode: always
 flowable:
   async-executor-activate: false
+  history-level: none
+  idm:
+    enabled: false
+
 logging:
   level:
     io.autoflow.*: debug
+    org.flowable.*: debug
 
 

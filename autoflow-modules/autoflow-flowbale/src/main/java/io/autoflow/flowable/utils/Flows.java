@@ -1,4 +1,4 @@
-package io.autoflow.core.utils;
+package io.autoflow.flowable.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -53,10 +53,7 @@ public final class Flows {
         return convert(JSONUtil.toBean(jsonStr, Flow.class));
     }
 
-    public static <T extends FlowElementsContainer> T createProcess(Class<T> processType, Flow flow) {
-        Assert.notNull(flow);
-        Assert.notEmpty(flow.getNodes());
-        //创建流程
+    private static <T extends FlowElementsContainer> T createProcessObject(Class<T> processType, Flow flow) {
         T process = ReflectUtil.newInstance(processType);
         ReflectUtil.setFieldValue(process, "id", flow.getId());
         ReflectUtil.setFieldValue(process, "name", flow.getName());
@@ -66,11 +63,27 @@ public final class Flows {
         }
         process.addFlowElement(createStartEvent(flow.getId() + START_EVENT_ID));
         process.addFlowElement(createEndEvent(flow.getId() + END_EVENT_ID));
+        return process;
+    }
 
+    public static <T extends FlowElementsContainer> T createProcess(Class<T> processType, Flow flow) {
+        Assert.notNull(flow);
+        Assert.notEmpty(flow.getNodes());
+        //创建流程
+        T process = createProcessObject(processType, flow);
         Map<String, FlowElementsContainer> idFlowElementsContainerMap = new HashMap<>();
         idFlowElementsContainerMap.put(process.getId(), process);
+        //创建节点 返回当前流程下的所有节点ID
+        List<String> flowElementIds = createFlowElementsAndNodes(process, flow, idFlowElementsContainerMap);
+        //处理连线
+        createConnections(flow, flowElementIds, idFlowElementsContainerMap);
+        processStartEndEvents(idFlowElementsContainerMap);
+        return process;
+
+    }
+
+    private static List<String> createFlowElementsAndNodes(FlowElementsContainer process, Flow flow, Map<String, FlowElementsContainer> idFlowElementsContainerMap) {
         List<String> flowElementIds = new ArrayList<>();
-        //处理节点
         for (Node node : flow.getNodes()) {
             FlowNode flowNode;
             if (flowElementIds.contains(node.getId())) {
@@ -81,7 +94,6 @@ public final class Flows {
             } else {
                 flowNode = NODE_CONVERTER_MAP.get(node.getType()).convert(node);
             }
-
             flowElementIds.add(flowNode.getId());
             if (flowNode instanceof FlowElementsContainer flowElementsContainer) {
                 flowElementIds.addAll(flowElementsContainer
@@ -90,14 +102,15 @@ public final class Flows {
                         .toList());
                 idFlowElementsContainerMap.put(flowNode.getId(), flowElementsContainer);
             }
-
             process.addFlowElement(flowNode);
         }
+        return flowElementIds;
+    }
 
-        //处理连线
+    private static void createConnections(Flow flow, List<String> flowElementIds, Map<String, FlowElementsContainer> idFlowElementsContainerMap) {
         List<Connection> connections = flow.getConnections();
         if (CollUtil.isNotEmpty(connections)) {
-            for (Connection connection : flow.getConnections()) {
+            for (Connection connection : connections) {
                 String sequenceFlowId = String.format("%s_%s", connection.getSource(), connection.getTarget());
                 if (flowElementIds.contains(sequenceFlowId)) {
                     continue;
@@ -110,10 +123,10 @@ public final class Flows {
                 }
                 flowElementsContainer.addFlowElement(createSequenceFlow(connection));
             }
-
         }
+    }
 
-        //处理开始所有流程的开始与结束节点
+    private static void processStartEndEvents(Map<String, FlowElementsContainer> idFlowElementsContainerMap) {
         for (Map.Entry<String, FlowElementsContainer> idFlowElementsContainerEntry : idFlowElementsContainerMap.entrySet()) {
             FlowElementsContainer flowElementsContainer = idFlowElementsContainerEntry.getValue();
             StartEvent startEventElement = getElement(flowElementsContainer, StartEvent.class);
@@ -131,9 +144,6 @@ public final class Flows {
                 }
             }
         }
-
-        return process;
-
     }
 
     public static SubProcess loopSubProcess(Node node, Flow flow) {
@@ -226,15 +236,6 @@ public final class Flows {
         sequenceFlow.setSourceRef(connection.getSource());
         sequenceFlow.setTargetRef(connection.getTarget());
         return sequenceFlow;
-    }
-
-    public static Process createProcess(Flow flow) {
-        Process process = new Process();
-        process.setId(flow.getId());
-        process.setName(flow.getName());
-        process.setDocumentation(flow.getDescription());
-        addExtensionElement(process, AUTOFLOW_JSON, JSONUtil.toJsonStr(flow));
-        return process;
     }
 
     public static StartEvent createStartEvent() {

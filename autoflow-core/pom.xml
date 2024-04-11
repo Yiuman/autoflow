@@ -24,17 +24,6 @@
             <artifactId>autoflow-all-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-engine</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-bpmn-layout</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

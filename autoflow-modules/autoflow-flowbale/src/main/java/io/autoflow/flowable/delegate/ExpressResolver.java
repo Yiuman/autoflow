@@ -1,4 +1,4 @@
-package io.autoflow.core.delegate;
+package io.autoflow.flowable.delegate;
 
 import org.flowable.engine.delegate.DelegateExecution;
 

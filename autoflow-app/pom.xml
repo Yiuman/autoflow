@@ -23,18 +23,8 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-spring-boot-starter</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-core</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-common</artifactId>
+            <artifactId>autoflow-flowbale</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
@@ -43,5 +33,22 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

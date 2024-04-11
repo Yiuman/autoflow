@@ -1,4 +1,4 @@
-package io.autoflow.core.delegate;
+package io.autoflow.flowable.delegate;
 
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;

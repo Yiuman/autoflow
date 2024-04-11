@@ -1,4 +1,4 @@
-package io.autoflow.core.utils;
+package io.autoflow.flowable.utils;
 
 import io.autoflow.core.model.Node;
 import org.flowable.bpmn.model.FlowNode;
