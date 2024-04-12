@@ -13,6 +13,7 @@ import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,9 @@ public class ServiceNodeComponent extends NodeComponent {
 
     @Override
     public void process() {
+        //防止转义异常
         ServiceData serviceData = getCmpData(ServiceData.class);
+        Assert.notNull(serviceData);
         String serviceId = serviceData.getServiceId();
         StopWatch stopWatch = new StopWatch(StrUtil.format("【{} Task】", serviceId));
         stopWatch.start();
@@ -54,7 +57,7 @@ public class ServiceNodeComponent extends NodeComponent {
 
         List<ExecutionData> nodeExecutionDataList = Optional
                 .ofNullable(inputData.get(getNodeId()))
-                .orElse(CollUtil.newArrayList());
+                .orElse(Collections.synchronizedList(CollUtil.newArrayList()));
         nodeExecutionDataList.add(currentExecutionData);
         inputData.put(getNodeId(), nodeExecutionDataList);
         stopWatch.stop();
