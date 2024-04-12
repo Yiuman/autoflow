@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,7 +57,7 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
             Map<String, List<ExecutionData>> nodeExecutionDataMap = flowExecutionContext.getInputData();
             String activityId = cmp.getNodeId();
             if (Objects.nonNull(nodeExecutionDataMap)) {
-                List<ExecutionData> executionDataList = nodeExecutionDataMap.get(activityId);
+                List<ExecutionData> executionDataList = new ArrayList<>(nodeExecutionDataMap.get(activityId));
                 sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
             }
 

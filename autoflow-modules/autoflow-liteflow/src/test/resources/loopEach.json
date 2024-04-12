@@ -1,0 +1,125 @@
+{
+  "id": "RVOYYluM",
+  "name": "RVOYYluM",
+  "nodes": [
+    {
+      "id": "hgIkDW8F",
+      "label": "HTTP",
+      "serviceId": "io.autoflow.plugin.http.HttpRequestService",
+      "type": "SERVICE",
+      "position": {
+        "x": 376,
+        "y": 299
+      },
+      "data": {
+        "url": "https://www.baidu.com",
+        "method": "GET"
+      },
+      "loop": {}
+    },
+    {
+      "id": "wzZRQ2vf",
+      "label": "Switch",
+      "serviceId": "io.autoflow.plugin.switches.SwitchService",
+      "type": "SWITCH",
+      "position": {
+        "x": 605,
+        "y": 293
+      },
+      "data": {
+        "express": "${inputData.hgIkDW8F[0][\"json\"][\"status\"]==200}"
+      },
+      "loop": {}
+    },
+    {
+      "id": "iXmGj4Ld",
+      "label": "Regex",
+      "serviceId": "io.autoflow.plugin.regex.RegexService",
+      "type": "SERVICE",
+      "position": {
+        "x": 789,
+        "y": 310
+      },
+      "data": {
+        "regex": "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)",
+        "content": "$.inputData.hgIkDW8F[0].raw",
+        "method": "findAll"
+      },
+      "loop": {}
+    },
+    {
+      "id": "umTgrW9l",
+      "label": "LoopEachItem",
+      "serviceId": "io.autoflow.plugin.loopeachitem.LoopEachItemService",
+      "type": "LOOP_EACH_ITEM",
+      "position": {
+        "x": 1003,
+        "y": 315.5
+      },
+      "data": {},
+      "loop": {
+        "collectionString": "$.inputData.iXmGj4Ld[0].json.findAll",
+        "elementVariable": "item"
+      }
+    },
+    {
+      "id": "UYoZYmye",
+      "label": "Regex",
+      "serviceId": "io.autoflow.plugin.regex.RegexService",
+      "type": "SERVICE",
+      "position": {
+        "x": 1200,
+        "y": 312.5
+      },
+      "data": {
+        "content": "${item}",
+        "regex": "http",
+        "method": "replace",
+        "replace": "zzzzz"
+      },
+      "loop": {}
+    }
+  ],
+  "connections": [
+    {
+      "id": "ehgIkDW8F_wzZRQ2vf",
+      "source": "hgIkDW8F",
+      "target": "wzZRQ2vf",
+      "sourceX": 467,
+      "sourceY": 341,
+      "targetX": 596,
+      "targetY": 333
+    },
+    {
+      "id": "ewzZRQ2vf_iXmGj4Ld",
+      "source": "wzZRQ2vf",
+      "target": "iXmGj4Ld",
+      "sourceX": 645,
+      "sourceY": 281,
+      "targetX": 786,
+      "targetY": 352
+    },
+    {
+      "id": "vueflow__edge-iXmGj4Ldoutput-umTgrW9linput",
+      "source": "iXmGj4Ld",
+      "target": "umTgrW9l",
+      "sourceX": 880,
+      "sourceY": 352,
+      "targetX": 1000,
+      "targetY": 357.5,
+      "sourcePointType": "output",
+      "targetPointType": "input"
+    },
+    {
+      "id": "vueflow__edge-umTgrW9lLOOP_EACH-UYoZYmyeinput",
+      "source": "umTgrW9l",
+      "target": "UYoZYmye",
+      "sourceX": 1094,
+      "sourceY": 357.5,
+      "targetX": 1197,
+      "targetY": 354.5,
+      "sourcePointType": "LOOP_EACH",
+      "targetPointType": "input"
+    }
+  ]
+}

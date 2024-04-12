@@ -8,9 +8,7 @@ import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.flowable.utils.Flows;
-import io.autoflow.spi.context.Constants;
-import io.autoflow.spi.context.FlowExecutionContext;
-import io.autoflow.spi.context.OnceExecutionContext;
+import io.autoflow.spi.context.*;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +38,7 @@ public class FlowableExecutor implements Executor {
     @Override
     public Map<String, List<ExecutionData>> execute(Flow flow) {
         runtimeService.startProcessInstanceById(getExecutableId(flow));
-        FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
+        ExecutionContext flowExecutionContext = FlowContextHolder.get();
         return flowExecutionContext.getInputData();
     }
 
@@ -67,10 +65,12 @@ public class FlowableExecutor implements Executor {
             Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
             Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) runOnceData.get(Constants.INPUT_DATA);
             if (node.loopIsValid()) {
-                FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
+                ExecutionContext flowExecutionContext = FlowContextHolder.get();
                 flowExecutionContext.getInputData().putAll(inputData);
                 Map<String, List<ExecutionData>> execute = execute(Flow.singleNodeFlow(node));
-                return execute.get(node.getId());
+                List<ExecutionData> executionDataList = execute.get(node.getId());
+                FlowContextHolder.remove();
+                return executionDataList;
             } else {
                 runOnceData.remove(Constants.INPUT_DATA);
                 OnceExecutionContext onceExecutionContext = OnceExecutionContext.create(runOnceData, inputData);

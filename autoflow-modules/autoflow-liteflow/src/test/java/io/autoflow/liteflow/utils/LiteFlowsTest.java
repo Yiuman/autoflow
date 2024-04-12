@@ -3,6 +3,7 @@ package io.autoflow.liteflow.utils;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.yomahub.liteflow.spi.holder.ContextAwareHolder;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.model.NodeType;
@@ -19,20 +20,14 @@ import java.util.HashMap;
 class LiteFlowsTest {
 
     @Test
-    public void testToJsonStr() {
-        String jsonStr = JSONUtil.toJsonStr(new HashMap() {{
-            put("regex", "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)");
-            put("content", "$.inputData.hgIkDW8F[0].raw");
-            put("method", "findAll");
-        }});
-        log.info(jsonStr);
-
-        JSON parse = JSONUtil.parse(jsonStr);
+    public void testConvertEl() {
+        Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("test.json"), Flow.class);
+        log.info("\n" + LiteFlows.convertElStr(flow));
     }
 
     @Test
-    public void testConvertEl() {
-        Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("test.json"), Flow.class);
+    public void testConvertLoopEachEl() {
+        Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("loopEach.json"), Flow.class);
         log.info("\n" + LiteFlows.convertElStr(flow));
     }
 

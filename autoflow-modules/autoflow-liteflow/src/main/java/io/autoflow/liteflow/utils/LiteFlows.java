@@ -69,7 +69,12 @@ public final class LiteFlows {
                 }
                 stepEl.add(createIteratorEL(node).doOpt(elWrapper));
             } else if (NodeType.SWITCH == node.getType()) {
-                stepEl.add(ELBus.then(createServiceNodeEL(node), createIfNodeEl(node, flow)));
+                if (CollUtil.isEmpty(flow.getConnections())) {
+                    stepEl.add(createServiceNodeEL(node));
+                } else {
+                    stepEl.add(ELBus.then(createServiceNodeEL(node), createIfNodeEl(node, flow)));
+                }
+
             } else {
                 List<Node> outgoers = flow.getOutgoers(node.getId());
                 if (CollUtil.isNotEmpty(outgoers)) {
@@ -204,7 +209,7 @@ public final class LiteFlows {
         if (CollUtil.isNotEmpty(flowConnections)) {
             List<Connection> connections = flowConnections.stream()
                     .filter(connection -> Objects.equals(node.getId(), connection.getSource())
-                            && Objects.equals("loop_each_item_loop_handle", connection.getSourcePointType()))
+                            && Objects.equals("LOOP_EACH", connection.getSourcePointType()))
                     .toList();
             loopConnections.addAll(connections);
             List<Node> loopEachItemNextNodes = connections.stream()
@@ -232,7 +237,7 @@ public final class LiteFlows {
                     .forEach(connection -> connection.setTarget(subFlowId));
             flowConnections.stream().filter(
                             connection ->
-                                    Objects.equals(connection.getSourcePointType(), "loop_each_item_done_handle")
+                                    Objects.equals(connection.getSourcePointType(), "LOOP_DONE")
                                             && connection.getSource().equals(node.getId())
                     )
                     .forEach(connection -> connection.setSource(subFlowId));

@@ -1,7 +1,9 @@
 package io.autoflow.liteflow.cmp;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.yomahub.liteflow.core.NodeIteratorComponent;
 import io.autoflow.core.model.Loop;
+import io.autoflow.plugin.loopeachitem.LoopItem;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import org.springframework.stereotype.Component;
@@ -24,12 +26,29 @@ public class LoopNodeComponent extends NodeIteratorComponent {
     public Iterator<?> processIterator() {
         Loop loop = this.getCmpData(Loop.class);
         if (Objects.nonNull(loop.getLoopCardinality())) {
-            return IntStream.range(0, loop.getLoopCardinality()).mapToObj(item -> Map.of(loop.getElementVariable(), item)).iterator();
+            Integer loopCardinality = loop.getLoopCardinality();
+            return IntStream.range(0, loopCardinality)
+                    .mapToObj(i -> createLoopItemVariables(loop, i, i))
+                    .iterator();
         } else {
             String collectionString = loop.getCollectionString();
             FlowExecutionContext contextBean = getContextBean(FlowExecutionContext.class);
             List<Object> objectList = (List<Object>) new ExecutionContextValueProvider(contextBean).get(collectionString);
-            return objectList.stream().map(obj -> Map.of(loop.getElementVariable(), obj)).iterator();
+            int size = objectList.size();
+            loop.setLoopCardinality(size);
+            return objectList.stream().map(obj -> createLoopItemVariables(loop, obj, objectList.indexOf(obj))).iterator();
         }
     }
+
+    private Map<String, Object> createLoopItemVariables(Loop loop, Object object, Integer index) {
+        LoopItem loopItem = new LoopItem();
+        loopItem.setElementVariable(object);
+        loopItem.setNrOfInstances(loop.getLoopCardinality());
+        loopItem.setSequential(loop.getSequential());
+        loopItem.setLoopCounter(index);
+        Map<String, Object> variables = BeanUtil.beanToMap(loopItem);
+        variables.put(loop.getElementVariable(), object);
+        return variables;
+    }
+
 }

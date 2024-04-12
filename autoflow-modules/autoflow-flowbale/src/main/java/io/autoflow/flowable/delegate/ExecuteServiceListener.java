@@ -3,6 +3,7 @@ package io.autoflow.flowable.delegate;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.common.http.SSEContext;
+import io.autoflow.spi.context.FlowContextHolder;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class ExecuteServiceListener implements FlowableEventListener {
 
         try {
             String sseData = "";
-            Map<String, List<ExecutionData>> nodeExecutionDataMap = FlowExecutionContext.get().getInputData();
+            Map<String, List<ExecutionData>> nodeExecutionDataMap = FlowContextHolder.get().getInputData();
             String activityId = execution.getActivityId();
             if (Objects.nonNull(nodeExecutionDataMap)) {
                 List<ExecutionData> executionDataList = nodeExecutionDataMap.get(activityId);

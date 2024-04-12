@@ -7,6 +7,7 @@ import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
+import io.autoflow.spi.context.FlowContextHolder;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
@@ -59,9 +60,7 @@ public class ExecutionController {
 
     @PostMapping("/node")
     public R<List<ExecutionData>> executeNode(@RequestBody Node node) {
-        List<ExecutionData> executionDataList = executor.executeNode(node);
-        FlowExecutionContext.remove();
-        return R.ok(executionDataList);
+        return R.ok(executor.executeNode(node));
     }
 
 }

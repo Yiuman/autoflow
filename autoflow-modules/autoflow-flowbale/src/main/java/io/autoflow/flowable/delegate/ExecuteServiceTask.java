@@ -8,6 +8,8 @@ import io.autoflow.core.Services;
 import io.autoflow.flowable.utils.Flows;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.Constants;
+import io.autoflow.spi.context.ExecutionContext;
+import io.autoflow.spi.context.FlowContextHolder;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.Data;
@@ -46,7 +48,7 @@ public class ExecuteServiceTask implements JavaDelegate {
         stopWatch.start();
         Service service = Services.getService(serviceIdValue);
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
-        FlowExecutionContext flowExecutionContext = FlowExecutionContext.get();
+        ExecutionContext flowExecutionContext = FlowContextHolder.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
         if (currentFlowElement instanceof Activity activity) {
             MultiInstanceLoopCharacteristics loopCharacteristics = activity.getLoopCharacteristics();

@@ -1,8 +1,10 @@
 package io.autoflow.liteflow.cmp;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.core.NodeComponent;
 import io.autoflow.core.Services;
@@ -13,10 +15,7 @@ import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,21 +39,22 @@ public class ServiceNodeComponent extends NodeComponent {
         FlowExecutionContext flowExecutionContext = getContextBean(FlowExecutionContext.class);
         ExecutionData currentExecutionData;
         try {
-            currentExecutionData = service.execute(
-                    OnceExecutionContext.create(
-                            serviceData.getParameters(),
-                            flowExecutionContext.getInputData()
-                    )
+            OnceExecutionContext onceExecutionContext = OnceExecutionContext.create(
+                    serviceData.getParameters(),
+                    flowExecutionContext.getInputData()
             );
+            Map<String, Object> currLoopObj = getCurrLoopObj();
+            if (Objects.nonNull(currLoopObj)) {
+                onceExecutionContext.getVariables().putAll(currLoopObj);
+            }
+
+            currentExecutionData = service.execute(onceExecutionContext);
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", serviceId), throwable);
             currentExecutionData = ExecutionData.error(serviceId, throwable);
-        } finally {
-            flowExecutionContext.getParameters().clear();
         }
 
         Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
-
         List<ExecutionData> nodeExecutionDataList = Optional
                 .ofNullable(inputData.get(getNodeId()))
                 .orElse(Collections.synchronizedList(CollUtil.newArrayList()));
