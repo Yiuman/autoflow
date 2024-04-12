@@ -98,10 +98,10 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
     </div>
 
     <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-    <Handle id="switch_true_handle" type="source" :position="Position.Top" :is-valid-connection="validConnection">
+    <Handle id="IF_TRUE" type="source" :position="Position.Top" :is-valid-connection="validConnection">
       <div class="true-label">true</div>
     </Handle>
-    <Handle id="switch_false_handle" type="source" :position="Position.Bottom" :is-valid-connection="validConnection">
+    <Handle id="IF_FALSE" type="source" :position="Position.Bottom" :is-valid-connection="validConnection">
       <div class="false-label">false</div>
     </Handle>
   </div>
