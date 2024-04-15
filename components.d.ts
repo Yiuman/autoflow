@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AAvatar: typeof import('@arco-design/web-vue')['Avatar']
+    AButtion: typeof import('@arco-design/web-vue')['Buttion']
     AButton: typeof import('@arco-design/web-vue')['Button']
     AButtonGroup: typeof import('@arco-design/web-vue')['ButtonGroup']
     ADescriptions: typeof import('@arco-design/web-vue')['Descriptions']
@@ -34,6 +35,9 @@ declare module 'vue' {
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     ATag: typeof import('@arco-design/web-vue')['Tag']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
+    ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
+    ConditionItem: typeof import('./src/components/ConditionFilter/ConditionItem.vue')['default']
+    ConfitionFilter: typeof import('./src/components/ConditionFilter/ConfitionFilter.vue')['default']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
     ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']

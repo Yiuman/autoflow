@@ -1,0 +1,33 @@
+.condition-groups {
+    display: flex;
+
+    .condition-clause-switch {
+        position: relative;
+        display: flex;
+
+        .condition-clause-line {
+            height: 100%;
+            position: absolute;
+            border: 1px solid var(--color-border);
+            left: 50%;
+        }
+    }
+
+    .condition-condition-op {
+        :deep(.condition-item-add) {
+            position: absolute;
+            right: -10px;
+        }
+    }
+
+
+
+    :deep(.arco-switch) {
+        align-self: center;
+        z-index: 1;
+    }
+}
+
+.condition-filter-item {
+    display: flex
+}

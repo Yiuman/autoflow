@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
+import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 export interface Option {
   name: string
   value: Object
@@ -37,6 +38,9 @@ const form = computed<any>({
 })
 
 function getComponentName(property: Property) {
+  if (property.name === 'express') {
+    return ConditionFilter
+  }
   if (!property.type || property.type == 'String') {
     return ExpressInput;
   }
@@ -45,7 +49,7 @@ function getComponentName(property: Property) {
     return 'ASelect'
   }
 
-  if(property.type==='Map'){
+  if (property.type === 'Map') {
     return MapEditor
   }
 
@@ -55,18 +59,9 @@ function getComponentName(property: Property) {
 <template>
   <div class="from-renderer">
     <AForm :model="form" :layout="props.layout">
-      <AFormItem
-        v-for="property in properties"
-        v-bind:key="property.name"
-        :field="property.name"
-        :label="property.displayName || property.name"
-        :tooltip="property.description || undefined"
-      >
-        <Component
-          :is="getComponentName(property)"
-          v-model="form[property.name]"
-          v-bind="property"
-        />
+      <AFormItem v-for="property in properties" v-bind:key="property.name" :field="property.name"
+        :label="property.displayName || property.name" :tooltip="property.description || undefined">
+        <Component :is="getComponentName(property)" v-model="form[property.name]" v-bind="property" />
       </AFormItem>
     </AForm>
   </div>

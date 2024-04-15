@@ -70,6 +70,7 @@ const modalVisible = computed({
   }
 })
 
+
 //input
 const incomers = computed(() => {
   return getAllIncomers(props.modelValue.id, getIncomers)
@@ -154,6 +155,12 @@ const showLoopSetting = computed(() => {
   return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1);
 })
 
+const activeTab = ref<string>('parameters');
+watch(props.modelValue, () => {
+  activeTab.value = 'parameters'
+})
+
+
 </script>
 
 <template>
@@ -211,6 +218,7 @@ const showLoopSetting = computed(() => {
             </div>
           </div>
         </Pane>
+        <!-- 节点的配置信息（表单、循坏、文档） -->
         <Pane size="30">
           <div class="node-form-modal-pane node-form-model-desc">
             <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
@@ -221,16 +229,16 @@ const showLoopSetting = computed(() => {
                 </template>
               </AButton>
             </div>
-            <ATabs>
-              <ATabPane key="1" title="Parameters" v-if="props.properties && props.properties.length">
+            <ATabs v-model:active-key="activeTab">
+              <ATabPane key="parameters" title="Parameters" v-if="props.properties && props.properties.length">
                 <div>
                   <FromRenderer v-model="nodeData" :properties="props.properties" />
                 </div>
               </ATabPane>
-              <ATabPane key="2" title="Doc" v-if="props.description">
+              <ATabPane key="doc" title="Doc" v-if="props.description">
                 <MdPreview :modelValue="props.description" />
               </ATabPane>
-              <ATabPane key="3" title="Settings" v-if="showLoopSetting">
+              <ATabPane key="settings" title="Settings" v-if="showLoopSetting">
                 <LoopSetting v-model="loopData" />
               </ATabPane>
             </ATabs>

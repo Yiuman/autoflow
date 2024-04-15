@@ -64,6 +64,10 @@
         :deep(.splitpanes__splitter) {
             background-color: var(--color-border);
             min-width: 4px;
+            &:hover {
+                background-color: rgba(var(--primary-5));
+            }
+
         }
     }
 
@@ -87,22 +91,23 @@
         }
     }
 
-    .node-form-modal-pane {
-        height: 100%;
-
-        :deep(.arco-tabs) {
-            height: 100%;
-        }
-
-        :deep(.arco-tabs-content) {
-            height: calc(100% - 50px);
-            padding: 10px;
-            overflow: auto;
-        }
-    }
 
     .node-form-modal-output-empty {
         height: 100%;
+    }
+
+}
+
+.node-form-modal-pane {
+    height: 100%;
+
+    :deep(.arco-tabs-content) {
+        height: calc(100% - 50px);
+        overflow: auto;
+    }
+
+    :deep(.arco-tabs-pane) {
+        padding: 0 10px;
     }
 
 }

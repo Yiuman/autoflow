@@ -77,7 +77,7 @@ const popoverVisiable = computed(() => expressClassName.value === 'jsonpath')
 </script>
 
 <template>
-    <div class="express-input " :class="expressClassName">
+    <div class="express-input" :class="expressClassName">
         <AMention v-model="data" :prefix="prefix" @search="handleSearch" :data="searchOptions" />
         <div v-if="popoverVisiable && descData" class="jsonpath-desc">
             <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>

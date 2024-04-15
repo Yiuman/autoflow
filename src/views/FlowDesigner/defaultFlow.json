@@ -26,7 +26,6 @@
                 "y": 293
             },
             "data": {
-                "express": "${inputData.hgIkDW8F[0][\"json\"][\"status\"]==200}"
             }
         },
         {
