@@ -26,4 +26,13 @@ public interface ExecutionContext {
      */
     Map<String, Object> getVariables();
 
+
+    /**
+     * 根据KEY值解析值
+     *
+     * @param key 数据字段/表达式
+     * @return 值
+     */
+    Object parseValue(String key);
+
 }

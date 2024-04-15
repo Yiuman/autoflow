@@ -1,6 +1,6 @@
 package io.autoflow.liteflow.cmp;
 
-import com.yomahub.liteflow.core.NodeIfComponent;
+import com.yomahub.liteflow.core.NodeBooleanComponent;
 import io.autoflow.liteflow.utils.LiteFlows;
 import org.springframework.stereotype.Component;
 
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
  * @date 2024/4/11
  */
 @Component
-public class IFNodeComponent extends NodeIfComponent {
+public class IFNodeComponent extends NodeBooleanComponent {
 
     @Override
-    public boolean processIf() {
+    public boolean processBoolean() {
         return LiteFlows.getBooleanValue(this);
     }
 }

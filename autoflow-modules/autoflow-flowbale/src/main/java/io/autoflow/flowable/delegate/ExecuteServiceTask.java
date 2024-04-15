@@ -10,7 +10,6 @@ import io.autoflow.spi.Service;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.context.FlowContextHolder;
-import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

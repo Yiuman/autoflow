@@ -7,8 +7,6 @@ import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
-import io.autoflow.spi.context.FlowContextHolder;
-import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

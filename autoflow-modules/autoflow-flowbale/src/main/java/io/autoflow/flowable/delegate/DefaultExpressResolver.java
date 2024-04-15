@@ -1,8 +1,6 @@
 package io.autoflow.flowable.delegate;
 
 import io.autoflow.spi.context.FlowContextHolder;
-import io.autoflow.spi.context.FlowExecutionContext;
-import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import org.flowable.engine.delegate.DelegateExecution;
 
 /**
@@ -15,6 +13,6 @@ public class DefaultExpressResolver implements ExpressResolver<Object> {
 
     @Override
     public Object resolve(DelegateExecution execution, String expressionStr) {
-        return new ExecutionContextValueProvider(FlowContextHolder.get()).get(expressionStr);
+        return FlowContextHolder.get().parseValue(expressionStr);
     }
 }

@@ -1,6 +1,7 @@
 package io.autoflow.spi.context;
 
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -15,14 +16,19 @@ import java.util.Map;
  */
 @Data
 public class FlowExecutionContext implements ExecutionContext {
-
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private final Map<String, List<ExecutionData>> inputData = new HashMap<>();
+    private final ExecutionContextValueProvider executionContextValueProvider = new ExecutionContextValueProvider(this);
 
     @Override
     public Map<String, List<ExecutionData>> getInputData() {
         return inputData;
+    }
+
+    @Override
+    public Object parseValue(String key) {
+        return executionContextValueProvider.get(key);
     }
 
     @Override

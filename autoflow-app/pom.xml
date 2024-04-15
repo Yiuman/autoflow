@@ -28,14 +28,14 @@
         <!--            <version>${revision}</version>-->
         <!--        </dependency>-->
         <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-liteflow</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
             <groupId>com.yomahub</groupId>
             <artifactId>liteflow-spring-boot-starter</artifactId>
             <version>${liteflow.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-liteflow</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

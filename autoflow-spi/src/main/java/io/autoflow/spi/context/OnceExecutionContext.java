@@ -1,58 +1,52 @@
 package io.autoflow.spi.context;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import io.autoflow.spi.model.ExecutionData;
-import lombok.Data;
+import io.autoflow.spi.provider.ExecutionContextValueProvider;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
- * 单个执行的上下文
- *
  * @author yiuman
- * @date 2023/7/13
+ * @date 2024/4/15
  */
-@Data
-public final class OnceExecutionContext implements ExecutionContext {
-    private final Map<String, Object> parameters = new HashMap<>() {{
-        put(Constants.INPUT_NAME, Constants.DEFAULT_INPUT_NAME);
-        put(Constants.INPUT_INDEX, Constants.DEFAULT_INPUT_INDEX);
-    }};
+public class OnceExecutionContext implements ExecutionContext {
+    private final ExecutionContext executionContext;
+    private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
-    private Map<String, List<ExecutionData>> inputData = new HashMap<>();
+    private final ExecutionContextValueProvider executionContextValueProvider;
 
-    public static OnceExecutionContext create(List<ExecutionData> executionData) {
-        OnceExecutionContext onceExecutionContext = new OnceExecutionContext();
-        onceExecutionContext.getInputData().put(Constants.DEFAULT_INPUT_NAME, executionData);
-        return onceExecutionContext;
+    public OnceExecutionContext(ExecutionContext executionContext) {
+        this.executionContext = executionContext;
+        this.executionContextValueProvider = new ExecutionContextValueProvider(this);
     }
 
-    public static OnceExecutionContext create(ExecutionData executionData) {
-        return create(CollUtil.newArrayList(executionData));
+    public OnceExecutionContext(ExecutionContext executionContext, Map<String, Object> parameters) {
+        this.executionContext = executionContext;
+        this.executionContextValueProvider = new ExecutionContextValueProvider(this);
+        this.parameters.putAll(parameters);
     }
 
-    public static OnceExecutionContext create(Map<String, Object> parameters) {
-        return create(parameters, null);
+    @Override
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
 
-    public static OnceExecutionContext create(Map<String, Object> parameters, Map<String, List<ExecutionData>> inputData) {
-        OnceExecutionContext onceExecutionContext = new OnceExecutionContext();
-        if (Objects.nonNull(parameters)) {
-            onceExecutionContext.getParameters().putAll(parameters);
-        }
-
-        if (Objects.nonNull(inputData)) {
-            onceExecutionContext.getInputData().putAll(inputData);
-        }
-
-        return onceExecutionContext;
+    @Override
+    public Map<String, List<ExecutionData>> getInputData() {
+        return executionContext.getInputData();
     }
 
-    public static <T> OnceExecutionContext create(T parameters) {
-        return create(BeanUtil.beanToMap(parameters));
+    @Override
+    public Map<String, Object> getVariables() {
+        return variables;
     }
+
+    @Override
+    public Object parseValue(String key) {
+        return executionContextValueProvider.get(key);
+    }
+
+
 }

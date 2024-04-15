@@ -18,7 +18,6 @@ import io.autoflow.liteflow.cmp.ServiceData;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
 import io.autoflow.plugin.switches.SwitchParameter;
 import io.autoflow.spi.context.FlowExecutionContext;
-import io.autoflow.spi.provider.ExecutionContextValueProvider;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -110,7 +109,7 @@ public final class LiteFlows {
                 .setClazz(ServiceNodeComponent.class)
                 .build();
         if (NodeType.SWITCH == node.getType()) {
-            LiteFlowNodeBuilder.createIfNode()
+            LiteFlowNodeBuilder.createBooleanNode()
                     .setId(StrUtil.format("IF_{}", node.getId()))
                     .setName(StrUtil.format("IF_{}", node.getLabel()))
                     .setClazz(IFNodeComponent.class)
@@ -125,7 +124,7 @@ public final class LiteFlows {
                     .build();
             String completionCondition = node.getLoop().getCompletionCondition();
             if (StrUtil.isNotBlank(completionCondition)) {
-                LiteFlowNodeBuilder.createIfNode()
+                LiteFlowNodeBuilder.createBooleanNode()
                         .setId(StrUtil.format("{}CompletionCondition", node.getId()))
                         .setName(StrUtil.format("{}CompletionCondition", node.getLabel()))
                         .setClazz(IFNodeComponent.class)
@@ -247,7 +246,7 @@ public final class LiteFlows {
 
     public static <T extends NodeComponent> boolean getBooleanValue(T node) {
         String express = node.getCmpData(String.class);
-        Object value = new ExecutionContextValueProvider(node.getContextBean(FlowExecutionContext.class)).get(express);
+        Object value = node.getContextBean(FlowExecutionContext.class).parseValue(express);
         return BooleanUtil.isTrue(BooleanUtil.toBooleanObject(Optional.ofNullable(value).orElse("").toString()));
     }
 }

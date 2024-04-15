@@ -8,10 +8,10 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.ExecutionContext;
-import io.autoflow.spi.context.QLExpressServiceContext;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.Property;
+import io.autoflow.spi.provider.ExecutionContextValueProvider;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public abstract class JsonConfigQLExpressService implements Service {
         List<String> errorList = new ArrayList<>();
         Object expressResult;
         try {
-            expressResult = expressRunner.execute(instructionSet, new QLExpressServiceContext(executionContext), errorList, true, false);
+            expressResult = expressRunner.execute(instructionSet, new ExecutionContextValueProvider(executionContext), errorList, true, false);
         } catch (Throwable throwable) {
             throw new ExecuteException(
                     String.format("An exception occurred during the execution of the service named '%s'", getName()),

@@ -1,10 +1,8 @@
 package io.autoflow.liteflow.cmp;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.core.NodeComponent;
 import io.autoflow.core.Services;
@@ -39,10 +37,7 @@ public class ServiceNodeComponent extends NodeComponent {
         FlowExecutionContext flowExecutionContext = getContextBean(FlowExecutionContext.class);
         ExecutionData currentExecutionData;
         try {
-            OnceExecutionContext onceExecutionContext = OnceExecutionContext.create(
-                    serviceData.getParameters(),
-                    flowExecutionContext.getInputData()
-            );
+            OnceExecutionContext onceExecutionContext = new OnceExecutionContext(flowExecutionContext, serviceData.getParameters());
             Map<String, Object> currLoopObj = getCurrLoopObj();
             if (Objects.nonNull(currLoopObj)) {
                 onceExecutionContext.getVariables().putAll(currLoopObj);
