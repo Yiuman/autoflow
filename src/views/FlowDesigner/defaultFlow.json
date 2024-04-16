@@ -19,8 +19,8 @@
         {
             "id": "wzZRQ2vf",
             "label": "Switch",
-            "serviceId": "io.autoflow.plugin.switches.SwitchService",
-            "type": "SWITCH",
+            "serviceId": "io.autoflow.plugin.ifplugin.IfService",
+            "type": "IF",
             "position": {
                 "x": 605,
                 "y": 293

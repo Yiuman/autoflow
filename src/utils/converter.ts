@@ -53,7 +53,7 @@ export function toGraphNode(node: Node): VueFlowNode {
 }
 
 const nodeTypeMap: Record<string, string> = {
-  Switch: 'SWITCH',
+  If: 'IF',
   LoopEachItem: 'LOOP_EACH_ITEM'
 }
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {

@@ -150,7 +150,7 @@ function isHtml(data: string) {
   return htmlRegex.test(data);
 }
 
-const excludeShowLoopSettingNode = ["SWITCH"];
+const excludeShowLoopSettingNode = ["IF"];
 const showLoopSetting = computed(() => {
   return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1);
 })

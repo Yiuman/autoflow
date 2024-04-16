@@ -24,7 +24,7 @@ import { downloadByData } from '@/utils/download'
 import { executeNode, stopExecution } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
 import ServiceNode from '@/components/ServiceNode/SeviceNode.vue'
-import SwitchNode from '@/components/SwitchNode/SwitchNode.vue'
+import IfNode from '@/components/IfNode/IfNode.vue'
 import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
 import { fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source"
@@ -43,7 +43,7 @@ watch(dark, () => {
 //---------------------------- 初始化定义数据 ----------------------------
 const nodeTypes = {
   SERVICE: markRaw(ServiceNode),
-  SWITCH: markRaw(SwitchNode),
+  IF: markRaw(IfNode),
   LOOP_EACH_ITEM: markRaw(LoopEachItemNode)
 }
 
@@ -114,8 +114,8 @@ onConnect((param) => {
   const addEdge: GraphEdge = { ...param, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
   addEdge.data.sourcePointType = param.sourceHandle;
   addEdge.data.targetPointType = param.targetHandle;
-  if (sourceNode && sourceNode.type === 'SWITCH') {
-    if (param.sourceHandle == `switch_true_handle`) {
+  if (sourceNode && sourceNode.type === 'IF') {
+    if (param.sourceHandle == `IF_TRUE`) {
       addEdge.data.expression = "${" + `inputData['${sourceNode.id}'][0].json.result` + "}"
     } else {
       addEdge.data.expression = "${!" + `inputData['${sourceNode.id}'][0].json.result` + "}"

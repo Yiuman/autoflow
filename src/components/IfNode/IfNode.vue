@@ -86,9 +86,9 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
       </AButtonGroup>
     </div>
 
-    <div class="node-avatar switch-node">
+    <div class="node-avatar if-node">
       <AAvatar shape="square" :size="68" :class="data.running ? 'node-action' : ''">
-        <div class="node-switch-label">Switch</div>
+        <div class="node-if-label">IF</div>
       </AAvatar>
 
       <div class="node-status-icon" v-if="data.executionData">
@@ -108,6 +108,6 @@ const validConnection: ValidConnectionFunc = (connection: Connection) => {
 </template>
 
 <style scoped lang="scss">
-@import 'switch-node';
+@import 'if-node';
 @import '../../assets/action.scss'
 </style>

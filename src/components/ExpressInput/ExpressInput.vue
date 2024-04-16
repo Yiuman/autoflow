@@ -5,7 +5,8 @@ import { useVueFlow } from '@vue-flow/core'
 import { debounce } from 'lodash'
 
 interface ExpressInputProps {
-    modelValue?: string
+    modelValue?: string,
+    placeholder?: string
 }
 
 const props = defineProps<ExpressInputProps>();
@@ -78,7 +79,7 @@ const popoverVisiable = computed(() => expressClassName.value === 'jsonpath')
 
 <template>
     <div class="express-input" :class="expressClassName">
-        <AMention v-model="data" :prefix="prefix" @search="handleSearch" :data="searchOptions" />
+        <AMention :placeholder="props.placeholder" v-model="data" :prefix="prefix" @search="handleSearch" :data="searchOptions" />
         <div v-if="popoverVisiable && descData" class="jsonpath-desc">
             <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
         </div>

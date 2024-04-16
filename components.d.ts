@@ -34,6 +34,7 @@ declare module 'vue' {
     ATabPane: typeof import('@arco-design/web-vue')['TabPane']
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     ATag: typeof import('@arco-design/web-vue')['Tag']
+    ATrigger: typeof import('@arco-design/web-vue')['Trigger']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
     ConditionItem: typeof import('./src/components/ConditionFilter/ConditionItem.vue')['default']
@@ -41,6 +42,7 @@ declare module 'vue' {
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
     ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
+    IfNode: typeof import('./src/components/IfNode/IfNode.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']
     LoopEachItemNode: typeof import('./src/components/LoopEachItemNode/LoopEachItemNode.vue')['default']
     LoopSetting: typeof import('./src/components/LoopSetting/LoopSetting.vue')['default']
@@ -50,6 +52,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
     SeviceNode: typeof import('./src/components/ServiceNode/SeviceNode.vue')['default']
-    SwitchNode: typeof import('./src/components/SwitchNode/SwitchNode.vue')['default']
+    SwitchNode: typeof import('./src/components/IfNode/SwitchNode.vue')['default']
   }
 }

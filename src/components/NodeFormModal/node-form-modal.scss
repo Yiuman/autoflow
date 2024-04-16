@@ -102,7 +102,7 @@
     height: 100%;
 
     :deep(.arco-tabs-content) {
-        height: calc(100% - 50px);
+        height: calc(100vh - 200px);
         overflow: auto;
     }
 

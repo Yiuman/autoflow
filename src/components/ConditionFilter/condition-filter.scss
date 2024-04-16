@@ -4,6 +4,7 @@
     .condition-clause-switch {
         position: relative;
         display: flex;
+        margin-right: 10px;
 
         .condition-clause-line {
             height: 100%;
@@ -20,6 +21,9 @@
         }
     }
 
+    :deep(.condition-group-add) {
+        left: -3px;
+    }
 
 
     :deep(.arco-switch) {
@@ -28,6 +32,33 @@
     }
 }
 
+.condition-filter {
+    padding: 4px 0;
+}
+
 .condition-filter-item {
-    display: flex
+    display: flex;
+
+    :deep(.arco-icon) {
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-left: 5px;
+        align-self: center;
+        min-width: 0;
+        color: var(--color-text-2);
+    }
+
+    :deep(.add-btn) {
+        &:hover {
+            color: rgba(var(--primary-6));
+            cursor: pointer;
+        }
+    }
+
+    :deep(.delete-btn) {
+        &:hover {
+            color: rgba(var(--danger-6));
+            cursor: pointer;
+        }
+    }
 }
