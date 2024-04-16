@@ -35,7 +35,7 @@ public final class Flows {
 
     private static final Map<NodeType, NodeConverter<? extends FlowNode>> NODE_CONVERTER_MAP = new HashMap<>() {{
         put(NodeType.SERVICE, ServiceNodeConverter.INSTANCE);
-        put(NodeType.SWITCH, ServiceNodeConverter.INSTANCE);
+        put(NodeType.IF, ServiceNodeConverter.INSTANCE);
         put(NodeType.GATEWAY, GatewayNodeConverter.INSTANCE);
         put(NodeType.USER, UserNodeConverter.INSTANCE);
     }};

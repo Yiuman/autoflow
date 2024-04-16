@@ -8,7 +8,7 @@ public enum NodeType {
     EVENT,
     SERVICE,
     GATEWAY,
-    SWITCH,
+    IF,
     USER,
     SUBFLOW,
     LOOP_EACH_ITEM

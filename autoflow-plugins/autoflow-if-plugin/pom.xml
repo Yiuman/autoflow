@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>autoflow-switch-plugin</artifactId>
+    <artifactId>autoflow-if-plugin</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

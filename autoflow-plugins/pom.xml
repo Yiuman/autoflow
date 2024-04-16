@@ -17,7 +17,7 @@
         <module>autoflow-all-plugin</module>
         <module>autoflow-regex-plugin</module>
         <module>autoflow-sql-plugin</module>
-        <module>autoflow-switch-plugin</module>
+        <module>autoflow-if-plugin</module>
         <module>autoflow-loop-each-item-plugin</module>
     </modules>
 

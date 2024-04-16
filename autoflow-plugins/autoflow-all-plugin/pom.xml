@@ -39,7 +39,7 @@
 
         <dependency>
             <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-switch-plugin</artifactId>
+            <artifactId>autoflow-if-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
 

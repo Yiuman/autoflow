@@ -67,7 +67,7 @@ public final class LiteFlows {
                     );
                 }
                 stepEl.add(createIteratorEL(node).doOpt(elWrapper));
-            } else if (NodeType.SWITCH == node.getType()) {
+            } else if (NodeType.IF == node.getType()) {
                 if (CollUtil.isEmpty(flow.getConnections())) {
                     stepEl.add(createServiceNodeEL(node));
                 } else {
@@ -108,7 +108,7 @@ public final class LiteFlows {
                 .setName(node.getLabel())
                 .setClazz(ServiceNodeComponent.class)
                 .build();
-        if (NodeType.SWITCH == node.getType()) {
+        if (NodeType.IF == node.getType()) {
             LiteFlowNodeBuilder.createBooleanNode()
                     .setId(StrUtil.format("IF_{}", node.getId()))
                     .setName(StrUtil.format("IF_{}", node.getLabel()))

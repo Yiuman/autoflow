@@ -2,11 +2,11 @@ package io.autoflow.spi.provider;
 
 import cn.hutool.core.bean.copier.ValueProvider;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.jayway.jsonpath.JsonPath;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import io.autoflow.spi.utils.ExpressUtils;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
@@ -16,15 +16,14 @@ import java.util.Objects;
  * @date 2024/4/15
  */
 public abstract class BaseContextValueProvider implements ValueProvider<String>, IExpressContext<String, Object> {
-    /**
-     * 表达式匹配
-     */
-    private static final String EXPRESS_REGEX = "^\\$\\{(.*)}";
-    /**
-     * JSON-PATH匹配
-     */
-    private static final String JSON_PATH_REGEX = "^\\$\\..*$";
-    private static final ExpressRunner EXPRESS_RUNNER = new ExpressRunner();
+    private final ExpressRunner expressRunner = new ExpressRunner();
+
+    public BaseContextValueProvider() {
+        try {
+            expressRunner.addFunctionOfServiceMethod("JsonPathReadCtx", this, "extractByJsonPath", new Class[]{String.class}, null);
+        } catch (Exception ignore) {
+        }
+    }
 
     @Override
     public Object value(String key, Type valueType) {
@@ -41,7 +40,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         return result;
     }
 
-    protected Object getExpressValue(Object key) {
+    public Object getExpressValue(Object key) {
         if (key instanceof String strValue) {
             //JSONPATH
             Object jsonPathValue = extractByJsonPath(strValue);
@@ -58,9 +57,9 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         return null;
     }
 
-    protected Object extractByJsonPath(String strValue) {
+    public Object extractByJsonPath(String strValue) {
         try {
-            if (ReUtil.isMatch(JSON_PATH_REGEX, strValue)) {
+            if (ExpressUtils.isJsonPath(strValue)) {
                 return JsonPath.read(toJsonStr(), strValue);
             }
         } catch (Throwable ignore) {
@@ -72,9 +71,9 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
 
     protected Object extractByExpress(String strValue) {
         try {
-            String express = ReUtil.get(EXPRESS_REGEX, strValue, 1);
+            String express = ExpressUtils.getExpressText(strValue);
             if (StrUtil.isNotBlank(express)) {
-                return EXPRESS_RUNNER.execute(express, this, null, false, false);
+                return expressRunner.execute(express, this, null, false, false);
             }
 
         } catch (Throwable ignore) {

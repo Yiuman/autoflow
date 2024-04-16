@@ -1,4 +1,4 @@
-package io.autoflow.plugin.switches;
+package io.autoflow.plugin.ifplugin;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SwitchResult {
-    private Object expressValue;
+public class IfResult {
+    private String conditionStr;
     private Boolean result;
 }
