@@ -16,7 +16,6 @@ import io.autoflow.liteflow.cmp.IFNodeComponent;
 import io.autoflow.liteflow.cmp.LoopNodeComponent;
 import io.autoflow.liteflow.cmp.ServiceData;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
-import io.autoflow.plugin.switches.SwitchParameter;
 import io.autoflow.spi.context.FlowExecutionContext;
 
 import java.util.*;
@@ -161,7 +160,7 @@ public final class LiteFlows {
         String express = String.format("$.inputData.%s.[0].json.result", node.getId());
         return ELBus.ifOpt(
                 ELBus.node(ifNodeId)
-                        .data(ifNodeDataId, new SwitchParameter(express)),
+                        .data(ifNodeDataId, express),
                 convertEl(ifTrueFlow),
                 convertEl(ifFalseFlow)
         );

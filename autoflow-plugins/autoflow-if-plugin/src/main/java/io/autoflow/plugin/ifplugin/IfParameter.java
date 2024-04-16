@@ -1,5 +1,6 @@
 package io.autoflow.plugin.ifplugin;
 
+import io.autoflow.plugin.ifplugin.enums.CalcType;
 import lombok.Data;
 
 /**
@@ -8,5 +9,14 @@ import lombok.Data;
  */
 @Data
 public class IfParameter {
-   private Condition condition;
+    private Condition condition;
+
+    public static IfParameter express(String express) {
+        IfParameter expressIfParameter = new IfParameter();
+        Condition cdt = new Condition();
+        cdt.setCalcType(CalcType.Express);
+        cdt.setValue(express);
+        expressIfParameter.setCondition(cdt);
+        return expressIfParameter;
+    }
 }

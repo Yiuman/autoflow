@@ -57,8 +57,12 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
             Map<String, List<ExecutionData>> nodeExecutionDataMap = flowExecutionContext.getInputData();
             String activityId = cmp.getNodeId();
             if (Objects.nonNull(nodeExecutionDataMap)) {
-                List<ExecutionData> executionDataList = new ArrayList<>(nodeExecutionDataMap.get(activityId));
-                sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
+                List<ExecutionData> executionData = nodeExecutionDataMap.get(activityId);
+                if (CollUtil.isNotEmpty(executionData)) {
+                    List<ExecutionData> executionDataList = new ArrayList<>(executionData);
+                    sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
+                }
+
             }
 
             SseEmitter.SseEventBuilder data = SseEmitter.event()
