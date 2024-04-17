@@ -69,17 +69,21 @@ public abstract class BaseService<INPUT> implements Service {
 
     @Override
     public ExecutionData execute(ExecutionContext executionContext) {
-        INPUT input = buildInputData(executionContext);
+        INPUT input = buildParameter(executionContext);
         Set<ConstraintViolation<INPUT>> validated = ValidationUtil.validate(input);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
-        return execute(input);
+        return execute(input, executionContext);
     }
 
-    protected INPUT buildInputData(ExecutionContext executionContext) {
+    protected INPUT buildParameter(ExecutionContext executionContext) {
         INPUT input = ReflectUtil.newInstanceIfPossible(iputeDataClass);
-        BeanUtil.fillBean(input, new ExecutionContextValueProvider(executionContext), CopyOptions.create());
+        BeanUtil.fillBean(
+                input,
+                new ExecutionContextValueProvider(executionContext),
+                CopyOptions.create()
+        );
         return input;
     }
 
-    public abstract ExecutionData execute(INPUT input);
+    public abstract ExecutionData execute(INPUT input, ExecutionContext executionContext);
 }

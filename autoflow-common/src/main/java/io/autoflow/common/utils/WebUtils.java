@@ -298,7 +298,7 @@ public final class WebUtils {
      * @param filename 文件名
      * @throws UnsupportedEncodingException 编码异常
      */
-    public static void addExportFilenameHeaders(HttpServletResponse response, String filename, String fileType) throws UnsupportedEncodingException {
+    public static void addExportFilenameHeaders(HttpServletResponse response, String filename, String fileType) {
         response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment;filename=%s.%s", URLEncoder.encode(filename, StandardCharsets.UTF_8), fileType));
     }

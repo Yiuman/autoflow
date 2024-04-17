@@ -46,15 +46,9 @@ public class IfService extends BaseService<IfParameter> {
     }
 
     @Override
-    public ExecutionData execute(IfParameter ifParameter) {
-        return null;
-    }
-
-    @Override
-    public ExecutionData execute(ExecutionContext executionContext) {
-        IfParameter ifParameter = buildInputData(executionContext);
-        String conditionStr = parseCondition(executionContext, ifParameter.getCondition());
-        Object conditionBooleanValue = executionContext.parseValue(String.format("${%s}", conditionStr));
+    public ExecutionData execute(IfParameter ifParameter, ExecutionContext ctx) {
+        String conditionStr = parseCondition(ctx, ifParameter.getCondition());
+        Object conditionBooleanValue = ctx.parseValue(String.format("${%s}", conditionStr));
         IfResult ifResult = new IfResult(
                 conditionStr,
                 BooleanUtil.toBoolean(StrUtil.toString(conditionBooleanValue))

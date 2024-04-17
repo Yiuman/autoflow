@@ -2,6 +2,7 @@ package io.autoflow.plugin.regex;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.ExecutionData;
 
@@ -15,7 +16,7 @@ public class RegexService extends BaseService<RegexParameter> {
     }
 
     @Override
-    public ExecutionData execute(RegexParameter regexParameter) {
+    public ExecutionData execute(RegexParameter regexParameter, ExecutionContext ctx) {
         Object result = regexParameter.getMethod().getFunc().apply(regexParameter);
         JSONObject jsonObject = JSONUtil.createObj();
         jsonObject.set(regexParameter.getMethod().name(), result);

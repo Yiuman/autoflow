@@ -10,6 +10,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
+import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.Binary;
 import io.autoflow.spi.model.ExecutionData;
@@ -41,7 +42,7 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
     }
 
     @Override
-    public ExecutionData execute(HttpRequestParameter httpRequestParameter) {
+    public ExecutionData execute(HttpRequestParameter httpRequestParameter, ExecutionContext ctx) {
         String url = UrlBuilder.of(httpRequestParameter.getUrl())
                 .setQuery(UrlQuery.of(httpRequestParameter.getParams(), true))
                 .build();

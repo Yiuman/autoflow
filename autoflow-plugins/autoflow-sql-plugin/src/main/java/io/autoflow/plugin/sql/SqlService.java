@@ -7,6 +7,7 @@ import cn.hutool.db.handler.EntityListHandler;
 import cn.hutool.db.sql.SqlExecutor;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
+import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.ExecutionData;
@@ -29,7 +30,7 @@ public class SqlService extends BaseService<SqlParameter> {
     }
 
     @Override
-    public ExecutionData execute(SqlParameter sqlParameter) {
+    public ExecutionData execute(SqlParameter sqlParameter, ExecutionContext ctx) {
         try {
             Setting setting = Setting.create();
             setting.put(LambdaUtil.getFieldName(SqlParameter::getUrl), sqlParameter.getUrl());

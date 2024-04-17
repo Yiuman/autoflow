@@ -28,7 +28,7 @@ public class LoopEachItemService extends BaseService<Void> {
     }
 
     @Override
-    public ExecutionData execute(Void unused) {
+    public ExecutionData execute(Void unused, ExecutionContext executionContext) {
         throw new UnsupportedOperationException("Method not implemented.");
     }
 
