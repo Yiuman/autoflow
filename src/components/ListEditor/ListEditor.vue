@@ -40,7 +40,11 @@ function deleteRecord(record: Record<string, any>) {
 }
 
 function addRecord() {
-    data.push({ dataKey: '', dataValue: '' })
+    const newObj:Record<string, any> = {};
+    props.columns.forEach(column => {
+        newObj[column.dataIndex as string] = ''
+    })
+    data.push(newObj)
 }
 
 function getColumnDataIndex(column: TableColumnData): string {
@@ -78,9 +82,9 @@ function doEmitChange(record: Record<string, any>, val: string) {
         <div class="list-editor-add-btn">
             <AButton size="mini" @click="() => addRecord()">
                 <template #icon>
-                    <IconPlus/>
+                    <IconPlus />
                 </template>
-             </AButton>
+            </AButton>
         </div>
     </div>
 </template>

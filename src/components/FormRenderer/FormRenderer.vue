@@ -39,7 +39,6 @@ const form = computed<any>({
 
 function getComponentName(property: Property) {
   if (property.type === 'Condition') {
-    console.warn("property", property)
     return ConditionFilter
   }
   if (!property.type || property.type == 'String') {

@@ -91,6 +91,10 @@ export function toGraphEdge(connection: Connection): GraphEdge {
     ...connection,
     id: `e${connection.source}_${connection.target}`,
     markerEnd: MarkerType.ArrowClosed,
+    data: {
+      sourcePointType: connection.sourcePointType,
+      targetPointType: connection.targetPointType
+    },
     type: 'edge'
   } as GraphEdge
 }

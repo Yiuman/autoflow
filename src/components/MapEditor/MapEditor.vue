@@ -4,23 +4,23 @@ interface MapEditorProps {
 }
 
 const props = withDefaults(defineProps<MapEditorProps>(), {
-    modelValue: () => [{ dataKey: '', dataValue: '' }]
+    modelValue: () => [{ key: '', value: '' }]
 });
 const emits = defineEmits<{
     (e: 'update:modelValue', item: Record<string, any>): void
 }>()
 
 interface KeyValue {
-    dataKey: string,
-    dataValue: any
+    key: string,
+    value: any
 }
 
 const columns = [{
     title: 'key',
-    dataIndex: 'dataKey'
+    dataIndex: 'key'
 }, {
     title: 'value',
-    dataIndex: 'dataValue'
+    dataIndex: 'value'
 }]
 const data = computed({
     get() {

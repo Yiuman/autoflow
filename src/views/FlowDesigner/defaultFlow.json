@@ -1,6 +1,6 @@
 {
-    "id": "u9BVhRTE",
-    "name": "u9BVhRTE",
+    "id": "bcCpDKfP",
+    "name": "bcCpDKfP",
     "nodes": [
         {
             "id": "hgIkDW8F",
@@ -9,24 +9,67 @@
             "type": "SERVICE",
             "position": {
                 "x": 376,
-                "y": 299
+                "y": 275
             },
             "data": {
                 "url": "https://www.baidu.com",
                 "method": "GET"
-            }
+            },
+            "loop": {}
         },
         {
             "id": "wzZRQ2vf",
-            "label": "Switch",
+            "label": "IF",
             "serviceId": "io.autoflow.plugin.ifplugin.IfService",
             "type": "IF",
             "position": {
-                "x": 605,
-                "y": 293
+                "x": 658,
+                "y": 259
             },
             "data": {
-            }
+                "condition": {
+                    "children": [
+                        {
+                            "children": [
+                                {
+                                    "dataKey": "$.inputData.hgIkDW8F[0].json.status",
+                                    "calcType": "Equal",
+                                    "value": "200",
+                                    "clause": "AND"
+                                },
+                                {
+                                    "dataKey": "",
+                                    "calcType": "Express",
+                                    "value": "${inputData.hgIkDW8F[0].json.status==200}",
+                                    "clause": "AND"
+                                }
+                            ],
+                            "clause": "AND",
+                            "root": false
+                        },
+                        {
+                            "children": [
+                                {
+                                    "dataKey": "1",
+                                    "calcType": "Equal",
+                                    "value": "1",
+                                    "clause": "AND"
+                                },
+                                {
+                                    "dataKey": "2",
+                                    "calcType": "Equal",
+                                    "value": "1",
+                                    "clause": "AND"
+                                }
+                            ],
+                            "clause": "OR"
+                        }
+                    ],
+                    "clause": "AND",
+                    "root": true
+                }
+            },
+            "loop": {}
         },
         {
             "id": "iXmGj4Ld",
@@ -34,35 +77,40 @@
             "serviceId": "io.autoflow.plugin.regex.RegexService",
             "type": "SERVICE",
             "position": {
-                "x": 908,
-                "y": 293
+                "x": 943,
+                "y": 252
             },
             "data": {
                 "regex": "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)",
                 "content": "$.inputData.hgIkDW8F[0].raw",
                 "method": "findAll"
-            }
+            },
+            "loop": {}
         }
     ],
     "connections": [
         {
-            "id": "vueflow__edge-hgIkDW8FhgIkDW8F__handle-right-wzZRQ2vfwzZRQ2vf__handle-left",
+            "id": "vueflow__edge-hgIkDW8Foutput-wzZRQ2vfinput",
             "source": "hgIkDW8F",
             "target": "wzZRQ2vf",
             "sourceX": 467,
-            "sourceY": 341,
-            "targetX": 596,
-            "targetY": 333
+            "sourceY": 317,
+            "targetX": 649,
+            "targetY": 299,
+            "sourcePointType": "output",
+            "targetPointType": "input"
         },
         {
-            "id": "vueflow__edge-wzZRQ2vfwzZRQ2vf__handle-top-iXmGj4LdiXmGj4Ld__handle-left",
+            "id": "vueflow__edge-wzZRQ2vfIF_TRUE-iXmGj4Ldinput",
             "source": "wzZRQ2vf",
             "target": "iXmGj4Ld",
-            "sourceX": 645,
-            "sourceY": 281,
-            "targetX": 905,
-            "targetY": 335,
-            "expression": "${!inputData['wzZRQ2vf'][0].json.result}"
+            "sourceX": 698,
+            "sourceY": 247,
+            "targetX": 940,
+            "targetY": 294,
+            "sourcePointType": "IF_TRUE",
+            "targetPointType": "input",
+            "expression": "${inputData['wzZRQ2vf'][0].json.result}"
         }
     ]
 }
