@@ -80,7 +80,6 @@ function emitRemove(child: Condition) {
 
 const isAnd = computed({
     get() {
-        console.warn(" modelValue.value.clause", modelValue.value.clause, modelValue.value.clause === Clause.AND)
         return modelValue.value.clause === Clause.AND;
     },
     set(value) {

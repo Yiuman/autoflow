@@ -1,7 +1,7 @@
 .autoflow-node {
   height: 80px;
   width: 80px;
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: rgb(248 250 252);
   border: 2px solid #eee;
 
@@ -13,8 +13,6 @@
   }
 
 }
-
-
 
 .node-avatar {
   padding: 6px;
@@ -28,11 +26,11 @@
     font-size: 18px;
 
     .node-status-sucess {
-      color: green;
+      color: rgb(var(--green-7))
     }
 
     .node-status-error {
-      color: orange;
+      color: rgb(var(--orange-6))
     }
   }
 }
@@ -65,7 +63,7 @@
 
   .toolbar-delete-btn {
     &:hover {
-      color: red;
+      color: rgb(var(--danger-6));
     }
   }
 }

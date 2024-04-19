@@ -12,6 +12,18 @@
         }
     }
 
+
+}
+
+.search-modal-content {
+    height: calc(100vh - 165px);
+    overflow: auto;
+}
+
+:global(.search-modal-body) {
+    overflow: hidden !important;
+    padding: 0 !important;
+    height: 100%;
 }
 
 .input-key {
@@ -40,7 +52,6 @@
     background: var(--color-bg-3);
     border-bottom: 1px solid var(--color-border);
     border-radius: 8px 8px 0 0;
-
 
 
     .search-modal-input-left {

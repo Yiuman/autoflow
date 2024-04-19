@@ -52,16 +52,15 @@ const edgeTypes = {
 }
 
 const serviceStore = useServiceStore();
-serviceStore.fetchServices();
 const elements = ref<Elements<NodeElementData>>([]);
 const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
 
-onMounted(() => {
+onMounted(async () => {
+  await serviceStore.fetchServices();
   doParseJson(JSON.stringify(json));
-  serviceStore.fetchServices();
 })
 
 
@@ -164,10 +163,10 @@ function importJson(fileList: FileItem[]): void {
   }
 }
 
-function doParseJson(json: string) {
+async function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
   const flowNodes = flowDefine.nodes;
-  const nodes: VueFlowNode[] = flowNodes?.map(node => ({ ...toGraphNode(node), events: defaultEvents })) as VueFlowNode[];
+  const nodes: VueFlowNode[] = flowNodes?.map((node) => ({ ...toGraphNode(node), events: defaultEvents })) as VueFlowNode[];
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({ ...toGraphEdge(connection) })) as GraphEdge[];
   elements.value = [...nodes, ...edges];
 }
@@ -251,6 +250,17 @@ async function stopFlow() {
   running.value = false;
 }
 
+const avatarMap = ref<Record<string, boolean>>({});
+
+function isAvatarInVilad(serviceId: string) {
+  const serviceAvatarVilad = avatarMap.value[serviceId];
+  return !(serviceAvatarVilad || serviceAvatarVilad === undefined)
+}
+
+function setAvatarInValid(serviceId: string) {
+  avatarMap.value[serviceId] = false
+}
+
 </script>
 
 <template>
@@ -268,9 +278,9 @@ async function stopFlow() {
           <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name" @click="() => addNode(serviceItem)">
             <AListItemMeta :title="serviceItem.name">
               <template #avatar>
-                <AAvatar shape="square" :size="68">
-                  <div class="node-switch-label">{{ serviceItem.name }}</div>
-                </AAvatar>
+                <AAvatar v-if="isAvatarInVilad(serviceItem.id)" shape="square" :size="68">{{serviceItem.name }}</AAvatar>
+                <AImage v-else :preview="false" :width="68" :height="68"
+                  :src="`${VITE_BASE_URL || '/api'}/services/image/${serviceItem.id}`" @error="() => setAvatarInValid(serviceItem.id)" />
               </template>
             </AListItemMeta>
           </AListItem>

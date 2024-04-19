@@ -17,7 +17,7 @@
         height: 80% !important;
     }
 
-    :global(.arco-modal-body) {
+    :global(.node-form-modal_body) {
         overflow: visible !important;
         padding: 0 !important;
         height: 100%;
@@ -102,7 +102,7 @@
     height: 100%;
 
     :deep(.arco-tabs-content) {
-        height: calc(100vh - 200px);
+        height: calc(100vh - 150px);
         overflow: auto;
     }
 

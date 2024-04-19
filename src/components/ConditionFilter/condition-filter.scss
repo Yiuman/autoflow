@@ -1,5 +1,6 @@
 .condition-groups {
     display: flex;
+    width: 100%;
 
     .condition-clause-switch {
         position: relative;
@@ -21,15 +22,15 @@
         }
     }
 
-    :deep(.condition-group-add) {
-        left: -3px;
-    }
-
 
     :deep(.arco-switch) {
         align-self: center;
         z-index: 1;
     }
+}
+
+.condition-group-add {
+    left: -3px;
 }
 
 .condition-filter {

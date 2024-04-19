@@ -74,7 +74,8 @@ interface Service {
   id: string,
   name: string,
   properties: Property[],
-  description?: string
+  description?: string,
+  avatar?: string | null
 }
 
 export type NodeElementData = ToolBarData & Record<string, ElementData>

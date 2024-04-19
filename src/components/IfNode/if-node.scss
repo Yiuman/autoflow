@@ -1,24 +1,10 @@
-.autoflow-node {
-    height: 80px;
-    width: 80px;
-    border-radius: 5px;
-
-    &:hover {
-        .node-toolbar {
-            opacity: 1;
-            transition-delay: 0s;
-        }
-    }
-
-}
-
 .if-node {
-    transform: rotate(45deg);
-}
+    background-color: transparent;
+    border: none;
 
-.node-avatar {
-    padding: 6px;
-    position: relative;
+    :deep(.node-avatar) {
+        transform: rotate(45deg);
+    }
 
     .node-if-label {
         transform: rotate(-45deg);
@@ -33,47 +19,35 @@
         font-size: 18px;
 
         .node-status-sucess {
-            color: green;
+            color: rgb(var(--green-7))
         }
 
         .node-status-error {
-            color: orange;
+            color: rgb(var(--orange-6))
         }
     }
-}
 
-.selected {
-    .autoflow-node {
-        box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    }
-
-    .node-toolbar {
-        display: block;
-    }
-}
-
-.toolbar-btn {
-    font-size: 14px;
-}
-
-.node-toolbar {
-    position: absolute;
-    top: -55px;
-    right: 1px;
-    z-index: 1;
-    transition: 0.5s;
-    opacity: 0;
-
-    &:hover {
-        cursor: pointer;
-    }
-
-    .toolbar-delete-btn {
+    :deep(.node-toolbar) {
+        position: absolute;
+        top: -55px;
+        right: 1px;
+        z-index: 1;
+        transition: 0.5s;
+        opacity: 0;
+    
         &:hover {
-            color: red;
+            cursor: pointer;
+        }
+    
+        .toolbar-delete-btn {
+            &:hover {
+                color: red;
+            }
         }
     }
+
 }
+
 
 
 .vue-flow__node-IF {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
+import ListEditor from '@/components/ListEditor/ListEditor.vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 export interface Option {
@@ -53,7 +54,24 @@ function getComponentName(property: Property) {
     return MapEditor
   }
 
+  if (property.type === 'List' || property.type === 'Set') {
+    return ListEditor;
+  }
+
   return 'ASwitch'
+}
+
+function getBindAttr(property: Property) {
+  if (property.type === 'List' || property.type === 'Set') {
+    const columns = property.properties?.map(child =>
+    ({
+      title: child.displayName || child.name,
+      dataIndex: child.name
+    })
+    );
+    return { columns };
+  }
+  return property;
 }
 </script>
 <template>
@@ -61,7 +79,7 @@ function getComponentName(property: Property) {
     <AForm :model="form" :layout="props.layout">
       <AFormItem v-for="property in properties" v-bind:key="property.name" :field="property.name"
         :label="property.displayName || property.name" :tooltip="property.description || undefined">
-        <Component :is="getComponentName(property)" v-model="form[property.name]" v-bind="property" />
+        <Component :is="getComponentName(property)" v-model="form[property.name]" v-bind="getBindAttr(property)" />
       </AFormItem>
     </AForm>
   </div>

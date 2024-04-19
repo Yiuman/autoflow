@@ -6,7 +6,24 @@ interface ListEditorProps {
     columns: TableColumnData[]
     modelValue: Record<string, any>[]
 }
-const props = defineProps<ListEditorProps>();
+
+function newRecord(): Record<string, any> {
+    const newObj: Record<string, any> = {};
+    props.columns.forEach(column => {
+        newObj[column.dataIndex as string] = ''
+    })
+    return newObj;
+}
+
+const props = withDefaults(defineProps<ListEditorProps>(), {
+    modelValue: (prop) => {
+        const newObj: Record<string, any> = {};
+        prop.columns.forEach(column => {
+            newObj[column.dataIndex as string] = ''
+        })
+        return [newObj]
+    }
+});
 const emits = defineEmits<{
     (e: 'update:modelValue', item: Record<string, any>[]): void
     (e: 'change', record: Record<string, any>, val: string): void
@@ -40,11 +57,7 @@ function deleteRecord(record: Record<string, any>) {
 }
 
 function addRecord() {
-    const newObj:Record<string, any> = {};
-    props.columns.forEach(column => {
-        newObj[column.dataIndex as string] = ''
-    })
-    data.push(newObj)
+    data.push(newRecord())
 }
 
 function getColumnDataIndex(column: TableColumnData): string {

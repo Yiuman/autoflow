@@ -157,7 +157,7 @@ const showLoopSetting = computed(() => {
 
 const activeTab = ref<string>('parameters');
 watch(props.modelValue, () => {
-  activeTab.value = 'parameters'
+  activeTab.value = props.properties && props.properties.length ? 'parameters' : "settings"
 })
 
 
@@ -165,8 +165,8 @@ watch(props.modelValue, () => {
 
 <template>
   <!--    节点的表单-->
-  <AModal class="node-form-modal" :align-center="false" :width="'90%'" :visible="modalVisible" :hide-title="true"
-    :footer="false" :closable="true">
+  <AModal class="node-form-modal" bodyClass="node-form-modal_body" :align-center="false" :width="'90%'"
+    :visible="modalVisible" :hide-title="true" :esc-to-close="true" :footer="false">
     <div class="node-form-modal-body">
       <div class="node-form-modal-btn">
         <!-- 按钮 -->

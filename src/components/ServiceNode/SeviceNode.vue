@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ElementData, NodeProps, CustomEvent } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
+import { validConnection } from '@/utils/flow'
 import {
   IconDelete,
   IconPlayCircleFill,
@@ -9,13 +10,13 @@ import {
   IconExclamationCircle,
   IconCheckCircle
 } from '@arco-design/web-vue/es/icon'
-import type { ValidConnectionFunc } from '@vue-flow/core'
-import type { Connection } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
+import { useEnv } from "@/hooks/env";
 
+const { VITE_BASE_URL } = useEnv();
 const { removeNodes, updateNodeData } = useVueFlow()
 
 export interface ToolBarData {
@@ -29,6 +30,7 @@ export interface NodeAction extends Record<string, CustomEvent> {
 }
 type Data = ElementData & ToolBarData & Record<string, ElementData>;
 export interface Props extends NodeProps<Data, NodeAction> {
+  actionClass?: string
 }
 
 const props = defineProps<Props>()
@@ -45,27 +47,13 @@ async function stopNode() {
   }
 }
 
-/**
- * 获取连接的处理器的类型（input\output）
- * @param handle 连接处理器的ID
- */
-function getHandleDirection(handle: string | null | undefined): string {
-  return handle?.substring(handle?.lastIndexOf('-') + 1) ?? ''
-}
-
-/**
- * 校验连接
- */
-const validConnection: ValidConnectionFunc = (connection: Connection) => {
-  return getHandleDirection(connection.sourceHandle) !== getHandleDirection(connection.targetHandle)
-}
 
 const rgba = randomRgba(0.8)
-
+const [avatarNotFound, toggelAvatar] = useToggle(false)
 </script>
 
 <template>
-  <div class="autoflow-node" :class="data.running ? 'node-action' : ''">
+  <div class="autoflow-node" :class="data.running ? actionClass || 'node-action' : ''">
     <div class="node-toolbar">
       <AButtonGroup size="mini">
         <AButton @click="data.running ? stopNode() : runNode()" class="toolbar-btn">
@@ -88,16 +76,26 @@ const rgba = randomRgba(0.8)
     </div>
 
     <div class="node-avatar">
-      <AAvatar shape="square" :size="68" :style="{ backgroundColor: rgba }">{{ data.label }}</AAvatar>
+      <slot name="avatar" v-bind="data">
+        <AAvatar v-if="avatarNotFound" shape="square" :size="68" :style="{ 'background-color': rgba }">{{ data.label }}
+        </AAvatar>
+        <AImage v-else :preview="false" :width="68" :height="68"
+          :src="`${VITE_BASE_URL || '/api'}/services/image/${data.serviceId}`" @error="() => toggelAvatar()" />
 
-      <div class="node-status-icon" v-if="data.executionData">
-        <IconExclamationCircle class="node-status-error" v-if="data.executionData[0].error" />
-        <IconCheckCircle class="node-status-sucess" v-else />
-      </div>
+        <div class="node-status-icon" v-if="data.executionData">
+          <IconExclamationCircle class="node-status-error" v-if="data.executionData[0].error" />
+          <IconCheckCircle class="node-status-sucess" v-else />
+        </div>
+      </slot>
     </div>
 
-    <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-    <Handle id="output" type="source" :position="Position.Right" :is-valid-connection="validConnection" />
+    <div class="node_hanlde">
+      <slot>
+        <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
+        <Handle id="output" type="source" :position="Position.Right" :is-valid-connection="validConnection" />
+      </slot>
+    </div>
+
   </div>
 </template>
 

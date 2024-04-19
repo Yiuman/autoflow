@@ -53,7 +53,7 @@ export function toGraphNode(node: Node): VueFlowNode {
 }
 
 const nodeTypeMap: Record<string, string> = {
-  If: 'IF',
+  IF: 'IF',
   LoopEachItem: 'LOOP_EACH_ITEM'
 }
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
@@ -62,6 +62,7 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
   nodeData.label = service.name
   nodeData.parameters = {};
   nodeData.loop = {};
+  nodeData.avatar = service.avatar
   return {
     type: nodeTypeMap[service.name] || 'SERVICE',
     id: uuid(8, true),
