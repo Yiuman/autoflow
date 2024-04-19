@@ -17,7 +17,7 @@ class RegexServiceTest {
                 "谎言是一个无尽的黑洞，让人坠入罪恶的深渊万劫不复");
         regexParameter.setRegex("；");
         regexParameter.setMethod(RegexMethod.split);
-        ExecutionData execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -30,7 +30,7 @@ class RegexServiceTest {
                 "谎言是一个无尽的黑洞，让人坠入罪恶的深渊万劫不复");
         regexParameter.setRegex("谎言");
         regexParameter.setMethod(RegexMethod.findAll);
-        ExecutionData execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -41,10 +41,10 @@ class RegexServiceTest {
         regexParameter.setContent("爱上你，只用了一瞬间。");
         regexParameter.setRegex("^爱上你.*");
         regexParameter.setMethod(RegexMethod.isMatch);
-        ExecutionData execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
         regexParameter.setRegex("什么鬼");
-        ExecutionData execute2 = regexService.execute(regexParameter);
+        ExecutionData execute2 = regexService.execute(regexParameter, null);
         log.info(JSONUtil.toJsonStr(execute2));
     }
 
@@ -56,7 +56,7 @@ class RegexServiceTest {
         regexParameter.setRegex("爱");
         regexParameter.setReplace("");
         regexParameter.setMethod(RegexMethod.replace);
-        ExecutionData execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -70,7 +70,7 @@ class RegexServiceTest {
         regexParameter.setRegex("谎言");
         regexParameter.setReplace("旺旺");
         regexParameter.setMethod(RegexMethod.replaceAll);
-        ExecutionData execute = regexService.execute(regexParameter);
+        ExecutionData execute = regexService.execute(regexParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 

@@ -1,6 +1,7 @@
 package io.autoflow.plugin.http;
 
 import cn.hutool.core.codec.Base64Encoder;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.net.url.UrlQuery;
@@ -10,10 +11,13 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
+import io.autoflow.common.utils.NamedValue;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.Binary;
 import io.autoflow.spi.model.ExecutionData;
+
+import java.util.List;
 
 /**
  * @author yiuman
@@ -44,14 +48,20 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
     @Override
     public ExecutionData execute(HttpRequestParameter httpRequestParameter, ExecutionContext ctx) {
         String url = UrlBuilder.of(httpRequestParameter.getUrl())
-                .setQuery(UrlQuery.of(httpRequestParameter.getParams(), true))
+                .setQuery(buildUrlQuery(httpRequestParameter.getParams()))
                 .build();
         HttpRequest request = HttpUtil.createRequest(httpRequestParameter.getMethod(), url);
-        request.addHeaders(httpRequestParameter.getHeaders());
+        List<NamedValue<String>> headers = httpRequestParameter.getHeaders();
+        if (CollUtil.isNotEmpty(headers)) {
+            for (NamedValue<String> header : headers) {
+                request.header(header.getName(), header.getValue());
+            }
+        }
+
         try (HttpResponse response = request.execute()) {
             HttpResult httpResult = toHttpResult(response);
             ExecutionData executionData = ExecutionData.builder()
-                    .raw(httpResult.getBody())
+                    .raw(StrUtil.toString(httpResult.getBody()))
                     .json(JSONUtil.parseObj(httpResult))
                     .build();
 
@@ -74,10 +84,21 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
         }
     }
 
+    private UrlQuery buildUrlQuery(List<NamedValue<Object>> params) {
+        UrlQuery urlQuery = new UrlQuery();
+        if (CollUtil.isNotEmpty(params)) {
+            for (NamedValue<Object> param : params) {
+                urlQuery.add(param.getName(), param.getValue());
+            }
+        }
+        return urlQuery;
+    }
+
     private HttpResult toHttpResult(HttpResponse response) {
         HttpResult httpResult = new HttpResult();
         httpResult.setStatus(response.getStatus());
-        httpResult.setBody(response.body());
+        String body = response.body();
+        httpResult.setBody(JSONUtil.isTypeJSON(body) ? JSONUtil.parse(body) : body);
         httpResult.setHeaders(response.headers());
         return httpResult;
     }

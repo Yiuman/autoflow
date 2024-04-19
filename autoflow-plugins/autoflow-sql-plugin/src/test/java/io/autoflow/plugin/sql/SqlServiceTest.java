@@ -20,7 +20,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -36,7 +36,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -51,7 +51,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -66,7 +66,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter);
+        ExecutionData execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 

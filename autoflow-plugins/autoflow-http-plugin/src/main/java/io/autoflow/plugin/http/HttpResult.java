@@ -12,6 +12,6 @@ import java.util.Map;
 @Data
 public class HttpResult {
     private int status;
-    private String body;
+    private Object body;
     private Map<String, List<String>> headers;
 }

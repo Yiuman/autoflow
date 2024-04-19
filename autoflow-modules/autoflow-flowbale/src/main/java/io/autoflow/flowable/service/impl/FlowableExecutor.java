@@ -8,7 +8,10 @@ import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.flowable.utils.Flows;
-import io.autoflow.spi.context.*;
+import io.autoflow.spi.context.Constants;
+import io.autoflow.spi.context.ExecutionContext;
+import io.autoflow.spi.context.FlowContextHolder;
+import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.model.ExecutionData;
 import lombok.RequiredArgsConstructor;
@@ -73,8 +76,7 @@ public class FlowableExecutor implements Executor {
                 return executionDataList;
             } else {
                 runOnceData.remove(Constants.INPUT_DATA);
-                OnceExecutionContext onceExecutionContext = OnceExecutionContext.create(runOnceData, inputData);
-                return List.of(service.execute(onceExecutionContext));
+                return List.of(service.execute(FlowExecutionContext.create(runOnceData, inputData)));
             }
 
         } catch (Throwable throwable) {

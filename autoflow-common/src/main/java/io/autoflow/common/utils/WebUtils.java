@@ -286,7 +286,7 @@ public final class WebUtils {
      * @param filename 文件名
      * @throws UnsupportedEncodingException 编码异常
      */
-    public static void addExportFilenameHeaders(HttpServletResponse response, String filename) throws UnsupportedEncodingException {
+    public static void addExportFilenameHeaders(HttpServletResponse response, String filename) {
         int lastPointIndex = filename.lastIndexOf(".");
         addExportFilenameHeaders(response, filename.substring(0, lastPointIndex), filename.substring(lastPointIndex + 1));
     }
