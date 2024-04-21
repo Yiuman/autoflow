@@ -97,8 +97,8 @@
             "sourceY": 317,
             "targetX": 649,
             "targetY": 299,
-            "sourcePointType": "output",
-            "targetPointType": "input"
+            "sourcePointType": "OUTPUT",
+            "targetPointType": "INPUT"
         },
         {
             "id": "vueflow__edge-wzZRQ2vfIF_TRUE-iXmGj4Ldinput",
@@ -109,7 +109,7 @@
             "targetX": 940,
             "targetY": 294,
             "sourcePointType": "IF_TRUE",
-            "targetPointType": "input",
+            "targetPointType": "INPUT",
             "expression": "${inputData['wzZRQ2vf'][0].json.result}"
         }
     ]

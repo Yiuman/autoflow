@@ -91,8 +91,8 @@ const [avatarNotFound, toggelAvatar] = useToggle(false)
 
     <div class="node_hanlde">
       <slot>
-        <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-        <Handle id="output" type="source" :position="Position.Right" :is-valid-connection="validConnection" />
+        <Handle id="INPUT" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
+        <Handle id="OUTPUT" type="source" :position="Position.Right" :is-valid-connection="validConnection" />
       </slot>
     </div>
 

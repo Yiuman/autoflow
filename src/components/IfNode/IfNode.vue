@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SeviceNode, { type Props } from '@/components/ServiceNode/SeviceNode.vue';
+import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue';
 import { Handle, Position } from '@vue-flow/core'
 import { validConnection } from '@/utils/flow'
 import {
@@ -11,7 +11,7 @@ const props = defineProps<Props>()
 </script>
 
 <template>
-  <SeviceNode class="if-node" v-bind="props" :actionClass="'none-action'">
+  <ServiceNode class="if-node" v-bind="props" :actionClass="'none-action'">
     <template #default>
       <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
       <Handle id="IF_TRUE" type="source" :position="Position.Top" :is-valid-connection="validConnection">
@@ -31,7 +31,7 @@ const props = defineProps<Props>()
         <IconCheckCircle class="node-status-sucess" v-else />
       </div>
     </template>
-  </SeviceNode>
+  </ServiceNode>
 </template>
 
 <style scoped lang="scss">
