@@ -32,6 +32,12 @@ class LiteFlowsTest {
     }
 
     @Test
+    public void testConvertComplexEl() {
+        Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("complex.json"), Flow.class);
+        log.info("\n" + LiteFlows.convertElStr(flow));
+    }
+
+    @Test
     public void testConvertSingleNodeEL() {
         Node node = new Node();
         node.setId("test_http_node");

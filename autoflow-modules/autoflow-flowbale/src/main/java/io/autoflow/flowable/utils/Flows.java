@@ -7,6 +7,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import io.autoflow.core.enums.PointType;
 import io.autoflow.core.model.*;
 import org.flowable.bpmn.BpmnAutoLayout;
 import org.flowable.bpmn.model.Process;
@@ -154,7 +155,7 @@ public final class Flows {
         if (CollUtil.isNotEmpty(flowConnections)) {
             List<Connection> connections = flowConnections.stream()
                     .filter(connection -> Objects.equals(node.getId(), connection.getSource())
-                            && Objects.equals("loop_each_item_loop_handle", connection.getSourcePointType()))
+                            && Objects.equals(PointType.LOOP_EACH, connection.getSourcePointType()))
                     .toList();
             loopConnections.addAll(connections);
             List<Node> loopEachItemNextNodes = connections.stream()
@@ -183,7 +184,7 @@ public final class Flows {
                     .forEach(connection -> connection.setTarget(subFlowId));
             flowConnections.stream().filter(
                             connection ->
-                                    Objects.equals(connection.getSourcePointType(), "loop_each_item_done_handle")
+                                    Objects.equals(connection.getSourcePointType(), PointType.LOOP_DONE)
                                             && connection.getSource().equals(node.getId())
                     )
                     .forEach(connection -> connection.setSource(subFlowId));

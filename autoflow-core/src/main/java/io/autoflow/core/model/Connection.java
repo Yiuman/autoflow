@@ -1,5 +1,6 @@
 package io.autoflow.core.model;
 
+import io.autoflow.core.enums.PointType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,11 +30,11 @@ public class Connection {
     /**
      * 连线起始点的类型
      */
-    private String sourcePointType;
+    private PointType sourcePointType;
     /**
      * 连线结束点的类型
      */
-    private String targetPointType;
+    private PointType targetPointType;
     /**
      * 源节点连接位置
      */

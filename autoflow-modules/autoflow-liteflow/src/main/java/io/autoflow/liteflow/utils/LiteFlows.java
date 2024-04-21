@@ -8,6 +8,7 @@ import cn.hutool.json.JSONUtil;
 import com.yomahub.liteflow.builder.LiteFlowNodeBuilder;
 import com.yomahub.liteflow.builder.el.*;
 import com.yomahub.liteflow.core.NodeComponent;
+import io.autoflow.core.enums.PointType;
 import io.autoflow.core.model.Connection;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
@@ -54,18 +55,7 @@ public final class LiteFlows {
         for (Node node : startNodes) {
             buildNode(node);
             if (NodeType.LOOP_EACH_ITEM == node.getType()) {
-                Flow subFlow = loopSubProcess(node, flow);
-                ELWrapper elWrapper = convertEl(subFlow);
-                String completionCondition = node.getLoop().getCompletionCondition();
-                if (StrUtil.isNotBlank(completionCondition)) {
-                    String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
-                    String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
-                    elWrapper = ELBus.ifOpt(
-                            ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition),
-                            elWrapper
-                    );
-                }
-                stepEl.add(createIteratorEL(node).doOpt(elWrapper));
+                stepEl.add(createIteratorEL(node, flow));
             } else if (NodeType.IF == node.getType()) {
                 if (CollUtil.isEmpty(flow.getConnections())) {
                     stepEl.add(createServiceNodeEL(node));
@@ -92,6 +82,41 @@ public final class LiteFlows {
         return stepEl.size() == 1 ? CollUtil.getFirst(stepEl) : ELBus.when(stepEl.toArray());
     }
 
+
+    private static ELWrapper createIteratorEL(Node node, Flow flow) {
+        Flow subFlow = loopSubProcess(node, flow);
+        ELWrapper elWrapper = convertEl(subFlow);
+        String completionCondition = node.getLoop().getCompletionCondition();
+        if (StrUtil.isNotBlank(completionCondition)) {
+            String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
+            String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
+            elWrapper = ELBus.ifOpt(
+                    ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition),
+                    elWrapper
+            );
+        }
+
+        List<Connection> connections = flow.getConnections().stream()
+                .filter(connection -> Objects.equals(connection.getSource(), subFlow.getId())
+                        && Objects.equals(PointType.LOOP_DONE, connection.getSourcePointType()))
+                .toList();
+
+        IteratorELWrapper iteratorELWrapper = createIteratorEL(node).doOpt(elWrapper);
+        List<Node> outgoers = flow.getOutgoers(subFlow.getId(), connections::contains);
+        if (CollUtil.isNotEmpty(outgoers)) {
+            String nextFlowId = "next_flow_" + node.getId();
+            Flow nextFlow = new Flow();
+            nextFlow.setId(nextFlowId);
+            nextFlow.setNodes(outgoers);
+            nextFlow.setConnections(getOutgoerConnections(flow, node, outgoers)
+                    .stream().filter(connection -> !connections.contains(connection))
+                    .toList());
+            return ELBus.then(iteratorELWrapper, convertEl(nextFlow));
+        } else {
+            return iteratorELWrapper;
+        }
+    }
+
     private static IteratorELWrapper createIteratorEL(Node node) {
         String loopNodeId = StrUtil.format("{}Loop", node.getId());
         String loopNodeDataId = StrUtil.format("{}LoopData", node.getId());
@@ -99,7 +124,6 @@ public final class LiteFlows {
                         ELBus.node(loopNodeId).data(loopNodeDataId, node.getLoop())
                 )
                 .parallel(!node.getLoop().getSequential());
-
     }
 
     private static void buildNode(Node node) {
@@ -137,7 +161,7 @@ public final class LiteFlows {
                 .filter(connection -> Objects.equals(connection.getSource(), node.getId()))
                 .toList();
         List<Connection> trueConnections = linkNextConnections.stream()
-                .filter(connection -> Objects.equals("IF_TRUE", connection.getSourcePointType()))
+                .filter(connection -> Objects.equals(PointType.IF_TRUE, connection.getSourcePointType()))
                 .toList();
         String trueFlowId = node.getId() + "trueFlow";
         List<Node> trueOutgoers = flow.getOutgoers(node.getId(), trueConnections::contains);
@@ -146,7 +170,8 @@ public final class LiteFlows {
         ifTrueFlow.setName(trueFlowId);
         ifTrueFlow.setNodes(trueOutgoers);
         ifTrueFlow.setConnections(getOutgoerConnections(flow, node, trueOutgoers));
-        List<Connection> falseConnections = linkNextConnections.stream().filter(connection -> !trueConnections.contains(connection))
+        List<Connection> falseConnections = linkNextConnections.stream()
+                .filter(connection -> !trueConnections.contains(connection))
                 .toList();
         List<Node> falseOutgoers = flow.getOutgoers(node.getId(), falseConnections::contains);
         String falseFlowId = node.getId() + "falseFlow";
@@ -207,7 +232,7 @@ public final class LiteFlows {
         if (CollUtil.isNotEmpty(flowConnections)) {
             List<Connection> connections = flowConnections.stream()
                     .filter(connection -> Objects.equals(node.getId(), connection.getSource())
-                            && Objects.equals("LOOP_EACH", connection.getSourcePointType()))
+                            && Objects.equals(PointType.LOOP_EACH, connection.getSourcePointType()))
                     .toList();
             loopConnections.addAll(connections);
             List<Node> loopEachItemNextNodes = connections.stream()
@@ -235,7 +260,7 @@ public final class LiteFlows {
                     .forEach(connection -> connection.setTarget(subFlowId));
             flowConnections.stream().filter(
                             connection ->
-                                    Objects.equals(connection.getSourcePointType(), "LOOP_DONE")
+                                    Objects.equals(connection.getSourcePointType(), PointType.LOOP_DONE)
                                             && connection.getSource().equals(node.getId())
                     )
                     .forEach(connection -> connection.setSource(subFlowId));
