@@ -94,17 +94,19 @@ const isAnd = computed({
         <template v-if="props.modelValue && modelValueChildren && modelValueChildren.length">
             <div class="condition-groups">
                 <div class="condition-clause-switch" v-if="modelValueChildren.length > 1">
-                    <ASwitch unchecked-color="coral" type="round" size="small" v-model="isAnd">
+                    <ASwitch unchecked-color="coral" type="round" v-model="isAnd">
                         <template #checked-icon>
                             <span>且</span>
-
                         </template>
                         <template #unchecked-icon>
                             <span style="color:black">或</span>
                         </template>
                     </ASwitch>
                     <div class="condition-clause-line"></div>
-
+                    <AButton v-if="modelValueChildren.length > 1" class="condition-group-add" @click="addGroup"
+                        size="mini">
+                        <IconPlus />
+                    </AButton>
                 </div>
                 <div class="condition-group-children">
                     <template :key="index" v-for="(child, index) in modelValueChildren">
@@ -115,9 +117,7 @@ const isAnd = computed({
 
 
             </div>
-            <AButton v-if="modelValueChildren.length > 1" class="condition-group-add" @click="addGroup" size="mini">
-                <IconPlus />
-            </AButton>
+
 
 
         </template>

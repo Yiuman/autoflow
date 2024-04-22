@@ -1,6 +1,7 @@
 .condition-groups {
     display: flex;
     width: 100%;
+    flex: 0 0 auto;
 
     .condition-clause-switch {
         position: relative;
@@ -29,13 +30,24 @@
     }
 }
 
+.condition-group-children{
+    width: 100%;
+}
+
 .condition-group-add {
-    left: -3px;
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .condition-filter {
-    padding: 4px 0;
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 5px 0;
+    flex: 0 0 auto;
 }
+
 
 .condition-filter-item {
     display: flex;

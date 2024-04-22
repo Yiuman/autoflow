@@ -74,6 +74,10 @@
     .node-form-model-desc {
         position: relative;
 
+        :deep(.arco-tabs){
+            height: 100%;
+        }
+
         .node-form-model-action-btn {
             position: absolute;
             z-index: 1;
@@ -102,7 +106,7 @@
     height: 100%;
 
     :deep(.arco-tabs-content) {
-        height: calc(100vh - 150px);
+        height: calc(100% - 50px);
         overflow: auto;
     }
 
