@@ -27,12 +27,17 @@ import java.util.stream.Collectors;
 public class IfService extends BaseService<IfParameter> {
 
     private static final BiFunction<ExecutionContext, Condition, String> DEFAULT_CALC_TYPE_FUNC = (ctc, condition)
-            -> StrUtil.format(
-            "{} {} {}",
-            ExpressUtils.convertCtxExpressStr(condition.getDataKey()),
-            condition.getCalcType().getSymbol(),
-            ExpressUtils.convertCtxExpressStr(condition.getValue())
-    );
+            -> {
+        if (Objects.isNull(condition.getDataKey()) && Objects.isNull(condition.getValue())) {
+            return null;
+        }
+        return StrUtil.format(
+                "{} {} {}",
+                ExpressUtils.convertCtxExpressStr(condition.getDataKey()),
+                condition.getCalcType().getSymbol(),
+                ExpressUtils.convertCtxExpressStr(condition.getValue()));
+
+    };
 
     private static final Map<CalcType, BiFunction<ExecutionContext, Condition, String>> CALC_TYPE_FUNC_MAP = new HashMap<>() {{
         put(CalcType.Express, (ctc, condition) -> ExpressUtils.convertCtxExpressStr(StrUtil.toString(condition.getValue())));
@@ -80,7 +85,9 @@ public class IfService extends BaseService<IfParameter> {
             List<String> conditionStrs = children.stream()
                     .map(child -> parseCondition(ctx, child)).toList();
             stringBuilder.append("(")
-                    .append(conditionStrs.stream().collect(Collectors.joining(Clause.AND == condition.getClause() ? " && " : " || ")))
+                    .append(conditionStrs.stream()
+                            .filter(StrUtil::isNotBlank)
+                            .collect(Collectors.joining(Clause.AND == condition.getClause() ? " && " : " || ")))
                     .append(")");
         }
         return stringBuilder.toString();

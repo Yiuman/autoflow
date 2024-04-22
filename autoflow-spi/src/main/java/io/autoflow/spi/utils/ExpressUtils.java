@@ -42,7 +42,7 @@ public final class ExpressUtils {
                 return String.format("JsonPathReadCtx(\"%s\")", strValue);
             }
         }
-
-        return StrUtil.toString(obj);
+        String objStr = StrUtil.toString(obj);
+        return StrUtil.isBlank(objStr) ? "\"\"" : objStr;
     }
 }

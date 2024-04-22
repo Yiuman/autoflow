@@ -39,7 +39,7 @@ public class ExecutionContextValueProvider extends BaseContextValueProvider {
         }
         return executionContext.getParameters()
                 .getOrDefault(
-                        key,
+                        (String) key,
                         executionContext.getVariables().get(key)
                 );
     }
