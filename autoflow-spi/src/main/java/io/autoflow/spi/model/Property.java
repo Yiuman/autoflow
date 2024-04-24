@@ -44,6 +44,10 @@ public interface Property {
      */
     Object getDefaultValue();
 
+    default List<ValidateRule> getValidateRules() {
+        return null;
+    }
+
     /**
      * 属性的选项
      *

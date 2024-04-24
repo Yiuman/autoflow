@@ -17,4 +17,5 @@ public class SimpleProperty implements Property {
     private Object defaultValue;
     private List<Option> options;
     private List<Property> properties;
+    private List<ValidateRule> validateRules;
 }
