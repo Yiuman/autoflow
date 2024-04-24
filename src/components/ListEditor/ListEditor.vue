@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import type { TableColumnData } from '@arco-design/web-vue';
 import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
+import { type VNodeChild } from 'vue'
 
-interface ListEditorProps {
-    columns: TableColumnData[]
+export interface CmpAttr {
+    cmp: VNodeChild,
+    attr?: Record<string, any>
+}
+
+export interface ListEditorProps {
+    columns: TableColumnData[],
+    columnCmp?: Record<string, CmpAttr>
     modelValue: Record<string, any>[]
 }
 
@@ -16,9 +23,9 @@ function newRecord(): Record<string, any> {
 }
 
 const props = withDefaults(defineProps<ListEditorProps>(), {
-    modelValue: (prop) => {
+    modelValue: (prop: { columns: any[]; }) => {
         const newObj: Record<string, any> = {};
-        prop.columns.forEach(column => {
+        prop.columns.forEach((column: { dataIndex: string; }) => {
             newObj[column.dataIndex as string] = ''
         })
         return [newObj]
@@ -72,6 +79,19 @@ function doEmitChange(record: Record<string, any>, val: string) {
     emits('change', record, val);
 }
 
+function getColumnComponent(dataIndex: string): VNodeChild {
+    if (!props.columnCmp || !props.columnCmp[dataIndex]) {
+        return 'AInput'
+    }
+    return props.columnCmp[dataIndex].cmp;
+}
+
+function getBindAttr(dataIndex: string): Record<string, any> | undefined {
+    if (!props.columnCmp || !props.columnCmp[dataIndex]) {
+        return undefined
+    }
+    return props.columnCmp[dataIndex].attr;
+}
 </script>
 
 <template>
@@ -81,8 +101,12 @@ function doEmitChange(record: Record<string, any>, val: string) {
                 <ATableColumn v-for="column in columns" :key="column.dataIndex" align="center"
                     :title="getColumnTitle(column)" cellClass="list-editor-cell ">
                     <template #cell="{ record }">
-                        <AInput @change="(val) => doEmitChange(record, val)"
+                        <Component :is="getColumnComponent(column.dataIndex as string)"
+                            v-bind="getBindAttr(column.dataIndex as string)"
+                            @change="(val: any) => doEmitChange(record, val)"
                             v-model="record[getColumnDataIndex(column)]" />
+                        <!-- <AInput @change="(val) => doEmitChange(record, val)"
+                            v-model="record[getColumnDataIndex(column)]" /> -->
                     </template>
                 </ATableColumn>
                 <ATableColumn align="center" title="" cellClass="list-editor-cell map-editor-opt-cell">
