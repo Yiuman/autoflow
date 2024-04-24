@@ -32,8 +32,9 @@ public final class PropertyUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Property> buildProperty(Class<?> clazz) {
+    public static <T> List<Property> buildProperty(Class<T> clazz) {
         List<Property> properties = new ArrayList<>();
+        T defaultInstance = ReflectUtil.newInstanceIfPossible(clazz);
         Field[] fields = ReflectUtil.getFields(clazz, field -> !Modifier.isFinal(field.getModifiers()));
         BeanDescriptor constraintsForClass = VALIDATORFACTORY.getValidator().getConstraintsForClass(clazz);
         for (Field field : fields) {
@@ -62,6 +63,7 @@ public final class PropertyUtils {
 
             }
 
+            simpleProperty.setDefaultValue(ReflectUtil.getFieldValue(defaultInstance, field));
             simpleProperty.setValidateRules(buildValidateRules(field, constraintsForClass));
             properties.add(simpleProperty);
         }

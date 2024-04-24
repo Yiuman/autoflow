@@ -23,15 +23,14 @@ public class OpenAIService extends BaseService<OpenAIParameter> {
 
     @Override
     public ExecutionData execute(OpenAIParameter openAIParameter, ExecutionContext executionContext) {
-        var openAiApi = new OpenAiApi(openAIParameter.getOpenaiApiKey());
-
-        var chatClient = new OpenAiChatClient(openAiApi, OpenAiChatOptions.builder()
-                .withModel("gpt-35-turbo")
+        OpenAiApi openAiApi = new OpenAiApi(openAIParameter.getBaseUrl(), openAIParameter.getOpenaiApiKey());
+        OpenAiChatClient openAiChatClient = new OpenAiChatClient(openAiApi, OpenAiChatOptions.builder()
+                .withModel(openAIParameter.getModel())
                 .withTemperature(0.4f)
                 .withMaxTokens(200)
                 .build());
 
-        ChatResponse response = chatClient.call(new Prompt("Generate the names of 5 famous pirates."));
+        ChatResponse response = openAiChatClient.call(new Prompt("Generate the names of 5 famous pirates."));
         return ExecutionData.builder().json(JSONUtil.parse(response)).build();
     }
 }
