@@ -19,6 +19,7 @@
         <module>autoflow-sql-plugin</module>
         <module>autoflow-if-plugin</module>
         <module>autoflow-loop-each-item-plugin</module>
+        <module>autoflow-openai-plugin</module>
     </modules>
 
     <properties>
