@@ -97,4 +97,15 @@ function flatten(data: Object): Record<string, any> {
 };
 
 
-export { uuid, randomRgb, randomRgba, getOS, flatten }
+const ScriptHelper = {
+  execute(scriptStr: string, options: unknown): unknown {
+    return Function('"use strict";return (' + scriptStr + ')')()(options);
+  },
+  executeEl(callObject: unknown, logicStr: string): unknown {
+    return Function('"use strict";return (function(){ return ' + logicStr + '})')().call(
+      callObject,
+    );
+  },
+};
+
+export { uuid, randomRgb, randomRgba, getOS, flatten, ScriptHelper }
