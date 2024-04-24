@@ -142,7 +142,7 @@ watchEffect(() => {
 function getDefaultList(property: Property) {
   const newObj: Record<string, any> = {};
   property.properties?.forEach(child => {
-    newObj[child.name as string] = ''
+    newObj[child.name as string] = child.defaultValue || ''
   })
   return [newObj]
 }
