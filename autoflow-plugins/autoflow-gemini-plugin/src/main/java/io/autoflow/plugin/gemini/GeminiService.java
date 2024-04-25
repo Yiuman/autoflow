@@ -7,14 +7,9 @@ import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.ExecutionData;
 import org.springframework.ai.chat.ChatResponse;
-import org.springframework.ai.chat.messages.ChatMessage;
-import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatClient;
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatOptions;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author yiuman
@@ -33,10 +28,7 @@ public class GeminiService extends BaseService<GeminiParameter> {
         VertexAiGeminiChatOptions vertexAiGeminiChatOptions = new VertexAiGeminiChatOptions();
         BeanUtil.copyProperties(geminiParameter, vertexAiGeminiChatOptions);
         VertexAiGeminiChatClient vertexAiGeminiChatClient = new VertexAiGeminiChatClient(vertexApi, vertexAiGeminiChatOptions);
-        List<Message> messages = geminiParameter.getMessages().stream()
-                .map(message -> new ChatMessage(message.getMessageType(), message.getContent()))
-                .collect(Collectors.toList());
-        ChatResponse response = vertexAiGeminiChatClient.call(new Prompt(messages));
+        ChatResponse response = vertexAiGeminiChatClient.call(new Prompt(geminiParameter.getMessage()));
         return ExecutionData.builder().json(JSONUtil.parse(response)).build();
     }
 }

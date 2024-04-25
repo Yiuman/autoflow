@@ -34,6 +34,6 @@ public class GeminiParameter {
     private Float topK;
     private Integer candidateCount;
     private Integer maxOutputTokens;
-    @NotEmpty
-    private List<Message> messages;
+    @NotBlank
+    private String message;
 }
