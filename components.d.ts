@@ -35,6 +35,7 @@ declare module 'vue' {
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     ATag: typeof import('@arco-design/web-vue')['Tag']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
+    BasicTypeListEditor: typeof import('./src/components/BasicTypeListEditor/BasicTypeListEditor.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
     ConditionItem: typeof import('./src/components/ConditionFilter/ConditionItem.vue')['default']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']

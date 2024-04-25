@@ -1,4 +1,5 @@
 import type { Node as VueFlowCordNode } from '@vue-flow/core'
+import type { Component } from 'vue'
 interface Flow {
   id: string
   name: string
@@ -68,6 +69,7 @@ interface Property {
   defaultValue?: any | null
   options?: Option[] | null
   properties?: Property[] | null
+  validateRules?: ValidateRule[] | null
 }
 
 interface Service {
@@ -78,7 +80,23 @@ interface Service {
   avatar?: string | null
 }
 
+interface ValidateRule {
+  field: string,
+  required?: boolean
+  message?: string,
+  fieldType?: string,
+  script?: string,
+  validateType?: string,
+  attributes: Record<string, any>
+}
+
+interface ComponentAttr {
+  property: Property
+  cmp: Component | string,
+  attrs?: Record<string, any>,
+}
+
 export type NodeElementData = ToolBarData & Record<string, ElementData>
 export type VueFlowNode = VueFlowCordNode<NodeElementData>
 
-export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError, Property, Service, Loop }
+export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError, Property, Service, Loop, ValidateRule, ComponentAttr }

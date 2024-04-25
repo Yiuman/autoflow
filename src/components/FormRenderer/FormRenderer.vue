@@ -1,38 +1,15 @@
 <script setup lang="ts">
-import MapEditor from '@/components/MapEditor/MapEditor.vue'
-import ListEditor, { type CmpAttr } from '@/components/ListEditor/ListEditor.vue'
-import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
-import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 import { ScriptHelper } from '@/utils/util-func'
 import type { FieldRule } from '@arco-design/web-vue/es/form/interface'
-import type { TableColumnData } from '@arco-design/web-vue'
+
+import type { Property, ComponentAttr } from '@/types/flow'
+import { toComponentAttrs } from '@/utils/converter'
 
 
 export interface Option {
   name: string
   value: Object
   description?: string | null
-}
-
-export interface ValidateRule {
-  field: string,
-  required?: boolean
-  message?: string,
-  fieldType?: string,
-  script?: string,
-  validateType?: string,
-  attributes: Record<string, any>
-}
-
-export interface Property {
-  type: string
-  name: string
-  displayName?: string | null
-  description?: string | null
-  defaultValue?: any | null
-  options?: Option[] | null
-  properties?: Property[] | null
-  validateRules?: ValidateRule[] | null
 }
 
 export interface FormProps {
@@ -58,49 +35,8 @@ const form = computed<any>({
   }
 })
 
-function getComponentName(property: Property) {
-  if (property.type === 'Condition') {
-    return ConditionFilter
-  }
-  if (!property.type || property.type == 'String') {
-    return ExpressInput;
-  }
 
-  if (property.options) {
-    return 'ASelect'
-  }
-
-  if (property.type === 'Map') {
-    return MapEditor
-  }
-
-  if (property.type === 'List' || property.type === 'Set') {
-    return ListEditor;
-  }
-
-  return ExpressInput
-}
-
-function getBindAttr(property: Property) {
-  if (property.type === 'List' || property.type === 'Set') {
-    const columns: TableColumnData[] = [];
-    const columnCmp: Record<string, CmpAttr> = {}
-    property.properties?.forEach(child => {
-      columns.push({
-        title: child.displayName || child.name,
-        dataIndex: child.name
-      })
-
-      const childBindAttr = getBindAttr(child);
-      columnCmp[child.name] = { cmp: getComponentName(child) as string, attr: childBindAttr }
-
-    })
-
-    return { columns, columnCmp };
-  }
-  return property;
-}
-
+// ------------------- 表单校验规则处理 -------------------
 const rules = computed(() => {
   if (!props.properties) {
     return {};
@@ -133,6 +69,7 @@ const rules = computed(() => {
   return validateRules;
 })
 
+//------------------- 默认值处理  -------------------
 watchEffect(() => {
   props.properties?.forEach(property => {
     setDefaultValue(props.modelValue, property)
@@ -140,6 +77,9 @@ watchEffect(() => {
 })
 
 function getDefaultList(property: Property) {
+  if (property.properties?.length == 1) {
+    return [''];
+  }
   const newObj: Record<string, any> = {};
   property.properties?.forEach(child => {
     newObj[child.name as string] = ''
@@ -156,17 +96,24 @@ function setDefaultValue(form: Record<string, any> | undefined, property: Proper
   }
 }
 
+const componentAttrs = computed<ComponentAttr[]>(() => {
+  return toComponentAttrs(props.properties as Property[])
+})
+
 
 </script>
 <template>
   <div class="from-renderer">
     <AForm :model="form" :layout="props.layout" :rules="rules">
-      <AFormItem v-for="property in properties" v-bind:key="property.name" :field="property.name"
-        :label="property.displayName || property.name" :tooltip="property.description || undefined">
-        <Component :is="getComponentName(property)" v-model="form[property.name]" v-bind="getBindAttr(property)" />
+      <AFormItem v-for="cmpAttr in componentAttrs" v-bind:key="cmpAttr.property.name" :field="cmpAttr.property.name"
+        :label="cmpAttr.property.displayName || cmpAttr.property.name"
+        :tooltip="cmpAttr.property.description || undefined">
+        <Component :is="cmpAttr.cmp" v-model="form[cmpAttr.property.name]" v-bind="cmpAttr.attrs" />
       </AFormItem>
     </AForm>
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import 'form-renderer'
+</style>
