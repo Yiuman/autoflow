@@ -17,11 +17,12 @@ import java.util.List;
 public class GeminiParameter {
     @NotBlank
     private String projectId;
+    @OptionValues({"us-central1", "us-east1", "europe-west4", "asia-east1"})
     @NotBlank
-    private String location;
+    private String location = "us-central1";
     @NotBlank
-    @OptionValues({"standard", "creative", "informative", "roleplay", "collaborative"})
-    private String model = "standard";
+    @OptionValues({"gemini-pro", "gemini-pro-vision", "gemini-ultra", "gemini-ultra-vision"})
+    private String model = "gemini-pro";
     private List<String> stopSequences;
     @DecimalMin("0")
     @DecimalMax("1")
