@@ -1,17 +1,14 @@
 <script setup lang="ts">
+import type { ComponentAttr } from '@/types/flow';
 import type { TableColumnData } from '@arco-design/web-vue';
 import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
-import { type VNodeChild } from 'vue'
-
-export interface CmpAttr {
-    cmp: VNodeChild,
-    attr?: Record<string, any>
-}
+import type { Component } from 'vue';
 
 export interface ListEditorProps {
     columns: TableColumnData[],
-    columnCmp?: Record<string, CmpAttr>
-    modelValue: Record<string, any>[]
+    columnCmp?: Record<string, ComponentAttr>,
+    modelValue: Record<string, any>[],
+    showHeader?: boolean
 }
 
 function newRecord(): Record<string, any> {
@@ -29,7 +26,8 @@ const props = withDefaults(defineProps<ListEditorProps>(), {
             newObj[column.dataIndex as string] = ''
         })
         return [newObj]
-    }
+    },
+    showHeader: true
 });
 const emits = defineEmits<{
     (e: 'update:modelValue', item: Record<string, any>[]): void
@@ -79,7 +77,7 @@ function doEmitChange(record: Record<string, any>, val: string) {
     emits('change', record, val);
 }
 
-function getColumnComponent(dataIndex: string): VNodeChild {
+function getColumnComponent(dataIndex: string): Component | string {
     if (!props.columnCmp || !props.columnCmp[dataIndex]) {
         return 'AInput'
     }
@@ -90,13 +88,13 @@ function getBindAttr(dataIndex: string): Record<string, any> | undefined {
     if (!props.columnCmp || !props.columnCmp[dataIndex]) {
         return undefined
     }
-    return props.columnCmp[dataIndex].attr;
+    return props.columnCmp[dataIndex].attrs;
 }
 </script>
 
 <template>
     <div class="list-editor">
-        <ATable :data="data" size="mini" :pagination="false" :stripe="true">
+        <ATable :data="data" size="mini" :pagination="false" :show-header="showHeader" :stripe="true">
             <template #columns>
                 <ATableColumn v-for="column in columns" :key="column.dataIndex" align="center"
                     :title="getColumnTitle(column)" cellClass="list-editor-cell ">
