@@ -26,7 +26,7 @@
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 
         <hutool.version>5.8.27</hutool.version>
-        <spring-boot.version>3.1.1</spring-boot.version>
+        <spring-boot.version>3.2.5</spring-boot.version>
         <lombok.version>1.18.24</lombok.version>
         <typesafe-config.version>1.4.2</typesafe-config.version>
         <qlexpress.version>3.3.1</qlexpress.version>
@@ -60,7 +60,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.1.1</version>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

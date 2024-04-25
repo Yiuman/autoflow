@@ -35,7 +35,7 @@ public class ServiceController {
     }
 
     @GetMapping("/image/{serviceId}")
-    public void svg(@PathVariable String serviceId, HttpServletResponse httpServletResponse) throws IOException {
+    public void svg(@PathVariable("serviceId") String serviceId, HttpServletResponse httpServletResponse) throws IOException {
         if (!SERVICE_SVG_CACHE.containsKey(serviceId)) {
             try {
                 SERVICE_SVG_CACHE.put(serviceId, ResourceUtil.readBytes(StrUtil.format("{}.svg", serviceId)));

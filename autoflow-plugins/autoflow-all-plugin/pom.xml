@@ -54,5 +54,11 @@
             <artifactId>autoflow-openai-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-gemini-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

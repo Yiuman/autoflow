@@ -22,11 +22,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>io.autoflow</groupId>-->
-        <!--            <artifactId>autoflow-flowbale</artifactId>-->
-        <!--            <version>${revision}</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>com.yomahub</groupId>
             <artifactId>liteflow-spring-boot-starter</artifactId>

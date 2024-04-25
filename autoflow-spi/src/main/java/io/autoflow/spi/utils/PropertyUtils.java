@@ -1,13 +1,12 @@
 package io.autoflow.spi.utils;
 
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.TypeUtil;
-import io.autoflow.spi.model.Option;
-import io.autoflow.spi.model.Property;
-import io.autoflow.spi.model.SimpleProperty;
-import io.autoflow.spi.model.ValidateRule;
+import cn.hutool.json.JSONUtil;
+import io.autoflow.spi.model.*;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
@@ -31,7 +30,6 @@ public final class PropertyUtils {
     private PropertyUtils() {
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> List<Property> buildProperty(Class<T> clazz) {
         List<Property> properties = new ArrayList<>();
         T defaultInstance = ReflectUtil.newInstanceIfPossible(clazz);
@@ -43,20 +41,18 @@ public final class PropertyUtils {
             SimpleProperty simpleProperty = new SimpleProperty();
             simpleProperty.setName(field.getName());
             simpleProperty.setType(typeClass.getSimpleName());
-            if (typeClass.isEnum()) {
-                List<String> names = EnumUtil.getNames((Class<? extends Enum<?>>) type);
-                List<Option> options = names.stream().map(enumName -> {
-                    Option option = new Option();
-                    option.setName(enumName);
-                    option.setValue(enumName);
-                    return option;
-                }).collect(Collectors.toList());
-                simpleProperty.setOptions(options);
-            }
+            simpleProperty.setOptions(buildFieldOptions(field));
+
             if (!ClassUtil.isSimpleValueType(typeClass) && !Map.class.isAssignableFrom(typeClass)) {
                 if (Collection.class.isAssignableFrom(typeClass)) {
                     Type[] typeArguments = TypeUtil.getTypeArguments(type);
-                    simpleProperty.setProperties(buildProperty(TypeUtil.getClass(typeArguments[0])));
+                    Class<?> childType = TypeUtil.getClass(typeArguments[0]);
+                    if (!ClassUtil.isSimpleTypeOrArray(childType)) {
+                        simpleProperty.setProperties(buildProperty(childType));
+                    } else {
+                        simpleProperty.setProperties(List.of(SimpleProperty.basicType(childType)));
+                    }
+
                 } else {
                     simpleProperty.setProperties(buildProperty(typeClass));
                 }
@@ -68,6 +64,38 @@ public final class PropertyUtils {
             properties.add(simpleProperty);
         }
         return properties;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Option> buildFieldOptions(Field field) {
+        Class<?> typeClass = field.getType();
+        if (typeClass.isEnum()) {
+            List<String> names = EnumUtil.getNames((Class<? extends Enum<?>>) typeClass);
+            return names.stream().map(enumName -> {
+                Option option = new Option();
+                option.setName(enumName);
+                option.setValue(enumName);
+                return option;
+            }).collect(Collectors.toList());
+        }
+
+        OptionValues annotation = AnnotationUtil.getAnnotation(field, OptionValues.class);
+        if (Objects.nonNull(annotation)) {
+            String[] value = annotation.value();
+            return Arrays.stream(value).map(valueStr -> {
+                Option option;
+                try {
+                    option = JSONUtil.toBean(valueStr, Option.class);
+                } catch (Throwable throwable) {
+                    option = new Option();
+                    option.setName(valueStr);
+                    option.setValue(valueStr);
+                }
+
+                return option;
+            }).collect(Collectors.toList());
+        }
+        return null;
     }
 
     public static List<ValidateRule> buildValidateRules(Field field, BeanDescriptor constraintsForClass) {

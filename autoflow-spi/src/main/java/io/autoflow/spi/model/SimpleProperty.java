@@ -18,4 +18,10 @@ public class SimpleProperty implements Property {
     private List<Option> options;
     private List<Property> properties;
     private List<ValidateRule> validateRules;
+
+    public static SimpleProperty basicType(Class<?> basicType) {
+        SimpleProperty simpleProperty = new SimpleProperty();
+        simpleProperty.setType(basicType.getTypeName());
+        return simpleProperty;
+    }
 }
