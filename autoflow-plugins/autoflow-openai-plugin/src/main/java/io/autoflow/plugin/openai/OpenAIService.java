@@ -1,11 +1,14 @@
 package io.autoflow.plugin.openai;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.ExecutionData;
 import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ChatMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -29,6 +32,7 @@ public class OpenAIService extends BaseService<OpenAIParameter> {
 
     @Override
     public ExecutionData execute(OpenAIParameter openAIParameter, ExecutionContext executionContext) {
+        openAIParameter.setStop(CollUtil.filter(openAIParameter.getStop(), StrUtil::isNotBlank));
         OpenAiApi openAiApi = new OpenAiApi(openAIParameter.getBaseUrl(), openAIParameter.getOpenaiApiKey());
         OpenAiChatOptions openAiChatOptions = new OpenAiChatOptions();
         BeanUtil.copyProperties(openAIParameter, openAiChatOptions);
@@ -37,7 +41,16 @@ public class OpenAIService extends BaseService<OpenAIParameter> {
                 .map(message -> new ChatMessage(message.getMessageType(), message.getContent()))
                 .collect(Collectors.toList());
         ChatResponse response = openAiChatClient.call(new Prompt(list));
-        return ExecutionData.builder().json(JSONUtil.parse(response)).build();
+        AssistantMessage output = response.getResult().getOutput();
+        ChatResult chatResult = new ChatResult(
+                output.getMessageType(),
+                output.getProperties(),
+                output.getContent()
+        );
+        return ExecutionData.builder()
+                .json(JSONUtil.parse(chatResult))
+                .raw(chatResult.getTextContent())
+                .build();
     }
 
 }

@@ -1,13 +1,8 @@
 package io.autoflow.plugin.gemini;
 
 import io.autoflow.spi.model.OptionValues;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * @author yiuman
@@ -16,25 +11,12 @@ import java.util.List;
 @Data
 public class GeminiParameter {
     @NotBlank
-    private String projectId;
-    @OptionValues({"us-central1", "us-east1", "europe-west4", "asia-east1"})
+    private String baseUrl = "https://generativelanguage.googleapis.com";
     @NotBlank
-    private String location = "us-central1";
+    private String apiKey;
     @NotBlank
     @OptionValues({"gemini-pro", "gemini-pro-vision", "gemini-ultra", "gemini-ultra-vision"})
     private String model = "gemini-pro";
-    private List<String> stopSequences;
-    @DecimalMin("0")
-    @DecimalMax("1")
-    private Float temperature;
-    @DecimalMin("0")
-    @DecimalMax("1")
-    private Float topP = 1f;
-    @DecimalMin("0")
-    @DecimalMax("1")
-    private Float topK;
-    private Integer candidateCount;
-    private Integer maxOutputTokens;
     @NotBlank
     private String message;
 }
