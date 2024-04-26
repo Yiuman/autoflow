@@ -203,13 +203,13 @@ watch(props.modelValue, () => {
             <ATabs v-if="inputData">
               <template v-for="executeDataKey in Object.keys(inputData)" :key="executeDataKey">
                 <ATabPane v-if="inputData[executeDataKey]" :title="executeDataKey" :key="executeDataKey">
-                  <VueJsonPretty
+                  <VueJsonPretty class="input-json"
                     v-if="inputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
                     :data="inputData[executeDataKey]" :show-icon="true" />
-                  <div v-else-if="isHtml(inputData[executeDataKey])">
+                  <div class="input-html" v-else-if="isHtml(inputData[executeDataKey])">
                     <Codemirror v-model="inputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
                   </div>
-                  <div v-else>{{ inputData[executeDataKey] }}</div>
+                  <MdPreview v-else class="input-raw" :modelValue="inputData[executeDataKey]" />
                 </ATabPane>
               </template>
             </ATabs>
@@ -252,13 +252,13 @@ watch(props.modelValue, () => {
             <ATabs v-if="outputData">
               <template v-for="executeDataKey in Object.keys(outputData)" :key="executeDataKey">
                 <ATabPane v-if="outputData[executeDataKey]" :title="executeDataKey" :key="executeDataKey">
-                  <VueJsonPretty
+                  <VueJsonPretty class="output-json"
                     v-if="outputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
                     :data="outputData[executeDataKey]" :show-icon="true" />
-                  <div v-else-if="isHtml(outputData[executeDataKey])">
+                  <div class="output-html" v-else-if="isHtml(outputData[executeDataKey])">
                     <Codemirror v-model="outputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
                   </div>
-                  <div v-else>{{ outputData[executeDataKey] }}</div>
+                  <MdPreview v-else class="output-raw" :modelValue="outputData[executeDataKey]" />
                 </ATabPane>
               </template>
 

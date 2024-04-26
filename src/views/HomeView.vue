@@ -1,7 +1,19 @@
 <script lang="ts" setup>
-import FlowDesigner from '@/views/FlowDesigner/FlowDesigner.vue'
 </script>
 
 <template>
-  <FlowDesigner />
+  <ALayout style="height:100%">
+    <ALayoutSider  collapsible>
+      
+      <AMenu>
+        <AMenuItem>Workflows</AMenuItem>
+        <AMenuItem>Plugins</AMenuItem>
+        <AMenuItem>Templates</AMenuItem>
+        <AMenuItem>Variables</AMenuItem>
+      </AMenu>
+    </ALayoutSider>
+    <ALayoutContent>
+      <RouterView />
+    </ALayoutContent>
+  </ALayout>
 </template>
