@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ListEditor from '@/components/ListEditor/ListEditor.vue'
+
 interface MapEditorProps {
     modelValue: KeyValue[]
 }

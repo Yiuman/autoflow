@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { ElementData, NodeProps, CustomEvent } from '@vue-flow/core'
+import type { CustomEvent, ElementData, NodeProps } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import { validConnection } from '@/utils/flow'
 import {
+  IconCheckCircle,
   IconDelete,
-  IconPlayCircleFill,
-  IconPauseCircleFill,
   IconEdit,
   IconExclamationCircle,
-  IconCheckCircle
+  IconPauseCircleFill,
+  IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
-import { useEnv } from "@/hooks/env";
+import { useEnv } from '@/hooks/env'
 
 const { VITE_BASE_URL } = useEnv();
 const { removeNodes, updateNodeData } = useVueFlow()
@@ -101,5 +101,5 @@ const [avatarNotFound, toggelAvatar] = useToggle(false)
 
 <style scoped lang="scss">
 @import 'node';
-@import '../../assets/action.scss'
+@import '../../assets/action.scss';
 </style>

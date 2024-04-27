@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, type Ref } from 'vue';
+import { computed, inject, type Ref } from 'vue'
 import { INPUT_DATA_FLAT } from '@/symbols'
 import { useVueFlow } from '@vue-flow/core'
 import { debounce } from 'lodash'
@@ -27,7 +27,7 @@ const data = computed({
 //----------------------- 处理提及  --------------------------------
 const inputDataFlat = inject<Ref<Record<string, any>>>(INPUT_DATA_FLAT);
 const prefix = "$."
-const expressRegexStr = /^\$\{(.*)\}$/;
+const expressRegexStr = /^\$\{(.*)}$/
 
 const inputDataKeys = computed(() => {
     return Object.keys(inputDataFlat?.value || {});
@@ -54,7 +54,7 @@ function handleSearch(value: string, prefix: string) {
 }
 
 
-const nodeIdRegex = /inputData\.(.+?)[\\.\\[]/;
+const nodeIdRegex = /inputData\.(.+?)[\\.[]/
 const descData = computed(() => {
     const dataValue = data.value;
     const nodeIdMatch = dataValue?.match(nodeIdRegex);

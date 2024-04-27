@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue';
+import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
 import { Handle, Position } from '@vue-flow/core'
 import { validConnection } from '@/utils/flow'
-import {
-  IconExclamationCircle,
-  IconCheckCircle
-} from '@arco-design/web-vue/es/icon'
+import { IconCheckCircle, IconExclamationCircle } from '@arco-design/web-vue/es/icon'
+
 const props = defineProps<Props>()
 
 </script>
@@ -36,5 +34,5 @@ const props = defineProps<Props>()
 
 <style scoped lang="scss">
 @import 'if-node';
-@import '../../assets/action.scss'
+@import '../../assets/action.scss';
 </style>

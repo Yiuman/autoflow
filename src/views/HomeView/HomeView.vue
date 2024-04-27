@@ -3,8 +3,13 @@
 
 <template>
   <ALayout style="height:100%">
+
     <ALayoutSider  collapsible>
-      
+      <div class="logo">
+        Autoflow
+      </div>
+
+
       <AMenu>
         <AMenuItem>Workflows</AMenuItem>
         <AMenuItem>Plugins</AMenuItem>
@@ -17,3 +22,7 @@
     </ALayoutContent>
   </ALayout>
 </template>
+
+<style scoped lang="scss">
+@import "home-view";
+</style>

@@ -30,7 +30,7 @@ watch(commandK, () => {
     showSearchModal.value = true;
 })
 
-function toggelSearchModal() {
+function toggleSearchModal() {
     showSearchModal.value = !showSearchModal.value
 }
 
@@ -53,7 +53,7 @@ window.addEventListener("keydown", (e) => {
 </script>
 
 <template>
-    <div class="search-modal" :style="{ width: '200px' }" @click="() => toggelSearchModal()">
+    <div class="search-modal" :style="{ width: '200px' }" @click="() => toggleSearchModal()">
         <AInput :placeholder="placeholder" @focus.stop="">
             <template #prefix>
                 <IconSearch />

@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import FromRenderer from '@/components/FormRenderer/FormRenderer.vue';
+import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
 import type { Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
-import {
-  IconCloseCircleFill,
-  IconPlayCircleFill,
-  IconPauseCircleFill
-} from '@arco-design/web-vue/es/icon'
-import { MdPreview } from 'md-editor-v3';
+import { IconCloseCircleFill, IconPauseCircleFill, IconPlayCircleFill } from '@arco-design/web-vue/es/icon'
+import { MdPreview } from 'md-editor-v3'
 import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
-import 'md-editor-v3/lib/style.css';
-import { Splitpanes, Pane } from 'splitpanes'
+import 'md-editor-v3/lib/style.css'
+import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-import VueJsonPretty from 'vue-json-pretty';
-import 'vue-json-pretty/lib/styles.css';
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
 import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
-import { getAllIncomers } from '@/utils/converter';
-import { groupBy } from 'lodash';
-import { INCOMMER, CURRENT_NODE, INPUT_DATA_FLAT } from '@/symbols';
+import { getAllIncomers } from '@/utils/converter'
+import { groupBy } from 'lodash'
+import { CURRENT_NODE, INCOMER, INPUT_DATA_FLAT } from '@/symbols'
 import { flatten } from '@/utils/util-func'
 
 
@@ -96,7 +92,7 @@ const selectedNode = computed(() => {
 
 //提供当前的有用变量
 provide(CURRENT_NODE, props.modelValue);
-provide(INCOMMER, incomers);
+provide(INCOMER, incomers)
 const inputDataFlat = computed(() => {
   if (incomers) {
     const nodeExecutionData: Record<string, any> = {};

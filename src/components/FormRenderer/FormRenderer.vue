@@ -2,15 +2,9 @@
 import { ScriptHelper } from '@/utils/util-func'
 import type { FieldRule } from '@arco-design/web-vue/es/form/interface'
 
-import type { Property, ComponentAttr } from '@/types/flow'
+import type { ComponentAttr, Property } from '@/types/flow'
 import { toComponentAttrs } from '@/utils/converter'
 
-
-export interface Option {
-  name: string
-  value: Object
-  description?: string | null
-}
 
 export interface FormProps {
   modelValue?: Record<string, any>
@@ -44,7 +38,7 @@ const rules = computed(() => {
   const validateRules: Record<string, FieldRule[]> = {}
   props.properties.forEach(child => {
     if (child.validateRules) {
-      const fieldRules: FieldRule[] = child.validateRules.map(validateRule => {
+      validateRules[child.name] = child.validateRules.map(validateRule => {
         const fieldRule: FieldRule = {
           required: validateRule.required,
           message: validateRule.message,
@@ -62,8 +56,7 @@ const rules = computed(() => {
 
         return fieldRule;
 
-      })
-      validateRules[child.name] = fieldRules;
+      });
     }
   })
   return validateRules;
@@ -115,5 +108,5 @@ const componentAttrs = computed<ComponentAttr[]>(() => {
 </template>
 
 <style scoped lang="scss">
-@import 'form-renderer'
+@import 'form-renderer';
 </style>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Clause, type Condition, CalcType } from './condition-filter';
+import { CalcType, Clause, type Condition } from './condition-filter'
+import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
+
 interface PropType {
     modelValue?: Condition
 }
@@ -56,5 +58,5 @@ const modelValue = computed({
 </template>
 
 <style scoped lang="scss">
-@import 'condition-item'
+@import 'condition-item';
 </style>

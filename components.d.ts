@@ -54,6 +54,5 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
     ServiceNode: typeof import('./src/components/ServiceNode/ServiceNode.vue')['default']
-    SeviceNode: typeof import('./src/components/ServiceNode/SeviceNode.vue')['default']
   }
 }

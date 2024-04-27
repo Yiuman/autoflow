@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue';
+import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
 import { Handle, Position } from '@vue-flow/core'
 import { validConnection } from '@/utils/flow'
+
 const props = defineProps<Props>()
 </script>
 
@@ -19,5 +20,5 @@ const props = defineProps<Props>()
 
 <style scoped lang="scss">
 @import 'loop-each-item';
-@import '../../assets/action.scss'
+@import '../../assets/action.scss';
 </style>
