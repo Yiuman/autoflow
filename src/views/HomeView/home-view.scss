@@ -1,6 +1,30 @@
-.logo {
+.logo-wrap {
+  width: 100%;
   display: flex;
+  align-items: center;
+  font-size: 30px;
 
-  svg {
+  .logo {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--color-border);
+
+    span {
+      margin: 0 3px;
+      background-color: coral;
+      border-radius: 5px;
+      padding: 0 5px;
+    }
+
+  }
+}
+
+.sider-bottom {
+  position: absolute;
+  bottom: 0;
+
+  :deep(.collapsed-btn) {
+    width: 48px
   }
 }
