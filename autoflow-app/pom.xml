@@ -22,6 +22,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.ola</groupId>
+            <artifactId>ola-security-starter</artifactId>
+            <version>${ola.vision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ola</groupId>
+            <artifactId>ola-rbac-impl</artifactId>
+            <version>${ola.vision}</version>
+        </dependency>
         <dependency>
             <groupId>com.yomahub</groupId>
             <artifactId>liteflow-spring-boot-starter</artifactId>

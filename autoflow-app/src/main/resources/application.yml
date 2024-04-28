@@ -17,23 +17,17 @@ spring:
       max-file-size: ${MAX_FILE_SIZE:100MB}
       max-request-size: ${MAX_REQUEST_SIZE:200MB}
   datasource:
-    driver-class-name: org.h2.Driver
-    url: ${DATASOURCE_URL:jdbc:h2:mem:test;mode=LEGACY;NON_KEYWORDS=USER}
-    username: root
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DATASOURCE_URL:jdbc:mysql://localhost:3306/ola?zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DATASOURCE_NAME:root}
+    password: ${DATASOURCE_PASSWORD:123456}
   sql:
     init:
       schema-locations: classpath:sql/schema.sql
       mode: always
-flowable:
-  async-executor-activate: false
-  history-level: none
-  idm:
-    enabled: false
 
 logging:
   level:
     io.autoflow.*: debug
-    org.flowable.*: debug
 
 
