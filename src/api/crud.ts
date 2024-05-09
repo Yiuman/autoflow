@@ -1,21 +1,7 @@
 import request from '@/utils/request';
 import qs from 'qs';
+import type { PageParameter, PageRecord } from '@/types/crud';
 
-enum Direction {
-    ASC = "ASC",
-    DESE = "DESE"
-}
-
-interface Order {
-    field: string,
-    direction: Direction
-}
-
-export interface PageParameter extends Record<string, any> {
-    pageNumber: number;
-    pageSize: number;
-    orders?: Order[]
-}
 
 export default function createCrudRequest<ENTITY = Record<string, any>, KEY = any>(baseUri: string) {
     return {
@@ -25,7 +11,7 @@ export default function createCrudRequest<ENTITY = Record<string, any>, KEY = an
         },
         page: async (param: PageParameter = { pageNumber: 1, pageSize: 10 }) => {
             const requestURL = `${baseUri}?${qs.stringify(param, { arrayFormat: 'repeat' })}`
-            const data = await request.get<ENTITY>(requestURL);
+            const data = await request.get<PageRecord<ENTITY>>(requestURL);
             return Promise.resolve(data);
         },
         save: async (entity: ENTITY) => {

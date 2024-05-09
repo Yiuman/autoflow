@@ -41,6 +41,7 @@ declare module 'vue' {
     BasicTypeListEditor: typeof import('./src/components/BasicTypeListEditor/BasicTypeListEditor.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
     ConditionItem: typeof import('./src/components/ConditionFilter/ConditionItem.vue')['default']
+    Crud: typeof import('./src/components/Crud/Crud.vue')['default']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
     ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']

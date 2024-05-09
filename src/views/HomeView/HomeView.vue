@@ -1,13 +1,16 @@
 <script lang="ts" setup>
+import {
+  useRouter,
+} from 'vue-router';
 import { Icon } from '@arco-design/web-vue';
 import { IconMenuFold, IconMenuUnfold } from '@arco-design/web-vue/es/icon';
 const [collapsed, toggleCollapsed] = useToggle(false);
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
-
+const router = useRouter();
 
 function handleMenuClick(key: string) {
-  console.warn("handleMenuClick", key);
+  router.push(key)
 }
 </script>
 
