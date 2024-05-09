@@ -27,17 +27,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.mybatis-flex</groupId>
-            <artifactId>mybatis-flex-spring-boot-starter</artifactId>
-            <version>${mybatis-flex.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mybatis-flex</groupId>
-            <artifactId>mybatis-flex-processor</artifactId>
-            <version>${mybatis-flex.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
 </project>

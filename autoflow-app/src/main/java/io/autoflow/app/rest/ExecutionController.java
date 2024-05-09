@@ -1,7 +1,6 @@
 package io.autoflow.app.rest;
 
 import cn.hutool.core.thread.ThreadUtil;
-import io.autoflow.app.request.StopRequest;
 import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
@@ -48,12 +47,6 @@ public class ExecutionController {
         SSEContext.add(executableId, sseEmitter);
         ThreadUtil.execute(() -> executor.startByExecutableId(executableId));
         return sseEmitter;
-    }
-
-    @PostMapping("/stop")
-    public R<Void> stop(@RequestBody StopRequest stopRequest) {
-        //todo 根据类型去停止在执行的任务
-        return R.ok();
     }
 
     @PostMapping("/node")

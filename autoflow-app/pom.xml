@@ -34,20 +34,22 @@
             <artifactId>ola-rbac-impl</artifactId>
             <version>${ola.vision}</version>
         </dependency>
+
         <dependency>
             <groupId>com.yomahub</groupId>
             <artifactId>liteflow-spring-boot-starter</artifactId>
             <version>${liteflow.version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.autoflow</groupId>
             <artifactId>autoflow-liteflow</artifactId>
             <version>${revision}</version>
         </dependency>
+
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
     </dependencies>
 

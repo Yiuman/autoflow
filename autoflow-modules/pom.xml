@@ -15,9 +15,6 @@
     <modules>
         <module>autoflow-flowbale</module>
         <module>autoflow-liteflow</module>
-        <module>autoflow-user</module>
-        <module>autoflow-user/autoflow-user-api</module>
-        <module>autoflow-user/autoflow-user-impl</module>
     </modules>
 
     <properties>

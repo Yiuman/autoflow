@@ -8,6 +8,8 @@ import io.ola.crud.model.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 工作流
  *
@@ -22,5 +24,6 @@ public class Workflow extends BaseEntity<String> {
     private String id;
     private String name;
     private String flowStr;
+    private List<String> tags;
     private String desc;
 }

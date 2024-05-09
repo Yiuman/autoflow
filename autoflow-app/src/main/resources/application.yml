@@ -16,16 +16,17 @@ spring:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:100MB}
       max-request-size: ${MAX_REQUEST_SIZE:200MB}
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DATASOURCE_URL:jdbc:mysql://localhost:3306/ola?zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${DATASOURCE_NAME:root}
-    password: ${DATASOURCE_PASSWORD:123456}
   sql:
     init:
       schema-locations: classpath:sql/schema.sql
       mode: always
-
+ola:
+  crud:
+    default-db-type: mongodb
+  security:
+    authenticate-endpoint: "/login"
+    excluded-uris:
+      - "/**"
 logging:
   level:
     io.autoflow.*: debug

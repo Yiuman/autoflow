@@ -34,11 +34,12 @@
         <aviator.version>5.3.3</aviator.version>
         <flowable.version>7.0.0.M1</flowable.version>
         <liteflow.version>2.12.0</liteflow.version>
-        <mybatis-flex.version>1.5.4</mybatis-flex.version>
+        <mybatis-flex.version>1.6.1</mybatis-flex.version>
         <junit-jupiter.version>5.7.2</junit-jupiter.version>
         <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
         <validation.version>3.0.2</validation.version>
         <jsonpath.version>2.9.0</jsonpath.version>
+        <mybatis-spring.version>3.0.2</mybatis-spring.version>
     </properties>
 
     <dependencies>
