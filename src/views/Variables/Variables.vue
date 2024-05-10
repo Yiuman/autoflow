@@ -2,20 +2,20 @@
 import Curd from '@/components/Crud/Crud.vue'
 import type { TableColumnData } from '@arco-design/web-vue';
 const columns: TableColumnData[] = [
-    { dataIndex: 'id', title: 'id' },
-    { dataIndex: 'username', title: 'name' },
+    { dataIndex: 'key', title: 'key' },
+    { dataIndex: 'value', title: 'value' },
     { dataIndex: 'desc', title: 'desc' }
 ]
 </script>
 
 <template>
-    <div class="workflow-table">
-        <Curd :uri="'/users'" :columns="columns" />
+    <div class="varibales-table">
+        <Curd :uri="'/variables'" :columns="columns" />
     </div>
 </template>
 
 <style lang="scss">
-.workflow-table {
+.varibales-table {
     padding: 20px
 }
 </style>

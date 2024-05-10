@@ -16,7 +16,6 @@ function handleMenuClick(key: string) {
 
 <template>
   <ALayout style="height:100%">
-
     <ALayoutSider hide-trigger collapsible :collapsed="collapsed">
       <div class="logo-wrap">
         <div class="logo">
@@ -29,9 +28,6 @@ function handleMenuClick(key: string) {
         </AMenuItem>
         <AMenuItem key="plugins">
           <IconFont type="icon-plugins" />Plugins
-        </AMenuItem>
-        <AMenuItem key="templates">
-          <IconFont type="icon-template-success-fill" />Templates
         </AMenuItem>
         <AMenuItem key="variables">
           <IconFont type="icon-variables" />Variables
@@ -48,9 +44,12 @@ function handleMenuClick(key: string) {
 
       </div>
     </ALayoutSider>
-    <ALayoutContent>
-      <RouterView />
-    </ALayoutContent>
+    <ALayout class="layout-content">
+      <ALayoutContent>
+        <RouterView />
+      </ALayoutContent>
+    </ALayout>
+
   </ALayout>
 </template>
 
