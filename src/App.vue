@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { useServiceStore } from '@/stores/service'
+//初始化数据
+const serviceStore = useServiceStore();
+onMounted(async () => {
+  await serviceStore.initData();
+})
 </script>
 
 <template>

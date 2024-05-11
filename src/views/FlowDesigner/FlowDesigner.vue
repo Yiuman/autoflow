@@ -58,8 +58,7 @@ const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers } =
   maxZoom: 4
 })
 
-onMounted(async () => {
-  await serviceStore.fetchServices();
+onMounted(() => {
   doParseJson(JSON.stringify(json));
 })
 
@@ -250,17 +249,6 @@ async function stopFlow() {
   running.value = false;
 }
 
-const avatarMap = ref<Record<string, boolean>>({});
-
-function isAvatarInVilad(serviceId: string) {
-  const serviceAvatarVilad = avatarMap.value[serviceId];
-  return !(serviceAvatarVilad || serviceAvatarVilad === undefined)
-}
-
-function setAvatarInValid(serviceId: string) {
-  avatarMap.value[serviceId] = false
-}
-
 </script>
 
 <template>
@@ -278,9 +266,11 @@ function setAvatarInValid(serviceId: string) {
           <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name" @click="() => addNode(serviceItem)">
             <AListItemMeta :title="serviceItem.name">
               <template #avatar>
-                <AAvatar v-if="isAvatarInVilad(serviceItem.id)" shape="square" :size="68">{{serviceItem.name }}</AAvatar>
-                <AImage v-else :preview="false" :width="68" :height="68"
-                  :src="`${VITE_BASE_URL || '/api'}/services/image/${serviceItem.id}`" @error="() => setAvatarInValid(serviceItem.id)" />
+                <AImage  v-if="serviceItem.avatar"  :preview="false" :width="68" :height="68"
+                  :src="serviceItem.avatar"
+                  />
+                <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }}
+                </AAvatar>
               </template>
             </AListItemMeta>
           </AListItem>

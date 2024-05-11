@@ -17,6 +17,13 @@ export const useServiceStore = defineStore('serivce', {
         }
     },
     actions: {
+        async initData() {
+            const self = this;
+            await self.fetchServices();
+            self.services.forEach(async serviceItem =>{
+                await self.getServiceAvator(serviceItem.id)
+            })
+        },
         async fetchServices() {
             if (!this.services.length) {
                 this.services = await getServiceList();

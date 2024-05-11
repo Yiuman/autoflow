@@ -5,6 +5,7 @@
   font-size: 30px;
 
   .logo {
+    color: var(--color-neutral-10);
     width: 100%;
     padding: 10px 0;
     text-align: center;
@@ -15,6 +16,10 @@
       background-color: coral;
       border-radius: 5px;
       padding: 0 5px;
+    }
+
+    .collapsed-text {
+      padding: unset;
     }
 
   }
@@ -31,6 +36,6 @@
 
 .layout-content {
   height: 100vh;
-  background-color: var(--color-fill-2);
-  transition: padding-left 0.2s;
+  background-color: var(--color-neutral-2);
+  transition: padding .2s cubic-bezier(.34, .69, .1, 1);
 }

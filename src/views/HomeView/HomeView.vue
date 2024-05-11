@@ -3,10 +3,11 @@ import {
   useRouter,
 } from 'vue-router';
 import { Icon } from '@arco-design/web-vue';
-import { IconMenuFold, IconMenuUnfold } from '@arco-design/web-vue/es/icon';
-const [collapsed, toggleCollapsed] = useToggle(false);
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
+import { IconMenuFold, IconMenuUnfold } from '@arco-design/web-vue/es/icon';
+const [collapsed, toggleCollapsed] = useToggle(false);
+
 const router = useRouter();
 
 function handleMenuClick(key: string) {
@@ -18,7 +19,10 @@ function handleMenuClick(key: string) {
   <ALayout style="height:100%">
     <ALayoutSider hide-trigger collapsible :collapsed="collapsed">
       <div class="logo-wrap">
-        <div class="logo">
+        <div class="logo" v-if="collapsed">
+          <span class="collapsed-text">AF</span>
+        </div>
+        <div class="logo" v-else>
           Auto<span>flow</span>
         </div>
       </div>
