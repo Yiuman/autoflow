@@ -13,14 +13,10 @@
 }
 
 .node-form-modal {
-    :global(.arco-modal) {
-        height: 80% !important;
-    }
-
     :global(.node-form-modal_body) {
         overflow: visible !important;
         padding: 0 !important;
-        height: 100%;
+        height: calc(100vh - 150px);
     }
 
     .node-form-modal-body {

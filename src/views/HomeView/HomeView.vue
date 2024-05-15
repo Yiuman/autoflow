@@ -26,8 +26,8 @@ function handleMenuClick(key: string) {
           Auto<span>flow</span>
         </div>
       </div>
-      <AMenu @menu-item-click="handleMenuClick">
-        <AMenuItem key="workflows">
+      <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['workflows']">
+        <AMenuItem key="workflows" >
           <IconFont type="icon-workflow_" />Workflows
         </AMenuItem>
         <AMenuItem key="plugins">

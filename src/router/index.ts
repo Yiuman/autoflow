@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView/HomeView.vue'
 import FlowDesigner from '@/views/FlowDesigner/FlowDesigner.vue'
-import Workflow from '@/views/Workflow/Workflow.vue'
-import Variables from '@/views/Variables/Variables.vue'
-import Plugins from '@/views/Plugins/Plugins.vue'
+import WorkflowList from '@/views/Workflow/WorkflowList.vue'
+import GlobalVariables from '@/views/Variables/GlobalVariables.vue'
+import ServicePlugins from '@/views/Plugins/ServicePlugins.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,26 +12,28 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      redirect: "workflows",
       children: [
         {
-          path: '',
-          name: 'flow-designer',
-          component: FlowDesigner
+          path: '/workflows',
+          name: 'workflows',
+          component: WorkflowList
         },
         {
-          path: '/workflows',
-          name: 'workflow',
-          component: Workflow
+          path: '/flowdesign',
+          name: 'flowdesign',
+          component: FlowDesigner
         },
+
         {
           path: '/plugins',
           name: 'plugins',
-          component: Plugins
+          component: ServicePlugins
         },
         {
           path: '/variables',
           name: 'variables',
-          component: Variables
+          component: GlobalVariables
         }
       ]
     }

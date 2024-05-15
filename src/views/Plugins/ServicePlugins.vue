@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useServiceStore } from '@/stores/service'
 const serviceStore = useServiceStore();
-
 </script>
 
 <template>

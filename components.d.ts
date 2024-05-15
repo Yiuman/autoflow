@@ -38,6 +38,7 @@ declare module 'vue' {
     ATabPane: typeof import('@arco-design/web-vue')['TabPane']
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     ATag: typeof import('@arco-design/web-vue')['Tag']
+    ATextarea: typeof import('@arco-design/web-vue')['Textarea']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     BasicTypeListEditor: typeof import('./src/components/BasicTypeListEditor/BasicTypeListEditor.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
