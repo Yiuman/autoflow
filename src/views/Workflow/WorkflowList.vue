@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import workflowApi, { type Workflow } from '@/api/workflow';
-import { useRouter } from 'vue-router';
+import { IconSearch, IconTags } from '@arco-design/web-vue/es/icon'
 import { Icon } from '@arco-design/web-vue';
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
 
 const workflows = ref<Workflow[]>();
 
+interface workflowQuery {
+    name?: string,
+    tags?: string[]
+}
+
 async function fetch() {
-    const pageRecord = await workflowApi.page();
+    const pageRecord = await workflowApi.page({ ...queryObj.value, pageSize: 10, pageNumber: 1 });
     workflows.value = pageRecord.records;
 }
 onMounted(async () => {
@@ -16,6 +21,10 @@ onMounted(async () => {
 })
 
 const [createBlankFormVisible, toggleCreateBlankFormVisible] = useToggle(false);
+
+const queryObj = ref<workflowQuery>({})
+
+watch(() => queryObj,fetch, { deep: true })
 
 const workflowInstance = ref<Workflow>({ 'name': '', flowStr: '' });
 async function createBlankWorkflow() {
@@ -28,13 +37,23 @@ function resetInstance() {
     workflowInstance.value = { 'name': '', flowStr: '' };
 }
 
-
-
 </script>
 
 <template>
     <div class="workflow-container">
-        <div class=""></div>
+        <div class="workflow-list-top-box">
+            <AInput v-model="queryObj.name">
+                <template #prefix>
+                    <IconSearch />
+                </template>
+            </AInput>
+
+            <ASelect v-model="queryObj.tags" placeholder="选择标签" :max-tag-count="2" allow-clear>
+                <template #prefix>
+                    <IconTags />
+                </template>
+            </ASelect>
+        </div>
         <div class="workflow-list">
             <ACard class="workflow-add-card" :bordered="false" hoverable title="创建新的工作流">
                 <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
@@ -77,11 +96,25 @@ function resetInstance() {
 <style lang="scss" scoped>
 .workflow-container {
     height: 100%;
+    padding-top: 10px;
+}
+
+.workflow-list-top-box {
+    display: flex;
+    margin: 0 20px;
+    padding: 10px 0;
+    width: 50%;
+    align-items: center;
+    padding: 5px;
+    background-color: var(--color-bg-2);
+
+    >span {
+        margin-right: 10px;
+    }
 }
 
 .workflow-list {
-
-    padding: 20px;
+    padding: 10px 20px;
     display: grid;
     grid-gap: 5px;
     grid-template-columns: repeat(auto-fill, 230px); // 自动填充一行的卡片个数

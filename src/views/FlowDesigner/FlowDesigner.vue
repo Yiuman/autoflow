@@ -29,16 +29,9 @@ import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
 import { fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source"
 import { useEnv } from "@/hooks/env";
+import useTheme from "@/hooks/theme";
+const [theme, toggleTheme] = useTheme()
 
-//---------------------------- 切换主题 ----------------------------
-const [dark, toggleClass] = useToggle(false)
-watch(dark, () => {
-  if (dark.value) {
-    document.body.setAttribute('arco-theme', 'dark')
-  } else {
-    document.body.removeAttribute('arco-theme');
-  }
-})
 
 //---------------------------- 初始化定义数据 ----------------------------
 const nodeTypes = {
@@ -253,9 +246,9 @@ async function stopFlow() {
 
 <template>
   <VueFlow ref="vueFlow" v-model="elements" @edge-mouse-move="edgeMouseMove" @edge-mouse-leave="edgeMouseMove"
-    :class="{ dark }" class="vue-flow-basic" :node-types="nodeTypes" :edge-types="edgeTypes">
+    :class="{ theme }" class="vue-flow-basic" :node-types="nodeTypes" :edge-types="edgeTypes">
     <!-- 背景 -->
-    <Background :pattern-color="dark ? '#FFFFFB' : '#aaa'" :gap="8" />
+    <Background :pattern-color="theme ? '#FFFFFB' : '#aaa'" :gap="8" />
     <!-- 面板控制器 -->
     <Controls />
     <!-- 左上角的操作按钮 -->
@@ -266,9 +259,7 @@ async function stopFlow() {
           <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name" @click="() => addNode(serviceItem)">
             <AListItemMeta :title="serviceItem.name">
               <template #avatar>
-                <AImage  v-if="serviceItem.avatar"  :preview="false" :width="68" :height="68"
-                  :src="serviceItem.avatar"
-                  />
+                <AImage v-if="serviceItem.avatar" :preview="false" :width="68" :height="68" :src="serviceItem.avatar" />
                 <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }}
                 </AAvatar>
               </template>
@@ -277,7 +268,7 @@ async function stopFlow() {
         </AList>
       </SearchModal>
       <ADivider direction="vertical" margin="5px" />
-      <ASwitch class="panel-item" type="line" @change="() => toggleClass()" checked-color="black" size="medium">
+      <!-- <ASwitch class="panel-item" type="line" @change="() => toggleTheme()" checked-color="black" size="medium">
         <template #checked-icon>
           <IconMoonFill style="color: orange" />
         </template>
@@ -285,7 +276,7 @@ async function stopFlow() {
         <template #unchecked-icon>
           <IconSunFill style="color: orange" />
         </template>
-      </ASwitch>
+      </ASwitch> -->
       <ADivider direction="vertical" margin="5px" />
       <AButton class="panel-item" type="text" @click="exportJson">
         <template #icon>
