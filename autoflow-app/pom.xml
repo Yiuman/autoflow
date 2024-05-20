@@ -30,6 +30,12 @@
         </dependency>
 
         <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>ola-default-bean-config</artifactId>
+            <version>${ola.vision}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.ola</groupId>
             <artifactId>ola-rbac-impl</artifactId>
             <version>${ola.vision}</version>

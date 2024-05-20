@@ -4,6 +4,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.keygen.KeyGenerators;
+import io.ola.crud.groups.Save;
 import io.ola.crud.model.BaseEntity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -23,7 +24,7 @@ import java.util.List;
 public class Workflow extends BaseEntity<String> {
     @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
     private String id;
-    @NotBlank
+    @NotBlank(groups = Save.class)
     private String name;
     private String flowStr;
     private List<String> tags;
