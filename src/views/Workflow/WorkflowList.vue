@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import workflowApi, { type Workflow } from '@/api/workflow';
-import { IconSearch, IconTags } from '@arco-design/web-vue/es/icon'
-import { Icon } from '@arco-design/web-vue';
+import workflowApi, { type Workflow,type WorkflowQuery } from '@/api/workflow';
+import { IconSearch, IconTags, IconMoreVertical } from '@arco-design/web-vue/es/icon'
+import { Icon, Notification, Modal } from '@arco-design/web-vue';
+import { useServiceStore } from '@/stores/service'
+import { format } from 'date-fns'
+import type { Service } from '@/types/flow';
+import TagSelector from '@/components/TagSelector/TagSelector'
+import {
+    useRouter,
+} from 'vue-router';
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
+const router = useRouter();
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
-
 const workflows = ref<Workflow[]>();
 
-interface workflowQuery {
-    name?: string,
-    tags?: string[]
-}
+
 
 async function fetch() {
     const pageRecord = await workflowApi.page({ ...queryObj.value, pageSize: 10, pageNumber: 1 });
@@ -22,20 +26,54 @@ onMounted(async () => {
 
 const [createBlankFormVisible, toggleCreateBlankFormVisible] = useToggle(false);
 
-const queryObj = ref<workflowQuery>({})
+const queryObj = ref<WorkflowQuery>({})
 
-watch(() => queryObj,fetch, { deep: true })
+watch(() => queryObj, fetch, { deep: true })
 
+const formTitle = ref('');
 const workflowInstance = ref<Workflow>({ 'name': '', flowStr: '' });
-async function createBlankWorkflow() {
+async function saveWorkflow() {
     await workflowApi.save(workflowInstance.value)
     await fetch();
     resetInstance();
 }
 
+function modifyWorkflow(workflow: Workflow) {
+    workflowInstance.value = workflow
+    formTitle.value = '编辑';
+    toggleCreateBlankFormVisible();
+}
+
+function deleteWorkflow(workflow: Workflow) {
+    Modal.error({
+        title: '确认删除吗?',
+        content: '确认删除后，数据将无法找回',
+        cancelText: '取消',
+        hideCancel: false,
+        bodyStyle: { "text-align": 'center' },
+        closable: true,
+        onOk: async () => {
+            await workflowApi.delete(workflow.id as string);
+            Notification.success('delete successed')
+            await fetch();
+        }
+    })
+
+}
+
 function resetInstance() {
     workflowInstance.value = { 'name': '', flowStr: '' };
+    formTitle.value = ''
 }
+
+const serviceStore = useServiceStore();
+function getWorkflowServices(workflow: Workflow): Service[] {
+    if (!workflow || !workflow.plugins) {
+        return [];
+    }
+    return workflow.plugins.map(pluginId => serviceStore.getServiceById(pluginId));
+}
+
 
 </script>
 
@@ -48,10 +86,11 @@ function resetInstance() {
                 </template>
             </AInput>
 
-            <ASelect v-model="queryObj.tags" placeholder="选择标签" :max-tag-count="2" allow-clear>
-                <template #prefix>
-                    <IconTags />
-                </template>
+            <TagSelector>
+                
+            </TagSelector>
+            <ASelect v-model="queryObj.tags" >
+                
             </ASelect>
         </div>
         <div class="workflow-list">
@@ -67,17 +106,45 @@ function resetInstance() {
                 </div>
             </ACard>
             <ACard class="worflow-card-item" hoverable v-for="workflow in workflows" :key="workflow.id">
-                <template #cover>
-                    <div class="cover">
+                <div>
+                    <ADropdown trigger="hover">
+                        <IconMoreVertical size="16" class="worflow-card-operator" />
+                        <template #content>
+                            <ADoption @click="modifyWorkflow(workflow)">编辑</ADoption>
+                            <ADoption @click="router.push(`/flowdesign?flowId=${workflow.id}`)">编排</ADoption>
+                            <ADoption @click="deleteWorkflow(workflow)">
+                                删除
+                            </ADoption>
+                        </template>
+                    </ADropdown>
+                    <ADescriptions :title="workflow.name" :column="1">
+                        <ADescriptionsItem label="name">
+                            <span>{{ workflow.name }}</span>
+                        </ADescriptionsItem>
+                        <ADescriptionsItem label="plugins">
+                            <AAvatarGroup :size="30" :max-count="5">
+                                <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
+                                    <AAvatar v-if="service.avatar" :image-url="service.avatar" shape="square" />
+                                    <AAvatar v-else shape="square">{{ service.name }}</AAvatar>
+                                </template>
+                            </AAvatarGroup>
+                        </ADescriptionsItem>
+                        <ADescriptionsItem label="update">
+                            <span>{{ format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss') }}</span>
+                        </ADescriptionsItem>
 
-                    </div>
-                </template>
-                <div>{{ workflow.name }}</div>
+                    </ADescriptions>
+                    <ASpace>
+                        <IconTags />
+                        <ATag>Awesome</ATag>
+                        <ATag>Awesome</ATag>
+                    </ASpace>
+                </div>
             </ACard>
 
-            <AModal v-model:visible="createBlankFormVisible" @ok="createBlankWorkflow" draggable>
+            <AModal v-model:visible="createBlankFormVisible" @ok="saveWorkflow" draggable>
                 <template #title>
-                    创建空白工作流
+                    {{ formTitle || '创建空白工作流' }}
                 </template>
                 <AForm :model="workflowInstance" layout="vertical">
                     <AFormItem field="name" label="名称" validate-trigger="input" required>
@@ -94,62 +161,5 @@ function resetInstance() {
 </template>
 
 <style lang="scss" scoped>
-.workflow-container {
-    height: 100%;
-    padding-top: 10px;
-}
-
-.workflow-list-top-box {
-    display: flex;
-    margin: 0 20px;
-    padding: 10px 0;
-    width: 50%;
-    align-items: center;
-    padding: 5px;
-    background-color: var(--color-bg-2);
-
-    >span {
-        margin-right: 10px;
-    }
-}
-
-.workflow-list {
-    padding: 10px 20px;
-    display: grid;
-    grid-gap: 5px;
-    grid-template-columns: repeat(auto-fill, 230px); // 自动填充一行的卡片个数
-    justify-content: space-between;
-
-    :deep(.arco-card) {
-        border-radius: 5px;
-    }
-
-    .workflow-add-card {
-        background-color: var(--color-neutral-3);
-        height: 160px;
-    }
-
-    .worflow-card-item {
-        height: 160px;
-    }
-
-    .workflow-add-btn {
-        align-items: center;
-        display: flex;
-        padding: 5px;
-        max-width: 10px 0;
-        border-radius: 5px;
-
-        &:hover {
-            cursor: pointer;
-            background-color: var(--color-fill-2);
-            color: rgb(var(--arcoblue-6));
-        }
-
-        :deep(.arco-icon) {
-            margin-right: 10px;
-            font-size: 20px
-        }
-    }
-}
+@import 'workflow-list';
 </style>

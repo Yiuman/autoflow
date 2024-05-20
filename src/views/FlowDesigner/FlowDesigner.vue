@@ -3,12 +3,11 @@ import type { EdgeMouseEvent, GraphEdge, Elements } from '@vue-flow/core'
 import { toGraphNode, toGraphEdge, toNode, serviceToGraphNode } from '@/utils/converter'
 import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import {
-  IconSunFill,
-  IconMoonFill,
   IconCloudDownload,
   IconUpload,
   IconPlayCircleFill,
-  IconPauseCircleFill
+  IconPauseCircleFill,
+  IconSave
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -30,9 +29,15 @@ import SearchModal from '@/components/SearchModal/SearchModal.vue'
 import { fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source"
 import { useEnv } from "@/hooks/env";
 import useTheme from "@/hooks/theme";
-const [theme, toggleTheme] = useTheme()
+import workflowApi from '@/api/workflow';
+import {
+  useRoute,
+} from 'vue-router';
+import { Notification } from '@arco-design/web-vue';
 
+const [theme] = useTheme()
 
+const route = useRoute();
 //---------------------------- 初始化定义数据 ----------------------------
 const nodeTypes = {
   SERVICE: markRaw(ServiceNode),
@@ -51,8 +56,15 @@ const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers } =
   maxZoom: 4
 })
 
-onMounted(() => {
-  doParseJson(JSON.stringify(json));
+onMounted(async () => {
+  console.warn("oute.query", route.query)
+  if (route.query.flowId) {
+    const workflow = await workflowApi.get(route.query.flowId as string);
+    doParseJson(workflow.flowStr || '{}')
+  } else {
+    doParseJson(JSON.stringify(json));
+  }
+
 })
 
 
@@ -146,6 +158,13 @@ function exportJson() {
   }), 'config.json')
 }
 
+async function saveWorkflow() {
+  const flow: Flow = elementsToFlow(elements.value);
+  const jsonStr = JSON.stringify(flow);
+  await workflowApi.save({ id: route.query.flowId as string, flowStr: jsonStr })
+  Notification.success('save successed')
+}
+
 function importJson(fileList: FileItem[]): void {
   const reader = new FileReader()
   const fileItem = fileList[0]
@@ -154,6 +173,8 @@ function importJson(fileList: FileItem[]): void {
     doParseJson(reader.result as string)
   }
 }
+
+
 
 async function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
@@ -268,15 +289,11 @@ async function stopFlow() {
         </AList>
       </SearchModal>
       <ADivider direction="vertical" margin="5px" />
-      <!-- <ASwitch class="panel-item" type="line" @change="() => toggleTheme()" checked-color="black" size="medium">
-        <template #checked-icon>
-          <IconMoonFill style="color: orange" />
+      <AButton class="panel-item" type="text" @click="saveWorkflow">
+        <template #icon>
+          <IconSave size="22px" />
         </template>
-
-        <template #unchecked-icon>
-          <IconSunFill style="color: orange" />
-        </template>
-      </ASwitch> -->
+      </AButton>
       <ADivider direction="vertical" margin="5px" />
       <AButton class="panel-item" type="text" @click="exportJson">
         <template #icon>

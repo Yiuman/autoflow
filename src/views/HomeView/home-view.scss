@@ -53,6 +53,7 @@
   position: fixed;
   left: auto;
   right: 0;
+  z-index: 999;
 
   .layout-header-left,
   .layout-header-right {
@@ -74,6 +75,10 @@
       &:hover {
         cursor: pointer;
       }
+    }
+
+    .layout-header-lang {
+      color: var(--color-text-1)
     }
   }
 }

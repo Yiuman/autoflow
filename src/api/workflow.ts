@@ -2,12 +2,18 @@ import createCrudRequest from '@/api/crud'
 
 export interface Workflow {
     id?: string;
-    name: string;
-    flowStr: string;
+    name?: string;
+    flowStr?: string;
     desc?: string;
     tags?: string[];
     plugins?: string[];
     creator?: string;
+    updateTime?: number
+}
+
+export interface WorkflowQuery {
+    name?: string,
+    tags?: string[]
 }
 
 const workflowApi = createCrudRequest<Workflow, string>('/workflows')

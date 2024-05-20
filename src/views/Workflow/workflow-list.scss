@@ -1,0 +1,65 @@
+.workflow-container {
+    height: calc(100% - 40px);
+    padding: 20px;
+}
+
+.workflow-list-top-box {
+    display: flex;
+    padding: 10px 0;
+    width: 50%;
+    align-items: center;
+    padding: 5px;
+    background-color: var(--color-bg-2);
+
+    >span {
+        margin-right: 10px;
+    }
+}
+
+.workflow-list {
+    display: grid;
+    grid-gap: 20px;
+    padding: 20px 0;
+    grid-template-columns: repeat(auto-fill, 270px); // 自动填充一行的卡片个数
+
+    :deep(.arco-card) {
+        border-radius: 5px;
+    }
+
+    .workflow-add-card {
+        background-color: var(--color-neutral-3);
+        height: 200px;
+    }
+
+    .worflow-card-operator {
+        position: absolute;
+        right: 15px;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .worflow-card-item {
+        height: 200px;
+    }
+
+    .workflow-add-btn {
+        align-items: center;
+        display: flex;
+        padding: 5px;
+        max-width: 10px 0;
+        border-radius: 5px;
+
+        &:hover {
+            cursor: pointer;
+            background-color: var(--color-fill-2);
+            color: rgb(var(--arcoblue-6));
+        }
+
+        :deep(.arco-icon) {
+            margin-right: 10px;
+            font-size: 20px
+        }
+    }
+}

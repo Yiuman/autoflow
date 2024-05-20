@@ -89,8 +89,8 @@ function handleMenuClick(key: string) {
         </div>
         <div class="layout-header-right">
           <ADropdown>
-            <div class="layout-header-right-item">
-              <IconLanguage size="24" />
+            <div class="layout-header-right-item layout-header-lang">
+              <IconLanguage size="20" />
               <IconDown size="12"></IconDown>
             </div>
 

@@ -8,12 +8,14 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AAvatar: typeof import('@arco-design/web-vue')['Avatar']
+    AAvatarGroup: typeof import('@arco-design/web-vue')['AvatarGroup']
     ABreadcrumb: typeof import('@arco-design/web-vue')['Breadcrumb']
     ABreadcrumbItem: typeof import('@arco-design/web-vue')['BreadcrumbItem']
     AButton: typeof import('@arco-design/web-vue')['Button']
     AButtonGroup: typeof import('@arco-design/web-vue')['ButtonGroup']
     ACard: typeof import('@arco-design/web-vue')['Card']
     ADescriptions: typeof import('@arco-design/web-vue')['Descriptions']
+    ADescriptionsItem: typeof import('@arco-design/web-vue')['DescriptionsItem']
     ADivider: typeof import('@arco-design/web-vue')['Divider']
     ADoption: typeof import('@arco-design/web-vue')['Doption']
     ADropdown: typeof import('@arco-design/web-vue')['Dropdown']
@@ -37,7 +39,9 @@ declare module 'vue' {
     AModal: typeof import('@arco-design/web-vue')['Modal']
     AOptgroup: typeof import('@arco-design/web-vue')['Optgroup']
     AOption: typeof import('@arco-design/web-vue')['Option']
+    APopconfirm: typeof import('@arco-design/web-vue')['Popconfirm']
     ASelect: typeof import('@arco-design/web-vue')['Select']
+    ASpace: typeof import('@arco-design/web-vue')['Space']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
     ATable: typeof import('@arco-design/web-vue')['Table']
     ATableColumn: typeof import('@arco-design/web-vue')['TableColumn']
@@ -63,5 +67,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
     ServiceNode: typeof import('./src/components/ServiceNode/ServiceNode.vue')['default']
+    TagSelector: typeof import('./src/components/TagSelector/TagSelector.vue')['default']
   }
 }
