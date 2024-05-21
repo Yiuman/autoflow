@@ -3,7 +3,7 @@ import { RouterView } from 'vue-router'
 import { useServiceStore } from '@/stores/service'
 //初始化数据
 const serviceStore = useServiceStore();
-onMounted(async () => {
+onBeforeMount(async () => {
   await serviceStore.initData();
 })
 </script>

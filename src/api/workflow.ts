@@ -1,19 +1,22 @@
 import createCrudRequest from '@/api/crud'
+import { type Tag } from '@/api/tag'
+import type { PageParameter } from '@/types/crud';
 
 export interface Workflow {
     id?: string;
     name?: string;
     flowStr?: string;
     desc?: string;
-    tags?: string[];
-    plugins?: string[];
+    tagIds?: string[];
+    pluginIds?: string[];
     creator?: string;
-    updateTime?: number
+    updateTime?: number;
+    tags?: Tag[];
 }
 
-export interface WorkflowQuery {
+export interface WorkflowQuery extends PageParameter{
     name?: string,
-    tags?: string[]
+    tagIds?: string[]
 }
 
 const workflowApi = createCrudRequest<Workflow, string>('/workflows')

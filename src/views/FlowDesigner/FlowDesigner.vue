@@ -57,7 +57,6 @@ const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers } =
 })
 
 onMounted(async () => {
-  console.warn("oute.query", route.query)
   if (route.query.flowId) {
     const workflow = await workflowApi.get(route.query.flowId as string);
     doParseJson(workflow.flowStr || '{}')

@@ -15,7 +15,7 @@ export default function createCrudRequest<ENTITY = Record<string, any>, KEY = an
             return Promise.resolve(data);
         },
         save: async (entity: ENTITY) => {
-            const data = await request.post<KEY>(baseUri, entity);
+            const data = await request.post<ENTITY>(baseUri, entity);
             return Promise.resolve(data);
         },
         delete: async (key: KEY) => {

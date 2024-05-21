@@ -23,7 +23,6 @@ const menuRef = ref();
 const { width } = useElementSize(menuRef);
 
 const headerWidth = computed(() => {
-  console.warn(headerWidth, `cacl(100% - ${width.value}px)`)
   return `calc(100% - ${width.value}px)`
 })
 const [theme, toggleTheme] = useTheme()
@@ -101,7 +100,7 @@ function handleMenuClick(key: string) {
           </ADropdown>
 
           <div class="layout-header-right-item">
-            <ASwitch :value="theme" class="panel-item" type="line" @change="() => toggleTheme()" checked-color="black"
+            <ASwitch :value="theme" class="panel-item" type="line" @change="() => toggleTheme()" 
               size="medium">
               <template #checked-icon>
                 <IconMoonFill style="color: orange" />

@@ -39,6 +39,8 @@ declare module 'vue' {
     AModal: typeof import('@arco-design/web-vue')['Modal']
     AOptgroup: typeof import('@arco-design/web-vue')['Optgroup']
     AOption: typeof import('@arco-design/web-vue')['Option']
+    AOverflowList: typeof import('@arco-design/web-vue')['OverflowList']
+    APagination: typeof import('@arco-design/web-vue')['Pagination']
     APopconfirm: typeof import('@arco-design/web-vue')['Popconfirm']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASpace: typeof import('@arco-design/web-vue')['Space']

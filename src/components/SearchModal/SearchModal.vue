@@ -65,7 +65,7 @@ window.addEventListener("keydown", (e) => {
             </template>
         </AInput>
 
-        <AModal v-model:visible="showSearchModal" bodyClass="search-modal-body" :hide-title="true" :footer="false"
+        <AModal modalClass="_search-modal" v-model:visible="showSearchModal" bodyClass="search-modal-body" :hide-title="true" :footer="false"
             :closable="true" @open="() => focused = true">
             <div class="search-modal-body">
                 <div class="search-modal-input">
