@@ -1,5 +1,6 @@
 package io.autoflow.app.model;
 
+import com.mybatisflex.annotation.Id;
 import io.ola.crud.model.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,6 +12,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Tag extends BaseEntity<String> {
+    @Id
     private String id;
     private String name;
 }

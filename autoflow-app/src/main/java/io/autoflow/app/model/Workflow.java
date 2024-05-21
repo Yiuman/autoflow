@@ -27,8 +27,8 @@ public class Workflow extends BaseEntity<String> {
     @NotBlank(groups = Save.class)
     private String name;
     private String flowStr;
-    private List<String> tags;
-    private List<String> plugins;
+    private List<String> tagIds;
+    private List<String> pluginIds;
     private String desc;
     private Integer version = 1;
 }
