@@ -1,13 +1,13 @@
 package io.autoflow.app.rest;
 
-import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import io.autoflow.core.Services;
-import io.autoflow.spi.Service;
-import io.ola.common.http.R;
+import io.autoflow.app.model.ServiceEntity;
+import io.autoflow.app.service.ServiceEntityService;
 import io.ola.common.utils.WebUtils;
+import io.ola.crud.rest.BaseQueryAPI;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author yiuman
@@ -25,27 +22,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @RestController
 @RequestMapping("/services")
-public class ServiceController {
+@RequiredArgsConstructor
+public class ServiceController implements BaseQueryAPI<ServiceEntity> {
 
-    private static final Map<String, byte[]> SERVICE_SVG_CACHE = new ConcurrentHashMap<>();
-
-    @GetMapping
-    public R<List<Service>> services() {
-        return R.ok(Services.getServiceList());
-    }
+    private final ServiceEntityService serviceEntityService;
 
     @GetMapping("/image/{serviceId}")
     public void svg(@PathVariable("serviceId") String serviceId, HttpServletResponse httpServletResponse) throws IOException {
-        if (!SERVICE_SVG_CACHE.containsKey(serviceId)) {
-            try {
-                SERVICE_SVG_CACHE.put(serviceId, ResourceUtil.readBytes(StrUtil.format("{}.svg", serviceId)));
-            } catch (Throwable throwable) {
-                SERVICE_SVG_CACHE.put(serviceId, new byte[]{});
-            }
-
-        }
-
-        byte[] bytes = SERVICE_SVG_CACHE.get(serviceId);
+        byte[] bytes = serviceEntityService.getImageBytesByServiceId(serviceId);
         if (ArrayUtil.isNotEmpty(bytes)) {
             httpServletResponse.setContentType("image/svg+xml");
             WebUtils.export(new ByteArrayInputStream(bytes), StrUtil.format("{}.svg", serviceId.replaceAll("\\.", "_")));
