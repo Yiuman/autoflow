@@ -8,6 +8,7 @@ import io.autoflow.core.Services;
 import io.ola.crud.service.impl.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -44,10 +45,6 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         saveAll(systemServices);
     }
 
-    @Override
-    public <T extends ServiceEntity> boolean isNew(T entity) {
-        return StrUtil.isBlank(entity.getId()) || Objects.isNull(get(entity.getId()));
-    }
 
     private void loadExtensionServices() {
         List<ServiceEntity> extensionServices = findAllExtensionServices();
@@ -75,5 +72,11 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         }
 
         return SERVICE_SVG_CACHE.get(serviceId);
+    }
+
+    @Override
+    public ServiceEntity add(MultipartFile file) {
+        //todo
+        return null;
     }
 }

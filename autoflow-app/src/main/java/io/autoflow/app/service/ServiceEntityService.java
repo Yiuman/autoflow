@@ -4,6 +4,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import io.autoflow.app.model.ServiceEntity;
 import io.autoflow.app.model.table.Tables;
 import io.ola.crud.service.CrudService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ import java.util.List;
 public interface ServiceEntityService extends CrudService<ServiceEntity> {
 
     byte[] getImageBytesByServiceId(String serviceId);
+
+    ServiceEntity add(MultipartFile file);
 
     default List<ServiceEntity> findAllExtensionServices() {
         return list(QueryWrapper.create().where(Tables.SERVICE_ENTITY.SYSTEM.ne(true)));
