@@ -1,15 +1,16 @@
-
 import { defineStore } from 'pinia'
-import { getServiceList } from '@/api/service'
-import type { Service } from '@/types/flow';
+import serviceApi from '@/api/service'
+import type { Service } from '@/types/flow'
 import { urlToBase64 } from '@/utils/download'
-import { useEnv } from "@/hooks/env";
+import { useEnv } from '@/hooks/env'
+
 const { VITE_BASE_URL } = useEnv();
 interface NodeStoreState {
     services: Service[],
     serviceMap: Record<string, Service>;
 }
-export const useServiceStore = defineStore('serivce', {
+
+export const useServiceStore = defineStore('service', {
     state: (): NodeStoreState => ({ services: [], serviceMap: {} }),
     getters: {
         getServices: (state) => {
@@ -20,13 +21,14 @@ export const useServiceStore = defineStore('serivce', {
         async initData() {
             const self = this;
             await self.fetchServices();
-            self.services.forEach(async serviceItem =>{
-                await self.getServiceAvator(serviceItem.id)
-            })
+            console.warn(' self.services', self.services.length)
+            for (const serviceItem of self.services) {
+                await self.getServiceAvatar(serviceItem.id)
+            }
         },
         async fetchServices() {
             if (!this.services.length) {
-                this.services = await getServiceList();
+                this.services = await serviceApi.list()
                 this.services.forEach(service => {
                     this.serviceMap[service.id] = service;
                 })
@@ -35,10 +37,16 @@ export const useServiceStore = defineStore('serivce', {
         getServiceById(id: string): Service {
             return this.serviceMap[id]
         },
-        async getServiceAvator(id: string): Promise<string> {
+        async getServiceAvatar(id: string): Promise<string | null | undefined> {
             const serviceItem = this.serviceMap[id];
-            if (serviceItem.avatar == undefined) {
-                serviceItem.avatar = await urlToBase64(`${VITE_BASE_URL || '/api'}/services/image/${id}`)
+            if (!serviceItem.avatar) {
+                try {
+                    serviceItem.avatar = await urlToBase64(`${VITE_BASE_URL || '/api'}/services/image/${id}`)
+                } catch (ignore) {
+                    console.warn("ignore",ignore)
+                    serviceItem.avatar = null
+                }
+
             }
             return serviceItem.avatar;
         }

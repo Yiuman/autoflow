@@ -52,6 +52,9 @@ export function urlToBase64(url: string, mineType?: string): Promise<string> {
             canvas = null;
             resolve(dataURL);
         };
+        img.onerror = function(){
+            reject()
+        }
         img.src = url;
     });
 }

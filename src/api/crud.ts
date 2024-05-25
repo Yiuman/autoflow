@@ -1,6 +1,6 @@
-import request from '@/utils/request';
-import qs from 'qs';
-import type { PageParameter, PageRecord } from '@/types/crud';
+import request from '@/utils/request'
+import qs from 'qs'
+import type { PageParameter, PageRecord } from '@/types/crud'
 
 
 export default function createCrudRequest<ENTITY = Record<string, any>, KEY = any>(baseUri: string) {
@@ -13,6 +13,11 @@ export default function createCrudRequest<ENTITY = Record<string, any>, KEY = an
             const requestURL = `${baseUri}?${qs.stringify(param, { arrayFormat: 'repeat' })}`
             const data = await request.get<PageRecord<ENTITY>>(requestURL);
             return Promise.resolve(data);
+        },
+        list: async (param?: Record<string, any>) => {
+            const requestURL = `${baseUri}/list?${qs.stringify(param, { arrayFormat: 'repeat' })}`
+            const data = await request.get<ENTITY[]>(requestURL)
+            return Promise.resolve(data)
         },
         save: async (entity: ENTITY) => {
             const data = await request.post<ENTITY>(baseUri, entity);

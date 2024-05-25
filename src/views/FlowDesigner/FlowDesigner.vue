@@ -1,21 +1,20 @@
 <script lang="ts" setup>
-import type { EdgeMouseEvent, GraphEdge, Elements } from '@vue-flow/core'
-import { toGraphNode, toGraphEdge, toNode, serviceToGraphNode } from '@/utils/converter'
-import { Panel, VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
+import type { EdgeMouseEvent, Elements, GraphEdge } from '@vue-flow/core'
+import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import { elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode } from '@/utils/converter'
 import {
   IconCloudDownload,
-  IconUpload,
-  IconPlayCircleFill,
   IconPauseCircleFill,
-  IconSave
+  IconPlayCircleFill,
+  IconSave,
+  IconUpload
 } from '@arco-design/web-vue/es/icon'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import { getAllIncomers, elementsToFlow } from '@/utils/converter'
 
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
-import { type FileItem } from '@arco-design/web-vue'
-import type { Flow, Property, VueFlowNode, NodeElementData, ExecutionData, Service } from '@/types/flow'
+import { type FileItem, Notification } from '@arco-design/web-vue'
+import type { ExecutionData, Flow, NodeElementData, Property, Service, VueFlowNode } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
@@ -26,14 +25,11 @@ import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
 import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
-import { fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source"
-import { useEnv } from "@/hooks/env";
-import useTheme from "@/hooks/theme";
-import workflowApi from '@/api/workflow';
-import {
-  useRoute,
-} from 'vue-router';
-import { Notification } from '@arco-design/web-vue';
+import { type EventSourceMessage, fetchEventSource } from '@microsoft/fetch-event-source'
+import { useEnv } from '@/hooks/env'
+import useTheme from '@/hooks/theme'
+import workflowApi from '@/api/workflow'
+import { useRoute } from 'vue-router'
 
 const [theme] = useTheme()
 
@@ -180,7 +176,7 @@ async function doParseJson(json: string) {
   const flowNodes = flowDefine.nodes;
   const nodes: VueFlowNode[] = flowNodes?.map((node) => ({ ...toGraphNode(node), events: defaultEvents })) as VueFlowNode[];
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({ ...toGraphEdge(connection) })) as GraphEdge[];
-  elements.value = [...nodes, ...edges];
+  elements.value = [...nodes || [], ...edges || []]
 }
 
 

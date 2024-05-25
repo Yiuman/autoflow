@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AAvatar: typeof import('@arco-design/web-vue')['Avatar']
-    AAvatarGroup: typeof import('@arco-design/web-vue')['AvatarGroup']
     ABreadcrumb: typeof import('@arco-design/web-vue')['Breadcrumb']
     ABreadcrumbItem: typeof import('@arco-design/web-vue')['BreadcrumbItem']
     AButton: typeof import('@arco-design/web-vue')['Button']
@@ -19,7 +18,6 @@ declare module 'vue' {
     ADivider: typeof import('@arco-design/web-vue')['Divider']
     ADoption: typeof import('@arco-design/web-vue')['Doption']
     ADropdown: typeof import('@arco-design/web-vue')['Dropdown']
-    ADropdownButton: typeof import('@arco-design/web-vue')['DropdownButton']
     AEmpty: typeof import('@arco-design/web-vue')['Empty']
     AForm: typeof import('@arco-design/web-vue')['Form']
     AFormItem: typeof import('@arco-design/web-vue')['FormItem']
@@ -28,7 +26,6 @@ declare module 'vue' {
     AInputNumber: typeof import('@arco-design/web-vue')['InputNumber']
     ALayout: typeof import('@arco-design/web-vue')['Layout']
     ALayoutContent: typeof import('@arco-design/web-vue')['LayoutContent']
-    ALayoutHeader: typeof import('@arco-design/web-vue')['LayoutHeader']
     ALayoutSider: typeof import('@arco-design/web-vue')['LayoutSider']
     AList: typeof import('@arco-design/web-vue')['List']
     AListItem: typeof import('@arco-design/web-vue')['ListItem']
@@ -41,9 +38,7 @@ declare module 'vue' {
     AOption: typeof import('@arco-design/web-vue')['Option']
     AOverflowList: typeof import('@arco-design/web-vue')['OverflowList']
     APagination: typeof import('@arco-design/web-vue')['Pagination']
-    APopconfirm: typeof import('@arco-design/web-vue')['Popconfirm']
     ASelect: typeof import('@arco-design/web-vue')['Select']
-    ASpace: typeof import('@arco-design/web-vue')['Space']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
     ATable: typeof import('@arco-design/web-vue')['Table']
     ATableColumn: typeof import('@arco-design/web-vue')['TableColumn']

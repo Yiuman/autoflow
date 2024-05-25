@@ -20,20 +20,20 @@
     margin-right: 5px
 }
 
-.worflow-card-item-tags {
+.workflow-card-item-tags {
     display: flex;
     align-items: center;
 
-    .worflow-card-item-tags-value {
+    .workflow-card-item-tags-value {
         margin-left: 5px;
         width: calc(100% - 15px);
     }
 }
 
-.worflow-card-operator-box {
+.workflow-card-operator-box {
     padding: 0 5px 3px 5px;
 
-    .worflow-card-operator-item {
+    .workflow-card-operator-item {
         padding: 5px 10px;
         margin-top: 5px;
         border-radius: 5px;
@@ -71,7 +71,7 @@
         height: 190px;
     }
 
-    .worflow-card-operator {
+    .workflow-card-operator {
         position: absolute;
         right: 15px;
 
@@ -80,7 +80,7 @@
         }
     }
 
-    .worflow-card-item {
+    .workflow-card-item {
         overflow: hidden;
         height: 190px;
     }

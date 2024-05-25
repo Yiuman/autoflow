@@ -1,6 +1,6 @@
-import type { Service } from '@/types/flow';
-import request from '@/utils/request';
+import type { Service } from '@/types/flow'
+import createCrudRequest from '@/api/crud'
 
-export function getServiceList() {
-    return request.get<Service[]>("/services");
-}
+
+const serviceApi = createCrudRequest<Service>('/services')
+export default serviceApi

@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import workflowApi, { type Workflow, type WorkflowQuery } from '@/api/workflow';
-import { IconSearch, IconTags, IconMoreVertical } from '@arco-design/web-vue/es/icon'
-import { Icon, Notification, Modal } from '@arco-design/web-vue';
+import workflowApi, { type Workflow, type WorkflowQuery } from '@/api/workflow'
+import { IconMoreVertical, IconSearch, IconTags } from '@arco-design/web-vue/es/icon'
+import { Icon, Modal, Notification } from '@arco-design/web-vue'
 import { type PageRecord } from '@/types/crud'
 import { useServiceStore } from '@/stores/service'
 import { format } from 'date-fns'
-import type { Service } from '@/types/flow';
-import TagSelector from '@/components/TagSelector/TagSelector.vue';
-import {
-    useRouter,
-} from 'vue-router';
+import type { Service } from '@/types/flow'
+import TagSelector from '@/components/TagSelector/TagSelector.vue'
+import { useRouter } from 'vue-router'
+
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
 const router = useRouter();
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
@@ -102,17 +101,17 @@ function getWorkflowServices(workflow: Workflow): Service[] {
                     <IconFont type="icon-w_daoru" /> 导入工作流文件创建
                 </div>
             </ACard>
-            <ACard class="worflow-card-item" hoverable v-for="workflow in currentPageRecord?.records"
+          <ACard class="workflow-card-item" hoverable v-for="workflow in currentPageRecord?.records"
                 :key="workflow.id">
                 <div>
                     <ADropdown trigger="hover">
-                        <IconMoreVertical size="16" class="worflow-card-operator" />
+                      <IconMoreVertical size="16" class="workflow-card-operator" />
                         <template #content>
-                            <div class="worflow-card-operator-box">
-                                <div class="worflow-card-operator-item" @click="modifyWorkflow(workflow)">编辑</div>
-                                <div class="worflow-card-operator-item"
+                          <div class="workflow-card-operator-box">
+                            <div class="workflow-card-operator-item" @click="modifyWorkflow(workflow)">编辑</div>
+                            <div class="workflow-card-operator-item"
                                     @click="router.push(`/flowdesign?flowId=${workflow.id}`)">编排</div>
-                                <div class="worflow-card-operator-item card-delete-btn"
+                            <div class="workflow-card-operator-item card-delete-btn"
                                     @click="deleteWorkflow(workflow)">删除</div>
                             </div>
 
@@ -134,13 +133,14 @@ function getWorkflowServices(workflow: Workflow): Service[] {
                             </AOverflowList>
                         </ADescriptionsItem>
                         <ADescriptionsItem label="update">
-                            <span>{{ format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss') }}</span>
+                          <span style="font-size: 13px">{{ format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss')
+                            }}</span>
                         </ADescriptionsItem>
                     </ADescriptions>
 
-                    <div class="worflow-card-item-tags" v-if="workflow.tags && workflow.tags.length">
+                  <div class="workflow-card-item-tags" v-if="workflow.tags && workflow.tags.length">
                         <IconTags />
-                        <AOverflowList class="worflow-card-item-tags-value">
+                    <AOverflowList class="workflow-card-item-tags-value">
                             <ATag v-for="tag in workflow.tags" :key="tag.id" color="blue">{{ tag.name }}</ATag>
                         </AOverflowList>
                     </div>
