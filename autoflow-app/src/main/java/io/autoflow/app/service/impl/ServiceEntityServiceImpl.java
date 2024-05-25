@@ -2,6 +2,8 @@ package io.autoflow.app.service.impl;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import io.autoflow.app.model.ServiceEntity;
 import io.autoflow.app.service.ServiceEntityService;
 import io.autoflow.core.Services;
@@ -23,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Slf4j
+@SuppressWarnings("unchecked")
 public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> implements ServiceEntityService {
     private static final Map<String, byte[]> SERVICE_SVG_CACHE = new ConcurrentHashMap<>();
 
@@ -38,6 +41,7 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
             ServiceEntity serviceEntity = new ServiceEntity();
             serviceEntity.setId(service.getId());
             serviceEntity.setName(service.getName());
+            serviceEntity.setProperties(service.getProperties());
             serviceEntity.setDescription(service.getDescription());
             serviceEntity.setSystem(true);
             return serviceEntity;
@@ -73,6 +77,28 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
 
         return SERVICE_SVG_CACHE.get(serviceId);
     }
+
+
+//    @Override
+//    public <T extends ServiceEntity> Page<T> page(Page<ServiceEntity> page, QueryWrapper queryWrapper) {
+//        Page<ServiceEntity> entityPage = super.page(page, queryWrapper);
+//        extension(entityPage.getRecords());
+//        return (Page<T>) entityPage;
+//    }
+//
+//    @Override
+//    public <T extends ServiceEntity> List<T> list(QueryWrapper queryWrapper) {
+//        List<ServiceEntity> list = super.list(queryWrapper);
+//        extension(list);
+//        return (List<T>) list;
+//    }
+//
+//    private void extension(List<ServiceEntity> serviceEntities){
+//        for (ServiceEntity serviceEntity : serviceEntities) {
+//            io.autoflow.spi.Service service = Services.getService(serviceEntity.getId());
+//            serviceEntity.setProperties(service.getProperties());
+//        }
+//    }
 
     @Override
     public ServiceEntity add(MultipartFile file) {

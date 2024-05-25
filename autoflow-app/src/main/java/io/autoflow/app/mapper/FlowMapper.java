@@ -14,4 +14,5 @@ public interface FlowMapper {
     FlowMapper INSTANCE = Mappers.getMapper(FlowMapper.class);
 
     WorkflowVO toWorkflowVO(Workflow workflow);
+
 }

@@ -24,7 +24,5 @@ public class ServiceEntity extends BaseEntity<String> {
     private Boolean system;
     private String jarFileId;
     private String description;
-    @Transient
     private List<Property> properties;
-
 }
