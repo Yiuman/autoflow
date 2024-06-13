@@ -1,9 +1,9 @@
 package io.autoflow.app.service.impl;
 
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import com.mybatisflex.core.paginate.Page;
-import com.mybatisflex.core.query.QueryWrapper;
+import io.autoflow.app.exceptions.MessageException;
 import io.autoflow.app.model.ServiceEntity;
 import io.autoflow.app.service.ServiceEntityService;
 import io.autoflow.core.Services;
@@ -16,7 +16,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Slf4j
-@SuppressWarnings("unchecked")
 public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> implements ServiceEntityService {
     private static final Map<String, byte[]> SERVICE_SVG_CACHE = new ConcurrentHashMap<>();
 
@@ -37,16 +35,18 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
 
     private void addOrUpdateSystemServices() {
         List<io.autoflow.spi.Service> serviceList = Services.getServiceList();
-        List<ServiceEntity> systemServices = serviceList.stream().map(service -> {
-            ServiceEntity serviceEntity = new ServiceEntity();
-            serviceEntity.setId(service.getId());
-            serviceEntity.setName(service.getName());
-            serviceEntity.setProperties(service.getProperties());
-            serviceEntity.setDescription(service.getDescription());
-            serviceEntity.setSystem(true);
-            return serviceEntity;
-        }).toList();
+        List<ServiceEntity> systemServices = serviceList.stream().map(this::convert).toList();
         saveAll(systemServices);
+    }
+
+    private ServiceEntity convert(io.autoflow.spi.Service service) {
+        ServiceEntity serviceEntity = new ServiceEntity();
+        serviceEntity.setId(service.getId());
+        serviceEntity.setName(service.getName());
+        serviceEntity.setProperties(service.getProperties());
+        serviceEntity.setDescription(service.getDescription());
+        serviceEntity.setSystem(true);
+        return serviceEntity;
     }
 
 
@@ -78,31 +78,17 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         return SERVICE_SVG_CACHE.get(serviceId);
     }
 
-
-//    @Override
-//    public <T extends ServiceEntity> Page<T> page(Page<ServiceEntity> page, QueryWrapper queryWrapper) {
-//        Page<ServiceEntity> entityPage = super.page(page, queryWrapper);
-//        extension(entityPage.getRecords());
-//        return (Page<T>) entityPage;
-//    }
-//
-//    @Override
-//    public <T extends ServiceEntity> List<T> list(QueryWrapper queryWrapper) {
-//        List<ServiceEntity> list = super.list(queryWrapper);
-//        extension(list);
-//        return (List<T>) list;
-//    }
-//
-//    private void extension(List<ServiceEntity> serviceEntities){
-//        for (ServiceEntity serviceEntity : serviceEntities) {
-//            io.autoflow.spi.Service service = Services.getService(serviceEntity.getId());
-//            serviceEntity.setProperties(service.getProperties());
-//        }
-//    }
-
     @Override
     public ServiceEntity add(MultipartFile file) {
-        //todo
-        return null;
+        try {
+            io.autoflow.spi.Service service = Services.add(file.getResource().getFile().getAbsolutePath());
+            Assert.notNull(service, () -> new MessageException("cannot found plugin service class"));
+            ServiceEntity serviceEntity = convert(service);
+            save(serviceEntity);
+            return serviceEntity;
+        } catch (Throwable throwable) {
+            log.error("load jar service happen error", throwable);
+            throw new MessageException("add plugin happen error");
+        }
     }
 }
