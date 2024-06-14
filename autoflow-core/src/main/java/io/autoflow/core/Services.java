@@ -39,18 +39,34 @@ public class Services {
         return SERVICE_MAP.get(name);
     }
 
-    public static Service add(Path path) throws IOException {
+    public static void add(Service service) {
+        SERVICE_LIST.add(service);
+        refreshMap();
+    }
+
+    public static boolean exists(Service service) {
+        return Objects.nonNull(service) && Objects.nonNull(SERVICE_MAP.get(service.getId()));
+    }
+
+    public static Service load(String path) throws IOException {
+        return load(Path.of(path));
+    }
+
+    public static Service load(Path path) throws IOException {
         try (URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{path.toUri().toURL()})) {
             ServiceLoader<Service> jarServiceLoader = ServiceLoader.load(Service.class, urlClassLoader);
             Optional<Service> serviceOptional = jarServiceLoader.findFirst();
-            if (serviceOptional.isPresent()) {
-                Service jarService = serviceOptional.get();
-                SERVICE_LIST.add(jarService);
-                refreshMap();
-                return jarService;
-            }
-            return null;
+            return serviceOptional.orElse(null);
         }
+    }
+
+    public static Service add(Path path) throws IOException {
+        Service service = load(path);
+        if (Objects.nonNull(service)) {
+            add(service);
+        }
+
+        return service;
     }
 
 

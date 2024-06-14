@@ -4,10 +4,13 @@ import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import io.autoflow.app.exceptions.MessageException;
+import io.autoflow.app.model.FileResource;
 import io.autoflow.app.model.ServiceEntity;
+import io.autoflow.app.service.FileResourceService;
 import io.autoflow.app.service.ServiceEntityService;
 import io.autoflow.core.Services;
 import io.ola.crud.service.impl.BaseService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,8 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> implements ServiceEntityService {
     private static final Map<String, byte[]> SERVICE_SVG_CACHE = new ConcurrentHashMap<>();
+    private final FileResourceService fileResourceService;
 
     @PostConstruct
     public void init() {
@@ -81,11 +86,17 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
     @Override
     public ServiceEntity add(MultipartFile file) {
         try {
-            io.autoflow.spi.Service service = Services.add(file.getResource().getFile().getAbsolutePath());
+            FileResource fileResource = fileResourceService.upload(file);
+            io.autoflow.spi.Service service = Services.load(fileResource.getPath());
             Assert.notNull(service, () -> new MessageException("cannot found plugin service class"));
+            Assert.isFalse(Services.exists(service), () -> new MessageException("already exists"));
+            Services.add(service);
             ServiceEntity serviceEntity = convert(service);
+            serviceEntity.setJarFileId(fileResource.getId());
             save(serviceEntity);
             return serviceEntity;
+        } catch (MessageException messageException) {
+            throw messageException;
         } catch (Throwable throwable) {
             log.error("load jar service happen error", throwable);
             throw new MessageException("add plugin happen error");
