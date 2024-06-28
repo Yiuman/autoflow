@@ -5,12 +5,10 @@
 
 .workflow-list-top-box {
     display: flex;
-    padding: 10px 0;
     width: 50%;
     align-items: center;
     padding: 5px;
     background-color: var(--color-bg-2);
-
     >span {
         margin-right: 10px;
     }
@@ -55,7 +53,6 @@
 }
 
 
-
 .workflow-list {
     display: grid;
     grid-gap: 20px;
@@ -64,6 +61,11 @@
 
     :deep(.arco-card) {
         border-radius: 5px;
+        border: none;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        &:hover{
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
     }
 
     .workflow-add-card {

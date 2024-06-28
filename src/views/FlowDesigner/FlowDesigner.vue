@@ -176,7 +176,7 @@ async function doParseJson(json: string) {
   const flowNodes = flowDefine.nodes;
   const nodes: VueFlowNode[] = flowNodes?.map((node) => ({ ...toGraphNode(node), events: defaultEvents })) as VueFlowNode[];
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({ ...toGraphEdge(connection) })) as GraphEdge[];
-  elements.value = [...nodes || [], ...edges || []]
+  elements.value = [...nodes, ...edges]
 }
 
 

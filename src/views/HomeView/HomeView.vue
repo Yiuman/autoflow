@@ -42,11 +42,9 @@ function handleMenuClick(key: string) {
   <ALayout style="height:100%">
     <ALayoutSider ref="menuRef" hide-trigger collapsible :collapsed="collapsed">
       <div class="logo-wrap">
-        <div class="logo" v-if="collapsed">
-          <span class="collapsed-text">AF</span>
-        </div>
-        <div class="logo" v-else>
-          Auto<span>flow</span>
+        <div class="logo" >
+          <IconFont type="icon-autoflow" />
+          <span v-if="!collapsed">autoflow</span>
         </div>
       </div>
       <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['workflows']">
