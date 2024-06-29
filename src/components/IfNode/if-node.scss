@@ -1,9 +1,19 @@
 .if-node {
     background-color: transparent;
     border: none;
+    box-shadow: none !important;
 
     :deep(.node-avatar) {
         transform: rotate(45deg);
+    }
+
+    :deep(.arco-avatar ){
+        background-color: rgb(248 250 252);
+        border: 2px solid #eee;
+    }
+
+    .if-avatar-img{
+        transform: rotate(-45deg);
     }
 
     .node-if-label {
@@ -18,7 +28,7 @@
 
         font-size: 18px;
 
-        .node-status-sucess {
+        .node-status-success {
             color: rgb(var(--green-7))
         }
 
@@ -67,7 +77,7 @@
     .vue-flow__handle-bottom {
         background: white;
         border: 2px solid var(--vf-handle);
-        right: 0px;
+        right: 0;
     }
 
     .vue-flow__handle-top {

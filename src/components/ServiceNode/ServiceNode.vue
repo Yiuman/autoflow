@@ -49,7 +49,7 @@ async function stopNode() {
 
 
 const rgba = randomRgba(0.8)
-const [avatarNotFound, toggelAvatar] = useToggle(false)
+const [avatarNotFound, toggleAvatar] = useToggle(false)
 </script>
 
 <template>
@@ -80,7 +80,7 @@ const [avatarNotFound, toggelAvatar] = useToggle(false)
         <AAvatar v-if="avatarNotFound" shape="square" :size="68" :style="{ 'background-color': rgba }">{{ data.label }}
         </AAvatar>
         <AImage v-else :preview="false" :width="68" :height="68"
-          :src="`${VITE_BASE_URL || '/api'}/services/image/${data.serviceId}`" @error="() => toggelAvatar()" />
+          :src="`${VITE_BASE_URL || '/api'}/services/image/${data.serviceId}`" @error="() => toggleAvatar()" />
 
         <div class="node-status-icon" v-if="data.executionData">
           <IconExclamationCircle class="node-status-error" v-if="data.executionData[0].error" />

@@ -29,31 +29,30 @@ const modelValue = computed({
 <template>
     <div class="condition-item">
         <template v-if="modelValue.calcType === 'Express'">
-            <ASelect size="mini" v-model="modelValue.calcType" :options="options">
-                <template #label="{ data }">
-                    <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
-                </template>
-            </ASelect>
-            <ExpressInput placeholder="expressValue" v-model="modelValue.value" />
+          <ASelect size="mini" v-model="modelValue.calcType" :options="options">
+            <template #label="{ data }">
+              <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
+            </template>
+          </ASelect>
+          <ExpressInput placeholder="expressValue" v-model="modelValue.value" />
         </template>
         <template v-else-if="modelValue.calcType === 'NotEmpty' || modelValue.calcType === 'Empty'">
-            <ExpressInput placeholder="value" v-model="modelValue.value" />
-            <ASelect size="mini" v-model="modelValue.calcType" :options="options">
-                <template #label="{ data }">
-                    <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
-                </template>
-            </ASelect>
+          <ExpressInput placeholder="value" v-model="modelValue.value" />
+          <ASelect size="mini" v-model="modelValue.calcType" :options="options">
+            <template #label="{ data }">
+              <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
+            </template>
+          </ASelect>
         </template>
         <template v-else>
-            <ExpressInput placeholder="value1"  v-model="modelValue.dataKey" />
-            <ASelect size="mini" v-model="modelValue.calcType" :options="options">
-                <template #label="{ data }">
-                    <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
-                </template>
-            </ASelect>
-            <ExpressInput placeholder="value2"  v-model="modelValue.value" />
+          <ExpressInput placeholder="value1"  v-model="modelValue.dataKey" />
+          <ASelect size="mini" v-model="modelValue.calcType" :options="options">
+            <template #label="{ data }">
+              <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
+            </template>
+          </ASelect>
+          <ExpressInput placeholder="value2"  v-model="modelValue.value" />
         </template>
-
     </div>
 </template>
 

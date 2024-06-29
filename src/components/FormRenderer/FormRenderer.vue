@@ -85,7 +85,7 @@ function setDefaultValue(form: Record<string, any> | undefined, property: Proper
     return
   }
   if (!form[property.name]) {
-    form[property.name] = property?.defaultValue || (property.type === 'List' ? getDefaultList(property) : null)
+    form[property.name] = property?.defaultValue || (property.type === 'List' ? getDefaultList(property) : undefined)
   }
 }
 

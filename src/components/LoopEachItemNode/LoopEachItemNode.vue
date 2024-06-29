@@ -8,7 +8,7 @@ const props = defineProps<Props>()
 
 <template>
     <ServiceNode v-bind="props">
-        <Handle id="input" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
+          <Handle id="INPUT" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
         <Handle id="LOOP_EACH" type="source" :position="Position.Right" :is-valid-connection="validConnection">
             <div class="loop-label">loop</div>
         </Handle>

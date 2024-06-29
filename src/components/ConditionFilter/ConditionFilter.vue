@@ -4,8 +4,9 @@ import { pull } from 'lodash'
 import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
 import ConditionItem from '@/components/ConditionFilter/ConditionItem.vue'
 
+
 interface PropType {
-  modelValue?: Condition,
+  modelValue: Condition,
   parent?: Condition
 }
 
@@ -17,6 +18,7 @@ const props = withDefaults(defineProps<PropType>(), {
   })
 })
 
+
 const emits = defineEmits<{
   (e: 'update:modelValue', item: Condition): void;
   (e: 'removeChild', item: Condition): void;
@@ -25,6 +27,7 @@ const emits = defineEmits<{
 
 const modelValue = computed({
   get() {
+    console.warn('props.modelValue', props.modelValue)
     return props.modelValue
   },
   set(value) {
