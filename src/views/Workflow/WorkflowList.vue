@@ -71,6 +71,7 @@ function getWorkflowServices(workflow: Workflow): Service[] {
     if (!workflow || !workflow.pluginIds) {
         return [];
     }
+    console.warn("workflow.pluginIds.map(pluginId => serviceStore.getServiceById(pluginId))",workflow.pluginIds.map(pluginId => serviceStore.getServiceById(pluginId)))
     return workflow.pluginIds.map(pluginId => serviceStore.getServiceById(pluginId));
 }
 

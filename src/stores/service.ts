@@ -21,7 +21,6 @@ export const useServiceStore = defineStore('service', {
         async initData() {
             const self = this;
             await self.fetchServices();
-            console.warn(' self.services', self.services.length)
             for (const serviceItem of self.services) {
                 await self.getServiceAvatar(serviceItem.id)
             }
