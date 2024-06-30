@@ -8,10 +8,9 @@ import io.ola.common.utils.WebUtils;
 import io.ola.crud.rest.BaseQueryAPI;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -38,5 +37,11 @@ public class ServiceController implements BaseQueryAPI<ServiceEntity> {
             httpServletResponse.flushBuffer();
         }
 
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
+        ServiceEntity serviceEntity = serviceEntityService.add(file);
+        return ResponseEntity.ok(serviceEntity.getId());
     }
 }

@@ -1,5 +1,7 @@
 package io.autoflow.app.mapper;
 
+import io.autoflow.app.model.FileResource;
+import io.autoflow.app.model.FileResourceStream;
 import io.autoflow.app.model.Workflow;
 import io.autoflow.app.vo.WorkflowVO;
 import org.mapstruct.Mapper;
@@ -14,5 +16,7 @@ public interface FlowMapper {
     FlowMapper INSTANCE = Mappers.getMapper(FlowMapper.class);
 
     WorkflowVO toWorkflowVO(Workflow workflow);
+
+    FileResourceStream toFileResourceStream(FileResource fileResource);
 
 }

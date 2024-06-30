@@ -6,7 +6,6 @@ import io.autoflow.spi.model.Property;
 import io.ola.crud.model.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 
@@ -25,4 +24,5 @@ public class ServiceEntity extends BaseEntity<String> {
     private String jarFileId;
     private String description;
     private List<Property> properties;
+    private Boolean uninstall;
 }

@@ -27,6 +27,14 @@ ola:
     authenticate-endpoint: "/login"
     excluded-uris:
       - "/**"
+
+dromara:
+  x-file-storage:
+    local-plus:
+      - platform: local-plus # 存储平台标识
+        enable-storage: true
+        storage-path: ${FILE_STORAGE_PATH:/Users/yiumankam/Desktop/autoflow_upload/}
+    default-platform: local-plus
 logging:
   level:
     io.autoflow.*: debug

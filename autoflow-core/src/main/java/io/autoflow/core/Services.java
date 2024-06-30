@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,16 +39,38 @@ public class Services {
         return SERVICE_MAP.get(name);
     }
 
-    public static void add(Path path) throws IOException {
+    public static void add(Service service) {
+        SERVICE_LIST.add(service);
+        refreshMap();
+    }
+
+    public static boolean exists(Service service) {
+        return Objects.nonNull(service) && Objects.nonNull(SERVICE_MAP.get(service.getId()));
+    }
+
+    public static Service load(String path) throws IOException {
+        return load(Path.of(path));
+    }
+
+    public static Service load(Path path) throws IOException {
         try (URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{path.toUri().toURL()})) {
-            ServiceLoader<Service> load = ServiceLoader.load(Service.class, urlClassLoader);
-            load.findFirst().ifPresent(SERVICE_LIST::add);
-            refreshMap();
+            ServiceLoader<Service> jarServiceLoader = ServiceLoader.load(Service.class, urlClassLoader);
+            Optional<Service> serviceOptional = jarServiceLoader.findFirst();
+            return serviceOptional.orElse(null);
         }
     }
 
+    public static Service add(Path path) throws IOException {
+        Service service = load(path);
+        if (Objects.nonNull(service)) {
+            add(service);
+        }
 
-    public static void add(String path) throws IOException {
-        add(Path.of(path));
+        return service;
+    }
+
+
+    public static Service add(String path) throws IOException {
+        return add(Path.of(path));
     }
 }
