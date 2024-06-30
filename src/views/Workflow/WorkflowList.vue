@@ -91,17 +91,17 @@ function getWorkflowServices(workflow: Workflow): Service[] {
 
         </div>
         <div class="workflow-list">
-            <ACard class="workflow-add-card" :bordered="false" hoverable title="创建新的工作流">
-                <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
-                    <IconFont type="icon-chuangjian" /> 创建空白工作流
-                </div>
-                <div class="workflow-add-btn">
-                    <IconFont type="icon-template-success-fill" /> 从应用模板创建
-                </div>
-                <div class="workflow-add-btn">
-                    <IconFont type="icon-w_daoru" /> 导入工作流文件创建
-                </div>
-            </ACard>
+          <ACard class="workflow-add-card" :bordered="false" hoverable title="创建新的工作流">
+              <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
+                  <IconFont type="icon-chuangjian" /> 创建空白工作流
+              </div>
+              <div class="workflow-add-btn">
+                  <IconFont type="icon-template-success-fill" /> 从应用模板创建
+              </div>
+              <div class="workflow-add-btn">
+                  <IconFont type="icon-w_daoru" /> 导入工作流文件创建
+              </div>
+          </ACard>
           <ACard class="workflow-card-item" hoverable v-for="workflow in currentPageRecord?.records"
                 :key="workflow.id">
                 <div>

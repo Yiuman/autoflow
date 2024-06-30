@@ -1,7 +1,15 @@
 <script lang="ts" setup>
 import type { EdgeMouseEvent, Elements, GraphEdge } from '@vue-flow/core'
 import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
-import { elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode } from '@/utils/converter'
+import {
+  elementsToFlow,
+  getAllIncomers,
+  getNodes,
+  serviceToGraphNode,
+  toGraphEdge,
+  toGraphNode,
+  toNode
+} from '@/utils/converter'
 import {
   IconCloudDownload,
   IconPauseCircleFill,
@@ -136,8 +144,14 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
 const vueFlow = ref();
 function addNode(node: Service) {
   const { bottom, right } = useElementBounding(vueFlow);
+  const nodes = getNodes(elements.value)
+  let defaultXy = { x: right.value / 2, y: bottom.value / 2 }
+  if (nodes && nodes.length) {
+    const lastNode: VueFlowNode = nodes[nodes.length - 1]
+    defaultXy = { x: lastNode.position.x + 200, y: lastNode.position.y }
+  }
   const newNode = {
-    ...serviceToGraphNode(node, { x: right.value / 2, y: bottom.value / 2 }),
+    ...serviceToGraphNode(node, defaultXy),
     events: defaultEvents
   };
   addNodes(newNode);
@@ -157,7 +171,7 @@ async function saveWorkflow() {
   const flow: Flow = elementsToFlow(elements.value);
   const jsonStr = JSON.stringify(flow);
   await workflowApi.save({ id: route.query.flowId as string, flowStr: jsonStr })
-  Notification.success('save successed')
+  Notification.success('save success')
 }
 
 function importJson(fileList: FileItem[]): void {
