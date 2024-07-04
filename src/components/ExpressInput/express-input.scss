@@ -1,6 +1,10 @@
 .express-input {
     width: 100%;
     position: relative;
+
+    :deep(.arco-textarea) {
+        height: 20px;
+    }
 }
 
 .jsonpath-desc {

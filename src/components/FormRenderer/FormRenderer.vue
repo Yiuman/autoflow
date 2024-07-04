@@ -98,11 +98,13 @@ const componentAttrs = computed<ComponentAttr[]>(() => {
 <template>
   <div class="from-renderer">
     <AForm :model="form" :layout="props.layout" :rules="rules">
-      <AFormItem v-for="cmpAttr in componentAttrs" v-bind:key="cmpAttr.property.name" :field="cmpAttr.property.name"
-        :label="cmpAttr.property.displayName || cmpAttr.property.name"
-        :tooltip="cmpAttr.property.description || undefined">
-        <Component :is="cmpAttr.cmp" v-model="form[cmpAttr.property.name]" v-bind="cmpAttr.attrs" />
-      </AFormItem>
+      <KeepAlive>
+        <AFormItem v-for="cmpAttr in componentAttrs" :key="cmpAttr.property.name" v-memo="[cmpAttr.cmp]"
+          :field="cmpAttr.property.name" :label="cmpAttr.property.displayName || cmpAttr.property.name"
+          :tooltip="cmpAttr.property.description || undefined">
+          <Component :is="cmpAttr.cmp" v-model="form[cmpAttr.property.name]" v-bind="cmpAttr.attrs" />
+        </AFormItem>
+      </KeepAlive>
     </AForm>
   </div>
 </template>

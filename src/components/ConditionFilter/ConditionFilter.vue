@@ -27,7 +27,6 @@ const emits = defineEmits<{
 
 const modelValue = computed({
   get() {
-    console.warn('props.modelValue', props.modelValue)
     return props.modelValue
   },
   set(value) {

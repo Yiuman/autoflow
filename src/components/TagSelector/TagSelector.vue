@@ -32,8 +32,8 @@ async function createTag() {
     emits('update:modelValue', [...props.modelValue as [], tagEntity.id as string])
 }
 
-onMounted(async () => {
-    await handleSearch(null);
+onMounted(() => {
+    handleSearch(null);
 })
 
 const emits = defineEmits<{

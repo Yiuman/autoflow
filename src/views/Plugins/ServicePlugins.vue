@@ -46,7 +46,8 @@ function selectPlugin(serviceItem: Service) {
         </ACard>
       </div>
       <div class="plugin-doc">
-        <MdPreview :modelValue="selectedPlugin.description || '这是一个无语的插件'" />
+        <MdPreview v-if="selectedPlugin.description" :modelValue="selectedPlugin.description" />
+        <AResult v-else subtitle="你寻找的页面宛如海市蜃楼，从未存在，只留下一片空白。"/>
       </div>
     </div>
     <div class="plugins-box" v-else>
@@ -132,6 +133,8 @@ function selectPlugin(serviceItem: Service) {
 .plugin-doc {
   flex: 1.5;
   height: 100%;
+  background-color: var(--color-bg-2);
+  border-radius: 5px;
 
   :deep(.md-editor) {
     height: 100%;

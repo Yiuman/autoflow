@@ -38,6 +38,7 @@ declare module 'vue' {
     AOption: typeof import('@arco-design/web-vue')['Option']
     AOverflowList: typeof import('@arco-design/web-vue')['OverflowList']
     APagination: typeof import('@arco-design/web-vue')['Pagination']
+    AResult: typeof import('@arco-design/web-vue')['Result']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
     ATable: typeof import('@arco-design/web-vue')['Table']

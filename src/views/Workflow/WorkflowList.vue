@@ -9,48 +9,49 @@ import type { Service } from '@/types/flow'
 import TagSelector from '@/components/TagSelector/TagSelector.vue'
 import { useRouter } from 'vue-router'
 import { downloadByData } from '@/utils/download'
+import { debounce } from 'lodash';
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
 const router = useRouter();
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
 
+// Fetch Workflow Data
 const currentPageRecord = ref<PageRecord<Workflow>>();
-async function fetch() {
+const queryObj = ref<WorkflowQuery>({ pageSize: 10, pageNumber: 1 });
+
+const fetch = debounce(async () => {
     currentPageRecord.value = await workflowApi.page(queryObj.value);
-}
-onMounted(async () => {
-    await fetch()
-})
+}, 300);
 
-const [createBlankFormVisible, toggleCreateBlankFormVisible] = useToggle(false);
+onMounted(() => {
+    fetch();
+});
 
-const queryObj = ref<WorkflowQuery>({
-    pageSize: 10,
-    pageNumber: 1
-})
+watch(() => queryObj, fetch, { deep: true });
 
-watch(() => queryObj, fetch, { deep: true })
-
+// Create and Edit Workflow
 const formTitle = ref('');
 const workflowInstance = ref<Workflow>({ 'name': '', flowStr: '', tagIds: [] });
+const [createBlankFormVisible, toggleCreateBlankFormVisible] = useToggle(false);
+
 async function saveWorkflow() {
-    await workflowApi.save(workflowInstance.value)
+    await workflowApi.save(workflowInstance.value);
     await fetch();
     resetInstance();
 }
 
 function modifyWorkflow(workflow: Workflow) {
-    workflowInstance.value = workflow
+    workflowInstance.value = workflow;
     formTitle.value = '编辑';
     toggleCreateBlankFormVisible();
 }
 
+// Export Workflow
 function exportWorkflow(workflow: Workflow) {
     const jsonStr = JSON.stringify(workflow);
-    downloadByData(new Blob([jsonStr], {
-        type: 'text/plain'
-    }), `${workflow.id}.json`)
+    downloadByData(new Blob([jsonStr], { type: 'text/plain' }), `${workflow.id}.json`);
 }
 
+// Delete Workflow
 function deleteWorkflow(workflow: Workflow) {
     Modal.error({
         title: '确认删除吗?',
@@ -61,19 +62,21 @@ function deleteWorkflow(workflow: Workflow) {
         closable: true,
         onOk: async () => {
             await workflowApi.delete(workflow.id as string);
-            Notification.success('delete successed')
+            Notification.success('删除成功');
             await fetch();
         }
-    })
-
+    });
 }
 
+// Reset Workflow Instance
 function resetInstance() {
     workflowInstance.value = { 'name': '', flowStr: '', tagIds: [] };
-    formTitle.value = ''
+    formTitle.value = '';
 }
 
+// Get Workflow Services
 const serviceStore = useServiceStore();
+
 function getWorkflowServices(workflow: Workflow): Service[] {
     if (!workflow || !workflow.pluginIds) {
         return [];
@@ -81,16 +84,17 @@ function getWorkflowServices(workflow: Workflow): Service[] {
     return workflow.pluginIds.map(pluginId => serviceStore.getServiceById(pluginId));
 }
 
-// -------------- 处理导入json文件创建工作流 --------------
+// Handle Workflow Upload
 const [uploadFormVisible, toggleUploadFormVisible] = useToggle(false);
 const uploadExistsed = ref(false);
 const fileItem = ref();
+
 function uploadWorkflowJson(fileList: FileItem[]) {
-    const reader = new FileReader()
-    fileItem.value = fileList[0]
-    reader.readAsText(fileItem.value.file as Blob)
+    const reader = new FileReader();
+    fileItem.value = fileList[0];
+    reader.readAsText(fileItem.value.file as Blob);
     reader.onload = async function () {
-        const workflowJson = reader.result as string
+        const workflowJson = reader.result as string;
         const workflow: Workflow = JSON.parse(workflowJson);
         if (workflow.id) {
             const storeWorkflow = await workflowApi.get(workflow.id);
@@ -103,7 +107,7 @@ function uploadWorkflowJson(fileList: FileItem[]) {
             toggleUploadFormVisible();
             fileItem.value = null;
         }
-    }
+    };
 }
 
 async function saveUploadWorkflow(cover: boolean) {
@@ -116,11 +120,8 @@ async function saveUploadWorkflow(cover: boolean) {
     fileItem.value = null;
     resetInstance();
     toggleUploadFormVisible();
-    fetch();
-
+    fetch()
 }
-
-
 </script>
 
 <template>

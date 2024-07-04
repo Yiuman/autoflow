@@ -6,10 +6,15 @@ import { debounce } from 'lodash'
 
 interface ExpressInputProps {
     modelValue?: string,
-    placeholder?: string
+    placeholder?: string,
+    allowClear?: boolean,
+    type?: "input" | "textarea" | undefined
 }
 
-const props = defineProps<ExpressInputProps>();
+const props = withDefaults(defineProps<ExpressInputProps>(), {
+    allowClear: true,
+    type: "input"
+});
 const emits = defineEmits<{
     (e: 'update:modelValue', item: string): void
 }>()
@@ -79,7 +84,8 @@ const popoverVisiable = computed(() => expressClassName.value === 'jsonpath')
 
 <template>
     <div class="express-input" :class="expressClassName">
-        <AMention :placeholder="props.placeholder" v-model="data" :prefix="prefix" @search="handleSearch" :data="searchOptions" />
+        <AMention :allow-clear="props.allowClear" :type="props.type" :placeholder="props.placeholder" v-model="data" :prefix="prefix"
+            @search="handleSearch" :data="searchOptions" />
         <div v-if="popoverVisiable && descData" class="jsonpath-desc">
             <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
         </div>
