@@ -12,6 +12,10 @@ function getHandleDirection(handle: string | null | undefined): string {
  * 校验连接
  */
 const validConnection: ValidConnectionFunc = (connection: Connection): boolean => {
+    if (connection.source === connection.target) {
+        return false;
+    }
+
     return getHandleDirection(connection.sourceHandle) !== getHandleDirection(connection.targetHandle)
 }
 

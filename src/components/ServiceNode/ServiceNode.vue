@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CustomEvent, ElementData, NodeProps } from '@vue-flow/core'
+import type { CustomEvent, ElementData, NodeProps, Connection } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import { validConnection } from '@/utils/flow'
 import {
@@ -17,7 +17,8 @@ import { randomRgba } from '@/utils/util-func'
 import { useEnv } from '@/hooks/env'
 
 const { VITE_BASE_URL } = useEnv();
-const { removeNodes, updateNodeData } = useVueFlow()
+import { getAllIncomers } from '@/utils/converter'
+const { removeNodes, updateNodeData, getIncomers } = useVueFlow()
 
 export interface ToolBarData {
   toolbarVisible: boolean
@@ -50,6 +51,17 @@ async function stopNode() {
 
 const rgba = randomRgba(0.8)
 const [avatarNotFound, toggleAvatar] = useToggle(false)
+
+function validConnectionFunc(connection: Connection): boolean {
+  const node = getAllIncomers(props.id, getIncomers);
+  const nodeIds: string[] = node.map(n => n.id);
+  if (nodeIds.indexOf(connection.target) > -1) {
+    return false;
+  }
+
+  return validConnection(connection)
+
+}
 </script>
 
 <template>
@@ -91,8 +103,8 @@ const [avatarNotFound, toggleAvatar] = useToggle(false)
 
     <div class="node_hanlde">
       <slot>
-        <Handle id="INPUT" type="target" :position="Position.Left" :is-valid-connection="validConnection" />
-        <Handle id="OUTPUT" type="source" :position="Position.Right" :is-valid-connection="validConnection" />
+        <Handle id="INPUT" type="target" :position="Position.Left" :is-valid-connection="validConnectionFunc" />
+        <Handle id="OUTPUT" type="source" :position="Position.Right" :is-valid-connection="validConnectionFunc" />
       </slot>
     </div>
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { EdgeMouseEvent, Elements, GraphEdge } from '@vue-flow/core'
-import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import type { EdgeMouseEvent, Elements, GraphEdge, Connection } from '@vue-flow/core'
+import { MarkerType, Panel, useVueFlow, VueFlow, ConnectionMode } from '@vue-flow/core'
 import {
   elementsToFlow,
   getAllIncomers,
@@ -55,7 +55,7 @@ const edgeTypes = {
 
 const serviceStore = useServiceStore();
 const elements = ref<Elements<NodeElementData>>([]);
-const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers } = useVueFlow({
+const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers, onConnectEnd } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
@@ -115,13 +115,13 @@ const defaultEvents = {
 
 
 //---------------------------- 处理连线逻辑/添加节点逻辑 ----------------------------
-onConnect((param) => {
-  const sourceNode = findNode<NodeElementData>(param.source);
-  const addEdge: GraphEdge = { ...param, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
-  addEdge.data.sourcePointType = param.sourceHandle;
-  addEdge.data.targetPointType = param.targetHandle;
+function doConnect(connection: Connection) {
+  const sourceNode = findNode<NodeElementData>(connection.source);
+  const addEdge: GraphEdge = { ...connection, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
+  addEdge.data.sourcePointType = connection.sourceHandle;
+  addEdge.data.targetPointType = connection.targetHandle;
   if (sourceNode && sourceNode.type === 'IF') {
-    if (param.sourceHandle == `IF_TRUE`) {
+    if (connection.sourceHandle == `IF_TRUE`) {
       addEdge.data.expression = "${" + `inputData['${sourceNode.id}'][0].json.result` + "}"
     } else {
       addEdge.data.expression = "${!" + `inputData['${sourceNode.id}'][0].json.result` + "}"
@@ -129,8 +129,22 @@ onConnect((param) => {
   }
 
   addEdges(addEdge)
-})
+}
+onConnect(doConnect);
 
+
+const selectHandlerId = ref<string | null | undefined>();
+
+onConnectEnd((param) => {
+  const targetHandlerId = (param?.target as HTMLElement)?.dataset?.id;
+  if (!targetHandlerId) {
+    const sourceHandlerId = (param?.srcElement as HTMLElement)?.dataset?.id;
+    const sourceNodeId = (param?.srcElement as HTMLElement)?.dataset?.nodeid;
+    selectedNodeId.value = sourceNodeId
+    selectHandlerId.value = sourceHandlerId
+    toggleSearchModalVisible();
+  }
+})
 //处理连线的toolbar显示与隐藏
 function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
   const edgeToolBar = document.getElementById(`edge-toolbar-${edgeMouseEvent.edge.id}`);
@@ -145,17 +159,33 @@ const vueFlow = ref();
 function addNode(node: Service) {
   const { bottom, right } = useElementBounding(vueFlow);
   const nodes = getNodes(elements.value)
-  let defaultXy = { x: right.value / 2, y: bottom.value / 2 }
-  if (nodes && nodes.length) {
+  let defaultXy;
+  if (selectedNode.value) {
+    defaultXy = { x: selectedNode.value.position.x + 200, y: selectedNode.value.position.y }
+  } else if (nodes && nodes.length) {
     const lastNode: VueFlowNode = nodes[nodes.length - 1]
     defaultXy = { x: lastNode.position.x + 200, y: lastNode.position.y }
+  } else {
+    defaultXy = { x: right.value / 2, y: bottom.value / 2 }
   }
+
   const newNode = {
     ...serviceToGraphNode(node, defaultXy),
     events: defaultEvents
   };
   addNodes(newNode);
-  searchModalVisible.value = false;
+  if (selectHandlerId.value) {
+    doConnect({
+      source: selectedNodeId.value as string,
+      target: newNode.id,
+      sourceHandle: selectHandlerId.value,
+      targetHandle: "INPUT"
+    })
+  }
+  selectHandlerId.value = undefined;
+  selectedNodeId.value = undefined;
+  toggleSearchModalVisible();
+
 }
 
 
@@ -197,7 +227,7 @@ async function doParseJson(json: string) {
 //---------------------------- 节点搜索弹窗逻辑 ----------------------------
 
 const searchModalValue = ref<string>()
-const searchModalVisible = ref<boolean>()
+const [searchModalVisible, toggleSearchModalVisible] = useToggle(false)
 const matchServices = computed(() => {
   if (searchModalValue.value) {
     return serviceStore.getServices.filter(service => {
@@ -260,7 +290,6 @@ function runFlow() {
   const flow = elementsToFlow(elements.value);
   executeFlowId.value = flow.id
   executeFlowSSE(flow)
-
 }
 
 async function stopFlow() {
@@ -275,8 +304,9 @@ async function stopFlow() {
 </script>
 
 <template>
-  <VueFlow ref="vueFlow" v-model="elements" @edge-mouse-move="edgeMouseMove" @edge-mouse-leave="edgeMouseMove"
-    :class="{ theme }" class="vue-flow-basic" :node-types="nodeTypes" :edge-types="edgeTypes">
+  <VueFlow ref="vueFlow" :connection-mode="ConnectionMode.Strict" v-model="elements" @edge-mouse-move="edgeMouseMove"
+    @edge-mouse-leave="edgeMouseMove" :class="{ theme }" class="vue-flow-basic" :node-types="nodeTypes"
+    :edge-types="edgeTypes">
     <!-- 背景 -->
     <Background :pattern-color="theme ? '#FFFFFB' : '#aaa'" :gap="8" />
     <!-- 面板控制器 -->
