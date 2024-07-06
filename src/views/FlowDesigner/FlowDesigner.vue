@@ -67,7 +67,7 @@ const {
   onConnectStart,
   onConnectEnd,
   getViewport,
-  onInit
+  fitView
 } = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
@@ -80,11 +80,8 @@ onMounted(async () => {
   } else {
     doParseJson(JSON.stringify(json));
   }
-
-})
-
-onInit(({ fitView }) => {
-  fitView()
+  await nextTick()
+  setTimeout(() => fitView({ maxZoom: 1 }), 0)
 })
 
 
