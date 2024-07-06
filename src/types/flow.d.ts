@@ -1,5 +1,6 @@
 import type { Node as VueFlowCordNode } from '@vue-flow/core'
 import type { Component } from 'vue'
+
 interface Flow {
   id: string
   name: string
@@ -42,6 +43,20 @@ interface Connection {
 interface Position {
   x: number
   y: number
+}
+
+interface BoundingBox {
+  bottom: number;
+  left: number;
+  right: number;
+  top: number;
+}
+
+interface Bounding extends BoundingBox {
+  height: number;
+  width: number;
+  x: number;
+  y: number;
 }
 
 interface Binary {
@@ -99,4 +114,19 @@ interface ComponentAttr {
 export type NodeElementData = ToolBarData & Record<string, ElementData>
 export type VueFlowNode = VueFlowCordNode<NodeElementData>
 
-export { Flow, Node, Connection, Position, ExecutionData, Binary, ExecutionError, Property, Service, Loop, ValidateRule, ComponentAttr }
+export {
+  Flow,
+  Node,
+  Connection,
+  Position,
+  BoundingBox,
+  Bounding,
+  ExecutionData,
+  Binary,
+  ExecutionError,
+  Property,
+  Service,
+  Loop,
+  ValidateRule,
+  ComponentAttr
+}

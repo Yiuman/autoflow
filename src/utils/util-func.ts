@@ -1,3 +1,5 @@
+import type { Position } from '@/types/flow'
+
 function uuid(len: number, nonnumericBeginning: boolean = false, radix: number = 62): string {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
   const chars = ('0123456789' + alphabet).split('')
@@ -108,4 +110,32 @@ const ScriptHelper = {
   },
 };
 
-export { uuid, randomRgb, randomRgba, getOS, flatten, ScriptHelper }
+function getContainerClientXY(event: MouseEvent | TouchEvent | undefined, container?: HTMLElement): Position | undefined {
+  if (!event) {
+    return undefined
+  }
+  let clientX: number
+  let clientY: number
+
+  if (event instanceof MouseEvent) {
+    clientX = event.clientX
+    clientY = event.clientY
+  } else if (event instanceof TouchEvent) {
+    clientX = event.touches[0].clientX
+    clientY = event.touches[0].clientY
+  } else {
+    throw new Error('Invalid event type')
+  }
+
+  if(!container){
+    return { x: clientX, y: clientY }
+  }
+
+  const containerRect = container.getBoundingClientRect()
+  const offsetX = clientX - containerRect.left
+  const offsetY = clientY - containerRect.top
+
+  return { x: offsetX, y: offsetY }
+}
+
+export { uuid, randomRgb, randomRgba, getOS, flatten, getContainerClientXY, ScriptHelper }

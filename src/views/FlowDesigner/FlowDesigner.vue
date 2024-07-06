@@ -1,15 +1,7 @@
 <script lang="ts" setup>
-import type { EdgeMouseEvent, Elements, GraphEdge, Connection } from '@vue-flow/core'
-import { MarkerType, Panel, useVueFlow, VueFlow, ConnectionMode } from '@vue-flow/core'
-import {
-  elementsToFlow,
-  getAllIncomers,
-  getNodes,
-  serviceToGraphNode,
-  toGraphEdge,
-  toGraphNode,
-  toNode
-} from '@/utils/converter'
+import type { Connection, EdgeMouseEvent, Elements, GraphEdge, ViewportTransform, XYPosition } from '@vue-flow/core'
+import { ConnectionMode, MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import { elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode } from '@/utils/converter'
 import {
   IconCloudDownload,
   IconPauseCircleFill,
@@ -22,11 +14,21 @@ import { Controls } from '@vue-flow/controls'
 
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem, Notification } from '@arco-design/web-vue'
-import type { ExecutionData, Flow, NodeElementData, Property, Service, VueFlowNode } from '@/types/flow'
+import type {
+  BoundingBox,
+  ExecutionData,
+  Flow,
+  NodeElementData,
+  Position,
+  Property,
+  Service,
+  VueFlowNode
+} from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByData } from '@/utils/download'
+import { getContainerClientXY } from '@/utils/util-func'
 import { executeNode, stopExecution } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
 import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
@@ -55,7 +57,18 @@ const edgeTypes = {
 
 const serviceStore = useServiceStore();
 const elements = ref<Elements<NodeElementData>>([]);
-const { onConnect, addEdges, addNodes, findNode, updateNodeData, getIncomers, onConnectEnd } = useVueFlow({
+const {
+  onConnect,
+  addEdges,
+  addNodes,
+  findNode,
+  updateNodeData,
+  getIncomers,
+  onConnectStart,
+  onConnectEnd,
+  getViewport,
+  onInit
+} = useVueFlow({
   minZoom: 0.2,
   maxZoom: 4
 })
@@ -68,6 +81,10 @@ onMounted(async () => {
     doParseJson(JSON.stringify(json));
   }
 
+})
+
+onInit(({ fitView }) => {
+  fitView()
 })
 
 
@@ -134,14 +151,16 @@ onConnect(doConnect);
 
 
 const selectHandlerId = ref<string | null | undefined>();
-
+const connectEndOffset = ref<XYPosition>()
+onConnectStart((param) => {
+  selectedNodeId.value = param.nodeId
+  selectHandlerId.value = param.handleId
+})
 onConnectEnd((param) => {
-  const targetHandlerId = (param?.target as HTMLElement)?.dataset?.id;
+  connectEndOffset.value = getContainerClientXY(param)
+  const targetElement = (param?.target as HTMLElement)
+  const targetHandlerId = targetElement?.dataset?.id
   if (!targetHandlerId) {
-    const sourceHandlerId = (param?.srcElement as HTMLElement)?.dataset?.id;
-    const sourceNodeId = (param?.srcElement as HTMLElement)?.dataset?.nodeid;
-    selectedNodeId.value = sourceNodeId
-    selectHandlerId.value = sourceHandlerId
     toggleSearchModalVisible();
   }
 })
@@ -155,37 +174,62 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
   }
 }
 
-const vueFlow = ref();
-function addNode(node: Service) {
-  const { bottom, right } = useElementBounding(vueFlow);
-  const nodes = getNodes(elements.value)
+const vueFlow = ref()
+
+function calculateDefaultPosition(viewport: ViewportTransform, bounding: BoundingBox, connectEndOffset?: Position) {
   let defaultXy;
-  if (selectedNode.value) {
+  if (connectEndOffset && connectEndOffset.x) {
+    // 如果存在连接结束偏移量，计算相对位置
+    defaultXy = {
+      x: connectEndOffset.x - viewport.x - bounding.left,
+      y: connectEndOffset.y - viewport.y - bounding.top
+    }
+  } else if (selectedNode.value) {
     defaultXy = { x: selectedNode.value.position.x + 200, y: selectedNode.value.position.y }
-  } else if (nodes && nodes.length) {
-    const lastNode: VueFlowNode = nodes[nodes.length - 1]
-    defaultXy = { x: lastNode.position.x + 200, y: lastNode.position.y }
   } else {
-    defaultXy = { x: right.value / 2, y: bottom.value / 2 }
+    // 如果没有连接结束偏移且没有现有节点，将新节点放置在 vueFlow 中心位置
+    defaultXy = { x: bounding.right / 2, y: bounding.bottom / 2 }
   }
 
+  return defaultXy
+}
+
+function addNode(node: Service) {
+  const viewport = getViewport()
+  const { top, bottom, left, right } = useElementBounding(vueFlow)
+  const bounding: BoundingBox = {
+    top: top.value,
+    bottom: bottom.value,
+    left: left.value,
+    right: right.value
+  }
+  // 计算默认位置
+  const defaultXy = calculateDefaultPosition(viewport, bounding, connectEndOffset?.value)
+  // 创建新的节点
   const newNode = {
     ...serviceToGraphNode(node, defaultXy),
     events: defaultEvents
   };
+
+  // 添加新的节点到流程图中
   addNodes(newNode);
+
+  // 如果有选中的处理器ID，连接新节点和选中的节点
   if (selectHandlerId.value) {
     doConnect({
       source: selectedNodeId.value as string,
       target: newNode.id,
       sourceHandle: selectHandlerId.value,
       targetHandle: "INPUT"
-    })
+    });
   }
+
+  // 重置选中处理器和选中节点的ID
   selectHandlerId.value = undefined;
   selectedNodeId.value = undefined;
-  toggleSearchModalVisible();
 
+  // 切换搜索模态框的可见性
+  toggleSearchModalVisible();
 }
 
 
@@ -214,8 +258,7 @@ function importJson(fileList: FileItem[]): void {
 }
 
 
-
-async function doParseJson(json: string) {
+function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
   const flowNodes = flowDefine.nodes;
   const nodes: VueFlowNode[] = flowNodes?.map((node) => ({ ...toGraphNode(node), events: defaultEvents })) as VueFlowNode[];
@@ -280,7 +323,6 @@ function executeFlowSSE(flow: Flow) {
     onerror(error: Error) {
       throw error;
     }
-
 
   })
 }
