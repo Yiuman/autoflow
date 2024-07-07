@@ -129,7 +129,9 @@ const defaultEvents = {
 
 
 //---------------------------- 处理连线逻辑/添加节点逻辑 ----------------------------
+const isConnect = ref<boolean>(false)
 function doConnect(connection: Connection) {
+  isConnect.value = true
   const sourceNode = findNode<NodeElementData>(connection.source);
   const addEdge: GraphEdge = { ...connection, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
   addEdge.data.sourcePointType = connection.sourceHandle;
@@ -156,10 +158,10 @@ onConnectStart((param) => {
 onConnectEnd((param) => {
   connectEndOffset.value = getContainerClientXY(param)
   const targetElement = (param?.target as HTMLElement)
-  const targetHandlerId = targetElement?.dataset?.id
-  if (!targetHandlerId) {
+  if (!isConnect.value && !targetElement?.dataset?.id) {
     toggleSearchModalVisible();
   }
+  isConnect.value = false
 })
 //处理连线的toolbar显示与隐藏
 function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
@@ -213,18 +215,27 @@ function addNode(node: Service) {
 
   // 如果有选中的处理器ID，连接新节点和选中的节点
   if (selectHandlerId.value) {
-    doConnect({
+    const isInputHandler = selectHandlerId.value === 'INPUT'
+    const newConnect = isInputHandler
+      ? {
+        source: newNode.id,
+        target: selectedNodeId.value as string,
+        sourceHandle: 'OUTPUT',
+        targetHandle: selectHandlerId.value
+      }
+      : {
       source: selectedNodeId.value as string,
       target: newNode.id,
       sourceHandle: selectHandlerId.value,
       targetHandle: "INPUT"
-    });
+      }
+    doConnect(newConnect)
   }
 
   // 重置选中处理器和选中节点的ID
   selectHandlerId.value = undefined;
   selectedNodeId.value = undefined;
-
+  isConnect.value = false
   // 切换搜索模态框的可见性
   toggleSearchModalVisible();
 }
