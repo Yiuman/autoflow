@@ -3,7 +3,7 @@ import useCRUD, { type CrudProps } from '@/hooks/crud';
 import { computed } from 'vue';
 
 interface CrudCmpProps extends CrudProps {
-    rowKey?: string
+    rowKey?: string,
 }
 const props = withDefaults(defineProps<CrudCmpProps>(), {
     rowKey: 'id'
@@ -12,14 +12,16 @@ const { loading, queryParams, pageRecord, fetch } = useCRUD(props);
 
 const pagination = computed(() => ({
     current: pageRecord.value.pageNumber,
-    pageSize:  pageRecord.value.pageSize,
-    total:  pageRecord.value.totalRow
+    pageSize: pageRecord.value.pageSize,
+    total: pageRecord.value.totalRow
 }))
 
 function pageChange(current: number) {
     queryParams.pageNumber = current;
     fetch();
 };
+
+
 </script>
 
 <template>

@@ -18,12 +18,14 @@
         right: 0px;
 
         .done-label {
+            color: var(--color-text-1);
             position: absolute;
             top: 14px;
             left: -8px;
         }
 
         .loop-label {
+            color: var(--color-text-1);
             position: absolute;
             top: -18px;
             left: 10px;

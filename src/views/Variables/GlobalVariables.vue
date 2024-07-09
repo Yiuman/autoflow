@@ -6,11 +6,21 @@ const columns: TableColumnData[] = [
     { dataIndex: 'value', title: 'value' },
     { dataIndex: 'desc', title: 'desc' }
 ]
+
+const queryObj = ref<Record<string,any>>({});
+
 </script>
 
 <template>
     <div class="varibales-table">
-        <Curd :uri="'/variables'" :columns="columns" />
+        <div class="varibales-table-top-box">
+            <AInput v-model="queryObj.name" allow-clear placeholder="搜索">
+                <template #prefix>
+                    <IconSearch />
+                </template>
+            </AInput>
+        </div>
+        <Curd :uri="'/variables'" :query-object="queryObj" :columns="columns" />
     </div>
 </template>
 

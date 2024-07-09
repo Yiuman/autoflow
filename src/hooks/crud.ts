@@ -10,6 +10,7 @@ export interface CrudProps {
   pageNumber?: number;
   pageSize?: number;
   columns: TableColumnData[];
+  queryObject?: Record<string, any>;
 };
 
 export default function useCRUD(props: CrudProps) {
@@ -21,15 +22,15 @@ export default function useCRUD(props: CrudProps) {
   const crudService = computed(() => createCrudRequest(props.uri || ''));
 
 
-  const queryParams = reactive<PageParameter & Record<string, any>>({
+  const pageParams = reactive<PageParameter>({
     pageNumber: pageRecord.value.pageNumber,
-    pageSize: pageRecord.value.pageSize
+    pageSize: pageRecord.value.pageSize,
   });
 
   const { loading, toggle: toggleLogading } = useLoading();
 
   const fetchPageViewData = async () => {
-    pageRecord.value = await crudService.value.page(queryParams);
+    pageRecord.value = await crudService.value.page({...pageParams,...props.queryObject});
   };
 
   const fetch = useDebounceFn(async () => {
@@ -39,7 +40,7 @@ export default function useCRUD(props: CrudProps) {
   });
 
   watch(
-    () => [crudService.value, queryParams],
+    () => [crudService.value, pageParams, props.queryObject],
     () => {
       fetch();
     }
@@ -48,5 +49,5 @@ export default function useCRUD(props: CrudProps) {
   onMounted(() => {
     fetch();
   });
-  return { loading, queryParams, pageRecord, fetch };
+  return { loading, pageParams, pageRecord, fetch };
 }

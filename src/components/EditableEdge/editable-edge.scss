@@ -1,8 +1,8 @@
 .edge-toolbar {
+  color: var(--color-text-1);
   transition: 0.5s;
   opacity: 0;
   z-index: 1;
-  
 
   &:hover {
     cursor: pointer;
@@ -11,6 +11,7 @@
 }
 
 .edge-toolbar-show {
+ 
   opacity: 1;
   transition-delay: 0s;
   animation: action 2s infinite linear;
