@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import workflowApi, { type Workflow, type WorkflowQuery } from '@/api/workflow'
-import { IconMoreVertical, IconSearch, IconTags, IconPlus } from '@arco-design/web-vue/es/icon'
-import { Icon, Modal, Notification, type FileItem } from '@arco-design/web-vue'
+import { IconMoreVertical, IconPlus, IconSearch, IconTags } from '@arco-design/web-vue/es/icon'
+import { type FileItem, Icon, Modal, Notification } from '@arco-design/web-vue'
 import { type PageRecord } from '@/types/crud'
 import { useServiceStore } from '@/stores/service'
 import { format } from 'date-fns'
@@ -9,7 +9,8 @@ import type { Service } from '@/types/flow'
 import TagSelector from '@/components/TagSelector/TagSelector.vue'
 import { useRouter } from 'vue-router'
 import { downloadByData } from '@/utils/download'
-import { debounce } from 'lodash';
+import { debounce } from 'lodash'
+
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
 const router = useRouter();
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
@@ -30,7 +31,7 @@ watch(() => queryObj, fetch, { deep: true });
 
 // Create and Edit Workflow
 const formTitle = ref('');
-const workflowInstance = ref<Workflow>({ 'name': '', flowStr: '', tagIds: [] });
+const workflowInstance = ref<Workflow>({ name: '', flowStr: '', tagIds: [] })
 const [createBlankFormVisible, toggleCreateBlankFormVisible] = useToggle(false);
 
 async function saveWorkflow() {
@@ -86,7 +87,7 @@ function getWorkflowServices(workflow: Workflow): Service[] {
 
 // Handle Workflow Upload
 const [uploadFormVisible, toggleUploadFormVisible] = useToggle(false);
-const uploadExistsed = ref(false);
+const uploadExists = ref(false)
 const fileItem = ref();
 
 function uploadWorkflowJson(fileList: FileItem[]) {
@@ -99,7 +100,7 @@ function uploadWorkflowJson(fileList: FileItem[]) {
         if (workflow.id) {
             const storeWorkflow = await workflowApi.get(workflow.id);
             if (storeWorkflow) {
-                uploadExistsed.value = true;
+              uploadExists.value = true
                 workflowInstance.value = workflow;
             }
         } else {
@@ -116,7 +117,7 @@ async function saveUploadWorkflow(cover: boolean) {
         delete uploadWorkflow.id;
     }
     await workflowApi.save(uploadWorkflow);
-    uploadExistsed.value = false;
+  uploadExists.value = false
     fileItem.value = null;
     resetInstance();
     toggleUploadFormVisible();
@@ -232,7 +233,7 @@ async function saveUploadWorkflow(cover: boolean) {
                         </div>
                     </template>
                 </AUpload>
-                <template v-if="uploadExistsed">
+                <template v-if="uploadExists">
                     <div class="upload-repeat-alert">
                         当前导入的工作流已存在，请选择
                         <AButton size="mini" status="warning" type="outline" @click="() => saveUploadWorkflow(true)">覆盖

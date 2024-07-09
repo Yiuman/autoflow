@@ -1,6 +1,6 @@
 interface PageParameter extends Record<string, any> {
-    pageNumber: number;
-    pageSize: number;
+    pageNumber?: number;
+    pageSize?: number;
     orders?: Order[]
 }
 
@@ -12,7 +12,7 @@ interface PageRecord<RECORD> extends PageParameter {
 
 enum Direction {
     ASC = "ASC",
-    DESE = "DESE"
+    DESC = "DESC"
 }
 
 interface Order {
