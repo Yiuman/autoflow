@@ -6,36 +6,41 @@ import useLoading from '@/hooks/loading'
 import { useDebounceFn } from '@vueuse/core'
 
 export interface CrudProps {
-  uri?: string;
-  columns: TableColumnData[];
-  queryObject?: PageParameter;
+  uri?: string
+  columns?: TableColumnData[]
+  queryObject?: PageParameter
+  autoFetch?: boolean
 }
 
 export default function useCRUD(props: CrudProps) {
   const pageRecord = ref<PageRecord<any>>({
     records: [],
     pageNumber: props.queryObject?.pageNumber || 1,
-    pageSize: props.queryObject?.pageNumber || 5
-  });
-  const crudService = computed(() => createCrudRequest(props.uri || ''));
+    pageSize: props.queryObject?.pageNumber || 10
+  })
+  const crudService = computed(() => createCrudRequest(props.uri || ''))
 
   const pageParams = reactive<PageParameter>({
     pageNumber: pageRecord.value.pageNumber,
     pageSize: pageRecord.value.pageSize,
     ...props.queryObject
-  });
+  })
 
   const { loading, toggle: toggleLoading } = useLoading()
 
   const fetchPageViewData = async () => {
-    pageRecord.value = await crudService.value.page({...pageParams,...props.queryObject});
-  };
+    pageRecord.value = await crudService.value.page({
+      ...pageParams,
+      ...props.queryObject,
+      _timestamp: Date.now()
+    })
+  }
 
   const fetch = useDebounceFn(async () => {
     toggleLoading()
-    await fetchPageViewData();
+    await fetchPageViewData()
     toggleLoading()
-  });
+  })
 
   watch(
     () => [crudService.value, pageParams, props.queryObject],
@@ -43,12 +48,13 @@ export default function useCRUD(props: CrudProps) {
       await fetch()
     },
     { deep: true }
-  );
+  )
 
-  onMounted(async () => {
-    await fetch()
-  });
-
+  if (props.autoFetch) {
+    onMounted(async () => {
+      await fetch()
+    })
+  }
 
   return {
     loading,
