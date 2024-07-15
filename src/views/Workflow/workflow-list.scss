@@ -108,11 +108,20 @@
         }
     }
 
-    .upload-workflow-modal {
-        :global(.arco-modal-body) {
-            padding: 5px !important;
-        }
+    :global(.upload-workflow-modal-body){
+        padding: 5px !important;
+        height: 150px !important;
 
+
+    }
+
+
+}
+
+.upload-workflow-draggable{
+    height: 100%;
+    :deep(.arco-upload-picture-card){
+        height: 100%;
     }
 }
 

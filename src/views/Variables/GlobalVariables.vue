@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import Curd from '@/components/Crud/Crud.vue'
+import RestCrud from '@/components/Crud/RestCrud.vue'
 import { IconSearch } from '@arco-design/web-vue/es/icon'
 import type { TableColumnData } from '@arco-design/web-vue'
-import useCRUD from '@/hooks/crud'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
   { dataIndex: 'key', title: 'key' },
   { dataIndex: 'value', title: 'value' },
-  { dataIndex: 'desc', title: 'desc' }
+  { dataIndex: 'desc', title: 'desc' },
+  {
+    title: 'Optional',
+    slotName: 'optional',
+    width: 10,
+    align: 'center'
+  }
 ]
 
 interface Variable {
+  id?: string
   key: string
   value: string
   desc?: string
@@ -23,17 +29,26 @@ const DEFAULT_INSTANCE = {
 }
 const variableInstance = ref<Variable>({ ...DEFAULT_INSTANCE })
 const [formVisible, toggleFormVisible] = useToggle(false)
-
-const { save, fetch } = useCRUD({ uri: '/variables', autoFetch: false })
+const variableCrud = ref()
 
 function resetInstance() {
   variableInstance.value = { ...DEFAULT_INSTANCE }
 }
 
 async function saveVariable() {
-  await save(variableInstance.value)
+  await variableCrud.value.crud.save(variableInstance.value)
   resetInstance()
-  await fetch()
+  await variableCrud.value.crud.fetch()
+}
+
+function editVariable(record: Variable) {
+  variableInstance.value = record
+  toggleFormVisible()
+}
+
+async function deleteVariable(record: Variable) {
+  await variableCrud.value.crud.delete(record.id)
+  await variableCrud.value.crud.fetch()
 }
 </script>
 
@@ -49,11 +64,18 @@ async function saveVariable() {
       </div>
 
       <div class="top-box-right">
-        <AButton type="primary" @click="() => toggleFormVisible()">添加</AButton>
+        <AButton type="primary" @click="() => toggleFormVisible()">新增</AButton>
       </div>
     </div>
     <div class="variables-list">
-      <Curd :uri="'/variables'" :query-object="queryObj" :columns="columns" />
+      <RestCrud ref="variableCrud" :uri="'/variables'" :query-object="queryObj" :columns="columns">
+        <template #optional="{ record }">
+          <div class="optional-column">
+            <AButton size="small" type="text" @click="() => editVariable(record)">编辑</AButton>
+            <AButton size="small" type="text" @click="() => deleteVariable(record)">删除</AButton>
+          </div>
+        </template>
+      </RestCrud>
     </div>
 
     <AModal v-model:visible="formVisible" @ok="saveVariable" @cancel="resetInstance" draggable>
@@ -101,6 +123,14 @@ async function saveVariable() {
 
   .variables-list {
     padding: 5px 0;
+  }
+
+  .optional-column {
+    display: flex;
+
+    > * {
+      flex: 1;
+    }
   }
 }
 </style>

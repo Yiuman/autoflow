@@ -61,6 +61,7 @@ declare module 'vue' {
     LoopSetting: typeof import('./src/components/LoopSetting/LoopSetting.vue')['default']
     MapEditor: typeof import('./src/components/MapEditor/MapEditor.vue')['default']
     NodeFormModal: typeof import('./src/components/NodeFormModal/NodeFormModal.vue')['default']
+    RestCrud: typeof import('./src/components/Crud/RestCrud.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
