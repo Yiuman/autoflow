@@ -56,7 +56,7 @@ async function deleteVariable(record: Variable) {
   <div class="variables-table">
     <div class="variables-table-top-box">
       <div class="top-box-left">
-        <AInput v-model="queryObj.name" allow-clear placeholder="搜索">
+        <AInput v-model="queryObj.keyword" allow-clear placeholder="搜索">
           <template #prefix>
             <IconSearch />
           </template>

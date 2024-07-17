@@ -61,6 +61,7 @@ export default function useCRUD(props: CrudProps) {
     pageParams,
     pageRecord,
     fetch,
+    page: crudService.value.page,
     save: crudService.value.save,
     get: crudService.value.get,
     delete: crudService.value.delete

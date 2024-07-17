@@ -5,20 +5,18 @@ import { type FileItem } from '@arco-design/web-vue'
 import serviceApi from '@/api/service'
 import type { Service } from '@/types/flow'
 import { MdPreview } from 'md-editor-v3'
-const serviceStore = useServiceStore();
+const serviceStore = useServiceStore()
 
 async function uploadJar(fileList: FileItem[]): Promise<void> {
-  await serviceApi.upload({ file: fileList[0].file as File });
-  await serviceStore.initData();
+  await serviceApi.upload({ file: fileList[0].file as File })
+  await serviceStore.initData()
 }
-
 
 const selectedPlugin = ref()
 const [descriptionVisible, toggleDescriptionVisible] = useToggle(false)
 
 function selectPlugin(serviceItem: Service) {
   selectedPlugin.value = serviceItem
-  console.warn(selectedPlugin.value)
   toggleDescriptionVisible()
 }
 </script>
@@ -27,7 +25,7 @@ function selectPlugin(serviceItem: Service) {
   <div class="plugins-container" id="pluginsContainer">
     <div class="plugin-description" v-if="descriptionVisible">
       <div class="plugin-info">
-        <AButton class="back-btn" @click="()=>toggleDescriptionVisible()">
+        <AButton class="back-btn" @click="() => toggleDescriptionVisible()">
           <template #icon>
             <IconLeftCircle />
           </template>
@@ -36,10 +34,14 @@ function selectPlugin(serviceItem: Service) {
         <ACard class="plugin-card">
           <div class="cover-box">
             <div class="cover">
-              <AImage v-if="selectedPlugin.avatar" :preview="false" :width="120" :height="120"
-                :src="selectedPlugin.avatar" />
-              <AAvatar v-else shape="square" :size="120">{{ selectedPlugin.name }}
-              </AAvatar>
+              <AImage
+                v-if="selectedPlugin.avatar"
+                :preview="false"
+                :width="120"
+                :height="120"
+                :src="selectedPlugin.avatar"
+              />
+              <AAvatar v-else shape="square" :size="120">{{ selectedPlugin.name }} </AAvatar>
             </div>
           </div>
           <div class="plugins-title">{{ selectedPlugin.name }}</div>
@@ -47,19 +49,29 @@ function selectPlugin(serviceItem: Service) {
       </div>
       <div class="plugin-doc">
         <MdPreview v-if="selectedPlugin.description" :modelValue="selectedPlugin.description" />
-        <AResult v-else subtitle="你寻找的页面宛如海市蜃楼，从未存在，只留下一片空白。"/>
+        <AResult v-else subtitle="你寻找的页面宛如海市蜃楼，从未存在，只留下一片空白。" />
       </div>
     </div>
     <div class="plugins-box" v-else>
       <ACard class="plugin-card">
         <AUpload draggable @change="uploadJar" />
       </ACard>
-      <ACard class="plugin-card" hoverable v-for="serviceItem in serviceStore.services" :key="serviceItem.id">
+      <ACard
+        class="plugin-card"
+        hoverable
+        v-for="serviceItem in serviceStore.services"
+        :key="serviceItem.id"
+      >
         <div class="cover-box" @click="() => selectPlugin(serviceItem)">
           <div class="cover">
-            <AImage v-if="serviceItem.avatar" :preview="false" :width="120" :height="120" :src="serviceItem.avatar" />
-            <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }}
-            </AAvatar>
+            <AImage
+              v-if="serviceItem.avatar"
+              :preview="false"
+              :width="120"
+              :height="120"
+              :src="serviceItem.avatar"
+            />
+            <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }} </AAvatar>
           </div>
         </div>
         <div class="plugins-title">{{ serviceItem.name }}</div>
@@ -76,10 +88,14 @@ function selectPlugin(serviceItem: Service) {
   :deep(.arco-card) {
     border-radius: 5px;
     border: none;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 2px -1px rgb(0 0 0 / 0.1);
 
     &:hover {
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
   }
 
@@ -95,7 +111,7 @@ function selectPlugin(serviceItem: Service) {
 
   .plugin-card {
     border-radius: 5px;
-    &:hover{
+    &:hover {
       cursor: pointer;
     }
   }
@@ -112,7 +128,7 @@ function selectPlugin(serviceItem: Service) {
   background-color: var(--color-fill-3);
   padding: 10px 10px 5px 10px;
   border-radius: 5px;
-  text-align: center
+  text-align: center;
 }
 
 .plugin-description {
@@ -127,7 +143,7 @@ function selectPlugin(serviceItem: Service) {
 }
 
 .back-btn {
-  margin-bottom: 10px
+  margin-bottom: 10px;
 }
 
 .plugin-doc {

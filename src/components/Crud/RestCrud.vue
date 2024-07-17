@@ -36,8 +36,7 @@ const slotColumns = computed(() => {
       size="large"
       column-resizable
       :scrollbar="true"
-      :bordered="false"
-      :stripe="true"
+      :bordered="true"
       :row-key="rowKey as string"
       :loading="loading"
       :pagination="pagination"
