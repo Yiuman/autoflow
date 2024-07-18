@@ -2,7 +2,11 @@
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
 import type { Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
-import { IconCloseCircleFill, IconPauseCircleFill, IconPlayCircleFill } from '@arco-design/web-vue/es/icon'
+import {
+  IconCloseCircleFill,
+  IconPauseCircleFill,
+  IconPlayCircleFill
+} from '@arco-design/web-vue/es/icon'
 import { MdPreview } from 'md-editor-v3'
 import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 import 'md-editor-v3/lib/style.css'
@@ -16,7 +20,6 @@ import { getAllIncomers } from '@/utils/converter'
 import { groupBy } from 'lodash'
 import { CURRENT_NODE, INCOMER, INPUT_DATA_FLAT } from '@/symbols'
 import { flatten } from '@/utils/util-func'
-
 
 interface Props {
   modelValue: VueFlowNode
@@ -46,7 +49,7 @@ const nodeData = computed({
 
 const loopData = computed({
   get() {
-    return props.modelValue.data?.loop;
+    return props.modelValue.data?.loop
   },
   set(value) {
     emits('update:modelValue', {
@@ -56,7 +59,7 @@ const loopData = computed({
   }
 })
 
-const { getIncomers, findNode } = useVueFlow();
+const { getIncomers, findNode } = useVueFlow()
 const modalVisible = computed({
   get() {
     return props.visible
@@ -66,13 +69,12 @@ const modalVisible = computed({
   }
 })
 
-
 //input
 const incomers = computed(() => {
   return getAllIncomers(props.modelValue.id, getIncomers)
-});
+})
 
-const selectedIncomerNodeId = ref<string>();
+const selectedIncomerNodeId = ref<string>()
 watch(incomers, () => {
   if (incomers.value && incomers.value.length) {
     selectedIncomerNodeId.value = incomers.value[0].id
@@ -80,89 +82,93 @@ watch(incomers, () => {
 })
 
 const incomerGroups = computed(() => {
-  return groupBy(incomers.value, (node: VueFlowNode) => node.label);
+  return groupBy(incomers.value, (node: VueFlowNode) => node.label)
 })
 
 const selectedNode = computed(() => {
   if (!selectedIncomerNodeId.value) {
-    return null;
+    return null
   }
   return findNode(selectedIncomerNodeId.value)
 })
 
 //提供当前的有用变量
-provide(CURRENT_NODE, props.modelValue);
+provide(CURRENT_NODE, props.modelValue)
 provide(INCOMER, incomers)
 const inputDataFlat = computed(() => {
   if (incomers) {
-    const nodeExecutionData: Record<string, any> = {};
-    for (const incommer of incomers.value) {
-      const executionDataList = nodeExecutionData[incommer.id];
+    const nodeExecutionData: Record<string, any> = {}
+    for (const incomer of incomers.value) {
+      const executionDataList = nodeExecutionData[incomer.id]
       if (executionDataList && executionDataList.length) {
-        executionDataList.push(incommer.data?.executionData)
+        executionDataList.push(incomer.data?.executionData)
       } else {
-        nodeExecutionData[incommer.id] = incommer.data?.executionData
+        nodeExecutionData[incomer.id] = incomer.data?.executionData
       }
-
-
     }
-    return flatten({ 'inputData': nodeExecutionData })
+    return flatten({ inputData: nodeExecutionData })
   }
 
-  return {};
+  return {}
 })
-provide(INPUT_DATA_FLAT, inputDataFlat);
+provide(INPUT_DATA_FLAT, inputDataFlat)
 
 const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {
-    return null;
+    return null
   }
-  const inputDataList = selectedNode.value?.data.executionData;
-  return inputDataList?.length === 1 ? inputDataList[0] : inputDataList;
+  const inputDataList = selectedNode.value?.data.executionData
+  return inputDataList?.length === 1 ? inputDataList[0] : inputDataList
 })
 
 const outputData = computed(() => {
-  const outputDatas = props.modelValue.data?.executionData;
-  return outputDatas?.length === 1 ? outputDatas[0] : outputDatas;
+  const outputDatas = props.modelValue.data?.executionData
+  return outputDatas?.length === 1 ? outputDatas[0] : outputDatas
 })
 
 function doClose() {
-  modalVisible.value = false;
+  modalVisible.value = false
 }
 
 const [action, toggleAction] = useToggle(false)
 watch(action, async () => {
-  const node = props.modelValue;
+  const node = props.modelValue
   if (action.value) {
-    await node.events?.run(node);
-    toggleAction();
+    await node.events?.run(node)
+    toggleAction()
   } else {
     node.events?.stop && node.events?.stop(node)
   }
 })
 
 function isHtml(data: string) {
-  const htmlRegex = /<([a-z]+)([^<]+|[^>]+)*>|<([a-z]+)([^<]+|[^>]+)*\/>/i;
-  return htmlRegex.test(data);
+  const htmlRegex = /<([a-z]+)([^<]+|[^>]+)*>|<([a-z]+)([^<]+|[^>]+)*\/>/i
+  return htmlRegex.test(data)
 }
 
-const excludeShowLoopSettingNode = ["IF"];
+const excludeShowLoopSettingNode = ['IF']
 const showLoopSetting = computed(() => {
-  return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1);
+  return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1)
 })
 
-const activeTab = ref<string>('parameters');
+const activeTab = ref<string>('parameters')
 watch(props.modelValue, () => {
-  activeTab.value = props.properties && props.properties.length ? 'parameters' : "settings"
+  activeTab.value = props.properties && props.properties.length ? 'parameters' : 'settings'
 })
-
-
 </script>
 
 <template>
   <!--    节点的表单-->
-  <AModal class="node-form-modal" bodyClass="node-form-modal_body" :align-center="false" :width="'90%'"
-    :visible="modalVisible" :hide-title="true" :esc-to-close="true" :footer="false">
+  <AModal
+    class="node-form-modal"
+    bodyClass="node-form-modal_body"
+    :align-center="false"
+    :width="'90%'"
+    :visible="modalVisible"
+    :hide-title="true"
+    :esc-to-close="true"
+    :footer="false"
+  >
     <div class="node-form-modal-body">
       <div class="node-form-modal-btn">
         <!-- 按钮 -->
@@ -190,20 +196,41 @@ watch(props.modelValue, () => {
                   <ATag>{{ data?.value }}</ATag>
                 </span>
               </template>
-              <AOptgroup v-for="groupKey in Object.keys(incomerGroups)" :key="groupKey" :label="groupKey">
-                <AOption v-for="incomer in incomerGroups[groupKey]" :key="incomer.id" :value="incomer.id"
-                  :label="`${incomer.id}`" />
+              <AOptgroup
+                v-for="groupKey in Object.keys(incomerGroups)"
+                :key="groupKey"
+                :label="groupKey"
+              >
+                <AOption
+                  v-for="incomer in incomerGroups[groupKey]"
+                  :key="incomer.id"
+                  :value="incomer.id"
+                  :label="`${incomer.id}`"
+                />
               </AOptgroup>
-
             </ASelect>
             <ATabs v-if="inputData">
               <template v-for="executeDataKey in Object.keys(inputData)" :key="executeDataKey">
-                <ATabPane v-if="inputData[executeDataKey]" :title="executeDataKey" :key="executeDataKey">
-                  <VueJsonPretty class="input-json"
-                    v-if="inputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
-                    :data="inputData[executeDataKey]" :show-icon="true" />
+                <ATabPane
+                  v-if="inputData[executeDataKey]"
+                  :title="executeDataKey"
+                  :key="executeDataKey"
+                >
+                  <VueJsonPretty
+                    class="input-json"
+                    v-if="
+                      inputData[executeDataKey] &&
+                      (executeDataKey == 'json' || executeDataKey == 'error')
+                    "
+                    :data="inputData[executeDataKey]"
+                    :show-icon="true"
+                  />
                   <div class="input-html" v-else-if="isHtml(inputData[executeDataKey])">
-                    <Codemirror v-model="inputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
+                    <Codemirror
+                      v-model="inputData[executeDataKey]"
+                      :disabled="true"
+                      :extensions="[html()]"
+                    />
                   </div>
                   <MdPreview v-else class="input-raw" :modelValue="inputData[executeDataKey]" />
                 </ATabPane>
@@ -226,7 +253,11 @@ watch(props.modelValue, () => {
               </AButton>
             </div>
             <ATabs v-model:active-key="activeTab">
-              <ATabPane key="parameters" title="Parameters" v-if="props.properties && props.properties.length">
+              <ATabPane
+                key="parameters"
+                title="Parameters"
+                v-if="props.properties && props.properties.length"
+              >
                 <div>
                   <FromRenderer v-model="nodeData" :properties="props.properties" />
                 </div>
@@ -242,22 +273,33 @@ watch(props.modelValue, () => {
         </Pane>
         <Pane>
           <div class="node-form-modal-pane node-form-modal-output">
-            <div class="node-form-title">
-              Output
-            </div>
+            <div class="node-form-title">Output</div>
             <ATabs v-if="outputData">
               <template v-for="executeDataKey in Object.keys(outputData)" :key="executeDataKey">
-                <ATabPane v-if="outputData[executeDataKey]" :title="executeDataKey" :key="executeDataKey">
-                  <VueJsonPretty class="output-json"
-                    v-if="outputData[executeDataKey] && (executeDataKey == 'json' || executeDataKey == 'error')"
-                    :data="outputData[executeDataKey]" :show-icon="true" />
+                <ATabPane
+                  v-if="outputData[executeDataKey]"
+                  :title="executeDataKey"
+                  :key="executeDataKey"
+                >
+                  <VueJsonPretty
+                    class="output-json"
+                    v-if="
+                      outputData[executeDataKey] &&
+                      (executeDataKey == 'json' || executeDataKey == 'error')
+                    "
+                    :data="outputData[executeDataKey]"
+                    :show-icon="true"
+                  />
                   <div class="output-html" v-else-if="isHtml(outputData[executeDataKey])">
-                    <Codemirror v-model="outputData[executeDataKey]" :disabled="true" :extensions="[html()]" />
+                    <Codemirror
+                      v-model="outputData[executeDataKey]"
+                      :disabled="true"
+                      :extensions="[html()]"
+                    />
                   </div>
                   <MdPreview v-else class="output-raw" :modelValue="outputData[executeDataKey]" />
                 </ATabPane>
               </template>
-
             </ATabs>
             <div class="node-form-modal-output-empty" v-else>
               <AEmpty />
