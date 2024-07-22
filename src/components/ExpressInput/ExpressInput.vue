@@ -2,13 +2,12 @@
 import { computed, inject, type Ref } from 'vue'
 import { INPUT_DATA_FLAT } from '@/symbols'
 import { useVueFlow } from '@vue-flow/core'
-import { debounce } from 'lodash'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
-import suggestion from './suggestion'
+import createMentionSuggestion from './suggestion'
 
 interface ExpressInputProps {
   modelValue?: string
@@ -46,7 +45,7 @@ const inputDataKeys = computed(() => {
 //处理样式
 const expressClassName = computed<string>(() => {
   const dataValue = data.value || ''
-  if (inputDataKeys?.value.includes(dataValue.replace(prefix, '') || '')) {
+  if (inputDataKeys?.value.includes(dataValue.replace(prefix, '').trimEnd() || '')) {
     return 'jsonpath'
   } else if (dataValue.match(expressRegexStr)) {
     return 'expression'
@@ -54,20 +53,6 @@ const expressClassName = computed<string>(() => {
     return ''
   }
 })
-
-const searchOptions = ref<string[]>()
-
-function doSearch(value: string, prefix: string) {
-  searchOptions.value = inputDataKeys?.value.filter(
-    (key) => key.indexOf(value.replace(prefix, '')) > -1
-  )
-}
-
-const debounceSearch = debounce(doSearch, 300)
-
-function handleSearch(value: string, prefix: string) {
-  debounceSearch(value, prefix)
-}
 
 const nodeIdRegex = /inputData\.(.+?)[\\.[]/
 const descData = computed(() => {
@@ -89,6 +74,28 @@ const descData = computed(() => {
 
 const popoverVariable = computed(() => expressClassName.value === 'jsonpath')
 
+const suggestion = createMentionSuggestion({
+  char: prefix,
+  items: async ({ query }: { query: string }) => {
+    return inputDataKeys?.value.filter((key) => key.indexOf(query.replace(prefix, '')) > -1)
+  }
+})
+
+function convertTextToHtml() {
+  const html = (data.value || '')
+    .split(' ')
+    .map((item) => {
+      const dataKey = item.replace(prefix, '').trimEnd() || ''
+      if (inputDataKeys?.value.includes(dataKey)) {
+        return `<span class="mention" data-type="mention" data-id="${dataKey}" contenteditable="false">${dataKey}</span>`
+      }
+      return item
+    })
+    .join('')
+  console.warn('html', html)
+  return html
+}
+
 const editor = new Editor({
   extensions: [
     Document,
@@ -105,7 +112,7 @@ const editor = new Editor({
   onUpdate: ({ editor }) => {
     data.value = editor.getText()
   },
-  content: data.value
+  content: convertTextToHtml()
 })
 
 onBeforeUnmount(() => {
@@ -116,15 +123,6 @@ onBeforeUnmount(() => {
 <template>
   <div class="express-input" :class="expressClassName">
     <EditorContent class="editor-content" :editor="editor" />
-    <AMention
-      :allow-clear="props.allowClear"
-      :type="props.type"
-      :placeholder="props.placeholder"
-      v-model="data"
-      :prefix="prefix"
-      @search="handleSearch"
-      :data="searchOptions"
-    />
     <div v-if="popoverVariable && descData" class="jsonpath-desc">
       <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
     </div>

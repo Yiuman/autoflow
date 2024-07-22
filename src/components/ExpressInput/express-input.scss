@@ -6,8 +6,13 @@
     height: 20px;
   }
 
-  :deep(.tiptap) {
+  :deep(.editor-content){
     display: inline-flex;
+    width: 100%;
+  }
+
+  :deep(.tiptap) {
+    display: inline-block;
     box-sizing: border-box;
     width: 100%;
     padding-right: 12px;
@@ -34,7 +39,7 @@
       display: inline-flex;
       align-items: center;
       margin-right: 4px;
-      color: var(--color-text-1);
+      color: rgb(var(--primary-6));
       font-size: 12px;
       white-space: pre-wrap;
       word-break: break-word;
@@ -52,6 +57,10 @@
     .mention {
       background-color: var(--color-fill-2);
       border-color: var(--color-fill-2);
+
+      &:hover .jsonpath-desc {
+        display: block;
+      }
     }
   }
 }
@@ -76,6 +85,7 @@
     -webkit-box-orient: vertical;
   }
 }
+
 
 .jsonpath {
   :deep(input) {

@@ -31,17 +31,6 @@ watch(
     selectedIndex.value = 0
   }
 )
-// onKeyStroke('ArrowUp', (e) => {
-//   upHandler()
-// })
-//
-// onKeyStroke('ArrowDown', (e) => {
-//   downHandler()
-// })
-//
-// onKeyStroke('Enter', (e) => {
-//   enterHandler()
-// })
 const onKeyDown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowUp') {
     upHandler()
@@ -103,12 +92,14 @@ const selectItem = (index: number) => {
   position: relative;
 
   .select-item {
+    margin-top: 4px;
     align-items: center;
     background-color: transparent;
     display: flex;
     gap: 0.25rem;
     text-align: left;
-    width: 100%;
+    padding: 4px;
+    border-radius: var(--border-radius-medium);
 
     &:hover,
     &.is-selected {
