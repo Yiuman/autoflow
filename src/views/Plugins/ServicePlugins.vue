@@ -19,6 +19,7 @@ function selectPlugin(serviceItem: Service) {
   selectedPlugin.value = serviceItem
   toggleDescriptionVisible()
 }
+
 </script>
 
 <template>

@@ -10,7 +10,7 @@ import TagSelector from '@/components/TagSelector/TagSelector.vue'
 import { useRouter } from 'vue-router'
 import { downloadByData } from '@/utils/download'
 import { debounce } from 'lodash'
-
+import useDelayedLoading from '@/hooks/delayLoading'
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
 const router = useRouter()
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl })
@@ -18,9 +18,11 @@ const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl })
 // Fetch Workflow Data
 const currentPageRecord = ref<PageRecord<Workflow>>()
 const queryObj = ref<WorkflowQuery>({ pageSize: 10, pageNumber: 1 })
-
+const [loading, toggleLoading] = useToggle<boolean>(false);
 const fetch = debounce(async () => {
+  toggleLoading()
   currentPageRecord.value = await workflowApi.page(queryObj.value)
+  await nextTick(() => toggleLoading())
 }, 300)
 
 onMounted(() => {
@@ -123,10 +125,13 @@ async function saveUploadWorkflow(cover: boolean) {
   toggleUploadFormVisible()
   fetch()
 }
+
+const delayLoading = useDelayedLoading(loading);
 </script>
 
 <template>
   <div class="workflow-container">
+
     <div class="workflow-list-top-box">
       <AInput v-model="queryObj.name" allow-clear placeholder="搜索">
         <template #prefix>
@@ -136,168 +141,124 @@ async function saveUploadWorkflow(cover: boolean) {
 
       <TagSelector v-model="queryObj.tagIds" />
     </div>
-    <div class="workflow-list">
-      <ACard class="workflow-add-card" :bordered="false" hoverable title="创建新的工作流">
-        <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
-          <IconFont type="icon-chuangjian" />
-          创建空白工作流
-        </div>
-        <div class="workflow-add-btn">
-          <IconFont type="icon-template-success-fill" />
-          从应用模板创建
-        </div>
-        <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
-          <IconFont type="icon-w_daoru" />
-          导入工作流文件创建
-        </div>
-      </ACard>
-      <ACard
-        class="workflow-card-item"
-        hoverable
-        v-for="workflow in currentPageRecord?.records"
-        :key="workflow.id"
-      >
-        <div>
-          <ADropdown trigger="hover">
-            <IconMoreVertical size="16" class="workflow-card-operator" />
-            <template #content>
-              <div class="workflow-card-operator-box">
-                <div class="workflow-card-operator-item" @click="modifyWorkflow(workflow)">
-                  编辑
+    <ASpin dot :loading="delayLoading">
+      <div class="workflow-list">
+        <ACard class="workflow-add-card" :bordered="false" hoverable title="创建新的工作流">
+          <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
+            <IconFont type="icon-chuangjian" />
+            创建空白工作流
+          </div>
+          <div class="workflow-add-btn">
+            <IconFont type="icon-template-success-fill" />
+            从应用模板创建
+          </div>
+          <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
+            <IconFont type="icon-w_daoru" />
+            导入工作流文件创建
+          </div>
+        </ACard>
+        <ACard class="workflow-card-item" hoverable v-for="workflow in currentPageRecord?.records" :key="workflow.id">
+          <div>
+            <ADropdown trigger="hover">
+              <IconMoreVertical size="16" class="workflow-card-operator" />
+              <template #content>
+                <div class="workflow-card-operator-box">
+                  <div class="workflow-card-operator-item" @click="modifyWorkflow(workflow)">
+                    编辑
+                  </div>
+                  <div class="workflow-card-operator-item" @click="router.push(`/flowdesign?flowId=${workflow.id}`)">
+                    编排
+                  </div>
+                  <div class="workflow-card-operator-item" @click="exportWorkflow(workflow)">
+                    导出工作流文件
+                  </div>
+                  <div class="workflow-card-operator-item card-delete-btn" @click="deleteWorkflow(workflow)">
+                    删除
+                  </div>
                 </div>
-                <div
-                  class="workflow-card-operator-item"
-                  @click="router.push(`/flowdesign?flowId=${workflow.id}`)"
-                >
-                  编排
+              </template>
+            </ADropdown>
+            <ADescriptions :title="workflow.name" :column="1">
+              <ADescriptionsItem label="name">
+                <span>{{ workflow.name }}</span>
+              </ADescriptionsItem>
+              <ADescriptionsItem label="plugins">
+                <AOverflowList>
+                  <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
+                    <AImage v-if="service.avatar" class="workflow-card-plugin-col-item" :preview="false" :width="30"
+                      :height="30" :src="service.avatar" />
+                    <AAvatar v-else class="workflow-card-plugin-col-item" shape="square" :size="30">
+                      {{ service.name }}
+                    </AAvatar>
+                  </template>
+                </AOverflowList>
+              </ADescriptionsItem>
+              <ADescriptionsItem label="update">
+                <span style="font-size: 13px">{{
+        format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss')
+      }}</span>
+              </ADescriptionsItem>
+            </ADescriptions>
+
+            <div class="workflow-card-item-tags" v-if="workflow.tags && workflow.tags.length">
+              <IconTags />
+              <AOverflowList class="workflow-card-item-tags-value">
+                <ATag v-for="tag in workflow.tags" :key="tag.id" color="blue">{{ tag.name }}</ATag>
+              </AOverflowList>
+            </div>
+          </div>
+        </ACard>
+
+        <AModal v-model:visible="createBlankFormVisible" @ok="saveWorkflow" @cancel="resetInstance" draggable>
+          <template #title>
+            {{ formTitle || '创建空白工作流' }}
+          </template>
+          <AForm :model="workflowInstance" layout="vertical">
+            <AFormItem field="name" label="名称" validate-trigger="input" required>
+              <AInput v-model="workflowInstance.name" placeholder="给你的工作流起一个名字" />
+            </AFormItem>
+            <AFormItem field="desc" label="描述" validate-trigger="input">
+              <ATextarea v-model="workflowInstance.desc" placeholder="输入工作流的描述" />
+            </AFormItem>
+
+            <AFormItem field="tags" label="标签" validate-trigger="input">
+              <TagSelector v-model="workflowInstance.tagIds" allow-create />
+            </AFormItem>
+          </AForm>
+        </AModal>
+        <AModal :hide-title="true" v-model:visible="uploadFormVisible" modal-class="upload-workflow-modal"
+          body-class="upload-workflow-modal-body" @cancel="resetInstance" draggable :footer="false">
+          <AUpload class="upload-workflow-draggable" :auto-upload="false" :show-file-list="false" draggable
+            @change="uploadWorkflowJson">
+            <template #upload-button>
+              <div class="arco-upload-picture-card">
+                <div class="arco-upload-picture-card-text" v-if="fileItem">
+                  {{ fileItem.name }}
                 </div>
-                <div class="workflow-card-operator-item" @click="exportWorkflow(workflow)">
-                  导出工作流文件
-                </div>
-                <div
-                  class="workflow-card-operator-item card-delete-btn"
-                  @click="deleteWorkflow(workflow)"
-                >
-                  删除
+                <div class="arco-upload-picture-card-text" v-else>
+                  <IconPlus />
+                  <div style="margin-top: 10px; font-weight: 600">点击或拖拽文件到此处上传</div>
                 </div>
               </div>
             </template>
-          </ADropdown>
-          <ADescriptions :title="workflow.name" :column="1">
-            <ADescriptionsItem label="name">
-              <span>{{ workflow.name }}</span>
-            </ADescriptionsItem>
-            <ADescriptionsItem label="plugins">
-              <AOverflowList>
-                <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
-                  <AImage
-                    v-if="service.avatar"
-                    class="workflow-card-plugin-col-item"
-                    :preview="false"
-                    :width="30"
-                    :height="30"
-                    :src="service.avatar"
-                  />
-                  <AAvatar v-else class="workflow-card-plugin-col-item" shape="square" :size="30">
-                    {{ service.name }}
-                  </AAvatar>
-                </template>
-              </AOverflowList>
-            </ADescriptionsItem>
-            <ADescriptionsItem label="update">
-              <span style="font-size: 13px">{{
-                format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss')
-              }}</span>
-            </ADescriptionsItem>
-          </ADescriptions>
-
-          <div class="workflow-card-item-tags" v-if="workflow.tags && workflow.tags.length">
-            <IconTags />
-            <AOverflowList class="workflow-card-item-tags-value">
-              <ATag v-for="tag in workflow.tags" :key="tag.id" color="blue">{{ tag.name }}</ATag>
-            </AOverflowList>
-          </div>
-        </div>
-      </ACard>
-
-      <AModal
-        v-model:visible="createBlankFormVisible"
-        @ok="saveWorkflow"
-        @cancel="resetInstance"
-        draggable
-      >
-        <template #title>
-          {{ formTitle || '创建空白工作流' }}
-        </template>
-        <AForm :model="workflowInstance" layout="vertical">
-          <AFormItem field="name" label="名称" validate-trigger="input" required>
-            <AInput v-model="workflowInstance.name" placeholder="给你的工作流起一个名字" />
-          </AFormItem>
-          <AFormItem field="desc" label="描述" validate-trigger="input">
-            <ATextarea v-model="workflowInstance.desc" placeholder="输入工作流的描述" />
-          </AFormItem>
-
-          <AFormItem field="tags" label="标签" validate-trigger="input">
-            <TagSelector v-model="workflowInstance.tagIds" allow-create />
-          </AFormItem>
-        </AForm>
-      </AModal>
-      <AModal
-        :hide-title="true"
-        v-model:visible="uploadFormVisible"
-        modal-class="upload-workflow-modal"
-        body-class="upload-workflow-modal-body"
-        @cancel="resetInstance"
-        draggable
-        :footer="false"
-      >
-        <AUpload
-          class="upload-workflow-draggable"
-          :auto-upload="false"
-          :show-file-list="false"
-          draggable
-          @change="uploadWorkflowJson"
-        >
-          <template #upload-button>
-            <div class="arco-upload-picture-card">
-              <div class="arco-upload-picture-card-text" v-if="fileItem">
-                {{ fileItem.name }}
-              </div>
-              <div class="arco-upload-picture-card-text" v-else>
-                <IconPlus />
-                <div style="margin-top: 10px; font-weight: 600">点击或拖拽文件到此处上传</div>
-              </div>
+          </AUpload>
+          <template v-if="uploadExists">
+            <div class="upload-repeat-alert">
+              当前导入的工作流已存在，请选择
+              <AButton size="mini" status="warning" type="outline" @click="() => saveUploadWorkflow(true)">覆盖
+              </AButton>
+              或
+              <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)">创建
+              </AButton>
+              新的工作流
             </div>
           </template>
-        </AUpload>
-        <template v-if="uploadExists">
-          <div class="upload-repeat-alert">
-            当前导入的工作流已存在，请选择
-            <AButton
-              size="mini"
-              status="warning"
-              type="outline"
-              @click="() => saveUploadWorkflow(true)"
-              >覆盖
-            </AButton>
-            或
-            <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)"
-              >创建
-            </AButton>
-            新的工作流
-          </div>
-        </template>
-      </AModal>
-    </div>
-    <APagination
-      show-total
-      show-jumper
-      show-page-size
-      v-model:current="queryObj.pageNumber"
-      v-model:page-size="queryObj.pageSize"
-      :total="currentPageRecord?.totalRow || 0"
-      size="medium"
-    />
+        </AModal>
+      </div>
+    </ASpin>
+
+    <APagination show-total show-jumper show-page-size v-model:current="queryObj.pageNumber"
+      v-model:page-size="queryObj.pageSize" :total="currentPageRecord?.totalRow || 0" size="medium" />
   </div>
 </template>
 

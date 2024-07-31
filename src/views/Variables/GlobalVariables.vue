@@ -5,8 +5,8 @@ import type { TableColumnData } from '@arco-design/web-vue'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
-  { dataIndex: 'key', title: 'key' },
-  { dataIndex: 'value', title: 'value' },
+  { dataIndex: 'key', title: 'key', width: 300 },
+  { dataIndex: 'value', title: 'value', width: 300 },
   { dataIndex: 'desc', title: 'desc' },
   {
     title: 'Optional',
@@ -115,7 +115,7 @@ async function deleteVariable(record: Variable) {
       padding: 5px;
       flex-direction: column;
 
-      > * {
+      >* {
         align-self: flex-end;
       }
     }
@@ -128,7 +128,7 @@ async function deleteVariable(record: Variable) {
   .optional-column {
     display: flex;
 
-    > * {
+    >* {
       flex: 1;
     }
   }

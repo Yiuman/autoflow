@@ -40,6 +40,7 @@ declare module 'vue' {
     APagination: typeof import('@arco-design/web-vue')['Pagination']
     AResult: typeof import('@arco-design/web-vue')['Result']
     ASelect: typeof import('@arco-design/web-vue')['Select']
+    ASpin: typeof import('@arco-design/web-vue')['Spin']
     ASwitch: typeof import('@arco-design/web-vue')['Switch']
     ATable: typeof import('@arco-design/web-vue')['Table']
     ATableColumn: typeof import('@arco-design/web-vue')['TableColumn']

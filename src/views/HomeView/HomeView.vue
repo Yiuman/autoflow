@@ -44,7 +44,7 @@ function handleMenuClick(key: string) {
       <div class="logo-wrap">
         <div class="logo" >
           <IconFont type="icon-autoflow" />
-          <span v-if="!collapsed">autoflow</span>
+          <span v-show="!collapsed">autoflow</span>
         </div>
       </div>
       <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['workflows']">
