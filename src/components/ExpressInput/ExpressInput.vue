@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed, inject, type Ref } from 'vue'
-import { INPUT_DATA_FLAT } from '@/symbols'
+import { INCOMER_DATA } from '@/symbols'
 import { useVueFlow } from '@vue-flow/core'
-import { Editor, EditorContent } from '@tiptap/vue-3'
+import { Editor, EditorContent, type JSONContent } from '@tiptap/vue-3'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
 import createMentionSuggestion from './suggestion'
+import type { NodeFlatData } from '@/types/flow'
+import { flatten } from 'lodash'
+import { type Option } from '@/components/ExpressInput/MentionList.vue'
 
 interface ExpressInputProps {
   modelValue?: string
@@ -35,17 +38,38 @@ const data = computed({
 })
 
 //----------------------- 处理提及  --------------------------------
-const inputDataFlat = inject<Ref<Record<string, any>>>(INPUT_DATA_FLAT)
+const nodeFlatDataArray = inject<Ref<NodeFlatData[]>>(INCOMER_DATA)
 const prefix = '$.'
 const expressRegexStr = /^\$\{(.*)}$/
 
-const inputDataKeys = computed(() => {
-  return Object.keys(inputDataFlat?.value || {})
+const selectOptions = computed<Option[]>(() => {
+  const nodeSelectOptions = nodeFlatDataArray?.value.map((nodeFlatData) => {
+    const varKeys = Object.keys(nodeFlatData.variable).map((varKey) => {
+      return {
+        type: `${nodeFlatData.node.label}`,
+        key: `$.variable.${nodeFlatData.node.id}.${varKey}`,
+        label: varKey,
+        value: nodeFlatData.variable[varKey]
+      }
+    })
+
+    const inputDataKeys = Object.keys(nodeFlatData.inputData).map((varKey) => {
+      return {
+        type: `${nodeFlatData.node.label}`,
+        key: `$.inputData.${nodeFlatData.node.id}${varKey}`,
+        label: varKey,
+        value: nodeFlatData.inputData[varKey]
+      }
+    })
+    return [...varKeys, ...inputDataKeys]
+  })
+  return flatten(nodeSelectOptions) as Option[]
 })
+
 //处理样式
 const expressClassName = computed<string>(() => {
-  const dataValue = data.value || ''
-  if (inputDataKeys?.value.includes(dataValue.replace(prefix, '').trimEnd() || '')) {
+  const dataValue = (data.value || '').trimEnd()
+  if (selectOptions.value?.find((option) => option.key === dataValue)) {
     return 'jsonpath'
   } else if (dataValue.match(expressRegexStr)) {
     return 'expression'
@@ -54,18 +78,22 @@ const expressClassName = computed<string>(() => {
   }
 })
 
-const nodeIdRegex = /inputData\.(.+?)[\\.[]/
+const nodeIdRegex = /inputData|variable\.(.+?)[\\.[]/
 const descData = computed(() => {
   const dataValue = data.value
   const nodeIdMatch = dataValue?.match(nodeIdRegex)
   const dataKey = dataValue?.replace(prefix, '')
+
   if (nodeIdMatch) {
     const nodeId = nodeIdMatch[1]
     const node = findNode(nodeId)
+    const findValue = selectOptions.value.filter((option) => {
+      return dataKey === option.key
+    })[0]
     return [
       { label: 'node', value: node?.label },
       { label: 'nodeId', value: nodeId },
-      { label: 'value', value: inputDataFlat?.value[dataKey || ''] }
+      { label: 'value', value: findValue?.value }
     ]
   } else {
     return []
@@ -77,23 +105,45 @@ const popoverVariable = computed(() => expressClassName.value === 'jsonpath')
 const suggestion = createMentionSuggestion({
   char: prefix,
   items: async ({ query }: { query: string }) => {
-    return inputDataKeys?.value.filter((key) => key.indexOf(query.replace(prefix, '')) > -1)
+    return selectOptions.value?.filter(
+      (option) => option?.key?.indexOf(query.replace(prefix, '')) > -1
+    )
   }
 })
 
-function convertTextToHtml() {
-  const html = (data.value || '')
+function convertToJSONContent() {
+  const docJSONContent: JSONContent[] = (data.value || '')
     .split(' ')
+    .filter((item) => item)
     .map((item) => {
-      const dataKey = item.replace(prefix, '').trimEnd() || ''
-      if (inputDataKeys?.value.includes(dataKey)) {
-        return `<span class="mention" data-type="mention" data-id="${dataKey}" contenteditable="false">${dataKey}</span>`
+      const findOption = selectOptions.value?.find((option) => option.key === item)
+      if (findOption) {
+        return {
+          type: 'mention',
+          attrs: {
+            id: {
+              type: `${findOption.type}`,
+              key: `${findOption.key}`,
+              label: `${findOption.label}`,
+              value: null
+            }
+          }
+        }
       }
-      return item
+      return {
+        type: 'text',
+        text: item
+      }
     })
-    .join('')
-  console.warn('html', html)
-  return html
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: docJSONContent
+      }
+    ]
+  }
 }
 
 const editor = new Editor({
@@ -102,17 +152,64 @@ const editor = new Editor({
     Paragraph,
     Text,
     Mention.configure({
-      deleteTriggerWithBackspace: false,
       HTMLAttributes: {
         class: 'mention'
+      },
+      deleteTriggerWithBackspace: false,
+      renderText({ node }) {
+        const optionValue = node.attrs.id
+        return optionValue.key
+      },
+      renderHTML({ node }) {
+        const optionValue = node.attrs.id
+        if (!optionValue) {
+          return ''
+        }
+        const innerHTML = [
+          [
+            'span',
+            {
+              class: 'node-mention-type'
+            },
+            optionValue.type
+          ],
+          [
+            'span',
+            {
+              class: 'node-mention-label'
+            },
+            optionValue.label
+          ]
+        ]
+        return [
+          'span',
+          {
+            class: 'mention',
+            id: optionValue.key,
+            datatype: 'mention',
+            'data-id': optionValue.key,
+            'data-value': optionValue.value
+          },
+          ...innerHTML
+        ]
       },
       suggestion
     })
   ],
   onUpdate: ({ editor }) => {
-    data.value = editor.getText()
+    const jsonData = editor.getJSON()
+    const valueArray = jsonData?.content?.[0]?.content
+    data.value = valueArray
+      ?.map((contentItem: JSONContent) => {
+        if (contentItem.type === 'mention') {
+          return contentItem?.attrs?.id.key
+        } else {
+          return contentItem.text
+        }
+      })
+      .join(' ')
   },
-  content: convertTextToHtml()
+  content: convertToJSONContent()
 })
 
 onBeforeUnmount(() => {

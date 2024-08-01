@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown-menu">
+  <div class="dropdown-menu" ref="dropdownMenu">
     <template v-if="items.length">
       <div
         class="select-item"
@@ -8,7 +8,8 @@
         :key="index"
         @click="() => selectItem(index)"
       >
-        {{ item }}
+        <span class="item-type" v-if="item.type">{{ item.type }}</span>
+        <span class="item-label"> {{ item.label ?? item.key }} </span>
       </div>
     </template>
     <div class="item" v-else>No result</div>
@@ -16,13 +17,22 @@
 </template>
 
 <script lang="ts" setup>
+export interface Option {
+  label?: string
+  key: string
+  type?: string
+  value?: any
+}
+
 interface Props {
-  items: string[]
+  items: Option[]
   command: (arg: { id: string }) => void
 }
 
 const props = defineProps<Props>()
-
+const dropdownMenu = ref(null)
+const scrollY = 30
+const { y } = useScroll(dropdownMenu)
 const selectedIndex = ref(0)
 
 watch(
@@ -35,12 +45,14 @@ const onKeyDown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowUp') {
     upHandler()
     event.preventDefault()
+    y.value -= scrollY
     return true
   }
 
   if (event.key === 'ArrowDown') {
     downHandler()
     event.preventDefault()
+    y.value += scrollY
     return true
   }
 
@@ -109,6 +121,15 @@ const selectItem = (index: number) => {
     &.is-selected {
       background-color: var(--color-fill-3);
     }
+  }
+
+  .item-type {
+    border-radius: 3px;
+    padding: 0 2px;
+    margin-right: 6px;
+    color: rgb(var(--orangered-6));
+    background-color: rgb(var(--orangered-1));
+    border: 1px solid transparent;
   }
 }
 </style>

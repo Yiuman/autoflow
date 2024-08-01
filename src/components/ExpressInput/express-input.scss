@@ -6,7 +6,7 @@
     height: 20px;
   }
 
-  :deep(.editor-content){
+  :deep(.editor-content) {
     display: inline-flex;
     width: 100%;
   }
@@ -35,7 +35,8 @@
     }
 
     .mention {
-      padding: 0 8px;
+      border-radius: 3px;
+      padding: 0 8px 0 0;
       display: inline-flex;
       align-items: center;
       margin-right: 4px;
@@ -45,6 +46,15 @@
       word-break: break-word;
       background-color: var(--color-bg-2);
       border: 1px solid var(--color-fill-3);
+    }
+
+    .node-mention-type {
+      border-radius: 3px;
+      padding: 0 2px;
+      margin-right: 6px;
+      color: rgb(var(--orangered-6));
+      background-color: rgb(var(--orangered-1));
+      border: 1px solid transparent;
     }
   }
 
@@ -62,6 +72,11 @@
         display: block;
       }
     }
+
+  }
+
+  :global(.dropdown-menu) {
+    max-height: 200px;
   }
 }
 
@@ -85,7 +100,6 @@
     -webkit-box-orient: vertical;
   }
 }
-
 
 .jsonpath {
   :deep(input) {

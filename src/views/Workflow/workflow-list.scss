@@ -58,7 +58,7 @@
     display: grid;
     grid-gap: 20px;
     padding: 20px 0;
-    grid-template-columns: repeat(auto-fill, 260px); // 自动填充一行的卡片个数
+    grid-template-columns: repeat(auto-fill, 250px); // 自动填充一行的卡片个数
 
     :deep(.arco-card) {
         border-radius: 5px;
@@ -111,8 +111,6 @@
     :global(.upload-workflow-modal-body){
         padding: 5px !important;
         height: 150px !important;
-
-
     }
 
 

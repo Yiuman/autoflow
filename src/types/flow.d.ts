@@ -15,20 +15,20 @@ interface Node {
   data?: Record<string, any>
   position: Position
   type: string
-  serviceId: string,
+  serviceId: string
   loop?: Loop
 }
 
 interface Loop {
-  loopCardinality?: number;
-  collectionString?: string;
-  elementVariable?: string;
-  sequential?: boolean;
-  completionCondition?: string;
+  loopCardinality?: number
+  collectionString?: string
+  elementVariable?: string
+  sequential?: boolean
+  completionCondition?: string
 }
 
 interface Connection {
-  id: string,
+  id: string
   source: string
   sourcePointType?: string
   targetPointType?: string
@@ -46,34 +46,34 @@ interface Position {
 }
 
 interface BoundingBox {
-  bottom: number;
-  left: number;
-  right: number;
-  top: number;
+  bottom: number
+  left: number
+  right: number
+  top: number
 }
 
 interface Bounding extends BoundingBox {
-  height: number;
-  width: number;
-  x: number;
-  y: number;
+  height: number
+  width: number
+  x: number
+  y: number
 }
 
 interface Binary {
-  filename: string,
+  filename: string
   base64: string
 }
 
 interface ExecutionError {
-  node?: string,
+  node?: string
   messgae?: string
 }
 
 interface ExecutionData {
-  json?: JSON;
-  raw?: string;
-  binary?: Binary;
-  error?: ExecutionError;
+  json?: JSON
+  raw?: string
+  binary?: Binary
+  error?: ExecutionError
 }
 
 interface Property {
@@ -88,31 +88,37 @@ interface Property {
 }
 
 interface Service {
-  id: string,
-  name: string,
-  properties: Property[],
-  description?: string,
+  id: string
+  name: string
+  properties: Property[]
+  description?: string
   avatar?: string | null
 }
 
 interface ValidateRule {
-  field: string,
+  field: string
   required?: boolean
-  message?: string,
-  fieldType?: string,
-  script?: string,
-  validateType?: string,
+  message?: string
+  fieldType?: string
+  script?: string
+  validateType?: string
   attributes: Record<string, any>
 }
 
 interface ComponentAttr {
   property: Property
-  cmp: Component | string,
-  attrs?: Record<string, any>,
+  cmp: Component | string
+  attrs?: Record<string, any>
 }
 
 export type NodeElementData = ToolBarData & Record<string, ElementData>
 export type VueFlowNode = VueFlowCordNode<NodeElementData>
+
+interface NodeFlatData {
+  node: VueFlowNode
+  variable: Record<string, any>
+  inputData: Record<string, any>
+}
 
 export {
   Flow,
@@ -128,5 +134,6 @@ export {
   Service,
   Loop,
   ValidateRule,
-  ComponentAttr
+  ComponentAttr,
+  NodeFlatData
 }

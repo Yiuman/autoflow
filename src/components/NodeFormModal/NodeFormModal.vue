@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { Property, VueFlowNode } from '@/types/flow'
+import type { NodeFlatData, Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconCloseCircleFill,
@@ -18,7 +18,7 @@ import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
 import { getAllIncomers } from '@/utils/converter'
 import { groupBy } from 'lodash'
-import { CURRENT_NODE, INCOMER, INPUT_DATA_FLAT } from '@/symbols'
+import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
 import { flatten } from '@/utils/util-func'
 
 interface Props {
@@ -95,23 +95,26 @@ const selectedNode = computed(() => {
 //提供当前的有用变量
 provide(CURRENT_NODE, props.modelValue)
 provide(INCOMER, incomers)
-const inputDataFlat = computed(() => {
+
+const inputDataFlat = computed<NodeFlatData[]>(() => {
   if (incomers) {
-    const nodeExecutionData: Record<string, any> = {}
+    const nodeFlatDataArray: NodeFlatData[] = []
     for (const incomer of incomers.value) {
-      const executionDataList = nodeExecutionData[incomer.id]
-      if (executionDataList && executionDataList.length) {
-        executionDataList.push(incomer.data?.executionData)
-      } else {
-        nodeExecutionData[incomer.id] = incomer.data?.executionData
-      }
+      const variableFlatData = flatten(incomer.data.parameters)
+      const nodeExecutionDataFlatData = flatten(incomer.data?.executionData)
+      nodeFlatDataArray.push({
+        node: incomer,
+        variable: variableFlatData,
+        inputData: nodeExecutionDataFlatData
+      })
     }
-    return flatten({ inputData: nodeExecutionData })
+    console.warn('nodeFlatDataArray', nodeFlatDataArray)
+    return nodeFlatDataArray
   }
 
   return {}
 })
-provide(INPUT_DATA_FLAT, inputDataFlat)
+provide(INCOMER_DATA, inputDataFlat)
 
 const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {

@@ -1,7 +1,21 @@
 <script lang="ts" setup>
-import type { Connection, EdgeMouseEvent, Elements, GraphEdge, ViewportTransform, XYPosition } from '@vue-flow/core'
+import type {
+  Connection,
+  EdgeMouseEvent,
+  Elements,
+  GraphEdge,
+  ViewportTransform,
+  XYPosition
+} from '@vue-flow/core'
 import { ConnectionMode, MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
-import { elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode } from '@/utils/converter'
+import {
+  elementsToFlow,
+  getAllIncomers,
+  serviceToGraphNode,
+  toGraphEdge,
+  toGraphNode,
+  toNode
+} from '@/utils/converter'
 import {
   IconCloudDownload,
   IconPauseCircleFill,
@@ -43,7 +57,7 @@ import { useRoute } from 'vue-router'
 
 const [theme] = useTheme()
 
-const route = useRoute();
+const route = useRoute()
 //---------------------------- 初始化定义数据 ----------------------------
 const nodeTypes = {
   SERVICE: markRaw(ServiceNode),
@@ -55,8 +69,8 @@ const edgeTypes = {
   edge: markRaw(EditableEdge)
 }
 
-const serviceStore = useServiceStore();
-const elements = ref<Elements<NodeElementData>>([]);
+const serviceStore = useServiceStore()
+const elements = ref<Elements<NodeElementData>>([])
 const {
   onConnect,
   addEdges,
@@ -75,29 +89,29 @@ const {
 
 onMounted(async () => {
   if (route.query.flowId) {
-    const workflow = await workflowApi.get(route.query.flowId as string);
+    const workflow = await workflowApi.get(route.query.flowId as string)
     doParseJson(workflow.flowStr || '{}')
   } else {
-    doParseJson(JSON.stringify(json));
+    doParseJson(JSON.stringify(json))
   }
   await nextTick()
   setTimeout(() => fitView({ maxZoom: 1 }), 0)
 })
 
-
 //---------------------------- 节点表单操作 ----------------------------
-const selectedNodeId = ref<string>();
+const selectedNodeId = ref<string>()
 const [formVisible, toggleForm] = useToggle(false)
 const selectedNode = computed(() => findNode<NodeElementData>(selectedNodeId.value))
 const properties = computed<Property[]>(() => {
   if (!selectedNode.value) {
-    return [];
+    return []
   }
-  return serviceStore.getServiceById(selectedNode.value?.data.serviceId).properties;
+  return serviceStore.getServiceById(selectedNode.value?.data.serviceId).properties
 })
 
-const description = computed<string | undefined>(() => serviceStore.getServiceById(selectedNode.value?.data.serviceId)?.description)
-
+const description = computed<string | undefined>(
+  () => serviceStore.getServiceById(selectedNode.value?.data.serviceId)?.description
+)
 
 //---------------------------- 节点事件 ----------------------------
 const defaultEditFunc = (node: VueFlowNode) => {
@@ -109,16 +123,16 @@ async function defaultRun(node: VueFlowNode) {
   selectedNodeId.value = node.id
   updateNodeData(node.id, { running: true })
 
-  const executeNodeData = toNode(toRaw(node));
-  const nodeData = executeNodeData.data || {};
-  const allIncomers = getAllIncomers(node.id, getIncomers);
+  const executeNodeData = toNode(toRaw(node))
+  const nodeData = executeNodeData.data || {}
+  const allIncomers = getAllIncomers(node.id, getIncomers)
   const inputData: Record<string, ExecutionData[]> = {}
   for (const incomer of allIncomers) {
     inputData[incomer.id] = incomer.data.executionData
   }
-  nodeData.inputData = inputData;
-  executeNodeData.data = nodeData;
-  const executionData = await executeNode(executeNodeData);
+  nodeData.inputData = inputData
+  executeNodeData.data = nodeData
+  const executionData = await executeNode(executeNodeData)
   updateNodeData(node.id, { executionData, running: false })
 }
 
@@ -127,29 +141,34 @@ const defaultEvents = {
   run: defaultRun
 }
 
-
 //---------------------------- 处理连线逻辑/添加节点逻辑 ----------------------------
 const isConnect = ref<boolean>(false)
+
 function doConnect(connection: Connection) {
   isConnect.value = true
-  const sourceNode = findNode<NodeElementData>(connection.source);
-  const addEdge: GraphEdge = { ...connection, markerEnd: MarkerType.ArrowClosed, type: 'edge', data: {} } as GraphEdge;
-  addEdge.data.sourcePointType = connection.sourceHandle;
-  addEdge.data.targetPointType = connection.targetHandle;
+  const sourceNode = findNode<NodeElementData>(connection.source)
+  const addEdge: GraphEdge = {
+    ...connection,
+    markerEnd: MarkerType.ArrowClosed,
+    type: 'edge',
+    data: {}
+  } as GraphEdge
+  addEdge.data.sourcePointType = connection.sourceHandle
+  addEdge.data.targetPointType = connection.targetHandle
   if (sourceNode && sourceNode.type === 'IF') {
     if (connection.sourceHandle == `IF_TRUE`) {
-      addEdge.data.expression = "${" + `inputData['${sourceNode.id}'][0].json.result` + "}"
+      addEdge.data.expression = '${' + `inputData['${sourceNode.id}'][0].json.result` + '}'
     } else {
-      addEdge.data.expression = "${!" + `inputData['${sourceNode.id}'][0].json.result` + "}"
+      addEdge.data.expression = '${!' + `inputData['${sourceNode.id}'][0].json.result` + '}'
     }
   }
 
   addEdges(addEdge)
 }
-onConnect(doConnect);
 
+onConnect(doConnect)
 
-const selectHandlerId = ref<string | null | undefined>();
+const selectHandlerId = ref<string | null | undefined>()
 const connectEndOffset = ref<XYPosition>()
 onConnectStart((param) => {
   selectedNodeId.value = param.nodeId
@@ -157,15 +176,16 @@ onConnectStart((param) => {
 })
 onConnectEnd((param) => {
   connectEndOffset.value = getContainerClientXY(param)
-  const targetElement = (param?.target as HTMLElement)
+  const targetElement = param?.target as HTMLElement
   if (!isConnect.value && !targetElement?.dataset?.id) {
-    toggleSearchModalVisible();
+    toggleSearchModalVisible()
   }
   isConnect.value = false
 })
+
 //处理连线的toolbar显示与隐藏
 function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
-  const edgeToolBar = document.getElementById(`edge-toolbar-${edgeMouseEvent.edge.id}`);
+  const edgeToolBar = document.getElementById(`edge-toolbar-${edgeMouseEvent.edge.id}`)
   if (edgeMouseEvent.event.type === 'mousemove') {
     edgeToolBar?.classList.add('edge-toolbar-show')
   } else {
@@ -175,8 +195,12 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
 
 const vueFlow = ref()
 
-function calculateDefaultPosition(viewport: ViewportTransform, bounding: BoundingBox, connectEndOffset?: Position) {
-  let defaultXy;
+function calculateDefaultPosition(
+  viewport: ViewportTransform,
+  bounding: BoundingBox,
+  connectEndOffset?: Position
+) {
+  let defaultXy
   if (connectEndOffset && connectEndOffset.x) {
     // 如果存在连接结束偏移量，计算相对位置
     defaultXy = {
@@ -208,50 +232,52 @@ function addNode(node: Service) {
   const newNode = {
     ...serviceToGraphNode(node, defaultXy),
     events: defaultEvents
-  };
+  }
 
   // 添加新的节点到流程图中
-  addNodes(newNode);
+  addNodes(newNode)
 
   // 如果有选中的处理器ID，连接新节点和选中的节点
   if (selectHandlerId.value) {
     const isInputHandler = selectHandlerId.value === 'INPUT'
     const newConnect = isInputHandler
       ? {
-        source: newNode.id,
-        target: selectedNodeId.value as string,
-        sourceHandle: 'OUTPUT',
-        targetHandle: selectHandlerId.value
-      }
+          source: newNode.id,
+          target: selectedNodeId.value as string,
+          sourceHandle: 'OUTPUT',
+          targetHandle: selectHandlerId.value
+        }
       : {
-      source: selectedNodeId.value as string,
-      target: newNode.id,
-      sourceHandle: selectHandlerId.value,
-      targetHandle: "INPUT"
-      }
+          source: selectedNodeId.value as string,
+          target: newNode.id,
+          sourceHandle: selectHandlerId.value,
+          targetHandle: 'INPUT'
+        }
     doConnect(newConnect)
   }
 
   // 重置选中处理器和选中节点的ID
-  selectHandlerId.value = undefined;
-  selectedNodeId.value = undefined;
+  selectHandlerId.value = undefined
+  selectedNodeId.value = undefined
   isConnect.value = false
   // 切换搜索模态框的可见性
-  toggleSearchModalVisible();
+  toggleSearchModalVisible()
 }
-
 
 //---------------------------- 导入导出 ----------------------------
 function exportJson() {
-  const jsonStr = JSON.stringify(elementsToFlow(elements.value));
-  downloadByData(new Blob([jsonStr], {
-    type: 'text/plain'
-  }), 'config.json')
+  const jsonStr = JSON.stringify(elementsToFlow(elements.value))
+  downloadByData(
+    new Blob([jsonStr], {
+      type: 'text/plain'
+    }),
+    'config.json'
+  )
 }
 
 async function saveWorkflow() {
-  const flow: Flow = elementsToFlow(elements.value);
-  const jsonStr = JSON.stringify(flow);
+  const flow: Flow = elementsToFlow(elements.value)
+  const jsonStr = JSON.stringify(flow)
   await workflowApi.save({ id: route.query.flowId as string, flowStr: jsonStr })
   Notification.success('save success')
 }
@@ -265,15 +291,18 @@ function importJson(fileList: FileItem[]): void {
   }
 }
 
-
 function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
-  const flowNodes = flowDefine.nodes;
-  const nodes: VueFlowNode[] = flowNodes?.map((node) => ({ ...toGraphNode(node), events: defaultEvents })) as VueFlowNode[];
-  const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({ ...toGraphEdge(connection) })) as GraphEdge[];
+  const flowNodes = flowDefine.nodes
+  const nodes: VueFlowNode[] = flowNodes?.map((node) => ({
+    ...toGraphNode(node),
+    events: defaultEvents
+  })) as VueFlowNode[]
+  const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({
+    ...toGraphEdge(connection)
+  })) as GraphEdge[]
   elements.value = [...nodes, ...edges]
 }
-
 
 //---------------------------- 节点搜索弹窗逻辑 ----------------------------
 
@@ -281,97 +310,117 @@ const searchModalValue = ref<string>()
 const [searchModalVisible, toggleSearchModalVisible] = useToggle(false)
 const matchServices = computed(() => {
   if (searchModalValue.value) {
-    return serviceStore.getServices.filter(service => {
-      return service.name.toLowerCase().indexOf(searchModalValue.value || '') > -1;
+    return serviceStore.getServices.filter((service) => {
+      return service.name.toLowerCase().indexOf(searchModalValue.value || '') > -1
     })
   }
-  return serviceStore.getServices;
+  return serviceStore.getServices
 })
 
 function searchModalInput(event: InputEvent) {
-  searchModalValue.value = (event.data) as string
+  searchModalValue.value = event.data as string
 }
 
 //---------------------------- 工作流执行 ----------------------------
-const running = ref<boolean>(false);
-const executeFlowId = ref<string>();
+const running = ref<boolean>(false)
+const executeFlowId = ref<string>()
 
-const { VITE_BASE_URL } = useEnv();
+const { VITE_BASE_URL } = useEnv()
 
 function executeFlowSSE(flow: Flow) {
-  const ctrl = new AbortController();
-  const url = VITE_BASE_URL || '/api' + "/executions/sse";
+  const ctrl = new AbortController()
+  const url = VITE_BASE_URL || '/api' + '/executions/sse'
   fetchEventSource(url, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-    }
-    ,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(flow),
     async onmessage(message: EventSourceMessage) {
       switch (message.event) {
-        case "ACTIVITY_STARTED":
+        case 'ACTIVITY_STARTED':
           updateNodeData(message.id, { running: true })
-          break;
-        case "ACTIVITY_COMPLETED":
+          break
+        case 'ACTIVITY_COMPLETED':
           if (message.data) {
             updateNodeData(message.id, { executionData: JSON.parse(message.data), running: false })
           }
-          break;
+          break
         default:
       }
-
     },
     signal: ctrl.signal,
     onclose() {
-      executeFlowId.value = '';
-      running.value = false;
+      executeFlowId.value = ''
+      running.value = false
       ctrl.abort()
     },
     onerror(error: Error) {
-      throw error;
+      throw error
     }
-
   })
 }
 
 function runFlow() {
-  running.value = true;
-  const flow = elementsToFlow(elements.value);
+  running.value = true
+  const flow = elementsToFlow(elements.value)
   executeFlowId.value = flow.id
   executeFlowSSE(flow)
 }
 
 async function stopFlow() {
   if (executeFlowId.value) {
-    await stopExecution({ id: executeFlowId.value, type: "FLOW" })
-    executeFlowId.value = '';
+    await stopExecution({ id: executeFlowId.value, type: 'FLOW' })
+    executeFlowId.value = ''
   }
 
-  running.value = false;
+  running.value = false
 }
-
 </script>
 
 <template>
-  <VueFlow ref="vueFlow" :connection-mode="ConnectionMode.Strict" v-model="elements" @edge-mouse-move="edgeMouseMove"
-    @edge-mouse-leave="edgeMouseMove" :class="{ theme }" class="vue-flow-basic" :node-types="nodeTypes"
-    :edge-types="edgeTypes">
+  <VueFlow
+    ref="vueFlow"
+    :connection-mode="ConnectionMode.Strict"
+    v-model="elements"
+    @edge-mouse-move="edgeMouseMove"
+    @edge-mouse-leave="edgeMouseMove"
+    :class="{ theme }"
+    class="vue-flow-basic"
+    :node-types="nodeTypes"
+    :edge-types="edgeTypes"
+  >
     <!-- 背景 -->
     <Background :pattern-color="theme ? '#FFFFFB' : '#aaa'" :gap="8" />
     <!-- 面板控制器 -->
     <Controls />
     <!-- 左上角的操作按钮 -->
-    <Panel class="flow-designer-panel" position="top-right" style="display: flex; align-items: center">
-      <SearchModal :placeholder="'搜索添加节点'" v-model:visible="searchModalVisible"
-        @input="(event) => searchModalInput(event as InputEvent)">
+    <Panel
+      class="flow-designer-panel"
+      position="top-right"
+      style="display: flex; align-items: center"
+    >
+      <SearchModal
+        :placeholder="'搜索添加节点'"
+        v-model:visible="searchModalVisible"
+        @input="(event) => searchModalInput(event as InputEvent)"
+      >
         <AList>
-          <AListItem v-for="serviceItem in matchServices" :key="serviceItem.name" @click="() => addNode(serviceItem)">
+          <AListItem
+            v-for="serviceItem in matchServices"
+            :key="serviceItem.name"
+            @click="() => addNode(serviceItem)"
+          >
             <AListItemMeta :title="serviceItem.name">
               <template #avatar>
-                <AImage v-if="serviceItem.avatar" :preview="false" :width="68" :height="68" :src="serviceItem.avatar" />
-                <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }}
-                </AAvatar>
+                <AImage
+                  v-if="serviceItem.avatar"
+                  :preview="false"
+                  :width="68"
+                  :height="68"
+                  :src="serviceItem.avatar"
+                />
+                <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }} </AAvatar>
               </template>
             </AListItemMeta>
           </AListItem>
@@ -399,7 +448,6 @@ async function stopFlow() {
           </AButton>
         </template>
       </AUpload>
-
     </Panel>
 
     <!-- 执行按钮 -->
@@ -414,8 +462,13 @@ async function stopFlow() {
     </div>
 
     <!-- 节点的表单弹窗 -->
-    <NodeFormModel v-if="selectedNode" v-model="selectedNode" v-model:visible="formVisible" :properties="properties"
-      :description="description" />
+    <NodeFormModel
+      v-if="selectedNode"
+      v-model="selectedNode"
+      v-model:visible="formVisible"
+      :properties="properties"
+      :description="description"
+    />
   </VueFlow>
 </template>
 
