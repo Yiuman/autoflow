@@ -31,33 +31,35 @@ public class SqlService extends BaseService<SqlParameter> {
 
     @Override
     public ExecutionData execute(SqlParameter sqlParameter, ExecutionContext ctx) {
-        try {
-            Setting setting = Setting.create();
-            setting.put(LambdaUtil.getFieldName(SqlParameter::getUrl), sqlParameter.getUrl());
-            setting.put(LambdaUtil.getFieldName(SqlParameter::getUsername), sqlParameter.getUsername());
-            setting.put(LambdaUtil.getFieldName(SqlParameter::getPassword), sqlParameter.getPassword());
-            setting.put(LambdaUtil.getFieldName(SqlParameter::getDriver), sqlParameter.getDriver());
-            try (DSFactory dsFactory = DSFactory.create(setting);
-                 Connection connection = dsFactory.getDataSource().getConnection()) {
-                String sql = sqlParameter.getSql();
-                Statement statement = CCJSqlParserUtil.parse(sql);
-                ExecutionData executionData;
-                if (statement instanceof Select) {
-                    List<Entity> entities = SqlExecutor.query(connection, sql, new EntityListHandler());
-                    executionData = ExecutionData.builder()
-                            .json(JSONUtil.parseArray(entities))
-                            .build();
-                } else {
-                    int execute = SqlExecutor.execute(connection, sql);
-                    executionData = ExecutionData.builder()
-                            .json(JSONUtil.createObj().set("hit", execute))
-                            .build();
-                }
-                return executionData;
+        try (DSFactory dsFactory = DSFactory.create(buildSetting(sqlParameter));
+             Connection connection = dsFactory.getDataSource().getConnection()) {
+            String sql = sqlParameter.getSql();
+            Statement statement = CCJSqlParserUtil.parse(sql);
+            ExecutionData executionData;
+            if (statement instanceof Select) {
+                List<Entity> entities = SqlExecutor.query(connection, sql, new EntityListHandler());
+                executionData = ExecutionData.builder()
+                        .json(JSONUtil.parseArray(entities))
+                        .build();
+            } else {
+                int execute = SqlExecutor.execute(connection, sql);
+                executionData = ExecutionData.builder()
+                        .json(JSONUtil.createObj().set("hit", execute))
+                        .build();
             }
+            return executionData;
         } catch (Throwable throwable) {
             throw new ExecuteException(throwable, getId());
         }
 
+    }
+
+    private Setting buildSetting(SqlParameter sqlParameter) {
+        Setting setting = Setting.create();
+        setting.put(LambdaUtil.getFieldName(SqlParameter::getUrl), sqlParameter.getUrl());
+        setting.put(LambdaUtil.getFieldName(SqlParameter::getUsername), sqlParameter.getUsername());
+        setting.put(LambdaUtil.getFieldName(SqlParameter::getPassword), sqlParameter.getPassword());
+        setting.put(LambdaUtil.getFieldName(SqlParameter::getDriver), sqlParameter.getDriver());
+        return setting;
     }
 }
