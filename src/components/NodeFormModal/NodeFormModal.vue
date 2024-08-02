@@ -97,22 +97,20 @@ provide(CURRENT_NODE, props.modelValue)
 provide(INCOMER, incomers)
 
 const inputDataFlat = computed<NodeFlatData[]>(() => {
+  const nodeFlatDataArray: NodeFlatData[] = []
   if (incomers) {
-    const nodeFlatDataArray: NodeFlatData[] = []
     for (const incomer of incomers.value) {
       const variableFlatData = flatten(incomer.data.parameters)
       const nodeExecutionDataFlatData = flatten(incomer.data?.executionData)
       nodeFlatDataArray.push({
         node: incomer,
-        variable: variableFlatData,
+        variables: variableFlatData,
         inputData: nodeExecutionDataFlatData
       })
     }
-    console.warn('nodeFlatDataArray', nodeFlatDataArray)
-    return nodeFlatDataArray
   }
 
-  return {}
+  return nodeFlatDataArray as NodeFlatData[]
 })
 provide(INCOMER_DATA, inputDataFlat)
 

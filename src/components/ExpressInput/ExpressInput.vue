@@ -44,12 +44,12 @@ const expressRegexStr = /^\$\{(.*)}$/
 
 const selectOptions = computed<Option[]>(() => {
   const nodeSelectOptions = nodeFlatDataArray?.value.map((nodeFlatData) => {
-    const varKeys = Object.keys(nodeFlatData.variable).map((varKey) => {
+    const varKeys = Object.keys(nodeFlatData.variables).map((varKey) => {
       return {
         type: `${nodeFlatData.node.label}`,
-        key: `$.variable.${nodeFlatData.node.id}.${varKey}`,
+        key: `$.variables.${nodeFlatData.node.id}.${varKey}`,
         label: varKey,
-        value: nodeFlatData.variable[varKey]
+        value: nodeFlatData.variables[varKey]
       }
     })
 
