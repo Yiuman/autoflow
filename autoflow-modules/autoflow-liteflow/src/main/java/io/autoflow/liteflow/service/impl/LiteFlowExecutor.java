@@ -11,9 +11,12 @@ import io.autoflow.liteflow.utils.LiteFlows;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.ExecutionResult;
+import io.autoflow.spi.model.FlowExecutionResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -28,10 +31,16 @@ public class LiteFlowExecutor implements Executor {
     private final FlowExecutor flowExecutor;
 
     @Override
-    public Map<String, List<ExecutionData>> execute(Flow flow) {
+    public FlowExecutionResult execute(Flow flow) {
+        FlowExecutionResult executionResult = new FlowExecutionResult();
+        executionResult.setFlowId(flow.getId());
         String chainId = getExecutableId(flow);
+        executionResult.setStartTime(LocalDateTime.now());
         LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, null, FlowExecutionContext.class);
-        return liteflowResponse.getContextBean(FlowExecutionContext.class).getInputData();
+        executionResult.setEndTime(LocalDateTime.now());
+        List<ExecutionResult<ExecutionData>> executionResults = liteflowResponse.getContextBean(FlowExecutionContext.class).getExecutionResults();
+        executionResult.setData(executionResults);
+        return executionResult;
     }
 
     @Override
@@ -41,17 +50,16 @@ public class LiteFlowExecutor implements Executor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ExecutionData> executeNode(Node node) {
+    public List<ExecutionResult<ExecutionData>> executeNode(Node node) {
         Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) node.getData().get(Constants.INPUT_DATA);
-        node.getData().remove(Constants.INPUT_DATA);
         FlowExecutionContext flowExecutionContext = new FlowExecutionContext();
         flowExecutionContext.getParameters().putAll(node.getData());
         flowExecutionContext.getInputData().putAll(inputData);
         String chainId = getExecutableId(Flow.singleNodeFlow(node));
         LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, null, flowExecutionContext);
-        Map<String, List<ExecutionData>> executeData = liteflowResponse.getContextBean(FlowExecutionContext.class).getInputData();
-        return executeData.get(node.getId());
+        return liteflowResponse.getContextBean(FlowExecutionContext.class).getExecutionResults();
     }
+
 
     @Override
     public void startByExecutableId(String executableId) {

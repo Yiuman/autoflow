@@ -40,9 +40,9 @@ public class IfService extends BaseService<IfParameter> {
     };
 
     private static final Map<CalcType, BiFunction<ExecutionContext, Condition, String>> CALC_TYPE_FUNC_MAP = new HashMap<>() {{
-        put(CalcType.Express, (ctc, condition) -> ExpressUtils.convertCtxExpressStr(StrUtil.toString(condition.getValue())));
-        put(CalcType.Empty, (ctc, condition) -> StrUtil.toString(condition.getValue()));
-        put(CalcType.NotEmpty, (ctc, condition) -> StrUtil.toString(condition.getValue()));
+        put(CalcType.Express, (ctc, condition) -> ExpressUtils.convertCtxExpressStr(condition.getValue()));
+        put(CalcType.Empty, (ctc, condition) -> ExpressUtils.isEmptyExpress(ExpressUtils.convertCtxExpressStr(condition.getValue())));
+        put(CalcType.NotEmpty, (ctc, condition) -> ExpressUtils.isNotEmptyExpress(ExpressUtils.convertCtxExpressStr(condition.getValue())));
     }};
 
     @Override

@@ -1,6 +1,7 @@
 package io.autoflow.spi.context;
 
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 
 import java.util.HashMap;
@@ -19,11 +20,13 @@ public class OnceExecutionContext implements ExecutionContext {
 
     public OnceExecutionContext(ExecutionContext executionContext) {
         this.executionContext = executionContext;
+        this.variables.putAll(executionContext.getVariables());
         this.executionContextValueProvider = new ExecutionContextValueProvider(this);
     }
 
     public OnceExecutionContext(ExecutionContext executionContext, Map<String, Object> parameters) {
         this.executionContext = executionContext;
+        this.variables.putAll(executionContext.getVariables());
         this.executionContextValueProvider = new ExecutionContextValueProvider(this);
         this.parameters.putAll(parameters);
     }
@@ -48,5 +51,18 @@ public class OnceExecutionContext implements ExecutionContext {
         return executionContextValueProvider.get(key);
     }
 
+    @Override
+    public List<ExecutionResult<ExecutionData>> getExecutionResults() {
+        return executionContext.getExecutionResults();
+    }
 
+    @Override
+    public void addExecutionResult(ExecutionResult<ExecutionData> executionResult) {
+        executionContext.addExecutionResult(executionResult);
+    }
+
+    @Override
+    public Map<String, List<ExecutionResult<ExecutionData>>> getNodeExecutionResultMap() {
+        return executionContext.getNodeExecutionResultMap();
+    }
 }

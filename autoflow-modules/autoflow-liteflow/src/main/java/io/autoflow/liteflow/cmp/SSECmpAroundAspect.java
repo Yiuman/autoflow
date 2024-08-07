@@ -8,11 +8,11 @@ import io.autoflow.common.http.SSEContext;
 import io.autoflow.liteflow.enums.Event;
 import io.autoflow.spi.context.FlowExecutionContext;
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,13 +54,12 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
         try {
             String sseData = "";
             FlowExecutionContext flowExecutionContext = cmp.getContextBean(FlowExecutionContext.class);
-            Map<String, List<ExecutionData>> nodeExecutionDataMap = flowExecutionContext.getInputData();
+            Map<String, List<ExecutionResult<ExecutionData>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
             String activityId = cmp.getNodeId();
-            if (Objects.nonNull(nodeExecutionDataMap)) {
-                List<ExecutionData> executionData = nodeExecutionDataMap.get(activityId);
-                if (CollUtil.isNotEmpty(executionData)) {
-                    List<ExecutionData> executionDataList = new ArrayList<>(executionData);
-                    sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
+            if (Objects.nonNull(nodeExecutionResultMap)) {
+                List<ExecutionResult<ExecutionData>> executionResults = nodeExecutionResultMap.get(activityId);
+                if (CollUtil.isNotEmpty(executionResults)) {
+                    sseData = CollUtil.isEmpty(executionResults) ? "" : JSONUtil.toJsonStr(executionResults);
                 }
 
             }

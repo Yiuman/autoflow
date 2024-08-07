@@ -1,16 +1,18 @@
 package io.autoflow.flowable.delegate;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import io.autoflow.core.Services;
+import io.autoflow.core.runtime.ServiceExecutors;
 import io.autoflow.flowable.utils.Flows;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.context.FlowContextHolder;
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.ExecutionResult;
+import io.autoflow.spi.model.ServiceData;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.Activity;
@@ -20,10 +22,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.engine.impl.el.FixedValue;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,6 +46,7 @@ public class ExecuteServiceTask implements JavaDelegate {
         stopWatch.start();
         Service service = Services.getService(serviceIdValue);
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
+
         ExecutionContext flowExecutionContext = FlowContextHolder.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
         if (currentFlowElement instanceof Activity activity) {
@@ -58,29 +58,29 @@ public class ExecuteServiceTask implements JavaDelegate {
                 );
             }
         }
+
         flowExecutionContext.getVariables().putAll(execution.getVariables());
         flowExecutionContext.getParameters().putAll(Flows.getElementProperties(currentFlowElement));
-        ExecutionData currentExecutionData;
+        ExecutionResult<ExecutionData> executionResult;
+        ServiceData serviceData = new ServiceData();
+        serviceData.setFlowId(execution.getProcessInstanceId());
+        serviceData.setNodeId(execution.getCurrentActivityId());
+        serviceData.setServiceId(serviceIdValue);
+        serviceData.setParameters(execution.getVariables());
         try {
             //添加瞬态变量（不会序列化保存，只作用与当前的流程流转相关）
             execution.setTransientVariablesLocal(flowExecutionContext.getParameters());
             execution.setTransientVariableLocal(Constants.INPUT_DATA, flowExecutionContext.getInputData());
-            currentExecutionData = service.execute(flowExecutionContext);
+            executionResult = ServiceExecutors.execute(serviceData, service, flowExecutionContext);
         } catch (Throwable throwable) {
             log.error(StrUtil.format("'{}' node execute error", serviceIdValue), throwable);
-            currentExecutionData = ExecutionData.error(serviceIdValue, throwable);
+            executionResult = ExecutionResult.error(serviceData, throwable);
         } finally {
             flowExecutionContext.getParameters().clear();
             execution.removeTransientVariables();
         }
 
-        Map<String, List<ExecutionData>> inputData = flowExecutionContext.getInputData();
-
-        List<ExecutionData> nodeExecutionDataList = Optional
-                .ofNullable(inputData.get(currentFlowElement.getId()))
-                .orElse(CollUtil.newArrayList());
-        nodeExecutionDataList.add(currentExecutionData);
-        inputData.put(currentFlowElement.getId(), nodeExecutionDataList);
+        flowExecutionContext.addExecutionResult(executionResult);
         stopWatch.stop();
         log.debug("\n" + stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
     }

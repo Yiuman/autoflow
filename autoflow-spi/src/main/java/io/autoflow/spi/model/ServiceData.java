@@ -1,4 +1,4 @@
-package io.autoflow.liteflow.cmp;
+package io.autoflow.spi.model;
 
 import lombok.Data;
 
@@ -10,6 +10,8 @@ import java.util.Map;
  */
 @Data
 public class ServiceData {
+    private String flowId;
+    private String nodeId;
     private String serviceId;
     private Map<String, Object> parameters;
 }

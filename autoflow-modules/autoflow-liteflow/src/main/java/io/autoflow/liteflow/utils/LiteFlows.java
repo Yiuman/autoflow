@@ -15,9 +15,9 @@ import io.autoflow.core.model.Node;
 import io.autoflow.core.model.NodeType;
 import io.autoflow.liteflow.cmp.IFNodeComponent;
 import io.autoflow.liteflow.cmp.LoopNodeComponent;
-import io.autoflow.liteflow.cmp.ServiceData;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
 import io.autoflow.spi.context.FlowExecutionContext;
+import io.autoflow.spi.model.ServiceData;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,9 +58,9 @@ public final class LiteFlows {
                 stepEl.add(createIteratorEL(node, flow));
             } else if (NodeType.IF == node.getType()) {
                 if (CollUtil.isEmpty(flow.getConnections())) {
-                    stepEl.add(createServiceNodeEL(node));
+                    stepEl.add(createServiceNodeEL(flow, node));
                 } else {
-                    stepEl.add(ELBus.then(createServiceNodeEL(node), createIfNodeEl(node, flow)));
+                    stepEl.add(ELBus.then(createServiceNodeEL(flow, node), createIfNodeEl(node, flow)));
                 }
 
             } else {
@@ -71,9 +71,9 @@ public final class LiteFlows {
                     nextFlow.setId(nextFlowId);
                     nextFlow.setNodes(outgoers);
                     nextFlow.setConnections(getOutgoerConnections(flow, node, outgoers));
-                    stepEl.add(ELBus.then(createServiceNodeEL(node), convertEl(nextFlow)));
+                    stepEl.add(ELBus.then(createServiceNodeEL(flow, node), convertEl(nextFlow)));
                 } else {
-                    stepEl.add(createServiceNodeEL(node));
+                    stepEl.add(createServiceNodeEL(flow, node));
                 }
 
             }
@@ -191,8 +191,10 @@ public final class LiteFlows {
         );
     }
 
-    private static ELWrapper createServiceNodeEL(Node node) {
+    private static ELWrapper createServiceNodeEL(Flow flow, Node node) {
         ServiceData serviceData = new ServiceData();
+        serviceData.setFlowId(flow.getId());
+        serviceData.setNodeId(node.getId());
         serviceData.setServiceId(node.getServiceId());
         serviceData.setParameters(node.getData());
         String dataId = StrUtil.format("{}Data", node.getId());
