@@ -1,96 +1,96 @@
 .search-modal {
 
-    :hover {
-        cursor: pointer;
-    }
+  :hover {
+    cursor: pointer;
+  }
 
-    .hot-key {
-        display: flex;
+  .hot-key {
+    display: flex;
 
-        :first-child {
-            margin: 0 4px;
-        }
+    :first-child {
+      margin: 0 4px;
     }
+  }
 
 }
 
 .search-modal-content {
-    height: calc(100% - 60px);
-    overflow: auto;
+  height: calc(100% - 60px);
+  overflow: auto;
 }
 
 :global(._search-modal) {
-    height: 80%;
+  height: 80%;
 }
 
 :global(.search-modal-body) {
-    overflow: hidden !important;
-    padding: 0 !important;
-    height: 100%;
+  overflow: hidden !important;
+  padding: 0 !important;
+  height: 100%;
 }
 
 .input-key {
-    background: var(--color-bg-1);
-    border: 1px solid rgba(255, 255, 255, .12);
-    box-shadow: 0 1px #ffffff1f;
-    color: var(--color-text-1);
-    display: flex;
-    padding: 1px;
-    height: 14px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 2px;
-    border-radius: 3px;
-    font-size: 12px;
+  background: var(--color-bg-1);
+  border: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: 0 1px #ffffff1f;
+  color: var(--color-text-1);
+  display: flex;
+  padding: 1px;
+  height: 14px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+  border-radius: 3px;
+  font-size: 12px;
 }
 
 .search-modal-input {
-    display: flex;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background: var(--color-bg-3);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 8px 8px 0 0;
+
+
+  .search-modal-input-left {
     align-items: center;
-    justify-content: space-between;
-    height: 60px;
-    padding: 0 20px;
-    box-sizing: border-box;
-    background: var(--color-bg-3);
-    border-bottom: 1px solid var(--color-border);
-    border-radius: 8px 8px 0 0;
+    display: flex;
 
-
-    .search-modal-input-left {
-        align-items: center;
-        display: flex;
-
-        .arco-icon-search {
-            color: rgb(var(--primary-6));
-        }
-
-        :first-child {
-            margin: 0 4px;
-        }
-
-
-        input {
-            width: auto;
-            border: none;
-            outline: none;
-            height: 40px;
-            line-height: 40px;
-            font-size: 16px;
-            background-color: transparent;
-            color: var(--color-text-1);
-        }
+    .arco-icon-search {
+      color: rgb(var(--primary-6));
     }
 
-    .search-modal-input-right {
-        display: flex;
-
-        .input-key-desc {
-            color: var(--color-text-3);
-        }
-
-        :first-child {
-            margin: 0 4px;
-        }
+    :first-child {
+      margin: 0 4px;
     }
+
+
+    input {
+      width: auto;
+      border: none;
+      outline: none;
+      height: 40px;
+      line-height: 40px;
+      font-size: 16px;
+      background-color: transparent;
+      color: var(--color-text-1);
+    }
+  }
+
+  .search-modal-input-right {
+    display: flex;
+
+    .input-key-desc {
+      color: var(--color-text-3);
+    }
+
+    :first-child {
+      margin: 0 4px;
+    }
+  }
 }

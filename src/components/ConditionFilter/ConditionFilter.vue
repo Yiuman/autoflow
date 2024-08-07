@@ -4,9 +4,8 @@ import { pull } from 'lodash'
 import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
 import ConditionItem from '@/components/ConditionFilter/ConditionItem.vue'
 
-
 interface PropType {
-  modelValue: Condition,
+  modelValue: Condition
   parent?: Condition
 }
 
@@ -18,14 +17,13 @@ const props = withDefaults(defineProps<PropType>(), {
   })
 })
 
-
 const emits = defineEmits<{
-  (e: 'update:modelValue', item: Condition): void;
-  (e: 'removeChild', item: Condition): void;
-  (e: 'addChild', item: Condition): void;
+  (e: 'update:modelValue', item: Condition): void
+  (e: 'removeChild', item: Condition): void
+  (e: 'addChild', item: Condition): void
 }>()
 
-const modelValue = computed({
+const dataValue = computed({
   get() {
     return props.modelValue
   },
@@ -33,7 +31,6 @@ const modelValue = computed({
     if (value) {
       emits('update:modelValue', value)
     }
-
   }
 })
 
@@ -46,12 +43,12 @@ function addGroup() {
   const currentModel = props.modelValue
   currentModel.root = false
   newCondition.children?.push(currentModel as Condition)
-  newCondition.children?.push(
-    { children: [{ dataKey: '', calcType: CalcType.Equal, value: '', clause: Clause.AND }], clause: Clause.AND }
-  )
+  newCondition.children?.push({
+    children: [{ dataKey: '', calcType: CalcType.Equal, value: '', clause: Clause.AND }],
+    clause: Clause.AND
+  })
   emits('update:modelValue', newCondition)
 }
-
 
 function addCondition(child: Condition) {
   const currentModel = props.modelValue
@@ -80,7 +77,6 @@ function removeChild(child: Condition) {
   } else {
     emits('update:modelValue', currentModel)
   }
-
 }
 
 function emitAddChild(child: Condition) {
@@ -91,21 +87,18 @@ function emitRemove(child: Condition) {
   emits('removeChild', child)
 }
 
-
 const isAnd = computed({
-    get() {
-      return modelValue.value.clause === Clause.AND
-    },
-    set(value) {
-      modelValue.value.clause = value ? Clause.AND : Clause.OR
-    }
+  get() {
+    return dataValue.value.clause === Clause.AND
+  },
+  set(value) {
+    dataValue.value.clause = value ? Clause.AND : Clause.OR
   }
-)
-
+})
 </script>
 <template>
   <div class="condition-filter">
-    <template v-if="props.modelValue && modelValueChildren && modelValueChildren.length">
+    <template v-if="dataValue && modelValueChildren && modelValueChildren.length">
       <div class="condition-groups">
         <div v-if="modelValueChildren.length > 1" class="condition-clause-switch">
           <ASwitch v-model="isAnd" type="round" unchecked-color="coral">
@@ -113,35 +106,38 @@ const isAnd = computed({
               <span>且</span>
             </template>
             <template #unchecked-icon>
-              <span style="color:black">或</span>
+              <span style="color: black">或</span>
             </template>
           </ASwitch>
           <div class="condition-clause-line"></div>
-          <AButton v-if="modelValueChildren.length > 1" class="condition-group-add" size="mini"
-                   @click="addGroup">
+          <AButton
+            v-if="modelValueChildren.length > 1"
+            class="condition-group-add"
+            size="mini"
+            @click="addGroup"
+          >
             <IconPlus />
           </AButton>
         </div>
         <div class="condition-group-children">
           <template v-for="(child, index) in modelValueChildren" :key="index">
-            <ConditionFilter v-model="modelValueChildren[index]" :parent="props.modelValue"
-                             @remove-child="removeChild" @add-child="addCondition" />
+            <ConditionFilter
+              v-model="modelValueChildren[index]"
+              :parent="dataValue"
+              @remove-child="removeChild"
+              @add-child="addCondition"
+            />
           </template>
         </div>
-
-
       </div>
-
-
     </template>
     <template v-else>
       <div class="condition-filter-item">
-        <ConditionItem v-model="modelValue" />
-        <IconPlus class="add-btn" @click="() => emitAddChild(modelValue)" />
-        <IconDelete class="delete-btn" @click="() => emitRemove(modelValue)" />
+        <ConditionItem v-model="dataValue" />
+        <IconPlus class="add-btn" @click="() => emitAddChild(dataValue)" />
+        <IconDelete class="delete-btn" @click="() => emitRemove(dataValue)" />
       </div>
     </template>
-
   </div>
 </template>
 

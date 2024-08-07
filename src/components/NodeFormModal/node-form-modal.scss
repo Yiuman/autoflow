@@ -1,135 +1,135 @@
 @keyframes action {
-    0% {
-        outline-offset: -1px;
-    }
+  0% {
+    outline-offset: -1px;
+  }
 
-    50% {
-        outline-offset: -3px;
-    }
+  50% {
+    outline-offset: -3px;
+  }
 
-    100% {
-        outline-offset: -1px;
-    }
+  100% {
+    outline-offset: -1px;
+  }
 }
 
 .node-form-modal {
-    :global(.node-form-modal_body) {
-        overflow: visible !important;
-        padding: 0 !important;
-        height: calc(100vh - 150px);
+  :global(.node-form-modal_body) {
+    overflow: visible !important;
+    padding: 0 !important;
+    height: calc(100vh - 150px);
+  }
+
+  .node-form-modal-body {
+    height: 100%;
+
+    :deep(.arco-tabs-nav) {
+      height: 46px;
+    }
+  }
+
+  :global(.vjs-tree) {
+    font-family: unset;
+  }
+
+  .node-form-service {
+    position: absolute;
+    top: -48px;
+    left: 0px;
+    padding: 10px;
+    font-size: 18px;
+    margin: 0;
+    color: #fff;
+    border-radius: 5px 5px 0 0;
+    background-color: #0c0c0c;
+    font-weight: bold;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .node-form-title {
+    padding: 10px 20px;
+    font-size: 16px;
+    // background-color: #f2f3f5;
+    color: #5b6574;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .node-form-modal-btn {
+    position: absolute;
+    top: 8px;
+    right: -32px;
+    z-index: 1;
+  }
+
+  .splitpanes {
+    :deep(.splitpanes__splitter) {
+      background-color: var(--color-border);
+      min-width: 4px;
+
+      &:hover {
+        background-color: rgba(var(--primary-5));
+      }
+
+    }
+  }
+
+  .node-form-model-desc {
+    position: relative;
+
+    :deep(.arco-tabs-content) {
+      height: calc(100% - 50px);
+      overflow: auto;
     }
 
-    .node-form-modal-body {
-        height: 100%;
-
-        :deep(.arco-tabs-nav) {
-            height: 46px;
-        }
+    :deep(.arco-tabs) {
+      height: 100%;
     }
 
-    :global(.vjs-tree) {
-        font-family: unset;
+    .node-form-model-action-btn {
+      position: absolute;
+      z-index: 1;
+      right: 5px;
+      top: 5px;
+      border-radius: 50%;
+      border: 1px solid;
+      border-color: transparent;
     }
 
-    .node-form-service {
-        position: absolute;
-        top: -48px;
-        left: 0px;
-        padding: 10px;
-        font-size: 18px;
-        margin: 0;
-        color: #fff;
-        border-radius: 5px 5px 0 0;
-        background-color: #0c0c0c;
-        font-weight: bold;
-        border-bottom: 1px solid var(--color-border);
+    .node-action {
+      border: 1px solid rgba(var(--primary-6), .5);
+      outline: rgba(var(--primary-6), .5) solid 2px;
+      animation: action 1.2s infinite linear;
     }
 
-    .node-form-title {
-        padding: 10px 20px;
-        font-size: 16px;
-        // background-color: #f2f3f5;
-        color: #5b6574;
-        border-bottom: 1px solid var(--color-border);
+    :deep(.arco-tabs-pane) {
+      padding: 0 10px;
     }
-
-    .node-form-modal-btn {
-        position: absolute;
-        top: 8px;
-        right: -32px;
-        z-index: 1;
-    }
-
-    .splitpanes {
-        :deep(.splitpanes__splitter) {
-            background-color: var(--color-border);
-            min-width: 4px;
-
-            &:hover {
-                background-color: rgba(var(--primary-5));
-            }
-
-        }
-    }
-
-    .node-form-model-desc {
-        position: relative;
-
-        :deep(.arco-tabs-content) {
-            height: calc(100% - 50px);
-            overflow: auto;
-        }
-
-        :deep(.arco-tabs) {
-            height: 100%;
-        }
-
-        .node-form-model-action-btn {
-            position: absolute;
-            z-index: 1;
-            right: 5px;
-            top: 5px;
-            border-radius: 50%;
-            border: 1px solid;
-            border-color: transparent;
-        }
-
-        .node-action {
-            border: 1px solid rgba(var(--primary-6), .5);
-            outline: rgba(var(--primary-6), .5) solid 2px;
-            animation: action 1.2s infinite linear;
-        }
-
-        :deep(.arco-tabs-pane) {
-            padding: 0 10px;
-        }
-    }
+  }
 
 
-    .node-form-modal-output-empty {
-        height: 100%;
-    }
+  .node-form-modal-output-empty {
+    height: 100%;
+  }
 
 }
 
 .node-form-modal-input,
 .node-form-modal-output {
-    :deep(.arco-tabs) {
-        height: calc(100% - 50px);
-    }
+  :deep(.arco-tabs) {
+    height: calc(100% - 50px);
+  }
 
-    :deep(.arco-tabs-content) {
-        height: calc(100% - 50px);
-        overflow: auto;
-        padding-top: 0;
-    }
+  :deep(.arco-tabs-content) {
+    height: calc(100% - 50px);
+    overflow: auto;
+    padding-top: 0;
+  }
 
-    :deep(.arco-tabs-pane) {
-        padding-top: 0;
-        height: 100%;
-    }
+  :deep(.arco-tabs-pane) {
+    padding-top: 0;
+    height: 100%;
+  }
 }
 
 .node-form-modal-pane {
-    height: 100%;
+  height: 100%;
 }

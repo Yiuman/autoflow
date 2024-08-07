@@ -1,36 +1,34 @@
 <script lang="ts" setup>
+import { useRoute, useRouter } from 'vue-router'
 import {
-  useRoute,
-  useRouter,
-} from 'vue-router';
-import {
-  IconSunFill,
-  IconMoonFill,
-  IconLanguage,
   IconDown,
-  IconHome
+  IconHome,
+  IconLanguage,
+  IconMenuFold,
+  IconMenuUnfold,
+  IconMoonFill,
+  IconSunFill
 } from '@arco-design/web-vue/es/icon'
-import { IconMenuFold, IconMenuUnfold } from '@arco-design/web-vue/es/icon';
-import { Icon } from '@arco-design/web-vue';
-import useTheme from "@/hooks/theme";
+import { Icon } from '@arco-design/web-vue'
+import useTheme from '@/hooks/theme'
 
-const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href;
-const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl });
+const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
+const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl })
 
-const [collapsed, toggleCollapsed] = useToggle(false);
+const [collapsed, toggleCollapsed] = useToggle(false)
 
-const menuRef = ref();
-const { width } = useElementSize(menuRef);
+const menuRef = ref()
+const { width } = useElementSize(menuRef)
 
 const headerWidth = computed(() => {
   return `calc(100% - ${width.value}px)`
 })
 const [theme, toggleTheme] = useTheme()
-const router = useRouter();
+const router = useRouter()
 const route = useRoute()
 
 const breadcrumbs = computed(() => {
-  return route.path.split("/");
+  return route.path.split('/')
 })
 
 function handleMenuClick(key: string) {
@@ -39,23 +37,26 @@ function handleMenuClick(key: string) {
 </script>
 
 <template>
-  <ALayout style="height:100%">
+  <ALayout style="height: 100%">
     <ALayoutSider ref="menuRef" hide-trigger collapsible :collapsed="collapsed">
       <div class="logo-wrap">
-        <div class="logo" >
+        <div class="logo">
           <IconFont type="icon-autoflow" />
           <span v-show="!collapsed">autoflow</span>
         </div>
       </div>
       <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['workflows']">
         <AMenuItem key="workflows">
-          <IconFont type="icon-workflow_" />Workflows
+          <IconFont type="icon-workflow_" />
+          Workflows
         </AMenuItem>
         <AMenuItem key="plugins">
-          <IconFont type="icon-plugins" />Plugins
+          <IconFont type="icon-plugins" />
+          Plugins
         </AMenuItem>
         <AMenuItem key="variables">
-          <IconFont type="icon-variables" />Variables
+          <IconFont type="icon-variables" />
+          Variables
         </AMenuItem>
       </AMenu>
 
@@ -79,10 +80,8 @@ function handleMenuClick(key: string) {
               <template v-else>
                 {{ breadcrumb }}
               </template>
-
             </ABreadcrumbItem>
           </ABreadcrumb>
-
         </div>
         <div class="layout-header-right">
           <ADropdown>
@@ -98,8 +97,13 @@ function handleMenuClick(key: string) {
           </ADropdown>
 
           <div class="layout-header-right-item">
-            <ASwitch :value="theme" class="panel-item" type="line" @change="() => toggleTheme()" 
-              size="medium">
+            <ASwitch
+              :value="theme"
+              class="panel-item"
+              type="line"
+              @change="() => toggleTheme()"
+              size="medium"
+            >
               <template #checked-icon>
                 <IconMoonFill style="color: orange" />
               </template>
@@ -120,7 +124,6 @@ function handleMenuClick(key: string) {
               <ADoption>设置</ADoption>
             </template>
           </ADropdown>
-
         </div>
       </div>
 
@@ -128,10 +131,9 @@ function handleMenuClick(key: string) {
         <RouterView />
       </ALayoutContent>
     </ALayout>
-
   </ALayout>
 </template>
 
 <style scoped lang="scss">
-@import "home-view";
+@import 'home-view';
 </style>

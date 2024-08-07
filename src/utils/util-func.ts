@@ -15,7 +15,6 @@ function uuid(len: number, nonnumericBeginning: boolean = false, radix: number =
       } else {
         uuid[i] = chars[0 | (Math.random() * radix)]
       }
-
     }
   } else {
     // rfc4122, version 4 form
@@ -71,46 +70,44 @@ function getOS() {
  * 扁平化对象
  */
 function flatten(data: Object): Record<string, any> {
-  const result: Record<string, any> = {};
-  const isEmpty = (x: Record<string, any>) => Object.keys(x).length === 0;
+  const result: Record<string, any> = {}
+  const isEmpty = (x: Record<string, any>) => Object.keys(x).length === 0
   const recurse = (cur: Record<string, any>, prop: string) => {
     if (Object(cur) !== cur) {
-      result[prop] = cur;
+      result[prop] = cur
     } else if (Array.isArray(cur)) {
-      const length = cur.length;
+      const length = cur.length
       for (let i = 0; i < length; i++) {
-        recurse(cur[i], `${prop}[${i}]`);
+        recurse(cur[i], `${prop}[${i}]`)
       }
       if (length === 0) {
-        result[prop] = [];
+        result[prop] = []
       }
     } else {
       if (!isEmpty(cur)) {
-        Object.keys(cur).forEach((key) =>
-          recurse(cur[key], prop ? `${prop}.${key}` : key)
-        );
+        Object.keys(cur).forEach((key) => recurse(cur[key], prop ? `${prop}.${key}` : key))
       } else {
-        result[prop] = {};
+        result[prop] = {}
       }
     }
-  };
-  recurse(data, "");
-  return result;
-};
-
+  }
+  recurse(data, '')
+  return result
+}
 
 const ScriptHelper = {
   execute(scriptStr: string, options: unknown): unknown {
-    return Function('"use strict";return (' + scriptStr + ')')()(options);
+    return Function('"use strict";return (' + scriptStr + ')')()(options)
   },
   executeEl(callObject: unknown, logicStr: string): unknown {
-    return Function('"use strict";return (function(){ return ' + logicStr + '})')().call(
-      callObject,
-    );
-  },
-};
+    return Function('"use strict";return (function(){ return ' + logicStr + '})')().call(callObject)
+  }
+}
 
-function getContainerClientXY(event: MouseEvent | TouchEvent | undefined, container?: HTMLElement): Position | undefined {
+function getContainerClientXY(
+  event: MouseEvent | TouchEvent | undefined,
+  container?: HTMLElement
+): Position | undefined {
   if (!event) {
     return undefined
   }
@@ -127,7 +124,7 @@ function getContainerClientXY(event: MouseEvent | TouchEvent | undefined, contai
     throw new Error('Invalid event type')
   }
 
-  if(!container){
+  if (!container) {
     return { x: clientX, y: clientY }
   }
 

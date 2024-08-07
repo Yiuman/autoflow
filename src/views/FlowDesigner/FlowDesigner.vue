@@ -128,12 +128,14 @@ async function defaultRun(node: VueFlowNode) {
   const allIncomers = getAllIncomers(node.id, getIncomers)
   const inputData: Record<string, ExecutionData[]> = {}
   for (const incomer of allIncomers) {
-    inputData[incomer.id] = incomer.data.executionData
+    inputData[incomer.id] = incomer.data?.executionResult?.map(
+      (result) => result.data as ExecutionData
+    )
   }
   nodeData.inputData = inputData
   executeNodeData.data = nodeData
-  const executionData = await executeNode(executeNodeData)
-  updateNodeData(node.id, { executionData, running: false })
+  const executionResult = await executeNode(executeNodeData)
+  updateNodeData(node.id, { executionResult, running: false })
 }
 
 const defaultEvents = {
@@ -343,7 +345,10 @@ function executeFlowSSE(flow: Flow) {
           break
         case 'ACTIVITY_COMPLETED':
           if (message.data) {
-            updateNodeData(message.id, { executionData: JSON.parse(message.data), running: false })
+            updateNodeData(message.id, {
+              executionResult: JSON.parse(message.data),
+              running: false
+            })
           }
           break
         default:
@@ -420,7 +425,7 @@ async function stopFlow() {
                   :height="68"
                   :src="serviceItem.avatar"
                 />
-                <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }} </AAvatar>
+                <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }}</AAvatar>
               </template>
             </AListItemMeta>
           </AListItem>

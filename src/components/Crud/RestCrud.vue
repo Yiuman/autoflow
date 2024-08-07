@@ -34,19 +34,25 @@ const slotColumns = computed(() => {
 const spinLoading = useDelayedLoading(loading)
 </script>
 <template>
-
   <div class="crud">
     <ASpin class="curd-table-spin" :loading="spinLoading" dot>
-      <ATable size="large" column-resizable :scrollbar="true" :bordered="true" :row-key="rowKey as string"
-        :pagination="pagination" :columns="columns as []" :data="pageRecord.records" @page-change="pageChange">
+      <ATable
+        size="large"
+        column-resizable
+        :scrollbar="true"
+        :bordered="true"
+        :row-key="rowKey as string"
+        :pagination="pagination"
+        :columns="columns as []"
+        :data="pageRecord.records"
+        @page-change="pageChange"
+      >
         <template v-for="slotColumn in slotColumns" :key="slotColumn" #[slotColumn]="{ record }">
           <slot :name="slotColumn" :record="record" />
         </template>
       </ATable>
     </ASpin>
-
   </div>
-
 </template>
 
 <style lang="scss" scoped></style>

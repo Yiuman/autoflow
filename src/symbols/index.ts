@@ -1,5 +1,5 @@
 import type { InjectionKey, Ref } from 'vue'
-import type { VueFlowNode, NodeFlatData } from '@/types/flow'
+import type { NodeFlatData, VueFlowNode } from '@/types/flow'
 
 /** 全局的用户信息 InjectionKey */
 export const INCOMER: InjectionKey<Ref<VueFlowNode[]>> = Symbol()

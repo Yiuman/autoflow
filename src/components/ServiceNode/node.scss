@@ -12,6 +12,22 @@
     }
   }
 
+  .node-duration {
+    position: absolute;
+    bottom: -20px;
+    right: -40px;
+
+
+    :deep(.arco-tag) {
+      color: rgba(var(--primary-6));
+      background-color: transparent;
+    }
+
+    :deep(.arco-tag-icon){
+      color: rgba(var(--primary-6));
+    }
+  }
+
 }
 
 .node-avatar {
@@ -25,7 +41,7 @@
 
     font-size: 18px;
 
-    .node-status-sucess {
+    .node-status-success {
       color: rgb(var(--green-7))
     }
 

@@ -1,127 +1,141 @@
 <script setup lang="ts">
-import type { ComponentAttr } from '@/types/flow';
-import type { TableColumnData } from '@arco-design/web-vue';
+import type { ComponentAttr } from '@/types/flow'
+import type { TableColumnData } from '@arco-design/web-vue'
 import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
-import type { Component } from 'vue';
+import type { Component } from 'vue'
 
 export interface ListEditorProps {
-    columns: TableColumnData[],
-    columnCmp?: Record<string, ComponentAttr>,
-    modelValue: Record<string, any>[],
-    showHeader?: boolean
+  columns: TableColumnData[]
+  columnCmp?: Record<string, ComponentAttr>
+  modelValue: Record<string, any>[]
+  showHeader?: boolean
 }
 
 function newRecord(): Record<string, any> {
-    const newObj: Record<string, any> = {};
-    props.columns.forEach(column => {
-        newObj[column.dataIndex as string] = ''
-    })
-    return newObj;
+  const newObj: Record<string, any> = {}
+  props.columns.forEach((column) => {
+    newObj[column.dataIndex as string] = ''
+  })
+  return newObj
 }
 
 const props = withDefaults(defineProps<ListEditorProps>(), {
-    modelValue: (prop: { columns: any[]; }) => {
-        const newObj: Record<string, any> = {};
-        prop.columns.forEach((column: { dataIndex: string; }) => {
-            newObj[column.dataIndex as string] = ''
-        })
-        return [newObj]
-    },
-    showHeader: true
-});
+  modelValue: (prop: { columns: any[] }) => {
+    const newObj: Record<string, any> = {}
+    prop.columns.forEach((column: { dataIndex: string }) => {
+      newObj[column.dataIndex as string] = ''
+    })
+    return [newObj]
+  },
+  showHeader: true
+})
 const emits = defineEmits<{
-    (e: 'update:modelValue', item: Record<string, any>[]): void
-    (e: 'change', record: Record<string, any>, val: string): void
+  (e: 'update:modelValue', item: Record<string, any>[]): void
+  (e: 'change', record: Record<string, any>, val: string): void
 }>()
 
 function doEmitModelValue(values: Record<string, any>[]): void {
-    emits('update:modelValue', values)
+  emits('update:modelValue', values)
 }
 
 const data = reactive(props.modelValue)
 const [stopWatchData, toggleStopWatchData] = useToggle(false)
 watch(
-    () => data,
-    (newVal) => {
-        if (!stopWatchData.value) {
-            doEmitModelValue(newVal)
-        }
-
-    },
-    { deep: true }
-);
-watch(() => props.modelValue, async () => {
-    toggleStopWatchData();
-    data.splice(0, data.length, ...props.modelValue);
+  () => data,
+  (newVal) => {
+    if (!stopWatchData.value) {
+      doEmitModelValue(newVal)
+    }
+  },
+  { deep: true }
+)
+watch(
+  () => props.modelValue,
+  async () => {
+    toggleStopWatchData()
+    data.splice(0, data.length, ...props.modelValue)
     await nextTick()
-    toggleStopWatchData();
-}, { deep: true })
+    toggleStopWatchData()
+  },
+  { deep: true }
+)
 
 function deleteRecord(record: Record<string, any>) {
-    data.splice(data.indexOf(record), 1)
+  data.splice(data.indexOf(record), 1)
 }
 
 function addRecord() {
-    data.push(newRecord())
+  data.push(newRecord())
 }
 
 function getColumnDataIndex(column: TableColumnData): string {
-    return column.dataIndex || '';
+  return column.dataIndex || ''
 }
 
 function getColumnTitle(column: TableColumnData): string {
-    return (column.title) as string;
+  return column.title as string
 }
 
 function doEmitChange(record: Record<string, any>, val: string) {
-    emits('change', record, val);
+  emits('change', record, val)
 }
 
 function getColumnComponent(dataIndex: string): Component | string {
-    if (!props.columnCmp || !props.columnCmp[dataIndex]) {
-        return 'AInput'
-    }
-    return props.columnCmp[dataIndex].cmp;
+  if (!props.columnCmp || !props.columnCmp[dataIndex]) {
+    return 'AInput'
+  }
+  return props.columnCmp[dataIndex].cmp
 }
 
 function getBindAttr(dataIndex: string): Record<string, any> | undefined {
-    if (!props.columnCmp || !props.columnCmp[dataIndex]) {
-        return undefined
-    }
-    return props.columnCmp[dataIndex].attrs;
+  if (!props.columnCmp || !props.columnCmp[dataIndex]) {
+    return undefined
+  }
+  return props.columnCmp[dataIndex].attrs
 }
 </script>
 
 <template>
-    <div class="list-editor">
-        <ATable :data="data" size="mini" :pagination="false" :show-header="showHeader" :stripe="true">
-            <template #columns>
-                <ATableColumn v-for="column in columns" :key="column.dataIndex" align="center"
-                    :title="getColumnTitle(column)" cellClass="list-editor-cell ">
-                    <template #cell="{ record }">
-                        <Component :is="getColumnComponent(column.dataIndex as string)"
-                            v-bind="getBindAttr(column.dataIndex as string)"
-                            @change="(val: any) => doEmitChange(record, val)"
-                            v-model="record[getColumnDataIndex(column)]" />
-                        <!-- <AInput @change="(val) => doEmitChange(record, val)"
-                            v-model="record[getColumnDataIndex(column)]" /> -->
-                    </template>
-                </ATableColumn>
-                <ATableColumn align="center" title="" cellClass="list-editor-cell map-editor-opt-cell">
-                    <template #cell="{ record }">
-                        <IconDelete class="list-editor-del-btn" :size="15" @click="() => deleteRecord(record)" />
-                    </template>
-                </ATableColumn>
-            </template>
-        </ATable>
-        <div class="list-editor-add-btn">
-            <AButton size="mini" @click="() => addRecord()">
-                <template #icon>
-                    <IconPlus />
-                </template>
-            </AButton>
-        </div>
+  <div class="list-editor">
+    <ATable :data="data" size="mini" :pagination="false" :show-header="showHeader" :stripe="true">
+      <template #columns>
+        <ATableColumn
+          v-for="column in columns"
+          :key="column.dataIndex"
+          align="center"
+          :title="getColumnTitle(column)"
+          cellClass="list-editor-cell "
+        >
+          <template #cell="{ record }">
+            <Component
+              :is="getColumnComponent(column.dataIndex as string)"
+              v-bind="getBindAttr(column.dataIndex as string)"
+              @change="(val: any) => doEmitChange(record, val)"
+              v-model="record[getColumnDataIndex(column)]"
+            />
+            <!-- <AInput @change="(val) => doEmitChange(record, val)"
+                v-model="record[getColumnDataIndex(column)]" /> -->
+          </template>
+        </ATableColumn>
+        <ATableColumn align="center" title="" cellClass="list-editor-cell map-editor-opt-cell">
+          <template #cell="{ record }">
+            <IconDelete
+              class="list-editor-del-btn"
+              :size="15"
+              @click="() => deleteRecord(record)"
+            />
+          </template>
+        </ATableColumn>
+      </template>
+    </ATable>
+    <div class="list-editor-add-btn">
+      <AButton size="mini" @click="() => addRecord()">
+        <template #icon>
+          <IconPlus />
+        </template>
+      </AButton>
     </div>
+  </div>
 </template>
 
 <style lang="scss">

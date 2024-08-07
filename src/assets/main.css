@@ -15,7 +15,7 @@ body,
     flex-direction: column;
 }
 
-.arco-spin{
+.arco-spin {
     width: 100%;
 }
 
@@ -35,6 +35,7 @@ body,
 ::-webkit-scrollbar-track {
     background-color: #f6f6f6;
 }
+
 ::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-track {
     border: 0;

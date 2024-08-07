@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { NodeFlatData, Property, VueFlowNode } from '@/types/flow'
+import type {
+  ExecutionData,
+  ExecutionResult,
+  NodeFlatData,
+  Property,
+  VueFlowNode
+} from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
+  IconClockCircle,
   IconCloseCircleFill,
   IconPauseCircleFill,
   IconPlayCircleFill
@@ -77,7 +84,7 @@ const incomers = computed(() => {
 const selectedIncomerNodeId = ref<string>()
 watch(incomers, () => {
   if (incomers.value && incomers.value.length) {
-    selectedIncomerNodeId.value = incomers.value[0].id
+    selectedIncomerNodeId.value = incomers.value?.[0].id
   }
 })
 
@@ -96,12 +103,16 @@ const selectedNode = computed(() => {
 provide(CURRENT_NODE, props.modelValue)
 provide(INCOMER, incomers)
 
+type ExecutionDataOrArray = ExecutionData | ExecutionData[]
 const inputDataFlat = computed<NodeFlatData[]>(() => {
   const nodeFlatDataArray: NodeFlatData[] = []
   if (incomers) {
     for (const incomer of incomers.value) {
       const variableFlatData = flatten(incomer.data.parameters)
-      const nodeExecutionDataFlatData = flatten(incomer.data?.executionData)
+      const inputData = (incomer.data?.executionResult as ExecutionResult<ExecutionData>[])?.map(
+        (result) => result.data
+      )
+      const nodeExecutionDataFlatData = flatten(inputData)
       nodeFlatDataArray.push({
         node: incomer,
         variables: variableFlatData,
@@ -118,13 +129,28 @@ const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null
   }
-  const inputDataList = selectedNode.value?.data.executionData
-  return inputDataList?.length === 1 ? inputDataList[0] : inputDataList
+  const inputDataList = (
+    selectedNode.value?.data.executionResult as ExecutionResult<ExecutionData>[]
+  )?.map((result) => result.data)
+  return (inputDataList?.length === 1 ? inputDataList[0] : inputDataList) as ExecutionDataOrArray
+})
+
+const inputResult = computed(() => {
+  if (!selectedIncomerNodeId.value) {
+    return null
+  }
+  return selectedNode.value?.data.executionResult?.[0]
 })
 
 const outputData = computed(() => {
-  const outputDatas = props.modelValue.data?.executionData
-  return outputDatas?.length === 1 ? outputDatas[0] : outputDatas
+  const outputDatas = (
+    props.modelValue.data?.executionResult as ExecutionResult<ExecutionData>[]
+  )?.map((result) => result.data)
+  return (outputDatas?.length === 1 ? outputDatas[0] : outputDatas) as ExecutionDataOrArray
+})
+
+const outputResult = computed(() => {
+  return props.modelValue.data?.executionResult?.[0]
 })
 
 function doClose() {
@@ -156,6 +182,12 @@ const activeTab = ref<string>('parameters')
 watch(props.modelValue, () => {
   activeTab.value = props.properties && props.properties.length ? 'parameters' : 'settings'
 })
+
+type KeyOfExecutionData = keyof ExecutionDataOrArray
+
+function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfExecutionData[] {
+  return executionData ? (Object.keys(executionData) as KeyOfExecutionData[]) : []
+}
 </script>
 
 <template>
@@ -211,7 +243,16 @@ watch(props.modelValue, () => {
               </AOptgroup>
             </ASelect>
             <ATabs v-if="inputData">
-              <template v-for="executeDataKey in Object.keys(inputData)" :key="executeDataKey">
+              <template v-if="inputResult.error">
+                <ATabPane title="error">
+                  <VueJsonPretty class="input-json" :data="inputResult.error" :show-icon="true" />
+                </ATabPane>
+              </template>
+              <template
+                v-else
+                v-for="executeDataKey in getExecutionDataKey(inputData)"
+                :key="executeDataKey"
+              >
                 <ATabPane
                   v-if="inputData[executeDataKey]"
                   :title="executeDataKey"
@@ -219,10 +260,7 @@ watch(props.modelValue, () => {
                 >
                   <VueJsonPretty
                     class="input-json"
-                    v-if="
-                      inputData[executeDataKey] &&
-                      (executeDataKey == 'json' || executeDataKey == 'error')
-                    "
+                    v-if="inputData[executeDataKey] && executeDataKey == 'json'"
                     :data="inputData[executeDataKey]"
                     :show-icon="true"
                   />
@@ -259,9 +297,7 @@ watch(props.modelValue, () => {
                 title="Parameters"
                 v-if="props.properties && props.properties.length"
               >
-                <div>
-                  <FromRenderer v-model="nodeData" :properties="props.properties" />
-                </div>
+                <FromRenderer v-model="nodeData" :properties="props.properties" />
               </ATabPane>
               <ATabPane key="doc" title="Doc" v-if="props.description">
                 <MdPreview :modelValue="props.description" />
@@ -274,20 +310,34 @@ watch(props.modelValue, () => {
         </Pane>
         <Pane>
           <div class="node-form-modal-pane node-form-modal-output">
-            <div class="node-form-title">Output</div>
-            <ATabs v-if="outputData">
-              <template v-for="executeDataKey in Object.keys(outputData)" :key="executeDataKey">
+            <div class="node-form-title">
+              Output
+              <ATag v-if="!outputResult.error">
+                <template #icon>
+                  <IconClockCircle />
+                </template>
+                {{ `${(outputResult.durationMs / 1000).toFixed(3)}s` }}
+              </ATag>
+            </div>
+            <ATabs v-if="outputResult">
+              <template v-if="outputResult.error">
+                <ATabPane title="error">
+                  <VueJsonPretty class="output-json" :data="outputResult.error" :show-icon="true" />
+                </ATabPane>
+              </template>
+              <template
+                v-else
+                v-for="executeDataKey in getExecutionDataKey(outputData)"
+                :key="executeDataKey"
+              >
                 <ATabPane
                   v-if="outputData[executeDataKey]"
-                  :title="executeDataKey"
                   :key="executeDataKey"
+                  :title="executeDataKey"
                 >
                   <VueJsonPretty
                     class="output-json"
-                    v-if="
-                      outputData[executeDataKey] &&
-                      (executeDataKey == 'json' || executeDataKey == 'error')
-                    "
+                    v-if="outputData[executeDataKey] && executeDataKey == 'json'"
                     :data="outputData[executeDataKey]"
                     :show-icon="true"
                   />

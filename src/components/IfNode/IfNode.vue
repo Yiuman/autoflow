@@ -48,8 +48,8 @@ const [avatarNotFound, toggleAvatar] = useToggle(false)
         />
       </AAvatar>
 
-      <div class="node-status-icon" v-if="data.executionData">
-        <IconExclamationCircle class="node-status-error" v-if="data.executionData[0].error" />
+      <div class="node-status-icon" v-if="data.executionResult">
+        <IconExclamationCircle class="node-status-error" v-if="data.executionResult[0].error" />
         <IconCheckCircle class="node-status-success" v-else />
       </div>
     </template>

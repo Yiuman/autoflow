@@ -5,6 +5,7 @@ import { type FileItem } from '@arco-design/web-vue'
 import serviceApi from '@/api/service'
 import type { Service } from '@/types/flow'
 import { MdPreview } from 'md-editor-v3'
+
 const serviceStore = useServiceStore()
 
 async function uploadJar(fileList: FileItem[]): Promise<void> {
@@ -19,7 +20,6 @@ function selectPlugin(serviceItem: Service) {
   selectedPlugin.value = serviceItem
   toggleDescriptionVisible()
 }
-
 </script>
 
 <template>
@@ -42,7 +42,7 @@ function selectPlugin(serviceItem: Service) {
                 :height="120"
                 :src="selectedPlugin.avatar"
               />
-              <AAvatar v-else shape="square" :size="120">{{ selectedPlugin.name }} </AAvatar>
+              <AAvatar v-else shape="square" :size="120">{{ selectedPlugin.name }}</AAvatar>
             </div>
           </div>
           <div class="plugins-title">{{ selectedPlugin.name }}</div>
@@ -72,7 +72,7 @@ function selectPlugin(serviceItem: Service) {
               :height="120"
               :src="serviceItem.avatar"
             />
-            <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }} </AAvatar>
+            <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }}</AAvatar>
           </div>
         </div>
         <div class="plugins-title">{{ serviceItem.name }}</div>
@@ -112,6 +112,7 @@ function selectPlugin(serviceItem: Service) {
 
   .plugin-card {
     border-radius: 5px;
+
     &:hover {
       cursor: pointer;
     }

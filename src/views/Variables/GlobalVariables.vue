@@ -115,7 +115,7 @@ async function deleteVariable(record: Variable) {
       padding: 5px;
       flex-direction: column;
 
-      >* {
+      > * {
         align-self: flex-end;
       }
     }
@@ -128,7 +128,7 @@ async function deleteVariable(record: Variable) {
   .optional-column {
     display: flex;
 
-    >* {
+    > * {
       flex: 1;
     }
   }

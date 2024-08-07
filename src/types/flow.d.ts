@@ -66,14 +66,20 @@ interface Binary {
 
 interface ExecutionError {
   node?: string
-  messgae?: string
+  message?: string
 }
+
+interface ExecutionResult<T> {
+  data?: T
+  error?: ExecutionError
+}
+
+interface FlowExecutionResult extends ExecutionResult<List<ExecutionData>> {}
 
 interface ExecutionData {
   json?: JSON
   raw?: string
   binary?: Binary
-  error?: ExecutionError
 }
 
 interface Property {
@@ -135,5 +141,7 @@ export {
   Loop,
   ValidateRule,
   ComponentAttr,
-  NodeFlatData
+  NodeFlatData,
+  ExecutionResult,
+  FlowExecutionResult
 }

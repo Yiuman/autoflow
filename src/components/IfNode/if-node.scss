@@ -1,105 +1,104 @@
 .if-node {
-    background-color: transparent;
-    border: none;
-    box-shadow: none !important;
+  background-color: transparent;
+  border: none;
+  box-shadow: none !important;
 
-    :deep(.node-avatar) {
-        transform: rotate(45deg);
+  :deep(.node-avatar) {
+    transform: rotate(45deg);
+  }
+
+  :deep(.arco-avatar ) {
+    background-color: rgb(248 250 252);
+    border: 2px solid #eee;
+  }
+
+  .if-avatar-img {
+    transform: rotate(-45deg);
+  }
+
+  .node-if-label {
+    transform: rotate(-45deg);
+  }
+
+  .node-status-icon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    transform: rotate(-45deg);
+
+    font-size: 18px;
+
+    .node-status-success {
+      color: rgb(var(--green-7))
     }
 
-    :deep(.arco-avatar ){
-        background-color: rgb(248 250 252);
-        border: 2px solid #eee;
+    .node-status-error {
+      color: rgb(var(--orange-6))
+    }
+  }
+
+  :deep(.node-toolbar) {
+    position: absolute;
+    top: -55px;
+    right: 1px;
+    z-index: 1;
+    transition: 0.5s;
+    opacity: 0;
+
+    &:hover {
+      cursor: pointer;
     }
 
-    .if-avatar-img{
-        transform: rotate(-45deg);
+    .toolbar-delete-btn {
+      &:hover {
+        color: red;
+      }
     }
-
-    .node-if-label {
-        transform: rotate(-45deg);
-    }
-
-    .node-status-icon {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        transform: rotate(-45deg);
-
-        font-size: 18px;
-
-        .node-status-success {
-            color: rgb(var(--green-7))
-        }
-
-        .node-status-error {
-            color: rgb(var(--orange-6))
-        }
-    }
-
-    :deep(.node-toolbar) {
-        position: absolute;
-        top: -55px;
-        right: 1px;
-        z-index: 1;
-        transition: 0.5s;
-        opacity: 0;
-    
-        &:hover {
-            cursor: pointer;
-        }
-    
-        .toolbar-delete-btn {
-            &:hover {
-                color: red;
-            }
-        }
-    }
+  }
 
 }
 
 
-
 .vue-flow__node-IF {
-    .vue-flow__handle {
-        height: 10px;
-        width: 10px;
+  .vue-flow__handle {
+    height: 10px;
+    width: 10px;
+  }
+
+  .vue-flow__handle-left {
+    height: 15px;
+    width: 6px;
+    left: -5px;
+    border-radius: unset;
+  }
+
+  .vue-flow__handle-top,
+  .vue-flow__handle-bottom {
+    background: white;
+    border: 2px solid var(--vf-handle);
+    right: 0;
+  }
+
+  .vue-flow__handle-top {
+    top: -5px;
+
+    .true-label {
+      color: var(--color-text-1);
+      position: absolute;
+      bottom: 14px;
+      left: -8px;
     }
+  }
 
-    .vue-flow__handle-left {
-        height: 15px;
-        width: 6px;
-        left: -5px;
-        border-radius: unset;
+  .vue-flow__handle-bottom {
+    bottom: -5px;
+
+    .false-label {
+      color: var(--color-text-1);
+      position: absolute;
+      top: 14px;
+      left: -8px;
     }
-
-    .vue-flow__handle-top,
-    .vue-flow__handle-bottom {
-        background: white;
-        border: 2px solid var(--vf-handle);
-        right: 0;
-    }
-
-    .vue-flow__handle-top {
-        top: -5px;
-
-        .true-label {
-            color: var(--color-text-1);
-            position: absolute;
-            bottom: 14px;
-            left: -8px;
-        }
-    }
-
-    .vue-flow__handle-bottom {
-        bottom: -5px;
-
-        .false-label {
-            color: var(--color-text-1);
-            position: absolute;
-            top: 14px;
-            left: -8px;
-        }
-    }
+  }
 
 }
