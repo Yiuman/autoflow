@@ -127,6 +127,9 @@ public final class LiteFlows {
     }
 
     public static List<Connection> getLoopDoneConnections(Flow flow, String loopDoneSourcePoint) {
+        if (CollUtil.isEmpty(flow.getConnections())) {
+            return CollUtil.newArrayList();
+        }
         return flow.getConnections().stream()
                 .filter(connection -> Objects.equals(connection.getSource(), loopDoneSourcePoint)
                         && Objects.equals(PointType.LOOP_DONE, connection.getSourcePointType()))

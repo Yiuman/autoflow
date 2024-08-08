@@ -19,6 +19,7 @@ import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import io.autoflow.spi.utils.PropertyUtils;
 import jakarta.validation.ConstraintViolation;
 
+import java.nio.file.CopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +33,7 @@ public abstract class BaseService<INPUT> implements Service {
 
     @SuppressWarnings("unchecked")
     private final transient Class<INPUT> iputeDataClass = (Class<INPUT>) TypeUtil.getTypeArgument(getClass(), 0);
+    private static final CopyOptions DEFAULT_COPY_OPTION = CopyOptions.create();
     private List<Property> properties;
     private String description;
 
@@ -80,7 +82,7 @@ public abstract class BaseService<INPUT> implements Service {
         BeanUtil.fillBean(
                 input,
                 new ExecutionContextValueProvider(executionContext),
-                CopyOptions.create()
+                DEFAULT_COPY_OPTION
         );
         return input;
     }

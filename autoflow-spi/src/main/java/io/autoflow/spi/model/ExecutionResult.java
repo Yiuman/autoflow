@@ -32,7 +32,7 @@ public class ExecutionResult<DATA> {
             error.setInputValidateErrors(((InputValidateException) throwable).getInputValidateErrors());
         }
         ExecutionResult<T> executionResult = new ExecutionResult<>();
-
+        executionResult.setNodeId(serviceData.getNodeId());
         executionResult.setFlowId(serviceData.getFlowId());
         executionResult.setServiceId(serviceData.getServiceId());
         executionResult.setError(error);

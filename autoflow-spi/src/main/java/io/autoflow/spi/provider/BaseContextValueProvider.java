@@ -1,9 +1,9 @@
 package io.autoflow.spi.provider;
 
 import cn.hutool.core.bean.copier.ValueProvider;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.*;
 import com.jayway.jsonpath.JsonPath;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
@@ -11,7 +11,9 @@ import io.autoflow.spi.utils.ExpressUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Objects;
 
 import static io.autoflow.spi.utils.ExpressUtils.*;
@@ -46,7 +48,46 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
             result = Convert.convertWithCheck(valueType, result, result, true);
         }
 
+        Class<?> typeClass = TypeUtil.getClass(valueType);
+        if (!ClassUtil.isSimpleValueType(typeClass)) {
+            fillBeanValue(result, valueType);
+        }
+
         return result;
+    }
+
+    public void fillBeanValue(Object result, Type valueType) {
+        Class<?> typeClass = TypeUtil.getClass(valueType);
+        if (ClassUtil.isSimpleValueType(typeClass)) {
+            return;
+        }
+
+        if (ArrayUtil.isArray(result)) {
+            Type typeArgument = TypeUtil.getTypeArgument(valueType);
+            for (int i = 0; i < ArrayUtil.length(result); i++) {
+                Object arrayItem = ArrayUtil.get(result, i);
+                fillBeanValue(arrayItem, typeArgument);
+            }
+
+        } else if (Collection.class.isAssignableFrom(typeClass)) {
+            Type typeArgument = TypeUtil.getTypeArgument(valueType);
+            for (int i = 0; i < CollUtil.size(result); i++) {
+                Object arrayItem = CollUtil.get((Collection<?>) result, i);
+                fillBeanValue(arrayItem, typeArgument);
+            }
+        } else {
+            Field[] fieldsDirectly = ReflectUtil.getFieldsDirectly(typeClass, true);
+            for (Field field : fieldsDirectly) {
+                if (!ClassUtil.isSimpleValueType(field.getType())) {
+                    continue;
+                }
+                Object fieldValue = ReflectUtil.getFieldValue(result, field);
+                Object expressValue = getExpressValue(fieldValue);
+                if (Objects.nonNull(expressValue)) {
+                    ReflectUtil.setFieldValue(result, field, Convert.convertWithCheck(TypeUtil.getType(field), expressValue, fieldValue, true));
+                }
+            }
+        }
     }
 
     public Object getExpressValue(Object key) {
