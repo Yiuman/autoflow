@@ -220,6 +220,7 @@ const editor = useEditor({
         }
       })
       .join(' ')
+      .trimEnd()
   },
   content: convertToJSONContent()
 })

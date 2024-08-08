@@ -195,11 +195,10 @@ function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfE
   <AModal
     class="node-form-modal"
     bodyClass="node-form-modal_body"
+    v-model:visible="modalVisible"
     :align-center="false"
     :width="'90%'"
-    :visible="modalVisible"
     :hide-title="true"
-    :esc-to-close="true"
     :footer="false"
   >
     <div class="node-form-modal-body">
@@ -312,7 +311,7 @@ function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfE
           <div class="node-form-modal-pane node-form-modal-output">
             <div class="node-form-title">
               Output
-              <ATag v-if="!outputResult.error">
+              <ATag v-if="outputResult && !outputResult.error">
                 <template #icon>
                   <IconClockCircle />
                 </template>
