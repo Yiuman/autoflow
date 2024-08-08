@@ -8,12 +8,13 @@ import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.model.NodeType;
 import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.ExecutionResult;
+import io.autoflow.spi.model.FlowExecutionResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author yiuman
@@ -26,7 +27,7 @@ class LiteFlowExecutorTest {
     @Test
     public void testRunFlow() {
         String flowJson = ResourceUtil.readUtf8Str("test.json");
-        Map<String, List<ExecutionData>> execute = liteFlowExecutor.execute(JSONUtil.toBean(flowJson, Flow.class));
+        FlowExecutionResult execute = liteFlowExecutor.execute(JSONUtil.toBean(flowJson, Flow.class));
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -41,8 +42,8 @@ class LiteFlowExecutorTest {
             put("method", "GET");
         }});
         node.setLabel("http");
-        List<ExecutionData> executionData = liteFlowExecutor.executeNode(node);
-        log.info(JSONUtil.toJsonStr(executionData));
+        List<ExecutionResult<ExecutionData>> executionResults = liteFlowExecutor.executeNode(node);
+        log.info(JSONUtil.toJsonStr(executionResults));
     }
 
 }

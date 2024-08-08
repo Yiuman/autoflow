@@ -46,6 +46,46 @@ public final class LiteFlows {
         return elWrapper.toEL(true);
     }
 
+    // 处理每个节点
+    private static ELWrapper processNode(Flow flow, Node node) {
+        if (NodeType.LOOP_EACH_ITEM == node.getType()) {
+            return createIteratorEL(node, flow); // 处理循环节点
+        } else if (NodeType.IF == node.getType()) {
+            return processIfNode(flow, node); // 处理条件节点
+        } else {
+            return processDefaultNode(flow, node); // 处理默认节点
+        }
+    }
+
+    private static ELWrapper processIfNode(Flow flow, Node node) {
+        if (CollUtil.isEmpty(flow.getConnections())) {
+            return createServiceNodeEL(flow, node); // 无连接时仅添加服务节点
+        } else {
+            return ELBus.then(createServiceNodeEL(flow, node), createIfNodeEl(node, flow));
+        }
+    }
+
+    private static ELWrapper processDefaultNode(Flow flow, Node node) {
+        List<Node> outgoers = flow.getOutgoers(node.getId()); // 获取后续节点
+        if (CollUtil.isNotEmpty(outgoers)) {
+            String nextFlowId = "next_flow_" + node.getId();
+            Flow nextFlow = createNextFlow(nextFlowId, outgoers, flow, node); // 创建下一个Flow
+            return ELBus.then(createServiceNodeEL(flow, node), convertEl(nextFlow)); // 返回下一个Flow的ELWrapper
+        } else {
+            return createServiceNodeEL(flow, node); // 返回当前节点的ELWrapper
+        }
+    }
+
+    // 创建下一个Flow
+    private static Flow createNextFlow(String nextFlowId, List<Node> outgoers, Flow flow, Node node) {
+        Flow nextFlow = new Flow();
+        nextFlow.setId(nextFlowId);
+        nextFlow.setNodes(outgoers);
+        nextFlow.setConnections(getOutgoerConnections(flow, node, outgoers)); // 获取连接
+        return nextFlow; // 返回下一个Flow
+    }
+
+
     public static ELWrapper convertEl(Flow flow) {
         if (CollUtil.isEmpty(flow.getNodes())) {
             return ELBus.node("empty");
@@ -54,29 +94,7 @@ public final class LiteFlows {
         List<ELWrapper> stepEl = new ArrayList<>();
         for (Node node : startNodes) {
             buildNode(node);
-            if (NodeType.LOOP_EACH_ITEM == node.getType()) {
-                stepEl.add(createIteratorEL(node, flow));
-            } else if (NodeType.IF == node.getType()) {
-                if (CollUtil.isEmpty(flow.getConnections())) {
-                    stepEl.add(createServiceNodeEL(flow, node));
-                } else {
-                    stepEl.add(ELBus.then(createServiceNodeEL(flow, node), createIfNodeEl(node, flow)));
-                }
-
-            } else {
-                List<Node> outgoers = flow.getOutgoers(node.getId());
-                if (CollUtil.isNotEmpty(outgoers)) {
-                    String nextFlowId = "next_flow_" + node.getId();
-                    Flow nextFlow = new Flow();
-                    nextFlow.setId(nextFlowId);
-                    nextFlow.setNodes(outgoers);
-                    nextFlow.setConnections(getOutgoerConnections(flow, node, outgoers));
-                    stepEl.add(ELBus.then(createServiceNodeEL(flow, node), convertEl(nextFlow)));
-                } else {
-                    stepEl.add(createServiceNodeEL(flow, node));
-                }
-
-            }
+            stepEl.add(processNode(flow, node));
         }
 
         return stepEl.size() == 1 ? CollUtil.getFirst(stepEl) : ELBus.when(stepEl.toArray());
@@ -96,25 +114,23 @@ public final class LiteFlows {
             );
         }
 
-        List<Connection> connections = flow.getConnections().stream()
-                .filter(connection -> Objects.equals(connection.getSource(), subFlow.getId())
-                        && Objects.equals(PointType.LOOP_DONE, connection.getSourcePointType()))
-                .toList();
-
+        List<Connection> connections = getLoopDoneConnections(flow, subFlow.getId());
         IteratorELWrapper iteratorELWrapper = createIteratorEL(node).doOpt(elWrapper);
         List<Node> outgoers = flow.getOutgoers(subFlow.getId(), connections::contains);
         if (CollUtil.isNotEmpty(outgoers)) {
             String nextFlowId = "next_flow_" + node.getId();
-            Flow nextFlow = new Flow();
-            nextFlow.setId(nextFlowId);
-            nextFlow.setNodes(outgoers);
-            nextFlow.setConnections(getOutgoerConnections(flow, node, outgoers)
-                    .stream().filter(connection -> !connections.contains(connection))
-                    .toList());
+            Flow nextFlow = createNextFlow(nextFlowId, outgoers, flow, node);
             return ELBus.then(iteratorELWrapper, convertEl(nextFlow));
         } else {
             return iteratorELWrapper;
         }
+    }
+
+    public static List<Connection> getLoopDoneConnections(Flow flow, String loopDoneSourcePoint) {
+        return flow.getConnections().stream()
+                .filter(connection -> Objects.equals(connection.getSource(), loopDoneSourcePoint)
+                        && Objects.equals(PointType.LOOP_DONE, connection.getSourcePointType()))
+                .toList();
     }
 
     private static IteratorELWrapper createIteratorEL(Node node) {
