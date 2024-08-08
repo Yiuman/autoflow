@@ -105,7 +105,7 @@ function buildDefaultValue(property: Property) {
 }
 
 function isBasicType(type: string) {
-  return ['Integer', 'BigDecimal', 'Double', 'String', 'Long', 'Date'].includes(type)
+  return ['Integer', 'BigDecimal', 'Double', 'Float', 'String', 'Long', 'Date'].includes(type)
 }
 
 const componentAttrs = computed<ComponentAttr[]>(() => {

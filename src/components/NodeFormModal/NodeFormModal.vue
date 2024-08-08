@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type {
-  ExecutionData,
-  ExecutionResult,
-  NodeFlatData,
-  Property,
-  VueFlowNode
-} from '@/types/flow'
+import type { ExecutionData, ExecutionResult, NodeFlatData, Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconClockCircle,
@@ -27,6 +21,7 @@ import { getAllIncomers } from '@/utils/converter'
 import { groupBy } from 'lodash'
 import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
 import { flatten } from '@/utils/util-func'
+import type { JSONDataType } from 'vue-json-pretty/types/utils'
 
 interface Props {
   modelValue: VueFlowNode
@@ -150,7 +145,7 @@ const outputData = computed(() => {
 })
 
 const outputResult = computed(() => {
-  return props.modelValue.data?.executionResult?.[0]
+  return props.modelValue.data?.executionResult?.[0] as ExecutionResult<ExecutionData>
 })
 
 function doClose() {
@@ -179,7 +174,8 @@ const showLoopSetting = computed(() => {
 })
 
 const activeTab = ref<string>('parameters')
-watch(props.modelValue, () => {
+watchEffect(() => {
+  console.warn("outputData instanceof Array",outputData.value instanceof Array)
   activeTab.value = props.properties && props.properties.length ? 'parameters' : 'settings'
 })
 
@@ -188,6 +184,25 @@ type KeyOfExecutionData = keyof ExecutionDataOrArray
 function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfExecutionData[] {
   return executionData ? (Object.keys(executionData) as KeyOfExecutionData[]) : []
 }
+
+const dataColumns = [
+  {
+    title: 'json',
+    dataIndex: 'json',
+    slotName: 'jsonColumn'
+  },
+  {
+    title: 'binary',
+    dataIndex: 'binary',
+    slotName: 'binaryColumn'
+  },
+  {
+    title: 'raw',
+    dataIndex: 'raw'
+  }
+]
+
+
 </script>
 
 <template>
@@ -245,6 +260,21 @@ function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfE
               <template v-if="inputResult.error">
                 <ATabPane title="error">
                   <VueJsonPretty class="input-json" :data="inputResult.error" :show-icon="true" />
+                </ATabPane>
+              </template>
+              <template v-else-if="inputData instanceof Array">
+                <ATabPane key="table" title="table">
+                  <ATable :stripe="true" :bordered="false" style="width: 100%;padding: 5px 10px"
+                          :columns="dataColumns"
+                          :data="inputData">
+                    <template #jsonColumn="{record}">
+                      <VueJsonPretty
+                        class="output-json"
+                        :data="record.json"
+                        :show-icon="true"
+                      />
+                    </template>
+                  </ATable>
                 </ATabPane>
               </template>
               <template
@@ -311,7 +341,7 @@ function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfE
           <div class="node-form-modal-pane node-form-modal-output">
             <div class="node-form-title">
               Output
-              <ATag v-if="outputResult && !outputResult.error">
+              <ATag v-if="outputResult &&outputResult.durationMs && !outputResult.error">
                 <template #icon>
                   <IconClockCircle />
                 </template>
@@ -321,7 +351,22 @@ function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfE
             <ATabs v-if="outputResult">
               <template v-if="outputResult.error">
                 <ATabPane title="error">
-                  <VueJsonPretty class="output-json" :data="outputResult.error" :show-icon="true" />
+                  <VueJsonPretty class="output-json" :data="outputResult.error as JSONDataType" :show-icon="true" />
+                </ATabPane>
+              </template>
+              <template v-else-if="outputData instanceof Array">
+                <ATabPane key="table" title="table">
+                  <ATable :stripe="true" :bordered="false" style="width: 100%;padding: 5px 10px"
+                          :columns="dataColumns"
+                          :data="outputData">
+                    <template #jsonColumn="{record}">
+                      <VueJsonPretty
+                        class="output-json"
+                        :data="record.json"
+                        :show-icon="true"
+                      />
+                    </template>
+                  </ATable>
                 </ATabPane>
               </template>
               <template
@@ -362,5 +407,5 @@ function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfE
 </template>
 
 <style scoped lang="scss">
-@import 'node-form-modal';
+@import "node-form-modal";
 </style>

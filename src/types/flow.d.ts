@@ -72,6 +72,7 @@ interface ExecutionError {
 interface ExecutionResult<T> {
   data?: T
   error?: ExecutionError
+  durationMs?: number
 }
 
 interface FlowExecutionResult extends ExecutionResult<List<ExecutionData>> {}
