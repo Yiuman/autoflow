@@ -105,16 +105,12 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <K, V> Map<K, V> convertMapValues(Map<K, V> map) {
         Map<K, V> newMap = new HashMap<>();
         for (Map.Entry<K, V> entry : map.entrySet()) {
             V value = entry.getValue();
-            Object expressValue = getExpressValue(value);
-            if (Objects.nonNull(expressValue)) {
-                Type typeArgument = TypeUtil.getTypeArgument(value.getClass());
-                value = Convert.convertWithCheck(typeArgument, expressValue, value, true);
-            }
-            newMap.put(entry.getKey(), value);
+            newMap.put(entry.getKey(), (V) fillBeanValue(value));
         }
         return newMap;
     }

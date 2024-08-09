@@ -19,7 +19,6 @@ import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import io.autoflow.spi.utils.PropertyUtils;
 import jakarta.validation.ConstraintViolation;
 
-import java.nio.file.CopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
