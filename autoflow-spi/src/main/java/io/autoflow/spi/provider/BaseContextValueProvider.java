@@ -14,6 +14,8 @@ import org.apache.commons.logging.LogFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static io.autoflow.spi.utils.ExpressUtils.*;
@@ -38,43 +40,55 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
 
     @Override
     public Object value(String key, Type valueType) {
+        //获取上下文中的值
         Object result = get(key);
+        //当前为String类型则转换成目标值，有值则直接返回
         Object expressValue = getExpressValue(result);
         if (Objects.nonNull(expressValue)) {
-            return expressValue;
+            return Convert.convertWithCheck(valueType, expressValue, null, true);
         }
 
-        if (Objects.nonNull(result)) {
-            result = Convert.convertWithCheck(valueType, result, result, true);
-        }
-
-        Class<?> typeClass = TypeUtil.getClass(valueType);
+        //提取结果为对象
+        Class<?> typeClass = TypeUtil.getClass(result.getClass());
         if (!ClassUtil.isSimpleValueType(typeClass)) {
-            fillBeanValue(result, valueType);
+            result = fillBeanValue(result);
+        }
+
+        //将上下文值转换成目标类型值
+        if (Objects.nonNull(result)) {
+            result = Convert.convertWithCheck(valueType, result, null, true);
         }
 
         return result;
     }
 
-    public void fillBeanValue(Object result, Type valueType) {
-        Class<?> typeClass = TypeUtil.getClass(valueType);
+    public Object fillBeanValue(Object result) {
+        Class<?> typeClass = ClassUtil.getClass(result);
         if (ClassUtil.isSimpleValueType(typeClass)) {
-            return;
+            Object expressValue = getExpressValue(result);
+            if (Objects.nonNull(expressValue)) {
+                return expressValue;
+            }
+            return result;
         }
 
         if (ArrayUtil.isArray(result)) {
-            Type typeArgument = TypeUtil.getTypeArgument(valueType);
+            Object[] objects = ArrayUtil.newArray(typeClass, ArrayUtil.length(result));
             for (int i = 0; i < ArrayUtil.length(result); i++) {
                 Object arrayItem = ArrayUtil.get(result, i);
-                fillBeanValue(arrayItem, typeArgument);
+                ArrayUtil.insert(objects, i, fillBeanValue(arrayItem));
             }
+            return objects;
 
         } else if (Collection.class.isAssignableFrom(typeClass)) {
-            Type typeArgument = TypeUtil.getTypeArgument(valueType);
+            Collection<Object> collection = CollUtil.create(typeClass);
             for (int i = 0; i < CollUtil.size(result); i++) {
                 Object arrayItem = CollUtil.get((Collection<?>) result, i);
-                fillBeanValue(arrayItem, typeArgument);
+                collection.add(fillBeanValue(arrayItem));
             }
+            return collection;
+        } else if (Map.class.isAssignableFrom(typeClass)) {
+            return convertMapValues((Map<?, ?>) result);
         } else {
             Field[] fieldsDirectly = ReflectUtil.getFieldsDirectly(typeClass, true);
             for (Field field : fieldsDirectly) {
@@ -87,7 +101,22 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
                     ReflectUtil.setFieldValue(result, field, Convert.convertWithCheck(TypeUtil.getType(field), expressValue, fieldValue, true));
                 }
             }
+            return result;
         }
+    }
+
+    public <K, V> Map<K, V> convertMapValues(Map<K, V> map) {
+        Map<K, V> newMap = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            V value = entry.getValue();
+            Object expressValue = getExpressValue(value);
+            if (Objects.nonNull(expressValue)) {
+                Type typeArgument = TypeUtil.getTypeArgument(value.getClass());
+                value = Convert.convertWithCheck(typeArgument, expressValue, value, true);
+            }
+            newMap.put(entry.getKey(), value);
+        }
+        return newMap;
     }
 
     public Object getExpressValue(Object key) {

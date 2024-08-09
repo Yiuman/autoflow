@@ -59,7 +59,7 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
             if (Objects.nonNull(nodeExecutionResultMap)) {
                 List<ExecutionResult<ExecutionData>> executionResults = nodeExecutionResultMap.get(activityId);
                 if (CollUtil.isNotEmpty(executionResults)) {
-                    sseData = CollUtil.isEmpty(executionResults) ? "" : JSONUtil.toJsonStr(executionResults);
+                    sseData = CollUtil.isEmpty(executionResults) ? "" : JSONUtil.toJsonStr(CollUtil.newArrayList(executionResults));
                 }
 
             }
