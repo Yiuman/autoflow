@@ -40,23 +40,26 @@ const modelValueChildren = computed(() => {
 
 function addGroup() {
   const newCondition: Condition = { children: [], clause: Clause.AND, root: true }
-  const currentModel = props.modelValue
+  const currentModel = dataValue.value
   currentModel.root = false
-  newCondition.children?.push(currentModel as Condition)
+  newCondition.children?.push(currentModel)
   newCondition.children?.push({
-    children: [{ dataKey: '', calcType: CalcType.Equal, value: '', clause: Clause.AND }],
+    dataKey: '',
+    calcType: CalcType.Equal,
+    value: '',
     clause: Clause.AND
   })
   emits('update:modelValue', newCondition)
 }
 
 function addCondition(child: Condition) {
-  const currentModel = props.modelValue
+  const currentModel = dataValue.value
   if (!currentModel) {
     return
   }
   const children = currentModel.children || []
   children.splice(children.indexOf(child) + 1, 0, {
+    children: [],
     dataKey: '',
     calcType: CalcType.Equal,
     value: '',
@@ -80,7 +83,7 @@ function removeChild(child: Condition) {
 }
 
 function emitAddChild(child: Condition) {
-  emits('addChild', child)
+  props.parent ? emits('addChild', child) : addGroup()
 }
 
 function emitRemove(child: Condition) {
@@ -95,6 +98,14 @@ const isAnd = computed({
     dataValue.value.clause = value ? Clause.AND : Clause.OR
   }
 })
+
+function handleAdd(item: Condition) {
+  emitAddChild(item)
+}
+
+function handleRemove(item: Condition) {
+  emitRemove(item)
+}
 </script>
 <template>
   <div class="condition-filter">
@@ -134,8 +145,8 @@ const isAnd = computed({
     <template v-else>
       <div class="condition-filter-item">
         <ConditionItem v-model="dataValue" />
-        <IconPlus class="add-btn" @click="() => emitAddChild(dataValue)" />
-        <IconDelete class="delete-btn" @click="() => emitRemove(dataValue)" />
+        <IconPlus class="add-btn" @click="() => handleAdd(dataValue)" />
+        <IconDelete class="delete-btn" @click="() => handleRemove(dataValue)" />
       </div>
     </template>
   </div>

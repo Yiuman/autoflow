@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { ExecutionData, ExecutionResult, NodeFlatData, Property, VueFlowNode } from '@/types/flow'
+import type {
+  ExecutionData,
+  ExecutionResult,
+  NodeFlatData,
+  Property,
+  VueFlowNode
+} from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconClockCircle,
@@ -175,7 +181,6 @@ const showLoopSetting = computed(() => {
 
 const activeTab = ref<string>('parameters')
 watchEffect(() => {
-  console.warn("outputData instanceof Array",outputData.value instanceof Array)
   activeTab.value = props.properties && props.properties.length ? 'parameters' : 'settings'
 })
 
@@ -201,8 +206,6 @@ const dataColumns = [
     dataIndex: 'raw'
   }
 ]
-
-
 </script>
 
 <template>
@@ -264,15 +267,15 @@ const dataColumns = [
               </template>
               <template v-else-if="inputData instanceof Array">
                 <ATabPane key="table" title="table">
-                  <ATable :stripe="true" :bordered="false" style="width: 100%;padding: 5px 10px"
-                          :columns="dataColumns"
-                          :data="inputData">
-                    <template #jsonColumn="{record}">
-                      <VueJsonPretty
-                        class="output-json"
-                        :data="record.json"
-                        :show-icon="true"
-                      />
+                  <ATable
+                    :stripe="true"
+                    :bordered="false"
+                    style="width: 100%; padding: 5px 10px"
+                    :columns="dataColumns"
+                    :data="inputData"
+                  >
+                    <template #jsonColumn="{ record }">
+                      <VueJsonPretty class="output-json" :data="record.json" :show-icon="true" />
                     </template>
                   </ATable>
                 </ATabPane>
@@ -341,7 +344,7 @@ const dataColumns = [
           <div class="node-form-modal-pane node-form-modal-output">
             <div class="node-form-title">
               Output
-              <ATag v-if="outputResult &&outputResult.durationMs && !outputResult.error">
+              <ATag v-if="outputResult && outputResult.durationMs && !outputResult.error">
                 <template #icon>
                   <IconClockCircle />
                 </template>
@@ -351,20 +354,24 @@ const dataColumns = [
             <ATabs v-if="outputResult">
               <template v-if="outputResult.error">
                 <ATabPane title="error">
-                  <VueJsonPretty class="output-json" :data="outputResult.error as JSONDataType" :show-icon="true" />
+                  <VueJsonPretty
+                    class="output-json"
+                    :data="outputResult.error as JSONDataType"
+                    :show-icon="true"
+                  />
                 </ATabPane>
               </template>
               <template v-else-if="outputData instanceof Array">
                 <ATabPane key="table" title="table">
-                  <ATable :stripe="true" :bordered="false" style="width: 100%;padding: 5px 10px"
-                          :columns="dataColumns"
-                          :data="outputData">
-                    <template #jsonColumn="{record}">
-                      <VueJsonPretty
-                        class="output-json"
-                        :data="record.json"
-                        :show-icon="true"
-                      />
+                  <ATable
+                    :stripe="true"
+                    :bordered="false"
+                    style="width: 100%; padding: 5px 10px"
+                    :columns="dataColumns"
+                    :data="outputData"
+                  >
+                    <template #jsonColumn="{ record }">
+                      <VueJsonPretty class="output-json" :data="record.json" :show-icon="true" />
                     </template>
                   </ATable>
                 </ATabPane>
@@ -407,5 +414,5 @@ const dataColumns = [
 </template>
 
 <style scoped lang="scss">
-@import "node-form-modal";
+@import 'node-form-modal';
 </style>

@@ -9,6 +9,16 @@
   :deep(.editor-content) {
     display: inline-flex;
     width: 100%;
+
+  }
+
+  :deep(.expression) {
+    > div {
+      > p {
+        color: rgba(var(--primary-6));
+      }
+    }
+
   }
 
   :deep(.tiptap) {

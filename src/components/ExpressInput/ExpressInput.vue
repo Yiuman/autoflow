@@ -235,7 +235,7 @@ watch(
 
 <template>
   <div class="express-input" :class="expressClassName">
-    <EditorContent class="editor-content" :editor="editor" />
+    <EditorContent class="editor-content" :class="expressClassName" :editor="editor" />
     <div v-if="popoverVariable && descData" class="jsonpath-desc">
       <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
     </div>
