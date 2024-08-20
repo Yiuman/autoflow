@@ -11,6 +11,8 @@ import { useVueFlow } from '@vue-flow/core'
 import {
   IconClockCircle,
   IconCloseCircleFill,
+  IconDoubleLeft,
+  IconDoubleRight,
   IconPauseCircleFill,
   IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
@@ -206,6 +208,9 @@ const dataColumns = [
     dataIndex: 'raw'
   }
 ]
+
+const [inputPaneVisible, toggleInputPane] = useToggle(true)
+const [outputPaneVisible, toggleOutputPane] = useToggle(true)
 </script>
 
 <template>
@@ -236,7 +241,7 @@ const dataColumns = [
       </div>
 
       <Splitpanes>
-        <Pane v-if="incomers && incomers.length">
+        <Pane v-if="inputPaneVisible && incomers && incomers.length">
           <div class="node-form-modal-pane node-form-modal-input">
             <div class="node-form-title">Input</div>
             <ASelect v-model="selectedIncomerNodeId">
@@ -312,8 +317,17 @@ const dataColumns = [
             </div>
           </div>
         </Pane>
+
         <!-- 节点的配置信息（表单、循坏、文档） -->
-        <Pane size="30">
+        <Pane class="node-setting-pane">
+          <div
+            v-if="incomers && incomers.length"
+            class="show-toggle show-toggle-left"
+            @click="() => toggleInputPane()"
+          >
+            <IconDoubleLeft v-if="inputPaneVisible" class="show-toggle-icon" />
+            <IconDoubleRight v-else class="show-toggle-icon" />
+          </div>
           <div class="node-form-modal-pane node-form-model-desc">
             <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
               <AButton type="outline" shape="circle" @click="() => toggleAction()">
@@ -339,8 +353,13 @@ const dataColumns = [
               </ATabPane>
             </ATabs>
           </div>
+
+          <div class="show-toggle show-toggle-right" @click="() => toggleOutputPane()">
+            <IconDoubleRight v-if="outputPaneVisible" class="show-toggle-icon" />
+            <IconDoubleLeft v-else class="show-toggle-icon" />
+          </div>
         </Pane>
-        <Pane>
+        <Pane v-if="outputPaneVisible">
           <div class="node-form-modal-pane node-form-modal-output">
             <div class="node-form-title">
               Output

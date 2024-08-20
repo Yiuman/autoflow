@@ -48,7 +48,6 @@
   .node-form-title {
     padding: 10px 20px;
     font-size: 16px;
-    // background-color: #f2f3f5;
     color: #5b6574;
     border-bottom: 1px solid var(--color-border);
   }
@@ -69,6 +68,52 @@
         background-color: rgba(var(--primary-5));
       }
 
+    }
+
+    :deep(.splitpanes__pane) {
+      position: relative;
+    }
+
+    :deep(.node-setting-pane){
+      overflow: visible;
+    }
+
+    .show-toggle {
+      --toggler-color-bg: #fff;
+      --toggler-color-text: #6a6a6a;
+      color: var(--fgColor-default, var(--color-fg-default, #24292f));
+      background-color: var(--color-border);
+      opacity: 1;
+      line-height: 1;
+      position: absolute;
+      top: var(--octotree-toggler-y, 66%);
+      text-align: center;
+      width: 15px;
+      z-index: 998;
+      cursor: pointer;
+      border-width: 1.5px 1.5px 1.5px;
+      border-color: rgb(207, 215, 223) rgb(207, 215, 223) rgb(207, 215, 223);
+      border-image: initial;
+      border-left: none;
+      padding: 2px 0 25px;
+      transition: right 0.25s ease-in 0.2s, opacity 0.35s ease-in 0.2s;
+    }
+
+    .show-toggle-left {
+      left: -15px;
+      border-radius: 5px 0 0 5px;
+    }
+
+    .show-toggle-right {
+      right: -15px;
+      border-radius: 0 5px 5px 0;
+    }
+
+    .show-toggle-icon {
+      position: relative;
+      opacity: 0.65;
+      pointer-events: none;
+      top: 11.5px;
     }
   }
 
