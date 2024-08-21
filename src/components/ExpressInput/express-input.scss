@@ -62,9 +62,14 @@
       border-radius: 3px;
       padding: 0 2px;
       margin-right: 6px;
+      white-space: nowrap;
       color: rgb(var(--orangered-6));
       background-color: rgb(var(--orangered-1));
       border: 1px solid transparent;
+    }
+
+    .node-mention-label{
+      white-space: nowrap;
     }
   }
 

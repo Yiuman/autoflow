@@ -39,16 +39,32 @@ const modelValueChildren = computed(() => {
 })
 
 function addGroup() {
-  const newCondition: Condition = { children: [], clause: Clause.AND, root: true }
   const currentModel = dataValue.value
   currentModel.root = false
-  newCondition.children?.push(currentModel)
-  newCondition.children?.push({
-    dataKey: '',
-    calcType: CalcType.Equal,
-    value: '',
-    clause: Clause.AND
-  })
+  const resetCurrentModel = currentModel.children
+    ? currentModel
+    : {
+        clause: Clause.AND,
+        children: [currentModel]
+      }
+  const newCondition: Condition = {
+    children: [
+      resetCurrentModel,
+      {
+        children: [
+          {
+            dataKey: '',
+            calcType: CalcType.Equal,
+            value: '',
+            clause: Clause.AND
+          }
+        ],
+        clause: Clause.AND
+      }
+    ],
+    clause: Clause.AND,
+    root: true
+  }
   emits('update:modelValue', newCondition)
 }
 
@@ -98,21 +114,13 @@ const isAnd = computed({
     dataValue.value.clause = value ? Clause.AND : Clause.OR
   }
 })
-
-function handleAdd(item: Condition) {
-  emitAddChild(item)
-}
-
-function handleRemove(item: Condition) {
-  emitRemove(item)
-}
 </script>
 <template>
   <div class="condition-filter">
     <template v-if="dataValue && modelValueChildren && modelValueChildren.length">
       <div class="condition-groups">
         <div v-if="modelValueChildren.length > 1" class="condition-clause-switch">
-          <ASwitch v-model="isAnd" type="round" unchecked-color="coral">
+          <ASwitch v-model="isAnd" type="line" unchecked-color="coral">
             <template #checked-icon>
               <span>且</span>
             </template>
@@ -145,8 +153,8 @@ function handleRemove(item: Condition) {
     <template v-else>
       <div class="condition-filter-item">
         <ConditionItem v-model="dataValue" />
-        <IconPlus class="add-btn" @click="() => handleAdd(dataValue)" />
-        <IconDelete class="delete-btn" @click="() => handleRemove(dataValue)" />
+        <IconPlus class="add-btn" @click="() => emitAddChild(dataValue)" />
+        <IconDelete class="delete-btn" @click="() => emitRemove(dataValue)" />
       </div>
     </template>
   </div>

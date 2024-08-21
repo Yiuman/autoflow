@@ -26,7 +26,7 @@ export interface Option {
 
 interface Props {
   items: Option[]
-  command: (arg: { id: string }) => void
+  command: (arg: { id: Option }) => void
 }
 
 const props = defineProps<Props>()
@@ -81,7 +81,6 @@ const enterHandler = () => {
 
 const selectItem = (index: number) => {
   const item = props.items[index]
-
   if (item) {
     props.command({ id: item })
   }

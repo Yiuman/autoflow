@@ -31,6 +31,10 @@
     font-family: unset;
   }
 
+  :global(.vjs-tree-node:hover) {
+    background-color: var(--color-fill-2);
+  }
+
   .node-form-service {
     position: absolute;
     top: -48px;
@@ -134,10 +138,9 @@
       position: absolute;
       z-index: 1;
       right: 5px;
-      top: 5px;
+      top: 8px;
       border-radius: 50%;
-      border: 1px solid;
-      border-color: transparent;
+      border: 1px solid transparent;
     }
 
     .node-action {

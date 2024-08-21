@@ -30,6 +30,7 @@ import { groupBy } from 'lodash'
 import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
 import { flatten } from '@/utils/util-func'
 import type { JSONDataType } from 'vue-json-pretty/types/utils'
+import { darkTheme } from '@/hooks/theme'
 
 interface Props {
   modelValue: VueFlowNode
@@ -308,7 +309,12 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                       :extensions="[html()]"
                     />
                   </div>
-                  <MdPreview v-else class="input-raw" :modelValue="inputData[executeDataKey]" />
+                  <MdPreview
+                    :theme="darkTheme ? 'dark' : 'light'"
+                    v-else
+                    class="input-raw"
+                    :modelValue="inputData[executeDataKey]"
+                  />
                 </ATabPane>
               </template>
             </ATabs>
@@ -330,7 +336,7 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
           </div>
           <div class="node-form-modal-pane node-form-model-desc">
             <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
-              <AButton type="outline" shape="circle" @click="() => toggleAction()">
+              <AButton size="small" type="primary" shape="circle" @click="() => toggleAction()">
                 <template #icon>
                   <IconPauseCircleFill v-if="action" />
                   <IconPlayCircleFill v-else />
@@ -346,7 +352,7 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 <FromRenderer v-model="nodeData" :properties="props.properties" />
               </ATabPane>
               <ATabPane key="doc" title="Doc" v-if="props.description">
-                <MdPreview :modelValue="props.description" />
+                <MdPreview :theme="darkTheme ? 'dark' : 'light'" :modelValue="props.description" />
               </ATabPane>
               <ATabPane key="settings" title="Settings" v-if="showLoopSetting">
                 <LoopSetting v-model="loopData" />
@@ -418,7 +424,12 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                       :extensions="[html()]"
                     />
                   </div>
-                  <MdPreview v-else class="output-raw" :modelValue="outputData[executeDataKey]" />
+                  <MdPreview
+                    v-else
+                    :theme="darkTheme ? 'dark' : 'light'"
+                    class="output-raw"
+                    :modelValue="outputData[executeDataKey]"
+                  />
                 </ATabPane>
               </template>
             </ATabs>

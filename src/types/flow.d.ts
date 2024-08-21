@@ -75,6 +75,13 @@ interface ExecutionResult<T> {
   durationMs?: number
 }
 
+interface Variable {
+  id?: string
+  key: string
+  value: string
+  desc?: string
+}
+
 interface FlowExecutionResult extends ExecutionResult<List<ExecutionData>> {}
 
 interface ExecutionData {
@@ -144,5 +151,6 @@ export {
   ComponentAttr,
   NodeFlatData,
   ExecutionResult,
-  FlowExecutionResult
+  FlowExecutionResult,
+  Variable
 }

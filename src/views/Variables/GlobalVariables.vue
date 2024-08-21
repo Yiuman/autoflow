@@ -2,6 +2,7 @@
 import RestCrud from '@/components/Crud/RestCrud.vue'
 import { IconSearch } from '@arco-design/web-vue/es/icon'
 import type { TableColumnData } from '@arco-design/web-vue'
+import type { Variable } from '@/types/flow'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
@@ -15,13 +16,6 @@ const columns: TableColumnData[] = [
     align: 'center'
   }
 ]
-
-interface Variable {
-  id?: string
-  key: string
-  value: string
-  desc?: string
-}
 
 const DEFAULT_INSTANCE = {
   key: '',
