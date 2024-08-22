@@ -43,6 +43,8 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
     }
   }
 
+  const isFocused = ref(false)
+
   const editor = useEditor({
     extensions: [
       Document,
@@ -84,6 +86,12 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
         })
       })
     ],
+    onFocus() {
+      isFocused.value = true
+    },
+    onBlur() {
+      isFocused.value = false
+    },
     onUpdate: ({ editor }) => {
       const jsonData = editor.getJSON()
       data.value = jsonData?.content?.[0]?.content
@@ -102,5 +110,5 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
     editor.value?.commands.setContent(convertToJSONContent(), false)
   })
 
-  return { editor }
+  return { editor, isFocused }
 }

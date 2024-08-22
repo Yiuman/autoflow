@@ -27,6 +27,20 @@
     }
   }
 
+  .selected-input-node {
+    border-radius: 3px;
+    overflow: hidden;
+    border: 0.5px solid var(--color-border-3);
+
+
+    .selected-input-node-label{
+    }
+
+    .selected-input-node-id{
+      background-color: var(--color-bg-3);
+    }
+  }
+
   :global(.vjs-tree) {
     font-family: unset;
   }
@@ -38,7 +52,7 @@
   .node-form-service {
     position: absolute;
     top: -48px;
-    left: 0px;
+    left: 0;
     padding: 10px;
     font-size: 18px;
     margin: 0;

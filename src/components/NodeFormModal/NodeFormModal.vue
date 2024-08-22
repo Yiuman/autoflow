@@ -247,9 +247,11 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
             <div class="node-form-title">Input</div>
             <ASelect v-model="selectedIncomerNodeId">
               <template #label="{ data }">
-                <span>
-                  <ATag color="orangered">{{ selectedNode?.label }}</ATag>
-                  <ATag>{{ data?.value }}</ATag>
+                <span class="selected-input-node">
+                  <ATag class="selected-input-node-label" color="orangered">{{
+                    selectedNode?.label
+                  }}</ATag>
+                  <ATag class="selected-input-node-id">{{ data?.value }}</ATag>
                 </span>
               </template>
               <AOptgroup

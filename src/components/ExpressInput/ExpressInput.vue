@@ -20,6 +20,10 @@ const emits = defineEmits<{
   (e: 'update:modelValue', item: string): void
 }>()
 
+const inputType = computed(() => {
+  return props.type || 'input'
+})
+
 const { findNode } = useVueFlow()
 const data = computed({
   get() {
@@ -72,12 +76,15 @@ const descData = computed(() => {
 
 const popoverVariable = computed(() => expressClassName.value === 'jsonpath')
 
-const { editor } = useTipTapEditor(selectOptions, data)
+const { editor, isFocused } = useTipTapEditor(selectOptions, data)
 </script>
-
 <template>
-  <div class="express-input" :class="expressClassName">
-    <EditorContent class="editor-content" :class="expressClassName" :editor="editor" />
+  <div class="express-input" :class="[expressClassName, isFocused ? 'express-input-focus' : '']">
+    <EditorContent
+      class="editor-content"
+      :class="[expressClassName, `${inputType}-type`]"
+      :editor="editor"
+    />
     <div v-if="popoverVariable && descData" class="jsonpath-desc">
       <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
     </div>

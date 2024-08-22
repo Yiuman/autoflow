@@ -88,7 +88,6 @@ const selectItem = (index: number) => {
 </script>
 
 <style scoped lang="scss">
-/* Dropdown menu */
 .dropdown-menu {
   background: var(--color-bg-3);
   border-radius: var(--border-radius-medium);
@@ -103,32 +102,36 @@ const selectItem = (index: number) => {
   position: relative;
 
   .select-item {
+    cursor: pointer;
     margin-top: 4px;
     align-items: center;
-    background-color: transparent;
     display: flex;
     gap: 0.25rem;
     text-align: left;
     padding: 4px;
+    color: var(--color-text-1);
     border-radius: var(--border-radius-medium);
 
     &:hover,
     &.is-selected {
-      background-color: var(--color-fill-3);
+      background-color: var(--color-fill-2);
     }
 
     &.is-selected {
-      background-color: var(--color-fill-3);
+      background-color: var(--color-fill-2);
     }
   }
 
   .item-type {
-    border-radius: 3px;
+    border-radius: 3px 0 0 3px;
     padding: 0 2px;
-    margin-right: 6px;
     color: rgb(var(--orangered-6));
-    background-color: rgb(var(--orangered-1));
+    background-color: rgb(var(--orangered-6), 0.2);
     border: 1px solid transparent;
+  }
+
+  .item-label {
+    padding: 0 2px;
   }
 }
 </style>

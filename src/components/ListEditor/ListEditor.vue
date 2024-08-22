@@ -117,7 +117,12 @@ function getBindAttr(dataIndex: string): Record<string, any> | undefined {
                 v-model="record[getColumnDataIndex(column)]" /> -->
           </template>
         </ATableColumn>
-        <ATableColumn align="center" title="" cellClass="list-editor-cell map-editor-opt-cell">
+        <ATableColumn
+          :width="30"
+          align="center"
+          title=""
+          cellClass="list-editor-cell map-editor-opt-cell"
+        >
           <template #cell="{ record }">
             <IconDelete
               class="list-editor-del-btn"
