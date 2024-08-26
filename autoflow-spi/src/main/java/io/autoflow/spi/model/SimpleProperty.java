@@ -21,7 +21,7 @@ public class SimpleProperty implements Property {
 
     public static SimpleProperty basicType(Class<?> basicType) {
         SimpleProperty simpleProperty = new SimpleProperty();
-        simpleProperty.setType(basicType.getTypeName());
+        simpleProperty.setType(basicType.getSimpleName());
         return simpleProperty;
     }
 }

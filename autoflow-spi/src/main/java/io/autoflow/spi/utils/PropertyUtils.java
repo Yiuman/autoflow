@@ -31,10 +31,20 @@ public final class PropertyUtils {
     }
 
     public static <T> List<Property> buildProperty(Class<T> clazz) {
+        return buildProperty(clazz, new HashMap<>());
+    }
+
+    public static <T> List<Property> buildProperty(Class<T> clazz, Map<Class<?>, List<Property>> cache) {
+        if (cache.containsKey(clazz)) {
+            // 返回一个属性，该属性类型与当前类相同，表示递归结构
+            return List.of(SimpleProperty.basicType(clazz));
+        }
+
         List<Property> properties = new ArrayList<>();
         T defaultInstance = ReflectUtil.newInstanceIfPossible(clazz);
         Field[] fields = ReflectUtil.getFields(clazz, field -> !Modifier.isFinal(field.getModifiers()));
         BeanDescriptor constraintsForClass = VALIDATORFACTORY.getValidator().getConstraintsForClass(clazz);
+        cache.put(clazz, properties);
         for (Field field : fields) {
             Type type = TypeUtil.getType(field);
             Class<?> typeClass = TypeUtil.getClass(type);
@@ -42,19 +52,22 @@ public final class PropertyUtils {
             simpleProperty.setName(field.getName());
             simpleProperty.setType(typeClass.getSimpleName());
             simpleProperty.setOptions(buildFieldOptions(field));
+            Description description = AnnotationUtil.getAnnotationValue(field, Description.class);
+            if (Objects.nonNull(description)) {
+                simpleProperty.setDescription(description.value());
+            }
 
             if (!ClassUtil.isSimpleValueType(typeClass) && !Map.class.isAssignableFrom(typeClass)) {
                 if (Collection.class.isAssignableFrom(typeClass)) {
                     Type[] typeArguments = TypeUtil.getTypeArguments(type);
                     Class<?> childType = TypeUtil.getClass(typeArguments[0]);
-                    if (!ClassUtil.isSimpleTypeOrArray(childType)) {
-                        simpleProperty.setProperties(buildProperty(childType));
-                    } else {
-                        simpleProperty.setProperties(List.of(SimpleProperty.basicType(childType)));
-                    }
+                    List<Property> propertyList = ClassUtil.isSimpleTypeOrArray(childType)
+                            ? List.of(SimpleProperty.basicType(childType))
+                            : buildProperty(childType, cache);
+                    simpleProperty.setProperties(propertyList);
 
                 } else {
-                    simpleProperty.setProperties(buildProperty(typeClass));
+                    simpleProperty.setProperties(buildProperty(typeClass, cache));
                 }
 
             }
@@ -63,6 +76,7 @@ public final class PropertyUtils {
             simpleProperty.setValidateRules(buildValidateRules(field, constraintsForClass));
             properties.add(simpleProperty);
         }
+        cache.remove(clazz);
         return properties;
     }
 

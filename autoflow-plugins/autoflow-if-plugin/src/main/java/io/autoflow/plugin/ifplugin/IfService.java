@@ -9,8 +9,6 @@ import io.autoflow.plugin.ifplugin.enums.Clause;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.ExecutionData;
-import io.autoflow.spi.model.Property;
-import io.autoflow.spi.model.SimpleProperty;
 import io.autoflow.spi.utils.ExpressUtils;
 
 import java.util.HashMap;
@@ -63,13 +61,6 @@ public class IfService extends BaseService<IfParameter> {
                 .build();
     }
 
-    @Override
-    public List<Property> getProperties() {
-        SimpleProperty simpleProperty = new SimpleProperty();
-        simpleProperty.setName("condition");
-        simpleProperty.setType("Condition");
-        return List.of(simpleProperty);
-    }
 
     private String parseCondition(ExecutionContext ctx, Condition condition) {
         StringBuilder stringBuilder = new StringBuilder();

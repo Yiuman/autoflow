@@ -7,7 +7,7 @@ package io.autoflow.plugin.ifplugin.enums;
 public enum CalcType {
     Express("Express"),
     Equal("=="),
-    NotEqual("<>"),
+    NotEqual("!="),
     LT("<"),
     GT(">"),
     LTE("<="),

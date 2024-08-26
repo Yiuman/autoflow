@@ -5,7 +5,6 @@ import com.yomahub.liteflow.core.NodeIteratorComponent;
 import io.autoflow.core.model.Loop;
 import io.autoflow.plugin.loopeachitem.LoopItem;
 import io.autoflow.spi.context.FlowExecutionContext;
-import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -33,7 +32,7 @@ public class LoopNodeComponent extends NodeIteratorComponent {
         } else {
             String collectionString = loop.getCollectionString();
             FlowExecutionContext contextBean = getContextBean(FlowExecutionContext.class);
-            List<Object> objectList = (List<Object>) new ExecutionContextValueProvider(contextBean).get(collectionString);
+            List<Object> objectList = (List<Object>) contextBean.parseValue(collectionString);
             int size = objectList.size();
             loop.setLoopCardinality(size);
             return objectList.stream().map(obj -> createLoopItemVariables(loop, obj, objectList.indexOf(obj))).iterator();
