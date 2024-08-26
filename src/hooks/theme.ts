@@ -1,9 +1,11 @@
 //---------------------------- 切换主题 ----------------------------
-export const darkTheme = ref('dark' == document.body.attributes.getNamedItem('arco-theme')?.value)
-export default function useTheme(initValue: boolean | undefined = false) {
-  darkTheme.value = initValue
+export const darkTheme = ref(false)
+export default function useTheme(
+  initValue: boolean | undefined = 'dark' ==
+    document.body.attributes.getNamedItem('arco-theme')?.value
+) {
   const [dark, toggleTheme] = useToggle(initValue)
-
+  darkTheme.value = dark.value
   watch(dark, () => {
     darkTheme.value = dark.value
     if (dark.value) {

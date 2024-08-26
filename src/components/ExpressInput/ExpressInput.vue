@@ -79,7 +79,11 @@ const popoverVariable = computed(() => expressClassName.value === 'jsonpath')
 const { editor, isFocused } = useTipTapEditor(selectOptions, data)
 </script>
 <template>
-  <div class="express-input" :class="[expressClassName, isFocused ? 'express-input-focus' : '']">
+  <div
+    class="express-input"
+    @click="() => editor?.commands.focus()"
+    :class="[expressClassName, isFocused ? 'express-input-focus' : '']"
+  >
     <EditorContent
       class="editor-content"
       :class="[expressClassName, `${inputType}-type`]"

@@ -75,6 +75,10 @@
     top: 8px;
     right: -32px;
     z-index: 1;
+
+    :deep(.arco-btn){
+      border-radius: 0 5px 5px 0;
+    }
   }
 
   .splitpanes {
@@ -182,7 +186,7 @@
   }
 
   :deep(.arco-tabs-content) {
-    height: calc(100% - 50px);
+    height: calc(100% - 80px);
     overflow: auto;
     padding-top: 0;
   }

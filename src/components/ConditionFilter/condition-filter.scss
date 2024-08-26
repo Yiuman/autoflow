@@ -37,7 +37,7 @@
 .condition-group-add {
   position: absolute;
   bottom: -10px;
-  left: 50%;
+  left: calc(50% + 1px);
   transform: translateX(-50%);
 }
 
