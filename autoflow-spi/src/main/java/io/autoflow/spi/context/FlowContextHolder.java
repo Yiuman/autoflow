@@ -10,7 +10,7 @@ public final class FlowContextHolder {
 
     public static ExecutionContext get() {
         ExecutionContext flowExecutionContext = Optional.ofNullable(CONTEXT_THREAD_LOCAL.get())
-                .orElse(new FlowExecutionContext());
+                .orElse(new FlowExecutionContextImpl());
         CONTEXT_THREAD_LOCAL.set(flowExecutionContext);
         return flowExecutionContext;
     }

@@ -12,9 +12,8 @@ import io.autoflow.flowable.utils.Flows;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.context.FlowContextHolder;
-import io.autoflow.spi.context.FlowExecutionContext;
+import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.exception.ExecuteException;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.FlowExecutionResult;
 import io.autoflow.spi.model.ServiceData;
@@ -50,7 +49,7 @@ public class FlowableExecutor implements Executor {
         executionResult.setStartTime(LocalDateTime.now());
         runtimeService.startProcessInstanceById(getExecutableId(flow));
         executionResult.setEndTime(LocalDateTime.now());
-        ExecutionContext flowExecutionContext = FlowContextHolder.get();
+        FlowExecutionContextImpl flowExecutionContext = (FlowExecutionContextImpl) FlowContextHolder.get();
         executionResult.setData(flowExecutionContext.getExecutionResults());
         return executionResult;
     }
@@ -71,17 +70,17 @@ public class FlowableExecutor implements Executor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ExecutionResult<ExecutionData>> executeNode(Node node) {
-        io.autoflow.spi.Service service = Services.getService(node.getServiceId());
+    public List<ExecutionResult<Object>> executeNode(Node node) {
+        io.autoflow.spi.Service<Object> service = Services.getService(node.getServiceId());
         Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceId()), node.getServiceId()));
-        List<ExecutionResult<ExecutionData>> executionResults;
+        List<ExecutionResult<Object>> executionResults;
         Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
         ServiceData serviceData = new ServiceData();
         serviceData.setNodeId(node.getId());
         serviceData.setServiceId(service.getId());
         serviceData.setParameters(runOnceData);
         try {
-            Map<String, List<ExecutionData>> inputData = (Map<String, List<ExecutionData>>) runOnceData.get(Constants.INPUT_DATA);
+            Map<String, List<Object>> inputData = (Map<String, List<Object>>) runOnceData.get(Constants.INPUT_DATA);
             if (node.loopIsValid()) {
                 ExecutionContext flowExecutionContext = FlowContextHolder.get();
                 flowExecutionContext.getInputData().putAll(inputData);
@@ -91,7 +90,7 @@ public class FlowableExecutor implements Executor {
             } else {
                 runOnceData.remove(Constants.INPUT_DATA);
                 executionResults = List.of(
-                        ServiceExecutors.execute(serviceData, service, FlowExecutionContext.create(runOnceData, inputData))
+                        ServiceExecutors.execute(serviceData, service, FlowExecutionContextImpl.create(runOnceData, inputData))
                 );
             }
 

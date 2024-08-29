@@ -9,11 +9,9 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.TypeUtil;
 import cn.hutool.extra.validation.ValidationUtil;
-import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.exception.InputValidateException;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.Property;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import io.autoflow.spi.utils.PropertyUtils;
@@ -24,36 +22,37 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @param <INPUT> 输入类型
+ * @param <INPUT>  输入类型
+ * @param <OUTPUT> 输出类型
  * @author yiuman
  * @date 2023/7/27
  */
-public abstract class BaseService<INPUT> implements Service {
+@SuppressWarnings("unchecked")
+public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT> {
 
-    @SuppressWarnings("unchecked")
-    private final transient Class<INPUT> iputeDataClass = (Class<INPUT>) TypeUtil.getTypeArgument(getClass(), 0);
+    private final transient Class<INPUT> inputClass = (Class<INPUT>) TypeUtil.getTypeArgument(getClass(), 0);
+    private final transient Class<OUTPUT> outputClass = (Class<OUTPUT>) TypeUtil.getReturnType(
+            ReflectUtil.getMethod(getClass(), "execute", inputClass, ExecutionContext.class)
+    );
     private static final CopyOptions DEFAULT_COPY_OPTION = CopyOptions.create();
     private List<Property> properties;
+    private List<Property> outputType;
     private String description;
 
     @Override
     public List<Property> getProperties() {
         if (Objects.isNull(properties)) {
-            try {
-                String propertiesJsonFile = StrUtil.format("{}.json", getClass().getName());
-                String propertiesJsonStr = ResourceUtil.readUtf8Str(propertiesJsonFile);
-                if (StrUtil.isNotBlank(propertiesJsonStr)) {
-                    properties = JSONUtil.toList(propertiesJsonStr, Property.class);
-
-                }
-            } catch (cn.hutool.core.io.resource.NoResourceException ignore) {
-            }
-        }
-
-        if (Objects.isNull(properties)) {
-            properties = PropertyUtils.buildProperty(iputeDataClass);
+            properties = PropertyUtils.buildProperies(getClass(), inputClass);
         }
         return properties;
+    }
+
+    @Override
+    public List<Property> getOutputType() {
+        if (Objects.isNull(outputType)) {
+            outputType = PropertyUtils.buildProperies(getClass(), outputClass);
+        }
+        return outputType;
     }
 
     @Override
@@ -69,15 +68,15 @@ public abstract class BaseService<INPUT> implements Service {
     }
 
     @Override
-    public ExecutionData execute(ExecutionContext executionContext) {
-        INPUT input = buildParameter(executionContext);
+    public OUTPUT execute(ExecutionContext executionContext) {
+        INPUT input = buildInput(executionContext);
         Set<ConstraintViolation<INPUT>> validated = ValidationUtil.validate(input);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
         return execute(input, executionContext);
     }
 
-    protected INPUT buildParameter(ExecutionContext executionContext) {
-        INPUT input = ReflectUtil.newInstanceIfPossible(iputeDataClass);
+    protected INPUT buildInput(ExecutionContext executionContext) {
+        INPUT input = ReflectUtil.newInstanceIfPossible(inputClass);
         BeanUtil.fillBean(
                 input,
                 new ExecutionContextValueProvider(executionContext),
@@ -86,5 +85,5 @@ public abstract class BaseService<INPUT> implements Service {
         return input;
     }
 
-    public abstract ExecutionData execute(INPUT input, ExecutionContext executionContext);
+    public abstract OUTPUT execute(INPUT input, ExecutionContext executionContext);
 }

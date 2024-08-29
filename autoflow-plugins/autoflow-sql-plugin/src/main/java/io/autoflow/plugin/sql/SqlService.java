@@ -1,28 +1,24 @@
 package io.autoflow.plugin.sql;
 
 import cn.hutool.core.lang.func.LambdaUtil;
-import cn.hutool.db.Entity;
 import cn.hutool.db.ds.DSFactory;
 import cn.hutool.db.handler.EntityListHandler;
 import cn.hutool.db.sql.SqlExecutor;
-import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.exception.ExecuteException;
 import io.autoflow.spi.impl.BaseService;
-import io.autoflow.spi.model.ExecutionData;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
 
 import java.sql.Connection;
-import java.util.List;
 
 /**
  * @author yiuman
  * @date 2024/3/1
  */
-public class SqlService extends BaseService<SqlParameter> {
+public class SqlService extends BaseService<SqlParameter, SqlResult> {
 
     @Override
     public String getName() {
@@ -30,24 +26,19 @@ public class SqlService extends BaseService<SqlParameter> {
     }
 
     @Override
-    public ExecutionData execute(SqlParameter sqlParameter, ExecutionContext ctx) {
+    public SqlResult execute(SqlParameter sqlParameter, ExecutionContext ctx) {
         try (DSFactory dsFactory = DSFactory.create(buildSetting(sqlParameter));
              Connection connection = dsFactory.getDataSource().getConnection()) {
             String sql = sqlParameter.getSql();
             Statement statement = CCJSqlParserUtil.parse(sql);
-            ExecutionData executionData;
+            SqlResult sqlResult = new SqlResult();
             if (statement instanceof Select) {
-                List<Entity> entities = SqlExecutor.query(connection, sql, new EntityListHandler());
-                executionData = ExecutionData.builder()
-                        .json(JSONUtil.parseArray(entities))
-                        .build();
+                sqlResult.setRows(SqlExecutor.query(connection, sql, new EntityListHandler()));
             } else {
-                int execute = SqlExecutor.execute(connection, sql);
-                executionData = ExecutionData.builder()
-                        .json(JSONUtil.createObj().set("hit", execute))
-                        .build();
+                sqlResult.setAffectedRows(SqlExecutor.execute(connection, sql));
+
             }
-            return executionData;
+            return sqlResult;
         } catch (Throwable throwable) {
             throw new ExecuteException(throwable, getId());
         }

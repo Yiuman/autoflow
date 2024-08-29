@@ -17,5 +17,5 @@ import java.util.Map;
 public class ChatResult {
     private MessageType messageType;
     private Map<String, Object> properties;
-    private String textContent;
+    private String text;
 }

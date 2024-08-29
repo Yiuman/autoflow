@@ -7,9 +7,8 @@ import com.yomahub.liteflow.core.NodeComponent;
 import io.autoflow.core.Services;
 import io.autoflow.core.runtime.ServiceExecutors;
 import io.autoflow.spi.Service;
-import io.autoflow.spi.context.FlowExecutionContext;
+import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.context.OnceExecutionContext;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.ServiceData;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @author yiuman
  * @date 2024/4/11
  */
+@SuppressWarnings("unchecked")
 @Component
 @Slf4j
 public class ServiceNodeComponent extends NodeComponent {
@@ -36,12 +36,12 @@ public class ServiceNodeComponent extends NodeComponent {
         StopWatch stopWatch = new StopWatch(StrUtil.format("【{} Task】", serviceId));
         stopWatch.start();
 
-        Service service = Services.getService(serviceId);
+        Service<Object> service = Services.getService(serviceId);
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceId)));
-        FlowExecutionContext flowExecutionContext = getContextBean(FlowExecutionContext.class);
+        FlowExecutionContextImpl flowExecutionContext = getContextBean(FlowExecutionContextImpl.class);
         //把当前的节点的ID作为key 参数作为值放下环境变量中后续其他节点引用
         flowExecutionContext.getVariables().put(getNodeId(), serviceData.getParameters());
-        ExecutionResult<ExecutionData> executionResult;
+        ExecutionResult<Object> executionResult;
         try {
             OnceExecutionContext onceExecutionContext = new OnceExecutionContext(flowExecutionContext, serviceData.getParameters());
             Map<String, Object> currLoopObj = getCurrLoopObj();

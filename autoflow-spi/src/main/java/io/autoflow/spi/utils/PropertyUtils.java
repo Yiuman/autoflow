@@ -1,11 +1,10 @@
 package io.autoflow.spi.utils;
 
 import cn.hutool.core.annotation.AnnotationUtil;
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.EnumUtil;
-import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.TypeUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
+import io.autoflow.spi.Service;
 import io.autoflow.spi.model.*;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
@@ -35,7 +34,7 @@ public final class PropertyUtils {
     }
 
     public static <T> List<Property> buildProperty(Class<T> clazz, Map<Class<?>, List<Property>> cache) {
-        if (cache.containsKey(clazz)) {
+        if (cache.containsKey(clazz) || ClassUtil.isSimpleValueType(clazz)) {
             // 返回一个属性，该属性类型与当前类相同，表示递归结构
             return List.of(SimpleProperty.basicType(clazz));
         }
@@ -48,6 +47,9 @@ public final class PropertyUtils {
         for (Field field : fields) {
             Type type = TypeUtil.getType(field);
             Class<?> typeClass = TypeUtil.getClass(type);
+            if (Objects.isNull(typeClass)) {
+                continue;
+            }
             SimpleProperty simpleProperty = new SimpleProperty();
             simpleProperty.setName(field.getName());
             simpleProperty.setType(typeClass.getSimpleName());
@@ -146,4 +148,18 @@ public final class PropertyUtils {
         }
         return null;
     }
+
+    public static <SERVICE extends Service<?>> List<Property> buildProperies(Class<SERVICE> serviceClass, Class<?> inputClass) {
+        try {
+            String propertiesJsonFile = StrUtil.format("{}_properties.json", serviceClass.getName());
+            String propertiesJsonStr = ResourceUtil.readUtf8Str(propertiesJsonFile);
+            if (StrUtil.isNotBlank(propertiesJsonStr)) {
+                return JSONUtil.toList(propertiesJsonStr, Property.class);
+            }
+        } catch (cn.hutool.core.io.resource.NoResourceException ignore) {
+        }
+
+        return PropertyUtils.buildProperty(inputClass);
+    }
+
 }

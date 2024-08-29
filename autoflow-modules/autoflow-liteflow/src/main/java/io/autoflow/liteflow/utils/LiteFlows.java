@@ -16,7 +16,7 @@ import io.autoflow.core.model.NodeType;
 import io.autoflow.liteflow.cmp.IFNodeComponent;
 import io.autoflow.liteflow.cmp.LoopNodeComponent;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
-import io.autoflow.spi.context.FlowExecutionContext;
+import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ServiceData;
 
 import java.util.*;
@@ -291,7 +291,7 @@ public final class LiteFlows {
 
     public static <T extends NodeComponent> boolean getBooleanValue(T node) {
         String express = node.getCmpData(String.class);
-        Object value = node.getContextBean(FlowExecutionContext.class).parseValue(express);
+        Object value = node.getContextBean(FlowExecutionContextImpl.class).parseValue(express);
         return BooleanUtil.isTrue(BooleanUtil.toBooleanObject(Optional.ofNullable(value).orElse("").toString()));
     }
 }

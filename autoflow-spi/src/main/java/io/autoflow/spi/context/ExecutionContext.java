@@ -1,8 +1,5 @@
 package io.autoflow.spi.context;
 
-import io.autoflow.spi.model.ExecutionData;
-import io.autoflow.spi.model.ExecutionResult;
-
 import java.util.List;
 import java.util.Map;
 
@@ -19,19 +16,9 @@ public interface ExecutionContext {
 
     /**
      * 执行上下的输入信息 （前节点的输出数据）
+     * key为节点的ID，value是节点的输出值，之所以是集合是因为节点能自遍历执行多次
      */
-    Map<String, List<ExecutionData>> getInputData();
-
-    /**
-     * 获取执行的结果
-     *
-     * @return 执行的结果
-     */
-    List<ExecutionResult<ExecutionData>> getExecutionResults();
-
-    Map<String, List<ExecutionResult<ExecutionData>>> getNodeExecutionResultMap();
-
-    void addExecutionResult(ExecutionResult<ExecutionData> executionResult);
+    Map<String, List<Object>> getInputData();
 
     /**
      * 执行过程中的变量信息

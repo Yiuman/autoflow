@@ -1,18 +1,16 @@
-package io.autoflow.spi.model;
+package io.autoflow.plugin.gemini;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 /**
  * @author yiuman
- * @date 2023/7/13
+ * @date 2024/8/29
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Binary {
-    private String filename;
-    private String base64;
+public class GeminiResult {
+    private String text;
 }

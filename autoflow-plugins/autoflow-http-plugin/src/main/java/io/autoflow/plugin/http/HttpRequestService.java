@@ -1,6 +1,5 @@
 package io.autoflow.plugin.http;
 
-import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.url.UrlBuilder;
@@ -14,8 +13,7 @@ import cn.hutool.json.JSONUtil;
 import io.autoflow.common.utils.NamedValue;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
-import io.autoflow.spi.model.Binary;
-import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.model.FileData;
 
 import java.util.List;
 
@@ -23,7 +21,7 @@ import java.util.List;
  * @author yiuman
  * @date 2023/7/11
  */
-public class HttpRequestService extends BaseService<HttpRequestParameter> {
+public class HttpRequestService extends BaseService<HttpRequestParameter, HttpResult> {
 
     @Override
     public String getName() {
@@ -46,7 +44,7 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
     }
 
     @Override
-    public ExecutionData execute(HttpRequestParameter httpRequestParameter, ExecutionContext ctx) {
+    public HttpResult execute(HttpRequestParameter httpRequestParameter, ExecutionContext ctx) {
         String url = UrlBuilder.of(httpRequestParameter.getUrl())
                 .setQuery(buildUrlQuery(httpRequestParameter.getParams()))
                 .build();
@@ -60,11 +58,6 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
 
         try (HttpResponse response = request.execute()) {
             HttpResult httpResult = toHttpResult(response);
-            ExecutionData executionData = ExecutionData.builder()
-                    .raw(StrUtil.toString(httpResult.getBody()))
-                    .json(JSONUtil.parseObj(httpResult))
-                    .build();
-
             String contentType = response.header(Header.CONTENT_TYPE);
             String contentDisposition = response.header(Header.CONTENT_DISPOSITION);
             String filename = extractFilename(contentDisposition);
@@ -72,15 +65,13 @@ public class HttpRequestService extends BaseService<HttpRequestParameter> {
                     || StrUtil.isNotBlank(filename);
             if (isBinary) {
                 filename = StrUtil.isBlank(filename) ? FileUtil.getName(request.getUrl()) : filename;
-                executionData.setBinary(
-                        new Binary(
-                                filename,
-                                Base64Encoder.encode(response.bodyBytes())
-                        )
-                );
+                httpResult.setFileData(new FileData(
+                        filename,
+                        response.bodyBytes()
+                ));
             }
 
-            return executionData;
+            return httpResult;
         }
     }
 

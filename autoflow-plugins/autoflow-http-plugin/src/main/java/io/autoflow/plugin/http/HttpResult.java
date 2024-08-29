@@ -1,5 +1,6 @@
 package io.autoflow.plugin.http;
 
+import io.autoflow.spi.model.FileData;
 import lombok.Data;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public class HttpResult {
     private int status;
     private Object body;
     private Map<String, List<String>> headers;
+    private FileData fileData;
 }

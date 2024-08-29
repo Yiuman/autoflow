@@ -3,10 +3,8 @@ package io.autoflow.plugin.openai;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
-import io.autoflow.spi.model.ExecutionData;
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ChatMessage;
@@ -23,7 +21,7 @@ import java.util.stream.Collectors;
  * @author yiuman
  * @date 2024/4/24
  */
-public class OpenAIService extends BaseService<OpenAIParameter> {
+public class OpenAIService extends BaseService<OpenAIParameter, ChatResult> {
 
     @Override
     public String getName() {
@@ -31,7 +29,7 @@ public class OpenAIService extends BaseService<OpenAIParameter> {
     }
 
     @Override
-    public ExecutionData execute(OpenAIParameter openAIParameter, ExecutionContext executionContext) {
+    public ChatResult execute(OpenAIParameter openAIParameter, ExecutionContext executionContext) {
         openAIParameter.setStop(CollUtil.filter(openAIParameter.getStop(), StrUtil::isNotBlank));
         OpenAiApi openAiApi = new OpenAiApi(openAIParameter.getBaseUrl(), openAIParameter.getOpenaiApiKey());
         OpenAiChatOptions openAiChatOptions = new OpenAiChatOptions();
@@ -42,15 +40,12 @@ public class OpenAIService extends BaseService<OpenAIParameter> {
                 .collect(Collectors.toList());
         ChatResponse response = openAiChatClient.call(new Prompt(list));
         AssistantMessage output = response.getResult().getOutput();
-        ChatResult chatResult = new ChatResult(
+        return new ChatResult(
                 output.getMessageType(),
                 output.getProperties(),
                 output.getContent()
         );
-        return ExecutionData.builder()
-                .json(JSONUtil.parse(chatResult))
-                .raw(chatResult.getTextContent())
-                .build();
+
     }
 
 }

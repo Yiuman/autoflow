@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author yiuman
  * @date 2024/5/22
  */
+@SuppressWarnings("rawtypes")
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -44,11 +45,12 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         saveAll(systemServices);
     }
 
-    private ServiceEntity convert(io.autoflow.spi.Service service) {
+    private ServiceEntity convert(io.autoflow.spi.Service<?> service) {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(service.getId());
         serviceEntity.setName(service.getName());
         serviceEntity.setProperties(service.getProperties());
+        serviceEntity.setOutputType(service.getOutputType());
         serviceEntity.setDescription(service.getDescription());
         serviceEntity.setSystem(true);
         return serviceEntity;

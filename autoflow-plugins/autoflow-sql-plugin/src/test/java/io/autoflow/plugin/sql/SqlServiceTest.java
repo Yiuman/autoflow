@@ -1,7 +1,6 @@
 package io.autoflow.plugin.sql;
 
 import cn.hutool.json.JSONUtil;
-import io.autoflow.spi.model.ExecutionData;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +16,11 @@ class SqlServiceTest {
         SqlService sqlService = new SqlService();
         SqlParameter sqlParameter = new SqlParameter();
         sqlParameter.setSql("select * from sys_user");
-        sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
+        sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?allowPublicKeyRetrieval=true&useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter, null);
-        log.info(JSONUtil.toJsonStr(execute));
+        SqlResult sqlResult = sqlService.execute(sqlParameter, null);
+        log.info(JSONUtil.toJsonStr(sqlResult));
     }
 
     @Test
@@ -36,7 +35,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter, null);
+        SqlResult execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -51,7 +50,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter, null);
+        SqlResult execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 
@@ -66,7 +65,7 @@ class SqlServiceTest {
         sqlParameter.setUrl("jdbc:mysql://localhost:3306/ola?useSSL=false");
         sqlParameter.setUsername("root");
         sqlParameter.setPassword("123456");
-        ExecutionData execute = sqlService.execute(sqlParameter, null);
+        SqlResult execute = sqlService.execute(sqlParameter, null);
         log.info(JSONUtil.toJsonStr(execute));
     }
 

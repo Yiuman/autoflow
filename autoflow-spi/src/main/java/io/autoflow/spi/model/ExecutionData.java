@@ -17,5 +17,5 @@ import lombok.NoArgsConstructor;
 public class ExecutionData {
     private JSON json;
     private String raw;
-    private Binary binary;
+    private FileData fileData;
 }

@@ -5,7 +5,6 @@ import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.FlowExecutionResult;
 import io.ola.common.http.R;
@@ -51,7 +50,7 @@ public class ExecutionController {
     }
 
     @PostMapping("/node")
-    public R<List<ExecutionResult<ExecutionData>>> executeNode(@RequestBody Node node) {
+    public R<List<ExecutionResult<Object>>> executeNode(@RequestBody Node node) {
         return R.ok(executor.executeNode(node));
     }
 

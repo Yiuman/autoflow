@@ -7,13 +7,12 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
-import io.autoflow.spi.model.ExecutionData;
 
 /**
  * @author yiuman
  * @date 2024/4/25
  */
-public class GeminiService extends BaseService<GeminiParameter> {
+public class GeminiService extends BaseService<GeminiParameter, GeminiResult> {
 
     @Override
     public String getName() {
@@ -21,7 +20,7 @@ public class GeminiService extends BaseService<GeminiParameter> {
     }
 
     @Override
-    public ExecutionData execute(GeminiParameter geminiParameter, ExecutionContext executionContext) {
+    public GeminiResult execute(GeminiParameter geminiParameter, ExecutionContext executionContext) {
         String requestUrl = StrUtil.format(
                 "{}/v1/models/{}:generateContent?key={}",
                 geminiParameter.getBaseUrl(),
@@ -32,10 +31,9 @@ public class GeminiService extends BaseService<GeminiParameter> {
                 .body(JSONUtil.toJsonStr(new GeminiTextRequest(geminiParameter.getMessage())))
                 .execute()) {
             JSON json = JSONUtil.parse(response.body());
-            return ExecutionData.builder()
-                    .json(json)
-                    .raw(json.getByPath("candidates[0].content.parts[0].text", String.class))
-                    .build();
+            return new GeminiResult(
+                    json.getByPath("candidates[0].content.parts[0].text", String.class)
+            );
         }
     }
 }

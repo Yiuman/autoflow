@@ -8,9 +8,8 @@ import io.autoflow.core.runtime.ServiceExecutors;
 import io.autoflow.flowable.utils.Flows;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.Constants;
-import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.context.FlowContextHolder;
-import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.ServiceData;
 import lombok.Data;
@@ -33,6 +32,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2023/7/14
  * @see io.autoflow.flowable.utils.ServiceNodeConverter
  */
+@SuppressWarnings("unchecked")
 @Data
 @Slf4j
 public class ExecuteServiceTask implements JavaDelegate {
@@ -44,10 +44,10 @@ public class ExecuteServiceTask implements JavaDelegate {
         String serviceIdValue = (String) serviceId.getValue(null);
         StopWatch stopWatch = new StopWatch(StrUtil.format("【{} Task】", serviceIdValue));
         stopWatch.start();
-        Service service = Services.getService(serviceIdValue);
+        Service<Object> service = Services.getService(serviceIdValue);
         Assert.notNull(service, () -> new RuntimeException(StrUtil.format("cannot found service named '{}'", serviceIdValue)));
 
-        ExecutionContext flowExecutionContext = FlowContextHolder.get();
+        FlowExecutionContextImpl flowExecutionContext = (FlowExecutionContextImpl) FlowContextHolder.get();
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
         if (currentFlowElement instanceof Activity activity) {
             MultiInstanceLoopCharacteristics loopCharacteristics = activity.getLoopCharacteristics();
@@ -61,7 +61,7 @@ public class ExecuteServiceTask implements JavaDelegate {
 
         flowExecutionContext.getVariables().putAll(execution.getVariables());
         flowExecutionContext.getParameters().putAll(Flows.getElementProperties(currentFlowElement));
-        ExecutionResult<ExecutionData> executionResult;
+        ExecutionResult<Object> executionResult;
         ServiceData serviceData = new ServiceData();
         serviceData.setFlowId(execution.getProcessInstanceId());
         serviceData.setNodeId(execution.getCurrentActivityId());

@@ -6,8 +6,7 @@ import com.yomahub.liteflow.aop.ICmpAroundAspect;
 import com.yomahub.liteflow.core.NodeComponent;
 import io.autoflow.common.http.SSEContext;
 import io.autoflow.liteflow.enums.Event;
-import io.autoflow.spi.context.FlowExecutionContext;
-import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -53,11 +52,11 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
         }
         try {
             String sseData = "";
-            FlowExecutionContext flowExecutionContext = cmp.getContextBean(FlowExecutionContext.class);
-            Map<String, List<ExecutionResult<ExecutionData>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
+            FlowExecutionContextImpl flowExecutionContext = cmp.getContextBean(FlowExecutionContextImpl.class);
+            Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
             String activityId = cmp.getNodeId();
             if (Objects.nonNull(nodeExecutionResultMap)) {
-                List<ExecutionResult<ExecutionData>> executionResults = nodeExecutionResultMap.get(activityId);
+                List<ExecutionResult<Object>> executionResults = nodeExecutionResultMap.get(activityId);
                 if (CollUtil.isNotEmpty(executionResults)) {
                     sseData = CollUtil.isEmpty(executionResults) ? "" : JSONUtil.toJsonStr(CollUtil.newArrayList(executionResults));
                 }

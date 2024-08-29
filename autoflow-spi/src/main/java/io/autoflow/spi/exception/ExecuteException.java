@@ -31,4 +31,8 @@ public class ExecuteException extends RuntimeException {
         super(message, cause, enableSuppression, writableStackTrace);
         this.serviceId = serviceId;
     }
+
+    public String getServiceId() {
+        return serviceId;
+    }
 }

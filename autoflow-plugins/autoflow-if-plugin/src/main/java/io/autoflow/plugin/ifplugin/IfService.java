@@ -3,12 +3,10 @@ package io.autoflow.plugin.ifplugin;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import io.autoflow.plugin.ifplugin.enums.CalcType;
 import io.autoflow.plugin.ifplugin.enums.Clause;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.utils.ExpressUtils;
 
 import java.util.HashMap;
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
  * @author yiuman
  * @date 2024/3/18
  */
-public class IfService extends BaseService<IfParameter> {
+public class IfService extends BaseService<IfParameter, IfResult> {
 
     private static final BiFunction<ExecutionContext, Condition, String> DEFAULT_CALC_TYPE_FUNC = (ctc, condition)
             -> {
@@ -49,16 +47,14 @@ public class IfService extends BaseService<IfParameter> {
     }
 
     @Override
-    public ExecutionData execute(IfParameter ifParameter, ExecutionContext ctx) {
+    public IfResult execute(IfParameter ifParameter, ExecutionContext ctx) {
         String conditionStr = parseCondition(ctx, ifParameter.getCondition());
         Object conditionBooleanValue = ctx.parseValue(String.format("${%s}", conditionStr));
-        IfResult ifResult = new IfResult(
+        return new IfResult(
                 conditionStr,
                 BooleanUtil.toBoolean(StrUtil.toString(conditionBooleanValue))
         );
-        return ExecutionData.builder()
-                .json(JSONUtil.parse(ifResult))
-                .build();
+
     }
 
 

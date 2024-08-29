@@ -48,14 +48,14 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
             return Convert.convertWithCheck(valueType, expressValue, null, true);
         }
 
-        //提取结果为对象
-        Class<?> typeClass = TypeUtil.getClass(result.getClass());
-        if (!ClassUtil.isSimpleValueType(typeClass)) {
-            result = fillBeanValue(result);
-        }
-
         //将上下文值转换成目标类型值
         if (Objects.nonNull(result)) {
+            //提取结果为对象
+            Class<?> typeClass = TypeUtil.getClass(result.getClass());
+            if (!ClassUtil.isSimpleValueType(typeClass)) {
+                result = fillBeanValue(result);
+            }
+
             result = Convert.convertWithCheck(valueType, result, null, true);
         }
 

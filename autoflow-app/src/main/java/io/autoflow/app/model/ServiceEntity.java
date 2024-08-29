@@ -24,5 +24,6 @@ public class ServiceEntity extends BaseEntity<String> {
     private String jarFileId;
     private String description;
     private List<Property> properties;
+    private List<Property> outputType;
     private Boolean uninstall;
 }

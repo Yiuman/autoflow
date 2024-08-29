@@ -1,13 +1,13 @@
 package io.autoflow.plugin.http;
 
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import io.autoflow.spi.context.FlowExecutionContext;
-import io.autoflow.spi.model.ExecutionData;
+import io.autoflow.spi.context.FlowExecutionContextImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Objects;
 
 /**
  * @author yiuman
@@ -21,12 +21,12 @@ class HttpRequestServiceTest {
         HttpRequestService httpRequestService = new HttpRequestService();
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/");
-        ExecutionData execute = httpRequestService.execute(FlowExecutionContext.create(httpRequestParameter));
+        HttpResult execute = httpRequestService.execute(FlowExecutionContextImpl.create(httpRequestParameter));
+        log.info(JSONUtil.toJsonStr(execute));
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)
-                        && StrUtil.isNotBlank(execute.getRaw())
+                        && Objects.nonNull(execute.getBody())
         );
-        log.info(JSONUtil.toJsonStr(execute));
     }
 
     @Test
@@ -34,11 +34,11 @@ class HttpRequestServiceTest {
         HttpRequestService httpRequestService = new HttpRequestService();
         HttpRequestParameter httpRequestParameter = new HttpRequestParameter();
         httpRequestParameter.setUrl("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png");
-        ExecutionData execute = httpRequestService.execute(FlowExecutionContext.create(httpRequestParameter));
+        HttpResult execute = httpRequestService.execute(FlowExecutionContextImpl.create(httpRequestParameter));
+        log.info(JSONUtil.toJsonStr(execute));
         Assertions.assertTrue(
                 ArrayUtil.isNotEmpty(execute)
-                        && StrUtil.isNotBlank(execute.getRaw())
+                        && Objects.nonNull(execute.getFileData())
         );
-        log.info(JSONUtil.toJsonStr(execute));
     }
 }

@@ -2,7 +2,6 @@ package io.autoflow.core.runtime;
 
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.FlowExecutionResult;
 
@@ -36,7 +35,7 @@ public interface Executor {
      * @param node 节点定义
      * @return 单个节点的数据
      */
-    List<ExecutionResult<ExecutionData>> executeNode(Node node);
+    List<ExecutionResult<Object>> executeNode(Node node);
 
     void startByExecutableId(String executableId);
 }

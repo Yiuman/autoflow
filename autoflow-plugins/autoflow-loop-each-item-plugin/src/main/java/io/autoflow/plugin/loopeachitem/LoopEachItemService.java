@@ -2,10 +2,8 @@ package io.autoflow.plugin.loopeachitem;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 
 /**
@@ -17,18 +15,15 @@ import io.autoflow.spi.provider.ExecutionContextValueProvider;
  * @author yiuman
  * @date 2024/4/8
  */
-public class LoopEachItemService extends BaseService<Void> {
+public class LoopEachItemService extends BaseService<Void, LoopItem> {
 
     @Override
-    public ExecutionData execute(ExecutionContext executionContext) {
-        LoopItem loop = BeanUtil.fillBean(new LoopItem(), new ExecutionContextValueProvider(executionContext), CopyOptions.create());
-        return ExecutionData.builder()
-                .json(JSONUtil.parse(loop))
-                .build();
+    public LoopItem execute(ExecutionContext executionContext) {
+        return BeanUtil.fillBean(new LoopItem(), new ExecutionContextValueProvider(executionContext), CopyOptions.create());
     }
 
     @Override
-    public ExecutionData execute(Void unused, ExecutionContext executionContext) {
+    public LoopItem execute(Void unused, ExecutionContext executionContext) {
         throw new UnsupportedOperationException("Method not implemented.");
     }
 
