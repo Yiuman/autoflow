@@ -7,7 +7,6 @@ import com.yomahub.liteflow.property.LiteflowConfig;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.model.NodeType;
-import io.autoflow.spi.model.ExecutionData;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.FlowExecutionResult;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,7 @@ class LiteFlowExecutorTest {
             put("method", "GET");
         }});
         node.setLabel("http");
-        List<ExecutionResult<ExecutionData>> executionResults = liteFlowExecutor.executeNode(node);
+        List<ExecutionResult<Object>> executionResults = liteFlowExecutor.executeNode(node);
         log.info(JSONUtil.toJsonStr(executionResults));
     }
 
