@@ -82,7 +82,7 @@ public class HttpRequestService extends BaseService<HttpRequestParameter, HttpRe
         UrlQuery urlQuery = new UrlQuery();
         if (CollUtil.isNotEmpty(params)) {
             for (NamedValue<Object> param : params) {
-                if (StrUtil.isNotBlank(param.getName())) {
+                if (StrUtil.isBlank(param.getName())) {
                     continue;
                 }
                 urlQuery.add(param.getName(), param.getValue());
