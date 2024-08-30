@@ -15,7 +15,9 @@ import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.FileData;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author yiuman
@@ -61,7 +63,8 @@ public class HttpRequestService extends BaseService<HttpRequestParameter, HttpRe
             String contentType = response.header(Header.CONTENT_TYPE);
             String contentDisposition = response.header(Header.CONTENT_DISPOSITION);
             String filename = extractFilename(contentDisposition);
-            boolean isBinary = (StrUtil.isNotBlank(contentType) && Constants.BINARY_CONTENT_TYPES.stream().anyMatch(contentType::startsWith))
+            boolean isBinary = (StrUtil.isNotBlank(contentType)
+                    && Constants.BINARY_CONTENT_TYPES.stream().anyMatch(contentType::startsWith))
                     || StrUtil.isNotBlank(filename);
             if (isBinary) {
                 filename = StrUtil.isBlank(filename) ? FileUtil.getName(request.getUrl()) : filename;
@@ -79,6 +82,9 @@ public class HttpRequestService extends BaseService<HttpRequestParameter, HttpRe
         UrlQuery urlQuery = new UrlQuery();
         if (CollUtil.isNotEmpty(params)) {
             for (NamedValue<Object> param : params) {
+                if (StrUtil.isNotBlank(param.getName())) {
+                    continue;
+                }
                 urlQuery.add(param.getName(), param.getValue());
             }
         }
@@ -90,7 +96,9 @@ public class HttpRequestService extends BaseService<HttpRequestParameter, HttpRe
         httpResult.setStatus(response.getStatus());
         String body = response.body();
         httpResult.setBody(JSONUtil.isTypeJSON(body) ? JSONUtil.parse(body) : body);
-        httpResult.setHeaders(response.headers());
+        Map<String, List<String>> headers = new HashMap<>(response.headers());
+        headers.remove(null);
+        httpResult.setHeaders(headers);
         return httpResult;
     }
 }

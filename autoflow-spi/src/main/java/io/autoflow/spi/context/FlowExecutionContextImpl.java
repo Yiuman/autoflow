@@ -14,12 +14,13 @@ import java.util.*;
  * @author yiuman
  * @date 2023/7/14
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 @Data
 public class FlowExecutionContextImpl implements FlowExecutionContext {
     private final List<ExecutionResult<Object>> executionResults = Collections.synchronizedList(CollUtil.newArrayList());
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
-    private final Map<String, List<Object>> inputData = new HashMap<>();
+    private final Map<String, Object> inputData = new HashMap<>();
     private final Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = new HashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider = new ExecutionContextValueProvider(this);
 
@@ -43,7 +44,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     }
 
     @Override
-    public Map<String, List<Object>> getInputData() {
+    public Map<String, Object> getInputData() {
         return inputData;
     }
 
@@ -51,17 +52,26 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     public void addExecutionResult(ExecutionResult<Object> executionResult) {
         executionResults.add(executionResult);
         //输入数据处理
-        List<Object> executionData = Optional.ofNullable(getInputData()
-                        .get(executionResult.getNodeId()))
-                .orElseGet(() -> Collections.synchronizedList(CollUtil.newArrayList()));
-        executionData.add(executionResult.getData());
-        getInputData().put(executionResult.getNodeId(), executionData);
+        Object executionData = getInputData().get(executionResult.getNodeId());
+        if (Objects.nonNull(executionData)) {
+            if (executionData instanceof Collection) {
+                ((Collection) executionData).add(executionResult.getData());
+            } else {
+                List<Object> objects;
+                synchronized (this) {
+                    objects = Collections.synchronizedList(new ArrayList<>());
+                }
+                objects.add(executionData);
+                getInputData().put(executionResult.getNodeId(), objects);
+            }
+        } else {
+            getInputData().put(executionResult.getNodeId(), executionResult.getData());
+        }
 
-        //结果集处理
-        List<ExecutionResult<Object>> nodeExecutionResults = Optional.ofNullable(getNodeExecutionResultMap().get(executionResult.getNodeId()))
-                .orElseGet(() -> Collections.synchronizedList(CollUtil.newArrayList()));
+        // 结果集处理
+        List<ExecutionResult<Object>> nodeExecutionResults = getNodeExecutionResultMap()
+                .computeIfAbsent(executionResult.getNodeId(), k -> Collections.synchronizedList(CollUtil.newArrayList()));
         nodeExecutionResults.add(executionResult);
-        getNodeExecutionResultMap().put(executionResult.getNodeId(), nodeExecutionResults);
     }
 
     @Override

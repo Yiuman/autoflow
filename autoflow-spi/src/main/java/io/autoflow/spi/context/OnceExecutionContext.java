@@ -3,7 +3,6 @@ package io.autoflow.spi.context;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +34,7 @@ public class OnceExecutionContext implements ExecutionContext {
     }
 
     @Override
-    public Map<String, List<Object>> getInputData() {
+    public Map<String, Object> getInputData() {
         return executionContext.getInputData();
     }
 

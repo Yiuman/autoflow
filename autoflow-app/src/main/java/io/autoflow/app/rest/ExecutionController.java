@@ -41,7 +41,7 @@ public class ExecutionController {
     }
 
     @PostMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter executeSSE(@RequestBody Flow flow) {
+    public SseEmitter executeSse(@RequestBody Flow flow) {
         SseEmitter sseEmitter = new SseEmitter(0L);
         String executableId = executor.getExecutableId(flow);
         SSEContext.add(executableId, sseEmitter);
