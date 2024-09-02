@@ -1,4 +1,4 @@
-import type { ExecutionData, ExecutionResult, Flow, FlowExecutionResult, Node } from '@/types/flow'
+import type { ExecutionResult, Flow, FlowExecutionResult, Node } from '@/types/flow'
 import request from '@/utils/request'
 
 export function executeFlow(flow: Flow) {
@@ -6,11 +6,11 @@ export function executeFlow(flow: Flow) {
 }
 
 export function executeNode(node: Node) {
-  return request.post<ExecutionResult<ExecutionData>[]>('/executions/node', node)
+  return request.post<ExecutionResult<any>[]>('/executions/node', node)
 }
 
 type ExecutionType = 'FLOW' | 'NODE'
 
 export function stopExecution(node: { id: string; type: ExecutionType }) {
-  return request.post<ExecutionResult<ExecutionData>[]>('/executions/stop', node)
+  return request.post<ExecutionResult<any>[]>('/executions/stop', node)
 }

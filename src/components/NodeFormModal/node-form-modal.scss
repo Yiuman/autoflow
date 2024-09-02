@@ -185,6 +185,12 @@
     height: calc(100% - 50px);
   }
 
+  .input-data-box,
+  .output-result-box{
+    overflow: auto;
+    height: calc(100% - 50px);
+  }
+
   :deep(.arco-tabs-content) {
     height: calc(100% - 80px);
     overflow: auto;

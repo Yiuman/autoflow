@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type {
-  ExecutionData,
-  ExecutionResult,
-  NodeFlatData,
-  Property,
-  VueFlowNode
-} from '@/types/flow'
+import type { ExecutionResult, NodeFlatData, Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconClockCircle,
@@ -23,14 +17,14 @@ import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
-import { Codemirror } from 'vue-codemirror'
-import { html } from '@codemirror/lang-html'
-import { getAllIncomers } from '@/utils/converter'
+import { getAllIncomers, propertyToColumn } from '@/utils/converter'
 import { groupBy } from 'lodash'
 import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
 import { flatten } from '@/utils/util-func'
 import type { JSONDataType } from 'vue-json-pretty/types/utils'
 import { darkTheme } from '@/hooks/theme'
+import { getResultData, getResultFirst, getResultFirstData } from '@/utils/flow'
+import DataItemTable from '@/components/NodeFormModal/DataItemTable.vue'
 
 interface Props {
   modelValue: VueFlowNode
@@ -107,15 +101,15 @@ const selectedNode = computed(() => {
 provide(CURRENT_NODE, props.modelValue)
 provide(INCOMER, incomers)
 
-type ExecutionDataOrArray = ExecutionData | ExecutionData[]
 const inputDataFlat = computed<NodeFlatData[]>(() => {
   const nodeFlatDataArray: NodeFlatData[] = []
   if (incomers) {
     for (const incomer of incomers.value) {
       const variableFlatData = flatten(incomer.data.parameters)
-      const inputData = (incomer.data?.executionResult as ExecutionResult<ExecutionData>[])?.map(
-        (result) => result.data
-      )
+      const inputData = getResultData(incomer.data?.executionResult)
+      if (!inputData) {
+        continue
+      }
       const nodeExecutionDataFlatData = flatten(inputData)
       nodeFlatDataArray.push({
         node: incomer,
@@ -133,28 +127,22 @@ const inputData = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null
   }
-  const inputDataList = (
-    selectedNode.value?.data.executionResult as ExecutionResult<ExecutionData>[]
-  )?.map((result) => result.data)
-  return (inputDataList?.length === 1 ? inputDataList[0] : inputDataList) as ExecutionDataOrArray
+  return getResultData(selectedNode.value?.data.executionResult)
 })
 
 const inputResult = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null
   }
-  return selectedNode.value?.data.executionResult?.[0]
+  return getResultFirstData(selectedNode.value?.data.executionResult) as ExecutionResult<any>
 })
 
 const outputData = computed(() => {
-  const outputDatas = (
-    props.modelValue.data?.executionResult as ExecutionResult<ExecutionData>[]
-  )?.map((result) => result.data)
-  return (outputDatas?.length === 1 ? outputDatas[0] : outputDatas) as ExecutionDataOrArray
+  return getResultData(props.modelValue.data?.executionResult)
 })
 
 const outputResult = computed(() => {
-  return props.modelValue.data?.executionResult?.[0] as ExecutionResult<ExecutionData>
+  return getResultFirst(props.modelValue.data?.executionResult)
 })
 
 function doClose() {
@@ -172,11 +160,6 @@ watch(action, async () => {
   }
 })
 
-function isHtml(data: string) {
-  const htmlRegex = /<([a-z]+)([^<]+|[^>]+)*>|<([a-z]+)([^<]+|[^>]+)*\/>/i
-  return htmlRegex.test(data)
-}
-
 const excludeShowLoopSettingNode = ['IF']
 const showLoopSetting = computed(() => {
   return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1)
@@ -187,28 +170,13 @@ watchEffect(() => {
   activeTab.value = props.properties && props.properties.length ? 'parameters' : 'settings'
 })
 
-type KeyOfExecutionData = keyof ExecutionDataOrArray
+const inputDataColumns = computed(() => {
+  return propertyToColumn(selectedNode?.value?.data.service.outputType as Property[])
+})
 
-function getExecutionDataKey(executionData: ExecutionDataOrArray | null): KeyOfExecutionData[] {
-  return executionData ? (Object.keys(executionData) as KeyOfExecutionData[]) : []
-}
-
-const dataColumns = [
-  {
-    title: 'json',
-    dataIndex: 'json',
-    slotName: 'jsonColumn'
-  },
-  {
-    title: 'binary',
-    dataIndex: 'binary',
-    slotName: 'binaryColumn'
-  },
-  {
-    title: 'raw',
-    dataIndex: 'raw'
-  }
-]
+const outputDataColumns = computed(() => {
+  return propertyToColumn(props.modelValue.data?.service?.outputType as Property[])
+})
 
 const [inputPaneVisible, toggleInputPane] = useToggle(true)
 const [outputPaneVisible, toggleOutputPane] = useToggle(true)
@@ -267,59 +235,51 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 />
               </AOptgroup>
             </ASelect>
-            <ATabs v-if="inputData">
-              <template v-if="inputResult.error">
-                <ATabPane title="error">
-                  <VueJsonPretty class="input-json" :data="inputResult.error" :show-icon="true" />
-                </ATabPane>
+            <div class="input-data-box" v-if="inputData">
+              <template v-if="inputResult && inputResult.error">
+                <VueJsonPretty
+                  class="input-json"
+                  :data="inputResult.error as JSONDataType"
+                  :show-icon="true"
+                />
               </template>
               <template v-else-if="inputData instanceof Array">
-                <ATabPane key="table" title="table">
-                  <ATable
-                    :stripe="true"
-                    :bordered="false"
-                    style="width: 100%; padding: 5px 10px"
-                    :columns="dataColumns"
-                    :data="inputData"
-                  >
-                    <template #jsonColumn="{ record }">
-                      <VueJsonPretty class="output-json" :data="record.json" :show-icon="true" />
-                    </template>
-                  </ATable>
-                </ATabPane>
+                <DataItemTable :data="inputData" :columns="inputDataColumns" />
+                <!--                <ATable-->
+                <!--                  :stripe="true"-->
+                <!--                  :bordered="false"-->
+                <!--                  style="padding: 5px 10px"-->
+                <!--                  :columns="inputDataColumns"-->
+                <!--                  :data="inputData"-->
+                <!--                >-->
+                <!--                  <template #typeMapColumn="{ record, column }">-->
+                <!--                    <VueJsonPretty-->
+                <!--                      class="output-json"-->
+                <!--                      :collapsedNodeLength="3"-->
+                <!--                      :data="record[column.dataIndex]"-->
+                <!--                      :show-icon="true"-->
+                <!--                    />-->
+                <!--                  </template>-->
+                <!--                  <template #typeObjectColumn="{ record, column }">-->
+                <!--                    <VueJsonPretty-->
+                <!--                      class="output-json"-->
+                <!--                      :collapsedNodeLength="3"-->
+                <!--                      :data="record[column.dataIndex]"-->
+                <!--                      v-if="record[column.dataIndex] instanceof Object"-->
+                <!--                      :show-icon="true"-->
+                <!--                    />-->
+                <!--                    <template v-else>{{ record[column.dataIndex] }}</template>-->
+                <!--                  </template>-->
+                <!--                </ATable>-->
               </template>
-              <template
-                v-else
-                v-for="executeDataKey in getExecutionDataKey(inputData)"
-                :key="executeDataKey"
-              >
-                <ATabPane
-                  v-if="inputData[executeDataKey]"
-                  :title="executeDataKey"
-                  :key="executeDataKey"
-                >
-                  <VueJsonPretty
-                    class="input-json"
-                    v-if="inputData[executeDataKey] && executeDataKey == 'json'"
-                    :data="inputData[executeDataKey]"
-                    :show-icon="true"
-                  />
-                  <div class="input-html" v-else-if="isHtml(inputData[executeDataKey])">
-                    <Codemirror
-                      v-model="inputData[executeDataKey]"
-                      :disabled="true"
-                      :extensions="[html()]"
-                    />
-                  </div>
-                  <MdPreview
-                    :theme="darkTheme ? 'dark' : 'light'"
-                    v-else
-                    class="input-raw"
-                    :modelValue="inputData[executeDataKey]"
-                  />
-                </ATabPane>
+              <template v-else>
+                <VueJsonPretty
+                  class="input-json"
+                  :data="inputData as JSONDataType"
+                  :show-icon="true"
+                />
               </template>
-            </ATabs>
+            </div>
             <div class="node-form-modal-output-empty" v-else>
               <AEmpty />
             </div>
@@ -378,63 +338,51 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 {{ `${(outputResult.durationMs / 1000).toFixed(3)}s` }}
               </ATag>
             </div>
-            <ATabs v-if="outputResult">
+            <div class="output-result-box" v-if="outputResult && outputData">
               <template v-if="outputResult.error">
-                <ATabPane title="error">
-                  <VueJsonPretty
-                    class="output-json"
-                    :data="outputResult.error as JSONDataType"
-                    :show-icon="true"
-                  />
-                </ATabPane>
+                <VueJsonPretty
+                  class="output-json"
+                  :data="outputResult.error as JSONDataType"
+                  :show-icon="true"
+                />
               </template>
               <template v-else-if="outputData instanceof Array">
-                <ATabPane key="table" title="table">
-                  <ATable
-                    :stripe="true"
-                    :bordered="false"
-                    style="width: 100%; padding: 5px 10px"
-                    :columns="dataColumns"
-                    :data="outputData"
-                  >
-                    <template #jsonColumn="{ record }">
-                      <VueJsonPretty class="output-json" :data="record.json" :show-icon="true" />
-                    </template>
-                  </ATable>
-                </ATabPane>
+                <DataItemTable :data="outputData" :columns="outputDataColumns" />
+                <!--                <ATable-->
+                <!--                  :stripe="true"-->
+                <!--                  :bordered="false"-->
+                <!--                  style="padding: 5px 10px"-->
+                <!--                  :columns="outputDataColumns"-->
+                <!--                  :data="outputData"-->
+                <!--                >-->
+                <!--                  <template #typeMapColumn="{ record, column }">-->
+                <!--                    <VueJsonPretty-->
+                <!--                      class="output-json"-->
+                <!--                      :data="record[column.dataIndex]"-->
+                <!--                      :collapsedNodeLength="3"-->
+                <!--                      :show-icon="true"-->
+                <!--                    />-->
+                <!--                  </template>-->
+                <!--                  <template #typeObjectColumn="{ record, column }">-->
+                <!--                    <VueJsonPretty-->
+                <!--                      class="output-json"-->
+                <!--                      :data="record[column.dataIndex]"-->
+                <!--                      :collapsedNodeLength="3"-->
+                <!--                      v-if="record[column.dataIndex] instanceof Object"-->
+                <!--                      :show-icon="true"-->
+                <!--                    />-->
+                <!--                    <template v-else>{{ record[column.dataIndex] }}</template>-->
+                <!--                  </template>-->
+                <!--                </ATable>-->
               </template>
-              <template
-                v-else
-                v-for="executeDataKey in getExecutionDataKey(outputData)"
-                :key="executeDataKey"
-              >
-                <ATabPane
-                  v-if="outputData[executeDataKey]"
-                  :key="executeDataKey"
-                  :title="executeDataKey"
-                >
-                  <VueJsonPretty
-                    class="output-json"
-                    v-if="outputData[executeDataKey] && executeDataKey == 'json'"
-                    :data="outputData[executeDataKey]"
-                    :show-icon="true"
-                  />
-                  <div class="output-html" v-else-if="isHtml(outputData[executeDataKey])">
-                    <Codemirror
-                      v-model="outputData[executeDataKey]"
-                      :disabled="true"
-                      :extensions="[html()]"
-                    />
-                  </div>
-                  <MdPreview
-                    v-else
-                    :theme="darkTheme ? 'dark' : 'light'"
-                    class="output-raw"
-                    :modelValue="outputData[executeDataKey]"
-                  />
-                </ATabPane>
+              <template v-else>
+                <VueJsonPretty
+                  class="output-json"
+                  :data="outputData as JSONDataType"
+                  :show-icon="true"
+                />
               </template>
-            </ATabs>
+            </div>
             <div class="node-form-modal-output-empty" v-else>
               <AEmpty />
             </div>

@@ -135,4 +135,9 @@ function getContainerClientXY(
   return { x: offsetX, y: offsetY }
 }
 
-export { uuid, randomRgb, randomRgba, getOS, flatten, getContainerClientXY, ScriptHelper }
+function isHtml(data: string) {
+  const htmlRegex = /<([a-z]+)([^<]+|[^>]+)*>|<([a-z]+)([^<]+|[^>]+)*\/>/i
+  return htmlRegex.test(data)
+}
+
+export { isHtml, uuid, randomRgb, randomRgba, getOS, flatten, getContainerClientXY, ScriptHelper }

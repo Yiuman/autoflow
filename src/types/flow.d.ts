@@ -59,9 +59,9 @@ interface Bounding extends BoundingBox {
   y: number
 }
 
-interface Binary {
+interface FileData {
   filename: string
-  base64: string
+  content: string
 }
 
 interface ExecutionError {
@@ -82,13 +82,7 @@ interface Variable {
   desc?: string
 }
 
-interface FlowExecutionResult extends ExecutionResult<List<ExecutionData>> {}
-
-interface ExecutionData {
-  json?: JSON
-  raw?: string
-  binary?: Binary
-}
+interface FlowExecutionResult extends ExecutionResult<List<any>> {}
 
 interface Property {
   type: string
@@ -141,8 +135,7 @@ export {
   Position,
   BoundingBox,
   Bounding,
-  ExecutionData,
-  Binary,
+  FileData,
   ExecutionError,
   Property,
   Service,

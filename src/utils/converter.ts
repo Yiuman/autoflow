@@ -62,7 +62,7 @@ export function toGraphNode(node: Node): VueFlowNode {
   nodeData.serviceId = node.serviceId
   nodeData.label = node.label
   nodeData.parameters = node.data
-  nodeData.loop =
+  nodeData.service = nodeData.loop =
     node.loop && Object.keys(node.loop).length
       ? node.loop
       : {
@@ -86,6 +86,7 @@ const nodeTypeMap: Record<string, string> = {
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
   const nodeData: Record<string, any> = {}
   nodeData.serviceId = service.id
+  nodeData.service = service
   nodeData.label = service.name
   nodeData.parameters = {}
   nodeData.loop = {}
@@ -97,6 +98,19 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
     data: nodeData,
     label: service.name
   }
+}
+
+export function propertyToColumn(properties: Property[]): TableColumnData[] {
+  if (!properties || !properties.length) {
+    return []
+  }
+  return properties.map((property) => ({
+    title: property.displayName || property.name,
+    dataIndex: property.name,
+    slotName: `type${property.type}Column`,
+    ellipsis: true,
+    tooltip: true
+  }))
 }
 
 export function toConnect(edge: GraphEdge): Connection {

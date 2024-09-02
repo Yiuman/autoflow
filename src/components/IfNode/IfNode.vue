@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
 import { Handle, Position } from '@vue-flow/core'
-import { validConnection } from '@/utils/flow'
+import { validateConnection } from '@/utils/flow'
 import { IconCheckCircle, IconExclamationCircle } from '@arco-design/web-vue/es/icon'
 import { useEnv } from '@/hooks/env'
 
@@ -17,13 +17,13 @@ const [avatarNotFound, toggleAvatar] = useToggle(false)
         id="INPUT"
         type="target"
         :position="Position.Left"
-        :is-valid-connection="validConnection"
+        :is-valid-connection="validateConnection"
       />
       <Handle
         id="IF_TRUE"
         type="source"
         :position="Position.Top"
-        :is-valid-connection="validConnection"
+        :is-valid-connection="validateConnection"
       >
         <div class="true-label">true</div>
       </Handle>
@@ -31,7 +31,7 @@ const [avatarNotFound, toggleAvatar] = useToggle(false)
         id="IF_FALSE"
         type="source"
         :position="Position.Bottom"
-        :is-valid-connection="validConnection"
+        :is-valid-connection="validateConnection"
       >
         <div class="false-label">false</div>
       </Handle>
@@ -49,7 +49,7 @@ const [avatarNotFound, toggleAvatar] = useToggle(false)
       </AAvatar>
 
       <div class="node-status-icon" v-if="data.executionResult">
-        <IconExclamationCircle class="node-status-error" v-if="data.executionResult[0].error" />
+        <IconExclamationCircle class="node-status-error" v-if="data.executionResult.error" />
         <IconCheckCircle class="node-status-success" v-else />
       </div>
     </template>

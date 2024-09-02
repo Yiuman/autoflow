@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Connection, CustomEvent, ElementData, NodeProps } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
-import { validConnection } from '@/utils/flow'
+import { getResultFirst, validateConnection } from '@/utils/flow'
 import {
   IconClockCircle,
   IconCheckCircle,
@@ -64,12 +64,15 @@ function validConnectionFunc(connection: Connection): boolean {
     return false
   }
 
-  return validConnection(connection)
+  return validateConnection(connection)
 }
 
+const executionResult = computed(() => {
+  return getResultFirst(props.data.executionResult)
+})
+
 const isSuccess = computed(() => {
-  const result = props.data.executionResult
-  return result && !result?.[0]?.error
+  return !executionResult?.value?.error
 })
 </script>
 
@@ -96,12 +99,12 @@ const isSuccess = computed(() => {
       </AButtonGroup>
     </div>
 
-    <div class="node-duration" v-if="isSuccess">
+    <div class="node-duration" v-if="executionResult && isSuccess">
       <ATag>
         <template #icon>
           <IconClockCircle />
         </template>
-        {{ `${(data.executionResult?.[0].durationMs / 1000).toFixed(3)}s` }}
+        {{ `${(executionResult?.durationMs || 0 / 1000).toFixed(3)}s` }}
       </ATag>
     </div>
 
@@ -123,7 +126,7 @@ const isSuccess = computed(() => {
           @error="() => toggleAvatar()"
         />
 
-        <div class="node-status-icon" v-if="data.executionResult">
+        <div class="node-status-icon" v-if="executionResult">
           <IconCheckCircle v-if="isSuccess" class="node-status-success" />
           <IconExclamationCircle v-else class="node-status-error" />
         </div>

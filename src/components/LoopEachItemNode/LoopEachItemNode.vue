@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
 import { Handle, Position } from '@vue-flow/core'
-import { validConnection } from '@/utils/flow'
+import { validateConnection } from '@/utils/flow'
 
 const props = defineProps<Props>()
 </script>
@@ -12,13 +12,13 @@ const props = defineProps<Props>()
       id="INPUT"
       type="target"
       :position="Position.Left"
-      :is-valid-connection="validConnection"
+      :is-valid-connection="validateConnection"
     />
     <Handle
       id="LOOP_EACH"
       type="source"
       :position="Position.Right"
-      :is-valid-connection="validConnection"
+      :is-valid-connection="validateConnection"
     >
       <div class="loop-label">loop</div>
     </Handle>
@@ -26,7 +26,7 @@ const props = defineProps<Props>()
       id="LOOP_DONE"
       type="source"
       :position="Position.Bottom"
-      :is-valid-connection="validConnection"
+      :is-valid-connection="validateConnection"
     >
       <div class="done-label">done</div>
     </Handle>

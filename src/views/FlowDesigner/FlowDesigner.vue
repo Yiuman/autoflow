@@ -30,7 +30,7 @@ import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem, Notification } from '@arco-design/web-vue'
 import type {
   BoundingBox,
-  ExecutionData,
+  ExecutionResult,
   Flow,
   NodeElementData,
   Position,
@@ -126,16 +126,19 @@ async function defaultRun(node: VueFlowNode) {
   const executeNodeData = toNode(toRaw(node))
   const nodeData = executeNodeData.data || {}
   const allIncomers = getAllIncomers(node.id, getIncomers)
-  const inputData: Record<string, ExecutionData[]> = {}
+  const inputData: Record<string, any[]> = {}
   for (const incomer of allIncomers) {
-    inputData[incomer.id] = incomer.data?.executionResult?.map(
-      (result) => result.data as ExecutionData
+    inputData[incomer.id] = (incomer.data?.executionResult as ExecutionResult<any>[])?.map(
+      (result) => result.data
     )
   }
   nodeData.inputData = inputData
   executeNodeData.data = nodeData
   const executionResult = await executeNode(executeNodeData)
-  updateNodeData(node.id, { executionResult, running: false })
+  updateNodeData(node.id, {
+    executionResult: executionResult.length > 1 ? executionResult : executionResult[0],
+    running: false
+  })
 }
 
 const defaultEvents = {
@@ -159,9 +162,9 @@ function doConnect(connection: Connection) {
   addEdge.data.targetPointType = connection.targetHandle
   if (sourceNode && sourceNode.type === 'IF') {
     if (connection.sourceHandle == `IF_TRUE`) {
-      addEdge.data.expression = '${' + `inputData['${sourceNode.id}'][0].json.result` + '}'
+      addEdge.data.expression = '${' + `inputData['${sourceNode.id}'].result` + '}'
     } else {
-      addEdge.data.expression = '${!' + `inputData['${sourceNode.id}'][0].json.result` + '}'
+      addEdge.data.expression = '${!' + `inputData['${sourceNode.id}'].result` + '}'
     }
   }
 
@@ -296,10 +299,12 @@ function importJson(fileList: FileItem[]): void {
 function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
   const flowNodes = flowDefine.nodes
-  const nodes: VueFlowNode[] = flowNodes?.map((node) => ({
-    ...toGraphNode(node),
-    events: defaultEvents
-  })) as VueFlowNode[]
+  const nodes: VueFlowNode[] = flowNodes?.map((node) => {
+    const graphNode = toGraphNode(node)
+    graphNode.events = defaultEvents
+    graphNode.data.service = serviceStore.getServiceById(graphNode.data.serviceId)
+    return graphNode
+  }) as VueFlowNode[]
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({
     ...toGraphEdge(connection)
   })) as GraphEdge[]
@@ -345,8 +350,9 @@ function executeFlowSSE(flow: Flow) {
           break
         case 'ACTIVITY_COMPLETED':
           if (message.data) {
+            const resultData = JSON.parse(message.data)
             updateNodeData(message.id, {
-              executionResult: JSON.parse(message.data),
+              executionResult: resultData.length > 1 ? resultData : resultData[0],
               running: false
             })
           }
