@@ -31,8 +31,10 @@ import java.util.Set;
 public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT> {
 
     private final transient Class<INPUT> inputClass = (Class<INPUT>) TypeUtil.getTypeArgument(getClass(), 0);
-    private final transient Class<OUTPUT> outputClass = (Class<OUTPUT>) TypeUtil.getReturnType(
-            ReflectUtil.getMethod(getClass(), "execute", inputClass, ExecutionContext.class)
+    private final transient Class<OUTPUT> outputClass = (Class<OUTPUT>) TypeUtil.getClass(
+            TypeUtil.getReturnType(
+                    ReflectUtil.getMethod(getClass(), "execute", inputClass, ExecutionContext.class)
+            )
     );
     private static final CopyOptions DEFAULT_COPY_OPTION = CopyOptions.create();
     private List<Property> properties;

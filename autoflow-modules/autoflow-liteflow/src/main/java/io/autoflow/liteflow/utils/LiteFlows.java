@@ -201,7 +201,7 @@ public final class LiteFlows {
         ifFalseFlow.setConnections(getOutgoerConnections(flow, node, falseOutgoers));
         String ifNodeId = StrUtil.format("IF_{}", node.getId());
         String ifNodeDataId = StrUtil.format("{}IfData", node.getId());
-        String express = String.format("$.inputData.%s.[0].json.result", node.getId());
+        String express = String.format("$.inputData.%s.result", node.getId());
         return ELBus.ifOpt(
                 ELBus.node(ifNodeId)
                         .data(ifNodeDataId, express),

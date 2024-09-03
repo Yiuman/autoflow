@@ -1,11 +1,13 @@
 package io.autoflow.liteflow.cmp;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.yomahub.liteflow.aop.ICmpAroundAspect;
 import com.yomahub.liteflow.core.NodeComponent;
 import io.autoflow.common.http.SSEContext;
 import io.autoflow.liteflow.enums.Event;
+import io.autoflow.plugin.loopeachitem.LoopItem;
 import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
@@ -55,8 +57,18 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
             FlowExecutionContextImpl flowExecutionContext = cmp.getContextBean(FlowExecutionContextImpl.class);
             Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
             String activityId = cmp.getNodeId();
+            LoopItem loopItem = null;
+            if (Objects.nonNull(cmp.getCurrLoopObj())) {
+                loopItem = BeanUtil.toBean(cmp.getCurrLoopObj(), LoopItem.class);
+            }
             if (Objects.nonNull(nodeExecutionResultMap)) {
                 List<ExecutionResult<Object>> executionResults = nodeExecutionResultMap.get(activityId);
+                if (Event.ACTIVITY_COMPLETED == event
+                        && Objects.nonNull(loopItem)
+                        && !Objects.equals(loopItem.getNrOfInstances(), CollUtil.size(executionResults))) {
+                    return;
+                }
+
                 if (CollUtil.isNotEmpty(executionResults)) {
                     sseData = CollUtil.isEmpty(executionResults) ? "" : JSONUtil.toJsonStr(CollUtil.newArrayList(executionResults));
                 }

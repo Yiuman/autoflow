@@ -6,5 +6,6 @@ package io.autoflow.spi.context;
  */
 public final class Constants {
     public static final String INPUT_DATA = "inputData";
+    public static final String VARIABLES = "variables";
 
 }

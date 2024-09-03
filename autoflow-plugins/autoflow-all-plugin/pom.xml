@@ -60,5 +60,11 @@
             <artifactId>autoflow-gemini-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-variable-extract-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>
