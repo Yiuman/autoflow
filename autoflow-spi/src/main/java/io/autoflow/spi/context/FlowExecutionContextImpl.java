@@ -7,6 +7,7 @@ import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import lombok.Data;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 流程执行上下文
@@ -21,7 +22,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private final Map<String, Object> inputData = new HashMap<>();
-    private final Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = new HashMap<>();
+    private final Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = new ConcurrentHashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider = new ExecutionContextValueProvider(this);
 
     public static FlowExecutionContextImpl create(Map<String, Object> parameters) {
