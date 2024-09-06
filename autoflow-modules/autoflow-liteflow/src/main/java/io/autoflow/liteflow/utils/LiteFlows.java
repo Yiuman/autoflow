@@ -66,7 +66,8 @@ public final class LiteFlows {
     }
 
     private static ELWrapper processDefaultNode(Flow flow, Node node) {
-        List<Node> outgoers = flow.getOutgoers(node.getId()); // 获取后续节点
+        //todo 这里处理有点问题
+        List<Node> outgoers = flow.getOutgoers(node.getId(), true); // 获取后续节点
         if (CollUtil.isNotEmpty(outgoers)) {
             String nextFlowId = "next_flow_" + node.getId();
             Flow nextFlow = createNextFlow(nextFlowId, outgoers, flow, node); // 创建下一个Flow

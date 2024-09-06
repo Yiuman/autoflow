@@ -31,19 +31,24 @@ public class VariableExtractService extends BaseService<VariableExtractParameter
         }
         Map<String, Object> extractValueMap = new HashMap<>(namedValues.size());
         for (NamedValue<Object> namedValue : namedValues) {
-            Object value = namedValue.getValue();
-            Object result = value;
-            if (value instanceof String) {
-                result = executionContext.parseValue(StrUtil.toString(value));
+            if (Objects.isNull(namedValue.getName())) {
+                continue;
             }
-
-            String key = namedValue.getName();
-            Object keyObject = executionContext.parseValue(namedValue.getName());
-            if (Objects.nonNull(keyObject)) {
-                key = StrUtil.toString(keyObject);
-            }
+            String key = StrUtil.toString(getParseValue(namedValue.getName(), executionContext));
+            Object result = getParseValue(namedValue.getValue(), executionContext);
             extractValueMap.put(key, result);
         }
         return extractValueMap;
+    }
+
+    private Object getParseValue(Object value, ExecutionContext executionContext) {
+        Object result = value;
+        if (value instanceof String) {
+            Object parseResult = executionContext.parseValue(StrUtil.toString(value));
+            if (Objects.nonNull(parseResult)) {
+                result = parseResult;
+            }
+        }
+        return result;
     }
 }

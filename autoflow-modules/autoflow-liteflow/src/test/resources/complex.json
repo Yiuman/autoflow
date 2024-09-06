@@ -1,136 +1,228 @@
 {
-  "id": "V5DJ4g4o",
-  "name": "V5DJ4g4o",
+  "id": "ioSEMMwO",
+  "name": "ioSEMMwO",
   "nodes": [
     {
-      "id": "hgIkDW8F",
+      "id": "OP6JXyBS",
+      "label": "VariableExtract",
+      "serviceId": "io.autoflow.plugin.variableextract.VariableExtractService",
+      "type": "SERVICE",
+      "position": {
+        "x": 96,
+        "y": 222
+      },
+      "data": {
+        "attrs": [
+          {
+            "name": "url",
+            "value": "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png"
+          }
+        ]
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "Niqa50kn",
       "label": "HTTP",
       "serviceId": "io.autoflow.plugin.http.HttpRequestService",
       "type": "SERVICE",
       "position": {
-        "x": 267,
-        "y": 299
+        "x": 306,
+        "y": 264
       },
       "data": {
-        "url": "https://www.baidu.com",
-        "method": "GET"
+        "headers": [
+          {
+            "name": "USER_AGENT",
+            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+          }
+        ],
+        "url": "$.inputData.OP6JXyBS.url",
+        "method": "GET",
+        "params": [
+          {
+            "name": "",
+            "value": ""
+          }
+        ]
       },
-      "loop": {}
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
     },
     {
-      "id": "wzZRQ2vf",
+      "id": "vcPkMiHW",
+      "label": "Gemini",
+      "serviceId": "io.autoflow.plugin.gemini.GeminiService",
+      "type": "SERVICE",
+      "position": {
+        "x": 497,
+        "y": 138
+      },
+      "data": {
+        "baseUrl": "https://generativelanguage.googleapis.com",
+        "model": "gemini-pro"
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "jzJUrHta",
+      "label": "OpenAI",
+      "serviceId": "io.autoflow.plugin.openai.OpenAIService",
+      "type": "SERVICE",
+      "position": {
+        "x": 490,
+        "y": 311
+      },
+      "data": {
+        "baseUrl": "https://api.openai.com",
+        "model": "gpt-3.5-turbo",
+        "n": 1,
+        "stop": [
+          ""
+        ],
+        "temperature": 1,
+        "topP": 1,
+        "messages": [
+          {
+            "messageType": "USER",
+            "content": ""
+          }
+        ]
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "TgXjNAE0",
       "label": "IF",
       "serviceId": "io.autoflow.plugin.ifplugin.IfService",
       "type": "IF",
       "position": {
-        "x": 498,
-        "y": 316
+        "x": 742,
+        "y": 233
       },
       "data": {
-        "condition": {
-          "children": [
-            {
-              "children": [
-                {
-                  "dataKey": "$.inputData.hgIkDW8F[0].json.status",
-                  "calcType": "Equal",
-                  "value": "200",
-                  "clause": "AND"
-                },
-                {
-                  "dataKey": "",
-                  "calcType": "Express",
-                  "value": "${inputData.hgIkDW8F[0].json.status==200}",
-                  "clause": "AND"
-                }
-              ],
-              "clause": "AND",
-              "root": false
-            },
-            {
-              "children": [
-                {
-                  "dataKey": "1",
-                  "calcType": "Equal",
-                  "value": "1",
-                  "clause": "AND"
-                },
-                {
-                  "dataKey": "2",
-                  "calcType": "Equal",
-                  "value": "1",
-                  "clause": "AND"
-                }
-              ],
-              "clause": "OR"
-            }
-          ],
-          "clause": "AND",
-          "root": true
-        }
+        "condition": {}
       },
-      "loop": {}
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
     },
     {
-      "id": "iXmGj4Ld",
-      "label": "Regex",
-      "serviceId": "io.autoflow.plugin.regex.RegexService",
+      "id": "jwnYT7LA",
+      "label": "VariableExtract",
+      "serviceId": "io.autoflow.plugin.variableextract.VariableExtractService",
       "type": "SERVICE",
       "position": {
-        "x": 657,
-        "y": 309
+        "x": 1013,
+        "y": 188
       },
       "data": {
-        "regex": "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)",
-        "content": "$.inputData.hgIkDW8F[0].raw",
-        "method": "findAll"
+        "attrs": [
+          {
+            "name": "",
+            "value": ""
+          }
+        ]
       },
-      "loop": {}
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
     },
     {
-      "id": "prs40jNx",
-      "label": "LoopEachItem",
-      "serviceId": "io.autoflow.plugin.loopeachitem.LoopEachItemService",
-      "type": "LOOP_EACH_ITEM",
-      "position": {
-        "x": 793.5,
-        "y": 277.5
-      },
-      "data": {},
-      "loop": {}
-    },
-    {
-      "id": "xxpldOJx",
+      "id": "I3JTH7xe",
       "label": "Regex",
       "serviceId": "io.autoflow.plugin.regex.RegexService",
       "type": "SERVICE",
       "position": {
-        "x": 864.5,
-        "y": 503.5
+        "x": 981,
+        "y": 365.6
+      },
+      "data": {},
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "W3gtDbma",
+      "label": "HTTP",
+      "serviceId": "io.autoflow.plugin.http.HttpRequestService",
+      "type": "SERVICE",
+      "position": {
+        "x": 925.5,
+        "y": 67.19999999999999
       },
       "data": {},
       "loop": {}
     },
     {
-      "id": "IGTEj2H2",
-      "label": "Regex",
-      "serviceId": "io.autoflow.plugin.regex.RegexService",
+      "id": "H0CEuJ2L",
+      "label": "HTTP",
+      "serviceId": "io.autoflow.plugin.http.HttpRequestService",
       "type": "SERVICE",
       "position": {
-        "x": 997.5,
-        "y": 269.5
+        "x": 665.5,
+        "y": 21.200000000000003
       },
-      "data": {},
+      "data": {
+        "headers": [
+          {
+            "name": "USER_AGENT",
+            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+          }
+        ],
+        "method": "GET",
+        "params": [
+          {
+            "name": "",
+            "value": ""
+          }
+        ]
+      },
       "loop": {}
     },
     {
-      "id": "sutp2EBW",
-      "label": "SQL",
-      "serviceId": "io.autoflow.plugin.sql.SqlService",
+      "id": "PLK7dkKX",
+      "label": "Gemini",
+      "serviceId": "io.autoflow.plugin.gemini.GeminiService",
       "type": "SERVICE",
       "position": {
-        "x": 1053.5,
-        "y": 506.5
+        "x": 740.5,
+        "y": 467.20000000000005
       },
       "data": {},
       "loop": {}
@@ -138,70 +230,115 @@
   ],
   "connections": [
     {
-      "id": "ehgIkDW8F_wzZRQ2vf",
-      "source": "hgIkDW8F",
-      "target": "wzZRQ2vf",
-      "sourceX": 358,
-      "sourceY": 341,
-      "targetX": 489,
-      "targetY": 356,
-      "sourcePointType": "output",
-      "targetPointType": "input"
+      "id": "vueflow__edge-OP6JXyBSOUTPUT-Niqa50knINPUT",
+      "source": "OP6JXyBS",
+      "target": "Niqa50kn",
+      "sourceX": 187,
+      "sourceY": 264,
+      "targetX": 303,
+      "targetY": 306,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
     },
     {
-      "id": "ewzZRQ2vf_iXmGj4Ld",
-      "source": "wzZRQ2vf",
-      "target": "iXmGj4Ld",
-      "sourceX": 538,
-      "sourceY": 304,
-      "targetX": 654,
-      "targetY": 351,
+      "id": "vueflow__edge-Niqa50knOUTPUT-vcPkMiHWINPUT",
+      "source": "Niqa50kn",
+      "target": "vcPkMiHW",
+      "sourceX": 397,
+      "sourceY": 306,
+      "targetX": 494,
+      "targetY": 180,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-Niqa50knOUTPUT-jzJUrHtaINPUT",
+      "source": "Niqa50kn",
+      "target": "jzJUrHta",
+      "sourceX": 397,
+      "sourceY": 306,
+      "targetX": 487,
+      "targetY": 353,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-vcPkMiHWOUTPUT-TgXjNAE0INPUT",
+      "source": "vcPkMiHW",
+      "target": "TgXjNAE0",
+      "sourceX": 588,
+      "sourceY": 180,
+      "targetX": 733,
+      "targetY": 273,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-jzJUrHtaOUTPUT-TgXjNAE0INPUT",
+      "source": "jzJUrHta",
+      "target": "TgXjNAE0",
+      "sourceX": 581,
+      "sourceY": 353,
+      "targetX": 733,
+      "targetY": 273,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-TgXjNAE0IF_TRUE-jwnYT7LAINPUT",
+      "source": "TgXjNAE0",
+      "target": "jwnYT7LA",
+      "sourceX": 782,
+      "sourceY": 221,
+      "targetX": 1010,
+      "targetY": 230,
       "sourcePointType": "IF_TRUE",
-      "targetPointType": "input"
+      "targetPointType": "INPUT"
     },
     {
-      "id": "vueflow__edge-iXmGj4Ldoutput-prs40jNxinput",
-      "source": "iXmGj4Ld",
-      "target": "prs40jNx",
-      "sourceX": 748,
-      "sourceY": 351,
-      "targetX": 790.5,
-      "targetY": 319.5,
-      "sourcePointType": "output",
-      "targetPointType": "input"
+      "id": "vueflow__edge-TgXjNAE0IF_FALSE-I3JTH7xeINPUT",
+      "source": "TgXjNAE0",
+      "target": "I3JTH7xe",
+      "sourceX": 782,
+      "sourceY": 325,
+      "targetX": 978,
+      "targetY": 407.6,
+      "sourcePointType": "IF_FALSE",
+      "targetPointType": "INPUT"
     },
     {
-      "id": "vueflow__edge-prs40jNxLOOP_EACH-IGTEj2H2input",
-      "source": "prs40jNx",
-      "target": "IGTEj2H2",
-      "sourceX": 884.5,
-      "sourceY": 319.5,
-      "targetX": 994.5,
-      "targetY": 311.5,
-      "sourcePointType": "LOOP_EACH",
-      "targetPointType": "input"
+      "id": "vueflow__edge-TgXjNAE0IF_TRUE-W3gtDbmaINPUT",
+      "source": "TgXjNAE0",
+      "target": "W3gtDbma",
+      "sourceX": 782,
+      "sourceY": 221,
+      "targetX": 922.5,
+      "targetY": 109.19999999999999,
+      "sourcePointType": "IF_TRUE",
+      "targetPointType": "INPUT",
+      "expression": "${inputData.TgXjNAE0.result}"
     },
     {
-      "id": "vueflow__edge-prs40jNxLOOP_DONE-xxpldOJxinput",
-      "source": "prs40jNx",
-      "target": "xxpldOJx",
-      "sourceX": 835.5,
-      "sourceY": 368.5,
-      "targetX": 861.5,
-      "targetY": 545.5,
-      "sourcePointType": "LOOP_DONE",
-      "targetPointType": "input"
+      "id": "vueflow__edge-vcPkMiHWOUTPUT-H0CEuJ2LINPUT",
+      "source": "vcPkMiHW",
+      "target": "H0CEuJ2L",
+      "sourceX": 588,
+      "sourceY": 180,
+      "targetX": 662.5,
+      "targetY": 63.2,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
     },
     {
-      "id": "vueflow__edge-xxpldOJxoutput-sutp2EBWinput",
-      "source": "xxpldOJx",
-      "target": "sutp2EBW",
-      "sourceX": 955.5,
-      "sourceY": 545.5,
-      "targetX": 1050.5,
-      "targetY": 548.5,
-      "sourcePointType": "output",
-      "targetPointType": "input"
+      "id": "vueflow__edge-jzJUrHtaOUTPUT-PLK7dkKXINPUT",
+      "source": "jzJUrHta",
+      "target": "PLK7dkKX",
+      "sourceX": 581,
+      "sourceY": 353,
+      "targetX": 737.5,
+      "targetY": 509.20000000000005,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
     }
   ]
 }

@@ -144,12 +144,20 @@ public class Flow {
     }
 
     public List<Node> getOutgoers(Node node) {
-        return getOutgoers(node.getId());
+        return getOutgoers(node, true);
+    }
+
+    public List<Node> getOutgoers(Node node, boolean deep) {
+        return getOutgoers(node.getId(), deep);
     }
 
 
     public List<Node> getOutgoers(String nodeId) {
-        List<String> outgoerIds = getOutgoerIds(nodeId);
+        return getOutgoers(nodeId, true);
+    }
+
+    public List<Node> getOutgoers(String nodeId, boolean deep) {
+        List<String> outgoerIds = getOutgoerIds(nodeId, deep);
         return nodes.stream()
                 .filter(nodeItem -> outgoerIds.contains(nodeItem.getId()))
                 .collect(Collectors.toList());
@@ -167,6 +175,14 @@ public class Flow {
     }
 
     public List<String> getOutgoerIds(String nodeId, Predicate<Connection> matchConnect) {
+        return getOutgoerIds(nodeId, matchConnect, true);
+    }
+
+    public List<String> getOutgoerIds(String nodeId, boolean deep) {
+        return getOutgoerIds(nodeId, c -> true, deep);
+    }
+
+    public List<String> getOutgoerIds(String nodeId, Predicate<Connection> matchConnect, boolean deep) {
         if (CollUtil.isEmpty(connections)) {
             return CollUtil.newArrayList();
         }
@@ -175,6 +191,9 @@ public class Flow {
                 .filter(connection -> Objects.equals(connection.getSource(), nodeId) && matchConnect.test(connection))
                 .map(Connection::getTarget)
                 .collect(Collectors.toList());
+        if (!deep) {
+            return list;
+        }
         List<String> outgoerIds = new ArrayList<>(list);
         if (CollUtil.isNotEmpty(list)) {
             for (String outgoerId : list) {
