@@ -10,6 +10,7 @@ import io.autoflow.spi.impl.BaseService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author yiuman
@@ -35,7 +36,13 @@ public class VariableExtractService extends BaseService<VariableExtractParameter
             if (value instanceof String) {
                 result = executionContext.parseValue(StrUtil.toString(value));
             }
-            extractValueMap.put(namedValue.getName(), result);
+
+            String key = namedValue.getName();
+            Object keyObject = executionContext.parseValue(namedValue.getName());
+            if (Objects.nonNull(keyObject)) {
+                key = StrUtil.toString(keyObject);
+            }
+            extractValueMap.put(key, result);
         }
         return extractValueMap;
     }

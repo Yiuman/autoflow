@@ -32,13 +32,17 @@ public class ExecutionContextValueProvider extends BaseContextValueProvider {
 
     @Override
     public Object get(Object key) {
+        if (Objects.equals(Constants.INPUT_DATA, key)) {
+            return executionContext.getInputData();
+        } else if (Objects.equals(Constants.VARIABLES, key)) {
+            return executionContext.getVariables();
+        }
+
         Object expressValue = getExpressValue(key);
         if (Objects.nonNull(expressValue)) {
             return expressValue;
         }
-        if (Constants.INPUT_DATA.equals(key)) {
-            return executionContext.getInputData();
-        }
+
         return executionContext.getParameters()
                 .getOrDefault(
                         (String) key,
