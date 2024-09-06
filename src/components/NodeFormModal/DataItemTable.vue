@@ -14,8 +14,10 @@ const props = defineProps<Props>()
 
 <template>
   <ATable
+    column-resizable
     :stripe="true"
     :bordered="false"
+    :pagination="false"
     style="padding: 5px 10px"
     :columns="props.columns"
     :data="props.data"

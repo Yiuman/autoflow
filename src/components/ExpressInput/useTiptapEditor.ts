@@ -3,9 +3,10 @@ import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
-import type { Option } from '@/components/ExpressInput/MentionList.vue'
-import type { Ref } from 'vue'
+import { type Option } from '@/components/ExpressInput/MentionList.vue'
+import { h, type Ref, render } from 'vue'
 import createMentionSuggestion from './suggestion'
+import { IconFont } from '@/hooks/iconfont'
 
 export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string | undefined>) {
   function convertToJSONContent() {
@@ -22,7 +23,8 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
                 type: `${findOption.type}`,
                 key: `${findOption.key}`,
                 label: `${findOption.label}`,
-                value: null
+                value: null,
+                iconFontCode: findOption.iconFontCode
               }
             }
           }
@@ -60,8 +62,15 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
         renderHTML({ node }) {
           const optionValue = node.attrs.id
           if (!optionValue) return ''
+          const container = document.createElement('div')
+          const vNode = h(IconFont, {
+            type: optionValue.iconFontCode,
+            class: 'mention-type-icon'
+          })
+          render(vNode, container)
+          const svgIcon = container.firstChild
           const innerHTML = [
-            ['span', { class: 'node-mention-type' }, optionValue.type],
+            ['span', { class: 'node-mention-type' }, svgIcon, optionValue.type],
             ['span', { class: 'node-mention-label' }, optionValue.label]
           ]
           return [

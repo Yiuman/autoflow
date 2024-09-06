@@ -124,8 +124,8 @@ export type VueFlowNode = VueFlowCordNode<NodeElementData>
 
 interface NodeFlatData {
   node: VueFlowNode
-  variables: Record<string, any>
-  inputData: Record<string, any>
+  variables?: Record<string, any>
+  inputData?: Record<string, any>
 }
 
 export {

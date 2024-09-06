@@ -65,6 +65,7 @@ declare module 'vue' {
     MentionList: typeof import('./src/components/ExpressInput/MentionList.vue')['default']
     NodeFormModal: typeof import('./src/components/NodeFormModal/NodeFormModal.vue')['default']
     RestCrud: typeof import('./src/components/Crud/RestCrud.vue')['default']
+    ResultDataViewer: typeof import('./src/components/NodeFormModal/ResultDataViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']

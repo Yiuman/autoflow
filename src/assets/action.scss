@@ -1,4 +1,5 @@
 .node-action {
+  animation-fill-mode: forwards;
   &::before,
   &::after {
     content: "";

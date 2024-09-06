@@ -3,25 +3,20 @@ import type { FileData } from '@/types/flow'
 import { downloadByData } from '@/utils/download'
 
 interface Props {
-  data: FileData
+  data?: FileData
 }
 
 const props = defineProps<Props>()
 
 function download() {
-  downloadByData(props.data.content, props.data.filename)
+  downloadByData(props.data?.content as string, props.data?.filename as string)
 }
 </script>
 
 <template>
   <div class="file-data-viewer">
-    <ALink icon @click="() => download()"> {{ props.data.filename }}</ALink>
-    <!--    <ATag>-->
-    <!--      <template #icon>-->
-    <!--        <IconFile />-->
-    <!--      </template>-->
-    <!--    -->
-    <!--    </ATag>-->
+    <ALink v-if="props.data" icon @click="() => download()"> {{ props.data?.filename }}</ALink>
+    <span v-else>-</span>
   </div>
 </template>
 

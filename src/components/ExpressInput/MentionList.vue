@@ -1,27 +1,12 @@
-<template>
-  <div class="dropdown-menu" ref="dropdownMenu">
-    <template v-if="items.length">
-      <div
-        class="select-item"
-        :class="{ 'is-selected': index === selectedIndex }"
-        v-for="(item, index) in items"
-        :key="index"
-        @click="() => selectItem(index)"
-      >
-        <span class="item-type" v-if="item.type">{{ item.type }}</span>
-        <span class="item-label"> {{ item.label ?? item.key }} </span>
-      </div>
-    </template>
-    <div class="item" v-else>No result</div>
-  </div>
-</template>
-
 <script lang="ts" setup>
+import { IconFont } from '@/hooks/iconfont'
+
 export interface Option {
   label?: string
   key: string
   type?: string
   value?: any
+  iconFontCode?: string
 }
 
 interface Props {
@@ -87,6 +72,28 @@ const selectItem = (index: number) => {
 }
 </script>
 
+<template>
+  <div class="dropdown-menu" ref="dropdownMenu">
+    <template v-if="items.length">
+      <div
+        class="select-item"
+        :class="{ 'is-selected': index === selectedIndex }"
+        v-for="(item, index) in items"
+        :key="index"
+        @click="() => selectItem(index)"
+      >
+        <span class="item-type" v-if="item.type">
+          <IconFont class="item-type-icon" v-if="item.iconFontCode" :type="item.iconFontCode" />{{
+            item.type
+          }}
+        </span>
+        <span class="item-label"> {{ item.label ?? item.key }} </span>
+      </div>
+    </template>
+    <div class="item" v-else>No result</div>
+  </div>
+</template>
+
 <style scoped lang="scss">
 .dropdown-menu {
   background: var(--color-bg-3);
@@ -103,10 +110,9 @@ const selectItem = (index: number) => {
 
   .select-item {
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: 2px;
     align-items: center;
     display: flex;
-    gap: 0.25rem;
     text-align: left;
     padding: 4px;
     color: var(--color-text-1);
@@ -114,24 +120,34 @@ const selectItem = (index: number) => {
 
     &:hover,
     &.is-selected {
-      background-color: var(--color-fill-2);
+      background-color: var(--color-fill-1);
     }
 
     &.is-selected {
-      background-color: var(--color-fill-2);
+      background-color: var(--color-fill-1);
     }
   }
 
   .item-type {
     border-radius: 3px 0 0 3px;
-    padding: 0 2px;
+    padding: 2px;
     color: rgb(var(--orangered-6));
     background-color: rgb(var(--orangered-6), 0.2);
     border: 1px solid transparent;
   }
 
+  .item-type-icon {
+    color: var(--color-text-2);
+    margin: 0 2px;
+    font-size: 13px;
+  }
+
   .item-label {
-    padding: 0 2px;
+    color: rgb(var(--primary-6));
+    border-radius: 0 3px 3px 0;
+    padding: 2px;
+    border: 1px solid transparent;
+    background-color: var(--color-fill-2);
   }
 }
 </style>

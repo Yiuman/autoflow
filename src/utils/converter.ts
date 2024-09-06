@@ -1,5 +1,12 @@
-import type { Elements, GraphEdge, GraphNode, Node as VueFlowNode } from '@vue-flow/core'
-import { isEdge, isNode, MarkerType } from '@vue-flow/core'
+import {
+  type Elements,
+  type GraphEdge,
+  type GraphNode,
+  isEdge,
+  isNode,
+  MarkerType,
+  type Node as VueFlowNode
+} from '@vue-flow/core'
 import type { TableColumnData } from '@arco-design/web-vue'
 
 import type {
@@ -29,8 +36,13 @@ export function getAllIncomers(
   if (!nodeId) {
     return []
   }
+
   let nodeIncomers = getIncomers(nodeId)
-  if (nodeIncomers.length) {
+  if (!nodeIncomers || nodeIncomers.length === 0) {
+    return []
+  }
+
+  if (nodeIncomers && nodeIncomers.length > 0) {
     for (const node of nodeIncomers) {
       const preIncomers = getAllIncomers(node.id, getIncomers) as GraphNode[]
       nodeIncomers = nodeIncomers.concat(preIncomers)
@@ -100,6 +112,46 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
   }
 }
 
+export function objectKeysToColumn(obj: any): TableColumnData[] {
+  if (!obj) {
+    return []
+  }
+  return Object.keys(obj).map((key) => {
+    let slotName = undefined
+    if (obj[key] instanceof Object) {
+      slotName = 'typeObjectColumn'
+    }
+    return {
+      title: key,
+      dataIndex: key,
+      align: 'center',
+      ellipsis: true,
+      tooltip: true,
+      slotName
+    }
+  })
+}
+
+export function flattenProperties(
+  properties: Property[],
+  parentName: string = ''
+): Record<string, any> {
+  const result: Record<string, any> = {}
+
+  properties.forEach((property) => {
+    const fullName = parentName ? `${parentName}.${property.name}` : property.name
+
+    // 如果有嵌套的 properties，则递归处理
+    if (property.properties && property.properties.length > 0) {
+      Object.assign(result, flattenProperties(property.properties, fullName))
+    } else {
+      result[fullName] = property.defaultValue
+    }
+  })
+
+  return result
+}
+
 export function propertyToColumn(properties: Property[]): TableColumnData[] {
   if (!properties || !properties.length) {
     return []
@@ -107,6 +159,7 @@ export function propertyToColumn(properties: Property[]): TableColumnData[] {
   return properties.map((property) => ({
     title: property.displayName || property.name,
     dataIndex: property.name,
+    align: 'center',
     slotName: `type${property.type}Column`,
     ellipsis: true,
     tooltip: true
@@ -131,8 +184,10 @@ export function toConnect(edge: GraphEdge): Connection {
 export function toGraphEdge(connection: Connection): GraphEdge {
   return {
     ...connection,
-    id: `e${connection.source}_${connection.target}`,
+    id: connection.id || `e${connection.source}_${connection.target}`,
     markerEnd: MarkerType.ArrowClosed,
+    sourceHandle: connection.sourcePointType,
+    targetHandle: connection.targetPointType,
     data: {
       sourcePointType: connection.sourcePointType,
       targetPointType: connection.targetPointType

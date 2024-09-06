@@ -3,8 +3,8 @@ import type { Connection, CustomEvent, ElementData, NodeProps } from '@vue-flow/
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import { getResultFirst, validateConnection } from '@/utils/flow'
 import {
-  IconClockCircle,
   IconCheckCircle,
+  IconClockCircle,
   IconDelete,
   IconEdit,
   IconExclamationCircle,
@@ -74,6 +74,10 @@ const executionResult = computed(() => {
 const isSuccess = computed(() => {
   return !executionResult?.value?.error
 })
+
+const durationSeconds = computed(() => {
+  return ((executionResult.value?.durationMs || 0) / 1000).toFixed(3)
+})
 </script>
 
 <template>
@@ -104,7 +108,7 @@ const isSuccess = computed(() => {
         <template #icon>
           <IconClockCircle />
         </template>
-        {{ `${(executionResult?.durationMs || 0 / 1000).toFixed(3)}s` }}
+        {{ `${durationSeconds}s` }}
       </ATag>
     </div>
 

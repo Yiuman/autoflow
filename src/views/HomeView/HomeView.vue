@@ -9,11 +9,8 @@ import {
   IconMoonFill,
   IconSunFill
 } from '@arco-design/web-vue/es/icon'
-import { Icon } from '@arco-design/web-vue'
 import useTheme from '@/hooks/theme'
-
-const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
-const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl })
+import { IconFont } from '@/hooks/iconfont'
 
 const [collapsed, toggleCollapsed] = useToggle(false)
 

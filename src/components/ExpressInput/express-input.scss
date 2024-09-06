@@ -1,5 +1,4 @@
 
-
 .express-input {
   text-align: start;
   width: 100%;
@@ -40,6 +39,14 @@
     }
   }
 
+  :deep(.jsonpath) {
+    > div {
+      > p {
+        color: rgb(var(--orange-6));
+      }
+    }
+  }
+
   &:hover {
     background-color: var(--color-fill-3);
     border-color: transparent;
@@ -72,6 +79,12 @@
       word-break: break-word;
       background-color: var(--color-bg-2);
       border: 0.5px solid var(--color-border-3);
+    }
+
+    .mention-type-icon{
+      color: var(--color-text-2);
+      margin: 0 2px;
+      font-size: 13px;
     }
 
     .node-mention-type {
@@ -120,7 +133,7 @@
   background-color: var(--color-bg-2);
   border-color: rgb(var(--primary-6));
 
-  &:hover{
+  &:hover {
     background-color: var(--color-bg-2);
     border-color: rgb(var(--primary-6));
   }
@@ -152,9 +165,6 @@
     color: coral;
   }
 
-  &:hover .jsonpath-desc {
-    display: block;
-  }
 }
 
 

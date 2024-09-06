@@ -30,7 +30,6 @@ import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem, Notification } from '@arco-design/web-vue'
 import type {
   BoundingBox,
-  ExecutionResult,
   Flow,
   NodeElementData,
   Position,
@@ -54,6 +53,7 @@ import { useEnv } from '@/hooks/env'
 import useTheme from '@/hooks/theme'
 import workflowApi from '@/api/workflow'
 import { useRoute } from 'vue-router'
+import { getResultData } from '@/utils/flow'
 
 const [theme] = useTheme()
 
@@ -127,10 +127,9 @@ async function defaultRun(node: VueFlowNode) {
   const nodeData = executeNodeData.data || {}
   const allIncomers = getAllIncomers(node.id, getIncomers)
   const inputData: Record<string, any[]> = {}
+
   for (const incomer of allIncomers) {
-    inputData[incomer.id] = (incomer.data?.executionResult as ExecutionResult<any>[])?.map(
-      (result) => result.data
-    )
+    inputData[incomer.id] = getResultData(incomer.data?.executionResult)
   }
   nodeData.inputData = inputData
   executeNodeData.data = nodeData
@@ -162,9 +161,9 @@ function doConnect(connection: Connection) {
   addEdge.data.targetPointType = connection.targetHandle
   if (sourceNode && sourceNode.type === 'IF') {
     if (connection.sourceHandle == `IF_TRUE`) {
-      addEdge.data.expression = '${' + `inputData['${sourceNode.id}'].result` + '}'
+      addEdge.data.expression = '${inputData.' + sourceNode.id + '.result}'
     } else {
-      addEdge.data.expression = '${!' + `inputData['${sourceNode.id}'].result` + '}'
+      addEdge.data.expression = '${!inputData.' + sourceNode.id + '.result}'
     }
   }
 
@@ -346,6 +345,10 @@ function executeFlowSSE(flow: Flow) {
     async onmessage(message: EventSourceMessage) {
       switch (message.event) {
         case 'ACTIVITY_STARTED':
+          const currentNode = findNode(message.id)
+          if (!currentNode || currentNode.data.running) {
+            break
+          }
           updateNodeData(message.id, { running: true })
           break
         case 'ACTIVITY_COMPLETED':

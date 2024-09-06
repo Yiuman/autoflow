@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { ExecutionResult, NodeFlatData, Property, VueFlowNode } from '@/types/flow'
+import type { Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
   IconClockCircle,
@@ -15,16 +15,11 @@ import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 import 'md-editor-v3/lib/style.css'
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-import VueJsonPretty from 'vue-json-pretty'
-import 'vue-json-pretty/lib/styles.css'
-import { getAllIncomers, propertyToColumn } from '@/utils/converter'
 import { groupBy } from 'lodash'
-import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
-import { flatten } from '@/utils/util-func'
-import type { JSONDataType } from 'vue-json-pretty/types/utils'
 import { darkTheme } from '@/hooks/theme'
-import { getResultData, getResultFirst, getResultFirstData } from '@/utils/flow'
-import DataItemTable from '@/components/NodeFormModal/DataItemTable.vue'
+import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
+import { useNodeDataProvider } from '@/components/NodeFormModal/useNodeDataProvider'
+import { getResultFirst } from '@/utils/flow'
 
 interface Props {
   modelValue: VueFlowNode
@@ -64,7 +59,7 @@ const loopData = computed({
   }
 })
 
-const { getIncomers, findNode } = useVueFlow()
+const { findNode } = useVueFlow()
 const modalVisible = computed({
   get() {
     return props.visible
@@ -74,71 +69,22 @@ const modalVisible = computed({
   }
 })
 
-//input
-const incomers = computed(() => {
-  return getAllIncomers(props.modelValue.id, getIncomers)
-})
+const modelValueRef = computed(() => props.modelValue)
+const { incomers } = useNodeDataProvider(modelValueRef)
 
 const selectedIncomerNodeId = ref<string>()
-watch(incomers, () => {
-  if (incomers.value && incomers.value.length) {
-    selectedIncomerNodeId.value = incomers.value?.[0].id
-  }
-})
 
 const incomerGroups = computed(() => {
   return groupBy(incomers.value, (node: VueFlowNode) => node.label)
 })
+
+const incomerNodeIds = computed(() => incomers.value.map((node) => node.id))
 
 const selectedNode = computed(() => {
   if (!selectedIncomerNodeId.value) {
     return null
   }
   return findNode(selectedIncomerNodeId.value)
-})
-
-//提供当前的有用变量
-provide(CURRENT_NODE, props.modelValue)
-provide(INCOMER, incomers)
-
-const inputDataFlat = computed<NodeFlatData[]>(() => {
-  const nodeFlatDataArray: NodeFlatData[] = []
-  if (incomers) {
-    for (const incomer of incomers.value) {
-      const variableFlatData = flatten(incomer.data.parameters)
-      const inputData = getResultData(incomer.data?.executionResult)
-      if (!inputData) {
-        continue
-      }
-      const nodeExecutionDataFlatData = flatten(inputData)
-      nodeFlatDataArray.push({
-        node: incomer,
-        variables: variableFlatData,
-        inputData: nodeExecutionDataFlatData
-      })
-    }
-  }
-
-  return nodeFlatDataArray as NodeFlatData[]
-})
-provide(INCOMER_DATA, inputDataFlat)
-
-const inputData = computed(() => {
-  if (!selectedIncomerNodeId.value) {
-    return null
-  }
-  return getResultData(selectedNode.value?.data.executionResult)
-})
-
-const inputResult = computed(() => {
-  if (!selectedIncomerNodeId.value) {
-    return null
-  }
-  return getResultFirstData(selectedNode.value?.data.executionResult) as ExecutionResult<any>
-})
-
-const outputData = computed(() => {
-  return getResultData(props.modelValue.data?.executionResult)
 })
 
 const outputResult = computed(() => {
@@ -168,14 +114,9 @@ const showLoopSetting = computed(() => {
 const activeTab = ref<string>('parameters')
 watchEffect(() => {
   activeTab.value = props.properties && props.properties.length ? 'parameters' : 'settings'
-})
-
-const inputDataColumns = computed(() => {
-  return propertyToColumn(selectedNode?.value?.data.service.outputType as Property[])
-})
-
-const outputDataColumns = computed(() => {
-  return propertyToColumn(props.modelValue.data?.service?.outputType as Property[])
+  if (incomerNodeIds.value.indexOf(selectedIncomerNodeId.value || '') < 0) {
+    selectedIncomerNodeId.value = incomerNodeIds.value?.[0]
+  }
 })
 
 const [inputPaneVisible, toggleInputPane] = useToggle(true)
@@ -235,53 +176,8 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 />
               </AOptgroup>
             </ASelect>
-            <div class="input-data-box" v-if="inputData">
-              <template v-if="inputResult && inputResult.error">
-                <VueJsonPretty
-                  class="input-json"
-                  :data="inputResult.error as JSONDataType"
-                  :show-icon="true"
-                />
-              </template>
-              <template v-else-if="inputData instanceof Array">
-                <DataItemTable :data="inputData" :columns="inputDataColumns" />
-                <!--                <ATable-->
-                <!--                  :stripe="true"-->
-                <!--                  :bordered="false"-->
-                <!--                  style="padding: 5px 10px"-->
-                <!--                  :columns="inputDataColumns"-->
-                <!--                  :data="inputData"-->
-                <!--                >-->
-                <!--                  <template #typeMapColumn="{ record, column }">-->
-                <!--                    <VueJsonPretty-->
-                <!--                      class="output-json"-->
-                <!--                      :collapsedNodeLength="3"-->
-                <!--                      :data="record[column.dataIndex]"-->
-                <!--                      :show-icon="true"-->
-                <!--                    />-->
-                <!--                  </template>-->
-                <!--                  <template #typeObjectColumn="{ record, column }">-->
-                <!--                    <VueJsonPretty-->
-                <!--                      class="output-json"-->
-                <!--                      :collapsedNodeLength="3"-->
-                <!--                      :data="record[column.dataIndex]"-->
-                <!--                      v-if="record[column.dataIndex] instanceof Object"-->
-                <!--                      :show-icon="true"-->
-                <!--                    />-->
-                <!--                    <template v-else>{{ record[column.dataIndex] }}</template>-->
-                <!--                  </template>-->
-                <!--                </ATable>-->
-              </template>
-              <template v-else>
-                <VueJsonPretty
-                  class="input-json"
-                  :data="inputData as JSONDataType"
-                  :show-icon="true"
-                />
-              </template>
-            </div>
-            <div class="node-form-modal-output-empty" v-else>
-              <AEmpty />
+            <div class="input-data-box">
+              <ResultDataViewer :node="selectedNode as VueFlowNode" />
             </div>
           </div>
         </Pane>
@@ -338,53 +234,8 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 {{ `${(outputResult.durationMs / 1000).toFixed(3)}s` }}
               </ATag>
             </div>
-            <div class="output-result-box" v-if="outputResult && outputData">
-              <template v-if="outputResult.error">
-                <VueJsonPretty
-                  class="output-json"
-                  :data="outputResult.error as JSONDataType"
-                  :show-icon="true"
-                />
-              </template>
-              <template v-else-if="outputData instanceof Array">
-                <DataItemTable :data="outputData" :columns="outputDataColumns" />
-                <!--                <ATable-->
-                <!--                  :stripe="true"-->
-                <!--                  :bordered="false"-->
-                <!--                  style="padding: 5px 10px"-->
-                <!--                  :columns="outputDataColumns"-->
-                <!--                  :data="outputData"-->
-                <!--                >-->
-                <!--                  <template #typeMapColumn="{ record, column }">-->
-                <!--                    <VueJsonPretty-->
-                <!--                      class="output-json"-->
-                <!--                      :data="record[column.dataIndex]"-->
-                <!--                      :collapsedNodeLength="3"-->
-                <!--                      :show-icon="true"-->
-                <!--                    />-->
-                <!--                  </template>-->
-                <!--                  <template #typeObjectColumn="{ record, column }">-->
-                <!--                    <VueJsonPretty-->
-                <!--                      class="output-json"-->
-                <!--                      :data="record[column.dataIndex]"-->
-                <!--                      :collapsedNodeLength="3"-->
-                <!--                      v-if="record[column.dataIndex] instanceof Object"-->
-                <!--                      :show-icon="true"-->
-                <!--                    />-->
-                <!--                    <template v-else>{{ record[column.dataIndex] }}</template>-->
-                <!--                  </template>-->
-                <!--                </ATable>-->
-              </template>
-              <template v-else>
-                <VueJsonPretty
-                  class="output-json"
-                  :data="outputData as JSONDataType"
-                  :show-icon="true"
-                />
-              </template>
-            </div>
-            <div class="node-form-modal-output-empty" v-else>
-              <AEmpty />
+            <div class="output-result-box">
+              <ResultDataViewer :node="modelValue" />
             </div>
           </div>
         </Pane>

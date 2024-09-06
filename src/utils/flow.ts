@@ -12,7 +12,7 @@ function getHandleDirection(handle: string | null | undefined): string {
 /**
  * 校验连接
  */
-const validateConnection: ValidConnectionFunc = (connection: Connection): boolean => {
+function validateConnection(connection: Connection): boolean {
   if (connection.source === connection.target) {
     return false
   }

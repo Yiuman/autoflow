@@ -185,7 +185,11 @@
     height: calc(100% - 50px);
   }
 
-  .input-data-box,
+  .input-data-box{
+    overflow: auto;
+    height: calc(100% - 80px);
+  }
+
   .output-result-box{
     overflow: auto;
     height: calc(100% - 50px);

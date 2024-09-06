@@ -37,13 +37,14 @@ const data = computed({
 //----------------------- 处理提及  --------------------------------
 const prefix = '$.'
 const expressRegexStr = /^\$\{(.*)}$/
+const jsonPathRegexStr = /^\$((\.\w+)|(\['[^']+'\])|(\[\d+\])|(\[\*\]))*$/
 
 const { selectOptions } = useSelectOptions()
 
 //处理样式
 const expressClassName = computed<string>(() => {
   const dataValue = (data.value || '').trimEnd()
-  if (selectOptions.value?.find((option) => option.key === dataValue)) {
+  if (dataValue.match(jsonPathRegexStr)) {
     return 'jsonpath'
   } else if (dataValue.match(expressRegexStr)) {
     return 'expression'
