@@ -2,6 +2,7 @@ package io.autoflow.core.model;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import java.util.Objects;
  * @date 2023/7/13
  */
 @Data
+@EqualsAndHashCode(of = "id")
 public class Node {
     private String id;
     private String parentId;

@@ -21,6 +21,7 @@ public class Flow {
     private List<Node> nodes;
     private List<Connection> connections;
     private String description;
+    private String parentId;
 
     /**
      * 下面这两个属性只读
@@ -59,8 +60,7 @@ public class Flow {
 
     public List<Node> getStartNodes() {
         List<Node> startNodes = getNodes().stream()
-                .filter(node -> !getConnectionTargets().contains(node.getId())
-                        && getConnectionSources().contains(node.getId()))
+                .filter(node -> !getConnectionTargets().contains(node.getId()))
                 .collect(Collectors.toList());
         return CollUtil.isNotEmpty(startNodes) ? startNodes : getNodes();
     }

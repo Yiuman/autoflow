@@ -1,6 +1,6 @@
 {
-  "id": "ioSEMMwO",
-  "name": "ioSEMMwO",
+  "id": "p1BF7HDt",
+  "name": "p1BF7HDt",
   "nodes": [
     {
       "id": "OP6JXyBS",
@@ -8,8 +8,8 @@
       "serviceId": "io.autoflow.plugin.variableextract.VariableExtractService",
       "type": "SERVICE",
       "position": {
-        "x": 96,
-        "y": 222
+        "x": 110,
+        "y": 140
       },
       "data": {
         "attrs": [
@@ -66,8 +66,8 @@
       "serviceId": "io.autoflow.plugin.gemini.GeminiService",
       "type": "SERVICE",
       "position": {
-        "x": 497,
-        "y": 138
+        "x": 575,
+        "y": 119
       },
       "data": {
         "baseUrl": "https://generativelanguage.googleapis.com",
@@ -87,8 +87,8 @@
       "serviceId": "io.autoflow.plugin.openai.OpenAIService",
       "type": "SERVICE",
       "position": {
-        "x": 490,
-        "y": 311
+        "x": 575,
+        "y": 368
       },
       "data": {
         "baseUrl": "https://api.openai.com",
@@ -120,8 +120,8 @@
       "serviceId": "io.autoflow.plugin.ifplugin.IfService",
       "type": "IF",
       "position": {
-        "x": 742,
-        "y": 233
+        "x": 744,
+        "y": 214
       },
       "data": {
         "condition": {}
@@ -165,8 +165,8 @@
       "serviceId": "io.autoflow.plugin.regex.RegexService",
       "type": "SERVICE",
       "position": {
-        "x": 981,
-        "y": 365.6
+        "x": 951,
+        "y": 383.6
       },
       "data": {},
       "loop": {
@@ -176,56 +176,6 @@
         "sequential": false,
         "completionCondition": null
       }
-    },
-    {
-      "id": "W3gtDbma",
-      "label": "HTTP",
-      "serviceId": "io.autoflow.plugin.http.HttpRequestService",
-      "type": "SERVICE",
-      "position": {
-        "x": 925.5,
-        "y": 67.19999999999999
-      },
-      "data": {},
-      "loop": {}
-    },
-    {
-      "id": "H0CEuJ2L",
-      "label": "HTTP",
-      "serviceId": "io.autoflow.plugin.http.HttpRequestService",
-      "type": "SERVICE",
-      "position": {
-        "x": 665.5,
-        "y": 21.200000000000003
-      },
-      "data": {
-        "headers": [
-          {
-            "name": "USER_AGENT",
-            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-          }
-        ],
-        "method": "GET",
-        "params": [
-          {
-            "name": "",
-            "value": ""
-          }
-        ]
-      },
-      "loop": {}
-    },
-    {
-      "id": "PLK7dkKX",
-      "label": "Gemini",
-      "serviceId": "io.autoflow.plugin.gemini.GeminiService",
-      "type": "SERVICE",
-      "position": {
-        "x": 740.5,
-        "y": 467.20000000000005
-      },
-      "data": {},
-      "loop": {}
     }
   ],
   "connections": [
@@ -233,8 +183,8 @@
       "id": "vueflow__edge-OP6JXyBSOUTPUT-Niqa50knINPUT",
       "source": "OP6JXyBS",
       "target": "Niqa50kn",
-      "sourceX": 187,
-      "sourceY": 264,
+      "sourceX": 201,
+      "sourceY": 182,
       "targetX": 303,
       "targetY": 306,
       "sourcePointType": "OUTPUT",
@@ -246,8 +196,8 @@
       "target": "vcPkMiHW",
       "sourceX": 397,
       "sourceY": 306,
-      "targetX": 494,
-      "targetY": 180,
+      "targetX": 572,
+      "targetY": 161,
       "sourcePointType": "OUTPUT",
       "targetPointType": "INPUT"
     },
@@ -257,8 +207,8 @@
       "target": "jzJUrHta",
       "sourceX": 397,
       "sourceY": 306,
-      "targetX": 487,
-      "targetY": 353,
+      "targetX": 572,
+      "targetY": 410,
       "sourcePointType": "OUTPUT",
       "targetPointType": "INPUT"
     },
@@ -266,10 +216,10 @@
       "id": "vueflow__edge-vcPkMiHWOUTPUT-TgXjNAE0INPUT",
       "source": "vcPkMiHW",
       "target": "TgXjNAE0",
-      "sourceX": 588,
-      "sourceY": 180,
-      "targetX": 733,
-      "targetY": 273,
+      "sourceX": 666,
+      "sourceY": 161,
+      "targetX": 735,
+      "targetY": 254,
       "sourcePointType": "OUTPUT",
       "targetPointType": "INPUT"
     },
@@ -277,10 +227,10 @@
       "id": "vueflow__edge-jzJUrHtaOUTPUT-TgXjNAE0INPUT",
       "source": "jzJUrHta",
       "target": "TgXjNAE0",
-      "sourceX": 581,
-      "sourceY": 353,
-      "targetX": 733,
-      "targetY": 273,
+      "sourceX": 666,
+      "sourceY": 410,
+      "targetX": 735,
+      "targetY": 254,
       "sourcePointType": "OUTPUT",
       "targetPointType": "INPUT"
     },
@@ -288,8 +238,8 @@
       "id": "vueflow__edge-TgXjNAE0IF_TRUE-jwnYT7LAINPUT",
       "source": "TgXjNAE0",
       "target": "jwnYT7LA",
-      "sourceX": 782,
-      "sourceY": 221,
+      "sourceX": 784,
+      "sourceY": 202,
       "targetX": 1010,
       "targetY": 230,
       "sourcePointType": "IF_TRUE",
@@ -299,45 +249,11 @@
       "id": "vueflow__edge-TgXjNAE0IF_FALSE-I3JTH7xeINPUT",
       "source": "TgXjNAE0",
       "target": "I3JTH7xe",
-      "sourceX": 782,
-      "sourceY": 325,
-      "targetX": 978,
-      "targetY": 407.6,
+      "sourceX": 784,
+      "sourceY": 306,
+      "targetX": 948,
+      "targetY": 425.6,
       "sourcePointType": "IF_FALSE",
-      "targetPointType": "INPUT"
-    },
-    {
-      "id": "vueflow__edge-TgXjNAE0IF_TRUE-W3gtDbmaINPUT",
-      "source": "TgXjNAE0",
-      "target": "W3gtDbma",
-      "sourceX": 782,
-      "sourceY": 221,
-      "targetX": 922.5,
-      "targetY": 109.19999999999999,
-      "sourcePointType": "IF_TRUE",
-      "targetPointType": "INPUT",
-      "expression": "${inputData.TgXjNAE0.result}"
-    },
-    {
-      "id": "vueflow__edge-vcPkMiHWOUTPUT-H0CEuJ2LINPUT",
-      "source": "vcPkMiHW",
-      "target": "H0CEuJ2L",
-      "sourceX": 588,
-      "sourceY": 180,
-      "targetX": 662.5,
-      "targetY": 63.2,
-      "sourcePointType": "OUTPUT",
-      "targetPointType": "INPUT"
-    },
-    {
-      "id": "vueflow__edge-jzJUrHtaOUTPUT-PLK7dkKXINPUT",
-      "source": "jzJUrHta",
-      "target": "PLK7dkKX",
-      "sourceX": 581,
-      "sourceY": 353,
-      "targetX": 737.5,
-      "targetY": 509.20000000000005,
-      "sourcePointType": "OUTPUT",
       "targetPointType": "INPUT"
     }
   ]

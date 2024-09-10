@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.common.http.SSEContext;
 import io.autoflow.spi.context.FlowContextHolder;
+import io.autoflow.spi.context.FlowExecutionContext;
+import io.autoflow.spi.model.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
@@ -49,10 +51,11 @@ public class ExecuteServiceListener implements FlowableEventListener {
 
         try {
             String sseData = "";
-            Map<String, List<Object>> nodeExecutionDataMap = FlowContextHolder.get().getInputData();
+            FlowExecutionContext flowExecutionContext = (FlowExecutionContext) FlowContextHolder.get();
+            Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
             String activityId = execution.getActivityId();
-            if (Objects.nonNull(nodeExecutionDataMap)) {
-                List<Object> executionDataList = nodeExecutionDataMap.get(activityId);
+            if (Objects.nonNull(nodeExecutionResultMap)) {
+                List<ExecutionResult<Object>> executionDataList = nodeExecutionResultMap.get(activityId);
                 sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
             }
 
