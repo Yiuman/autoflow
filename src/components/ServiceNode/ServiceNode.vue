@@ -15,10 +15,7 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
-import { useEnv } from '@/hooks/env'
 import { getAllIncomers } from '@/utils/converter'
-
-const { VITE_BASE_URL } = useEnv()
 
 const { removeNodes, updateNodeData, getIncomers } = useVueFlow()
 
@@ -55,7 +52,6 @@ async function stopNode() {
 }
 
 const rgba = randomRgba(0.8)
-const [avatarNotFound, toggleAvatar] = useToggle(false)
 
 function validConnectionFunc(connection: Connection): boolean {
   const node = getAllIncomers(props.id, getIncomers)
@@ -78,6 +74,7 @@ const isSuccess = computed(() => {
 const durationSeconds = computed(() => {
   return ((executionResult.value?.durationMs || 0) / 1000).toFixed(3)
 })
+const avatarSize = 32
 </script>
 
 <template>
@@ -114,21 +111,18 @@ const durationSeconds = computed(() => {
 
     <div class="node-avatar">
       <slot name="avatar" v-bind="data">
-        <AAvatar
-          v-if="avatarNotFound"
-          shape="square"
-          :size="68"
-          :style="{ 'background-color': rgba }"
+        <AImage
+          v-if="data.service?.avatar"
+          :preview="false"
+          :width="avatarSize"
+          :height="avatarSize"
+          :src="data.service?.avatar"
+        />
+        <AAvatar v-else shape="square" :size="avatarSize" :style="{ 'background-color': rgba }"
           >{{ data.label }}
         </AAvatar>
-        <AImage
-          v-else
-          :preview="false"
-          :width="68"
-          :height="68"
-          :src="`${VITE_BASE_URL || '/api'}/services/image/${data.serviceId}`"
-          @error="() => toggleAvatar()"
-        />
+
+        <div class="node-label">{{ data.label }}</div>
 
         <div class="node-status-icon" v-if="executionResult">
           <IconCheckCircle v-if="isSuccess" class="node-status-success" />

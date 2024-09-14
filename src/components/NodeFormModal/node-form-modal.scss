@@ -33,10 +33,10 @@
     border: 0.5px solid var(--color-border-3);
 
 
-    .selected-input-node-label{
+    .selected-input-node-label {
     }
 
-    .selected-input-node-id{
+    .selected-input-node-id {
       background-color: var(--color-bg-3);
     }
   }
@@ -56,11 +56,24 @@
     padding: 10px;
     font-size: 18px;
     margin: 0;
-    color: #fff;
+    color: var(--color-text-1);
     border-radius: 5px 5px 0 0;
-    background-color: #0c0c0c;
-    font-weight: bold;
+    background-color: var(--color-bg-5);
+    //font-weight: bold;
     border-bottom: 1px solid var(--color-border);
+
+    :deep(.arco-input-wrapper) {
+      background-color: transparent;
+      margin-left: 8px;
+      max-width: 120px;
+    }
+
+    :deep(.arco-input-wrapper:not(.arco-input-focus)){
+      &:hover {
+        background-color: var(--color-fill-3);
+      }
+    }
+
   }
 
   .node-form-title {
@@ -76,7 +89,7 @@
     right: -32px;
     z-index: 1;
 
-    :deep(.arco-btn){
+    :deep(.arco-btn) {
       border-radius: 0 5px 5px 0;
     }
   }
@@ -185,12 +198,12 @@
     height: calc(100% - 50px);
   }
 
-  .input-data-box{
+  .input-data-box {
     overflow: auto;
     height: calc(100% - 80px);
   }
 
-  .output-result-box{
+  .output-result-box {
     overflow: auto;
     height: calc(100% - 50px);
   }

@@ -1,6 +1,6 @@
 .autoflow-node {
-  height: 80px;
-  width: 80px;
+  //height: 80px;
+  max-width: 200px;
   border-radius: 10px;
   background-color: rgb(248 250 252);
   border: 2px solid #eee;
@@ -23,7 +23,7 @@
       background-color: transparent;
     }
 
-    :deep(.arco-tag-icon){
+    :deep(.arco-tag-icon) {
       color: rgba(var(--primary-6));
     }
   }
@@ -32,12 +32,14 @@
 
 .node-avatar {
   padding: 6px;
+  display: flex;
   position: relative;
+  align-items: center;
 
   .node-status-icon {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: 0;
+    right: 0;
 
     font-size: 18px;
 
@@ -48,6 +50,16 @@
     .node-status-error {
       color: rgb(var(--orange-6))
     }
+  }
+
+  .node-label {
+    font-weight: bold;
+    margin: auto;
+    padding: 0 10px;
+    word-wrap: break-word;
+    word-break: break-all;  /* 长单词自动换行 */
+    white-space: normal;    /* 允许换行 */
+    overflow-wrap: break-word; /* 适应现代浏览器 */
   }
 }
 

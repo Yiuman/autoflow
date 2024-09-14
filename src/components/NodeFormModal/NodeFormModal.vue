@@ -37,7 +37,7 @@ const props = defineProps<Props>()
 
 const nodeData = computed({
   get() {
-    return props.modelValue.data?.parameters
+    return props.modelValue.data
   },
   set(value) {
     emits('update:modelValue', {
@@ -46,18 +46,22 @@ const nodeData = computed({
     })
   }
 })
+//
+// const service = computed(() => {
+//   return props.modelValue.data?.service
+// })
 
-const loopData = computed({
-  get() {
-    return props.modelValue.data?.loop
-  },
-  set(value) {
-    emits('update:modelValue', {
-      ...props.modelValue,
-      data: { ...props.modelValue.data, loop: value }
-    })
-  }
-})
+// const loopData = computed({
+//   get() {
+//     return props.modelValue.data?.loop
+//   },
+//   set(value) {
+//     emits('update:modelValue', {
+//       ...props.modelValue,
+//       data: { ...props.modelValue.data, loop: value }
+//     })
+//   }
+// })
 
 const { findNode } = useVueFlow()
 const modalVisible = computed({
@@ -147,7 +151,14 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
       </div>
 
       <div class="node-form-service">
-        {{ props.modelValue.data.label }}
+        <AImage
+          v-if="nodeData?.service?.avatar"
+          :preview="false"
+          :width="28"
+          :height="28"
+          :src="nodeData?.service.avatar"
+        />
+        <AInput size="small" v-model="nodeData.label" />
       </div>
 
       <Splitpanes>
@@ -207,13 +218,13 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 title="Parameters"
                 v-if="props.properties && props.properties.length"
               >
-                <FromRenderer v-model="nodeData" :properties="props.properties" />
+                <FromRenderer v-model="nodeData.parameters" :properties="props.properties" />
               </ATabPane>
               <ATabPane key="doc" title="Doc" v-if="props.description">
                 <MdPreview :theme="darkTheme ? 'dark' : 'light'" :modelValue="props.description" />
               </ATabPane>
               <ATabPane key="settings" title="Settings" v-if="showLoopSetting">
-                <LoopSetting v-model="loopData" />
+                <LoopSetting v-model="nodeData.loop" />
               </ATabPane>
             </ATabs>
           </div>

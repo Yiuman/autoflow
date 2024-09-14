@@ -25,6 +25,7 @@ export const useServiceStore = defineStore('service', {
     async fetchServices() {
       if (!this.services.length) {
         this.services = await serviceApi.list()
+
         this.services.forEach((service) => {
           this.serviceMap[service.id] = service
         })
