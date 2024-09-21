@@ -119,7 +119,7 @@ const avatarSize = 32
           :src="data.service?.avatar"
         />
         <AAvatar v-else shape="square" :size="avatarSize" :style="{ 'background-color': rgba }"
-          >{{ data.label }}
+          >{{ data.service?.name || data.label }}
         </AAvatar>
 
         <div class="node-label">{{ data.label }}</div>

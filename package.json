@@ -16,6 +16,7 @@
     "@microsoft/fetch-event-source": "^2.0.1",
     "@tiptap/core": "^2.5.4",
     "@tiptap/extension-mention": "^2.5.4",
+    "@tiptap/extension-placeholder": "^2.7.2",
     "@tiptap/pm": "^2.5.4",
     "@tiptap/starter-kit": "^2.5.4",
     "@tiptap/suggestion": "^2.5.4",

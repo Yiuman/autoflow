@@ -46,22 +46,6 @@ const nodeData = computed({
     })
   }
 })
-//
-// const service = computed(() => {
-//   return props.modelValue.data?.service
-// })
-
-// const loopData = computed({
-//   get() {
-//     return props.modelValue.data?.loop
-//   },
-//   set(value) {
-//     emits('update:modelValue', {
-//       ...props.modelValue,
-//       data: { ...props.modelValue.data, loop: value }
-//     })
-//   }
-// })
 
 const { findNode } = useVueFlow()
 const modalVisible = computed({
@@ -79,7 +63,7 @@ const { incomers } = useNodeDataProvider(modelValueRef)
 const selectedIncomerNodeId = ref<string>()
 
 const incomerGroups = computed(() => {
-  return groupBy(incomers.value, (node: VueFlowNode) => node.label)
+  return groupBy(incomers.value, (node: VueFlowNode) => node?.data?.service?.name)
 })
 
 const incomerNodeIds = computed(() => incomers.value.map((node) => node.id))
@@ -169,9 +153,11 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
               <template #label="{ data }">
                 <span class="selected-input-node">
                   <ATag class="selected-input-node-label" color="orangered">{{
-                    selectedNode?.label
+                    selectedNode?.data?.service?.name
                   }}</ATag>
-                  <ATag class="selected-input-node-id">{{ data?.value }}</ATag>
+                  <ATag class="selected-input-node-id">{{
+                    selectedNode?.data?.label || data?.value
+                  }}</ATag>
                 </span>
               </template>
               <AOptgroup
@@ -183,7 +169,7 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                   v-for="incomer in incomerGroups[groupKey]"
                   :key="incomer.id"
                   :value="incomer.id"
-                  :label="`${incomer.id}`"
+                  :label="`${incomer.data?.label || incomer.id}`"
                 />
               </AOptgroup>
             </ASelect>

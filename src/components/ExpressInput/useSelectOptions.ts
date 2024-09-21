@@ -16,7 +16,7 @@ export function useSelectOptions() {
               }
               const value = nodeFlatData.variables?.[varKey]
               return {
-                type: `${nodeFlatData.node.label}`,
+                type: `${nodeFlatData.node.data?.label}`,
                 key: `$.variables.${nodeFlatData.node.id}.${varKey}`,
                 label: varKey,
                 value: value,
@@ -34,7 +34,7 @@ export function useSelectOptions() {
               }
               const value = nodeFlatData?.inputData?.[varKey]
               return {
-                type: `${nodeFlatData.node.label}`,
+                type: `${nodeFlatData.node.data?.label}`,
                 key: `$.inputData.${nodeFlatData.node.id}.${varKey}`,
                 label: varKey,
                 value: value,

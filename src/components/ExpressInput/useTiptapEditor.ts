@@ -1,6 +1,7 @@
 import { type JSONContent, useEditor } from '@tiptap/vue-3'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
+import Placeholder from '@tiptap/extension-placeholder'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
 import { type Option } from '@/components/ExpressInput/MentionList.vue'
@@ -8,13 +9,19 @@ import { h, type Ref, render } from 'vue'
 import createMentionSuggestion from './suggestion'
 import { IconFont } from '@/hooks/iconfont'
 
-export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string | undefined>) {
+interface TipTapEditorOptions {
+  selectOptions: Ref<Option[]>
+  data: Ref<string | undefined>
+  placeholder?: string
+}
+
+export function useTipTapEditor(options: TipTapEditorOptions) {
   function convertToJSONContent() {
-    const docJSONContent: JSONContent[] = (data.value || '')
+    const docJSONContent: JSONContent[] = (options.data.value || '')
       .split(' ')
       .filter((item) => item)
       .map((item) => {
-        const findOption = selectOptions.value?.find((option) => option.key === item)
+        const findOption = options.selectOptions.value?.find((option) => option.key === item)
         if (findOption) {
           return {
             type: 'mention',
@@ -88,11 +95,15 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
         suggestion: createMentionSuggestion({
           char: '$.',
           items: async ({ query }: { query: string }) => {
-            return selectOptions.value.filter((option) =>
+            return options.selectOptions.value.filter((option) =>
               option.key.includes(query.replace('$.', ''))
             )
           }
         })
+      }),
+      Placeholder.configure({
+        // Use a placeholder:
+        placeholder: options.placeholder || ''
       })
     ],
     onFocus() {
@@ -103,7 +114,7 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
     },
     onUpdate: ({ editor }) => {
       const jsonData = editor.getJSON()
-      data.value = jsonData?.content?.[0]?.content
+      options.data.value = jsonData?.content?.[0]?.content
         ?.map((contentItem: JSONContent) =>
           contentItem && contentItem.type === 'mention'
             ? contentItem?.attrs?.id.key
@@ -115,7 +126,7 @@ export function useTipTapEditor(selectOptions: Ref<Option[]>, data: Ref<string |
     content: convertToJSONContent()
   })
 
-  watch(data, () => {
+  watch(options.data, () => {
     editor.value?.commands.setContent(convertToJSONContent(), false)
   })
 

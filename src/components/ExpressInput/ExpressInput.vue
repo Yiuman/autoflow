@@ -77,7 +77,11 @@ const descData = computed(() => {
 
 const popoverVariable = computed(() => expressClassName.value === 'jsonpath')
 
-const { editor, isFocused } = useTipTapEditor(selectOptions, data)
+const { editor, isFocused } = useTipTapEditor({
+  selectOptions,
+  data,
+  placeholder: '$.插入变量、${}输入表达式'
+})
 </script>
 <template>
   <div
