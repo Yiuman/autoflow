@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<FormProps>(), {
 })
 
 const emits = defineEmits<{
-  (e: 'update:value', item: Object): void
+  (e: 'update:modelValue', item: Object): void
 }>()
 
 const form = computed<any>({
@@ -24,7 +24,7 @@ const form = computed<any>({
     return props.modelValue
   },
   set(value: Object) {
-    emits('update:value', value)
+    emits('update:modelValue', value)
   }
 })
 
@@ -97,6 +97,10 @@ function buildDefaultValue(property: Property) {
     return getDefaultList(property)
   }
 
+  if (property.options) {
+    return null
+  }
+
   if (isBasicType(property.type)) {
     return undefined
   }
@@ -119,7 +123,6 @@ const componentAttrs = computed<ComponentAttr[]>(() => {
         <AFormItem
           v-for="cmpAttr in componentAttrs"
           :key="cmpAttr.property.name"
-          v-memo="[cmpAttr.cmp]"
           :field="cmpAttr.property.name"
           :label="cmpAttr.property.displayName || cmpAttr.property.name"
           :tooltip="cmpAttr.property.description || undefined"

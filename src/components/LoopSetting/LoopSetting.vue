@@ -33,7 +33,7 @@ const data = computed<Loop>({
         <ExpressInput v-model="data.collectionString" />
       </AFormItem>
       <AFormItem field="elementVariable" label="elementVariable">
-        <AInput v-model="data.elementVariable" />
+        <ExpressInput v-model="data.elementVariable" />
       </AFormItem>
       <AFormItem field="sequential" label="sequential">
         <ASwitch v-model="data.sequential" type="line" />

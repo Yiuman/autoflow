@@ -15,6 +15,18 @@ interface TipTapEditorOptions {
   placeholder?: string
 }
 
+function jsonToString(jsonData: JSONContent | undefined) {
+  if (!jsonData) {
+    return ''
+  }
+  return jsonData?.content?.[0]?.content
+    ?.map((contentItem: JSONContent) =>
+      contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
+    )
+    .join(' ')
+    .trimEnd() as string
+}
+
 export function useTipTapEditor(options: TipTapEditorOptions) {
   function convertToJSONContent() {
     const docJSONContent: JSONContent[] = (options.data.value || '')
@@ -114,20 +126,22 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
     },
     onUpdate: ({ editor }) => {
       const jsonData = editor.getJSON()
-      options.data.value = jsonData?.content?.[0]?.content
-        ?.map((contentItem: JSONContent) =>
-          contentItem && contentItem.type === 'mention'
-            ? contentItem?.attrs?.id.key
-            : contentItem.text
-        )
-        .join(' ')
-        .trimEnd() as string
+      options.data.value = jsonToString(jsonData)
     },
     content: convertToJSONContent()
   })
 
   watch(options.data, () => {
+    const contentStr = jsonToString(editor?.value?.getJSON())
+    if (options.data.value == contentStr) {
+      return
+    }
+
     editor.value?.commands.setContent(convertToJSONContent(), false)
+  })
+
+  onBeforeUnmount(() => {
+    editor.value?.destroy()
   })
 
   return { editor, isFocused }

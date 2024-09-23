@@ -35,7 +35,6 @@ const data = computed({
 })
 
 //----------------------- 处理提及  --------------------------------
-const prefix = '$.'
 const expressRegexStr = /^\$\{(.*)}$/
 const jsonPathRegexStr = /^\$((\.\w+)|(\['[^']+'\])|(\[\d+\])|(\[\*\]))*$/
 
@@ -53,25 +52,23 @@ const expressClassName = computed<string>(() => {
   }
 })
 
-const nodeIdRegex = /inputData|variable\.(.+?)[\\.[]/
+const nodeIdRegex = /(?:[^.]*\.){2}([^.]+)/
 const descData = computed(() => {
   const dataValue = data.value
   const nodeIdMatch = dataValue?.match(nodeIdRegex)
-  const dataKey = dataValue?.replace(prefix, '')
-
   if (nodeIdMatch) {
     const nodeId = nodeIdMatch[1]
     const node = findNode(nodeId)
     const findValue = selectOptions.value.filter((option) => {
-      return dataKey === option.key
+      return dataValue === option.key
     })[0]
     return [
-      { label: 'node', value: node?.label },
+      { label: 'node', value: node?.data?.label },
       { label: 'nodeId', value: nodeId },
       { label: 'value', value: findValue?.value }
     ]
   } else {
-    return []
+    return undefined
   }
 })
 
@@ -95,7 +92,7 @@ const { editor, isFocused } = useTipTapEditor({
       :editor="editor"
     />
     <div v-if="popoverVariable && descData" class="jsonpath-desc">
-      <ADescriptions :data="descData" size="mini" :column="1"></ADescriptions>
+      <ADescriptions :data="descData" size="mini" :column="1" />
     </div>
   </div>
 </template>
