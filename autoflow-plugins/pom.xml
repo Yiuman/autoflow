@@ -22,6 +22,7 @@
         <module>autoflow-openai-plugin</module>
         <module>autoflow-gemini-plugin</module>
         <module>autoflow-variable-extract-plugin</module>
+        <module>autoflow-knowledge-retrieval-plugin</module>
     </modules>
 
     <properties>

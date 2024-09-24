@@ -88,4 +88,8 @@ public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT> {
     }
 
     public abstract OUTPUT execute(INPUT input, ExecutionContext executionContext);
+
+    public OUTPUT execute(INPUT input) {
+        return execute(input, null);
+    }
 }
