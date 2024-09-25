@@ -159,6 +159,10 @@
     :deep(.arco-tabs-content) {
       height: calc(100% - 50px);
       overflow: auto;
+
+      .arco-tabs-content-list{
+        height: 100%;
+      }
     }
 
     :deep(.arco-tabs) {

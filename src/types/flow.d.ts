@@ -61,7 +61,8 @@ interface Bounding extends BoundingBox {
 
 interface FileData {
   filename: string
-  content: string
+  content?: string
+  base64?: string
 }
 
 interface ExecutionError {

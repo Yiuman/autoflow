@@ -36,7 +36,7 @@ const data = computed({
 
 //----------------------- 处理提及  --------------------------------
 const expressRegexStr = /^\$\{(.*)}$/
-const jsonPathRegexStr = /^\$((\.\w+)|(\['[^']+'\])|(\[\d+\])|(\[\*\]))*$/
+const jsonPathRegexStr = /^\$((\.\w+)|(\['[^']+'])|(\[\d+])|(\[\*]))*$/
 
 const { selectOptions } = useSelectOptions()
 
@@ -62,6 +62,9 @@ const descData = computed(() => {
     const findValue = selectOptions.value.filter((option) => {
       return dataValue === option.key
     })[0]
+    if (!findValue) {
+      return undefined
+    }
     return [
       { label: 'node', value: node?.data?.label },
       { label: 'nodeId', value: nodeId },

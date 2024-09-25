@@ -26,7 +26,8 @@ import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
-import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListEditor.vue' //获取当前节点所有的前置节点
+import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListEditor.vue'
+import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue' //获取当前节点所有的前置节点
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(
@@ -140,7 +141,6 @@ export function flattenProperties(
 
   properties.forEach((property) => {
     const fullName = parentName ? `${parentName}.${property.name}` : property.name
-
     // 如果有嵌套的 properties，则递归处理
     if (property.properties && property.properties.length > 0) {
       Object.assign(result, flattenProperties(property.properties, fullName))
@@ -246,6 +246,13 @@ export function toComponentAttr(property: Property): ComponentAttr {
   if (!property.type || property.type == 'String') {
     return {
       cmp: ExpressInput,
+      property: property
+    }
+  }
+
+  if (property.type == 'FileData') {
+    return {
+      cmp: FileDataUpload,
       property: property
     }
   }

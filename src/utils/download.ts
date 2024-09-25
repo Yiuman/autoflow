@@ -17,7 +17,7 @@ export function openWindow(
 /**
  * @description: base64 to blob
  */
-export function dataURLtoBlob(base64Buf: string): Blob {
+export function base64ToBlob(base64Buf: string): Blob {
   const arr = base64Buf.split(',')
   const typeItem = arr[0]
   const mime = typeItem.match(/:(.*?);/)![1]
@@ -28,6 +28,20 @@ export function dataURLtoBlob(base64Buf: string): Blob {
     u8arr[n] = bstr.charCodeAt(n)
   }
   return new Blob([u8arr], { type: mime })
+}
+
+export function blobToBase64(blob: Blob) {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader()
+    fileReader.onload = (e) => {
+      resolve(e.target?.result)
+    }
+    // readAsDataURL
+    fileReader.readAsDataURL(blob)
+    fileReader.onerror = () => {
+      reject(new Error('blobToBase64 error'))
+    }
+  })
 }
 
 /**
@@ -80,7 +94,7 @@ export function downloadByOnlineUrl(url: string, filename: string, mime?: string
  * @param bom
  */
 export function downloadByBase64(buf: string, filename: string, mime?: string, bom?: BlobPart) {
-  const base64Buf = dataURLtoBlob(buf)
+  const base64Buf = base64ToBlob(buf)
   downloadByData(base64Buf, filename, mime, bom)
 }
 

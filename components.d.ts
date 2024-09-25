@@ -55,6 +55,7 @@ declare module 'vue' {
     DataItemTable: typeof import('./src/components/NodeFormModal/DataItemTable.vue')['default']
     EditableEdge: typeof import('./src/components/EditableEdge/EditableEdge.vue')['default']
     ExpressInput: typeof import('./src/components/ExpressInput/ExpressInput.vue')['default']
+    FileDataUpload: typeof import('./src/components/FileDataUpload/FileDataUpload.vue')['default']
     FileDataViewer: typeof import('./src/components/FileDataViewer/FileDataViewer.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
     IfNode: typeof import('./src/components/IfNode/IfNode.vue')['default']

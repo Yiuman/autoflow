@@ -29,7 +29,7 @@ function jsonToString(jsonData: JSONContent | undefined) {
 
 export function useTipTapEditor(options: TipTapEditorOptions) {
   function convertToJSONContent() {
-    const docJSONContent: JSONContent[] = (options.data.value || '')
+    const docJSONContent: JSONContent[] = (options?.data?.value || '')
       .split(' ')
       .filter((item) => item)
       .map((item) => {
