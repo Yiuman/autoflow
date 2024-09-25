@@ -1,6 +1,9 @@
 package io.autoflow.plugin.knowledgeretrieval;
 
 import io.autoflow.spi.model.FileData;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -9,8 +12,11 @@ import lombok.Data;
  */
 @Data
 public class KnowledgeRetrievalParameter {
+    @NotBlank
     private String query;
     private String type;
+    @NotNull
     private FileData fileData;
+    @Min(1)
     private Integer maxResult = 1;
 }

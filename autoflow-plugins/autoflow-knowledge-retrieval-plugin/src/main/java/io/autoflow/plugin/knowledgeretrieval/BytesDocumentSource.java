@@ -5,7 +5,6 @@ import dev.langchain4j.data.document.DocumentSource;
 import dev.langchain4j.data.document.Metadata;
 import lombok.Setter;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -22,7 +21,7 @@ public class BytesDocumentSource implements DocumentSource {
     }
 
     @Override
-    public InputStream inputStream() throws IOException {
+    public InputStream inputStream() {
         return inputStream;
     }
 
