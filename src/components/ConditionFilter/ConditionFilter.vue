@@ -153,8 +153,10 @@ const isAnd = computed({
     <template v-else>
       <div class="condition-filter-item">
         <ConditionItem v-model="dataValue" />
-        <IconPlus class="add-btn" @click="() => emitAddChild(dataValue)" />
-        <IconDelete class="delete-btn" @click="() => emitRemove(dataValue)" />
+        <div class="condition-item-btn">
+          <IconPlus class="add-btn" @click="() => emitAddChild(dataValue)" />
+          <IconDelete class="delete-btn" @click="() => emitRemove(dataValue)" />
+        </div>
       </div>
     </template>
   </div>

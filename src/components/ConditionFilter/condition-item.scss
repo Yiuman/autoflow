@@ -1,8 +1,15 @@
 .condition-item {
   display: flex;
-  width: 100%;
+  flex: 1;
+  width: calc(100% - 38px);
 
   :deep(.arco-select) {
-    flex: 1;
+    flex: 0.5;
   }
+
+  .express-input {
+    flex: 1;
+    min-width: 0;
+  }
+
 }

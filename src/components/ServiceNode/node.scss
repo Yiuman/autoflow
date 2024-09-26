@@ -2,8 +2,9 @@
   //height: 80px;
   max-width: 200px;
   border-radius: 10px;
-  background-color: rgb(248 250 252);
-  border: 2px solid #eee;
+  background-color: var(--color-bg-3);
+  border: 2px solid var(--color-border-2);
+  color: var(--color-text-1);
 
   &:hover {
     .node-toolbar {
@@ -114,6 +115,6 @@
   .vue-flow__handle-right {
     background: white;
     border: 2px solid var(--vf-handle);
-    right: 0px;
+    right: 0;
   }
 }

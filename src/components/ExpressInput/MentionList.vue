@@ -96,7 +96,7 @@ const selectItem = (index: number) => {
 
 <style scoped lang="scss">
 .dropdown-menu {
-  background: var(--color-bg-3);
+  background: var(--color-bg-2);
   border-radius: var(--border-radius-medium);
   box-shadow:
     0 12px 33px 0 rgba(0, 0, 0, 0.06),
