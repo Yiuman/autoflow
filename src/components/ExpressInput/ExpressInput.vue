@@ -52,7 +52,7 @@ const expressClassName = computed<string>(() => {
   }
 })
 
-const nodeIdRegex = /(?:[^.]*\.){2}([^.]+)/
+const nodeIdRegex = /^\$\.\w+\.(\w+)(?:\[\d+])?\./
 const descData = computed(() => {
   const dataValue = data.value
   const nodeIdMatch = dataValue?.match(nodeIdRegex)

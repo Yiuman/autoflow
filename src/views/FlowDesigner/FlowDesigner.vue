@@ -298,6 +298,9 @@ function importJson(fileList: FileItem[]): void {
 function doParseJson(json: string) {
   const flowDefine: Flow = JSON.parse(json)
   const flowNodes = flowDefine.nodes
+  if (!flowNodes || !flowNodes.length) {
+    return
+  }
   const nodes: VueFlowNode[] = flowNodes?.map((node) => {
     const graphNode = toGraphNode(node)
     graphNode.events = defaultEvents

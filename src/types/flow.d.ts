@@ -63,6 +63,7 @@ interface FileData {
   filename: string
   content?: string
   base64?: string
+  fileType?: string
 }
 
 interface ExecutionError {

@@ -25,6 +25,9 @@ const dataColumns = computed(() => {
     return propertyToColumn(props?.node?.data?.service?.outputType as Property[])
   }
   const firstData = getResultFirstData(props?.node?.data?.executionResult)
+  if (firstData instanceof Array) {
+    return objectKeysToColumn(firstData[0])
+  }
   return objectKeysToColumn(firstData)
 })
 </script>
@@ -51,6 +54,7 @@ const dataColumns = computed(() => {
 <style scoped lang="scss">
 .result-data-viewer {
   height: 100%;
+
   .result-box {
     height: 100%;
 

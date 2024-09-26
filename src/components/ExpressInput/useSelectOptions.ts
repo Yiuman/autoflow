@@ -33,9 +33,13 @@ export function useSelectOptions() {
                 return null
               }
               const value = nodeFlatData?.inputData?.[varKey]
+              const baseKey = `$.inputData.${nodeFlatData.node.id}`
+              // 判断 varKey 是否是数组结构
+              const isArrayKey = /\[\d+]/.test(varKey)
+              const key = isArrayKey ? `${baseKey}${varKey}` : `${baseKey}.${varKey}`
               return {
                 type: `${nodeFlatData.node.data?.label}`,
-                key: `$.inputData.${nodeFlatData.node.id}.${varKey}`,
+                key,
                 label: varKey,
                 value: value,
                 iconFontCode: 'icon-Input'

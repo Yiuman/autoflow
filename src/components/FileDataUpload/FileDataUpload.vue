@@ -29,9 +29,14 @@ function uploadFileChange(fileList: FileItem[]) {
   let fileItem = fileList[0]
   reader.readAsDataURL(fileItem.file as Blob)
   reader.onload = async function () {
+    const base64Url = reader.result as string
+    const base64String = base64Url.split(',')[1] // 去掉前缀
+    const filename = fileItem.file?.name as string
+    const fileType = filename.split('.').pop()
     data.value = {
-      filename: fileItem.file?.name as string,
-      base64: reader.result as string
+      filename,
+      base64: base64String,
+      fileType
     }
   }
 }
