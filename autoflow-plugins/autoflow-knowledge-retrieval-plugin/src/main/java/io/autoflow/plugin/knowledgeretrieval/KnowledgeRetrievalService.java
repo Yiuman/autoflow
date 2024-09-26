@@ -9,7 +9,6 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.spi.data.document.parser.DocumentParserFactory;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
@@ -29,7 +28,7 @@ import static dev.langchain4j.spi.ServiceHelper.loadFactories;
  * @author yiuman
  * @date 2024/9/23
  */
-public class KnowledgeRetrievalService extends BaseService<KnowledgeRetrievalParameter, List<TextSegment>> {
+public class KnowledgeRetrievalService extends BaseService<KnowledgeRetrievalParameter, List<EmbeddingMatchInfo>> {
 
     private static final DocumentParser DEFAULT_DOCUMENT_PARSER = getOrDefault(loadDocumentParser(), TextDocumentParser::new);
     private static final int MAX_SEGMENT_SIZE_IN_CHARS = 1000;
@@ -55,8 +54,8 @@ public class KnowledgeRetrievalService extends BaseService<KnowledgeRetrievalPar
     }
 
     @Override
-    public List<TextSegment> execute(KnowledgeRetrievalParameter knowledgeRetrievalParameter,
-                                     ExecutionContext executionContext) {
+    public List<EmbeddingMatchInfo> execute(KnowledgeRetrievalParameter knowledgeRetrievalParameter,
+                                            ExecutionContext executionContext) {
         //todo 适配多种类型的Embeddings
         EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
         InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
@@ -77,8 +76,7 @@ public class KnowledgeRetrievalService extends BaseService<KnowledgeRetrievalPar
                 .maxResults(knowledgeRetrievalParameter.getMaxResult())
                 .build();
         EmbeddingSearchResult<TextSegment> search = embeddingStore.search(embeddingSearchRequest);
-        return search.matches()
-                .stream().map(EmbeddingMatch::embedded)
-                .collect(Collectors.toList());
+        return search.matches().stream().map(EmbeddingMatchInfo::new).collect(Collectors.toList());
+
     }
 }
