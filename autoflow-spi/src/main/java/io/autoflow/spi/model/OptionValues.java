@@ -11,4 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OptionValues {
     String[] value();
+
+    OptionType type() default OptionType.STATIC;
 }

@@ -1,0 +1,6 @@
+{
+  "provider": "Gemini",
+  "modelName": "gemini-1.5-flash",
+  "impClass": "io.autoflow.plugin.llm.provider.gemini.GeminiModelProvider",
+  "propertyClass": "io.autoflow.plugin.llm.provider.gemini.GeminiParameter"
+}

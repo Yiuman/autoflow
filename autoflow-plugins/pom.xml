@@ -23,6 +23,7 @@
         <module>autoflow-gemini-plugin</module>
         <module>autoflow-variable-extract-plugin</module>
         <module>autoflow-knowledge-retrieval-plugin</module>
+        <module>autoflow-llm-plugin</module>
     </modules>
 
     <properties>

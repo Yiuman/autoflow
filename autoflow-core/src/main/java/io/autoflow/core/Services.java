@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @date 2023/7/13
  */
 @SuppressWarnings("rawtypes")
-public class Services {
+public final class Services {
     private static final List<Service> SERVICE_LIST = new ArrayList<>();
     private static Map<String, Service> SERVICE_MAP;
 

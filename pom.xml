@@ -42,6 +42,7 @@
         <mybatis-spring.version>3.0.2</mybatis-spring.version>
         <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
         <x-file-storage.version>2.1.0</x-file-storage.version>
+        <langchain4j.version>0.34.0</langchain4j.version>
     </properties>
 
     <dependencies>
