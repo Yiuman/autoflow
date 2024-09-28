@@ -60,7 +60,7 @@ const descData = computed(() => {
     const nodeId = nodeIdMatch[1]
     const node = findNode(nodeId)
     const findValue = selectOptions.value.filter((option) => {
-      return dataValue === option.key
+      return dataValue === option?.key
     })[0]
     if (!findValue) {
       return undefined

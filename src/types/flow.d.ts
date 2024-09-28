@@ -66,6 +66,11 @@ interface FileData {
   fileType?: string
 }
 
+interface Linkage {
+  value: any
+  parameter?: Record<string, any>
+}
+
 interface ExecutionError {
   node?: string
   message?: string
@@ -138,6 +143,7 @@ export {
   BoundingBox,
   Bounding,
   FileData,
+  Linkage,
   ExecutionError,
   Property,
   Service,

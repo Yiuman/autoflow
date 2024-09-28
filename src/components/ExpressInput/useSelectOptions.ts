@@ -4,23 +4,23 @@ import { INCOMER_DATA } from '@/symbols'
 import type { Option } from '@/components/ExpressInput/MentionList.vue'
 import type { NodeFlatData } from '@/types/flow'
 
+function createOptions(data: Record<string, any>, prefix: string, type: string): Option[] {
+  return Object.keys(data)
+    .map((key) => {
+      if (!key) return undefined
+      return {
+        type,
+        key: `${prefix}.${key}`,
+        label: key,
+        value: data[key],
+        iconFontCode: type === 'variable' ? 'icon-variable' : 'icon-Input'
+      }
+    })
+    .filter(Boolean) as Option[]
+}
+
 export function useSelectOptions() {
   const nodeFlatDataArray = inject<Ref<NodeFlatData[]>>(INCOMER_DATA)
-
-  const createOptions = (data: Record<string, any>, prefix: string, type: string) => {
-    return Object.keys(data)
-      .map((key) => {
-        if (!key) return null
-        return {
-          type,
-          key: `${prefix}.${key}`,
-          label: key,
-          value: data[key],
-          iconFontCode: type === 'variable' ? 'icon-variable' : 'icon-Input'
-        }
-      })
-      .filter(Boolean)
-  }
 
   const selectOptions = computed(() => {
     if (!nodeFlatDataArray?.value) return []

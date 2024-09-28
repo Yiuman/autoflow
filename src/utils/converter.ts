@@ -27,7 +27,8 @@ import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListEditor.vue'
-import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue' //获取当前节点所有的前置节点
+import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue'
+import LinkageForm from '@/components/LinkageForm/LinkageForm.vue' //获取当前节点所有的前置节点
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(
@@ -264,7 +265,14 @@ export function toComponentAttr(property: Property): ComponentAttr {
     }
   }
 
-  if (['Integer', 'Float', 'Double', 'Number', 'BigDecimel'].indexOf(property.type) > -1) {
+  if (property.type === 'Linkage') {
+    return {
+      cmp: LinkageForm,
+      property: property
+    }
+  }
+
+  if (['Integer', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(property.type) > -1) {
     if (property.validateRules) {
       const ruleMap: Record<string, ValidateRule> = {}
       property.validateRules.forEach((rule) => {
@@ -274,7 +282,7 @@ export function toComponentAttr(property: Property): ComponentAttr {
         return {
           cmp: 'ASlider',
           attrs: {
-            step: property.type === 'Integet' ? 1 : 0.1,
+            step: property.type === 'Integer' ? 1 : 0.1,
             showInput: true,
             showTooltip: true,
             min: Number((ruleMap['Min'] || ruleMap['DecimalMin']).attributes['value']),
