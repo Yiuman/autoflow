@@ -14,13 +14,13 @@ import java.util.List;
 @Data
 public class OpenAiParameter {
     @NotBlank
-    private String baseUrl = "https://api.openai.com";
+    private String baseUrl = "https://api.openai.com/v1";
     @NotBlank
     private String apiKey;
     @DecimalMin("-2.0")
     @DecimalMax("2.0")
     private Double frequencyPenalty = 0d;
-    private Integer maxTokens;
+    private Integer maxTokens = 4096;
     @DecimalMin("-2.0")
     @DecimalMax("2.0")
     private Double presencePenalty = 0d;

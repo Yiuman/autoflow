@@ -6,12 +6,12 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.extra.validation.ValidationUtil;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import io.autoflow.plugin.llm.Model;
+import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
-import io.autoflow.spi.model.Linkage;
 import jakarta.validation.ConstraintViolation;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,14 +21,13 @@ import java.util.Set;
 public class OpenAiChatModelProvider implements ChatLanguageModelProvider {
 
     @Override
-    public ChatLanguageModel create(Linkage<Model> modelParameter) {
-        Model model = modelParameter.getValue();
-        OpenAiParameter openAiParameter = BeanUtil.toBean(modelParameter.getParameter(), OpenAiParameter.class);
+    public ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
+        OpenAiParameter openAiParameter = BeanUtil.toBean(parameter, OpenAiParameter.class);
         Set<ConstraintViolation<OpenAiParameter>> validated = ValidationUtil.validate(openAiParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
 
         return OpenAiChatModel.builder()
-                .modelName(model.getModelName())
+                .modelName(modelConfig.getModelName())
                 .baseUrl(openAiParameter.getBaseUrl())
                 .apiKey(openAiParameter.getApiKey())
                 .frequencyPenalty(openAiParameter.getFrequencyPenalty())

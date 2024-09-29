@@ -2,6 +2,8 @@ package io.autoflow.spi.utils;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.lang.func.Func1;
+import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.Service;
@@ -33,6 +35,18 @@ public final class PropertyUtils {
         return buildProperty(clazz, new HashMap<>());
     }
 
+    public static String getFieldFullPath(Class<?> clazz, Field field) {
+        return getFieldFullPath(clazz, field.getName());
+    }
+
+    public static String getFieldFullPath(Class<?> clazz, String fieldName) {
+        return StrUtil.format("{}.{}", clazz.getName(), fieldName);
+    }
+
+    public static <T> String getFieldFullPath(Func1<T, ?> func) {
+        return getFieldFullPath(LambdaUtil.getRealClass(func), LambdaUtil.getFieldName(func));
+    }
+
     public static <T> List<Property> buildProperty(Class<T> clazz, Map<Class<?>, List<Property>> cache) {
         if (cache.containsKey(clazz) || ClassUtil.isSimpleValueType(clazz)) {
             // 返回一个属性，该属性类型与当前类相同，表示递归结构
@@ -52,6 +66,7 @@ public final class PropertyUtils {
             }
             SimpleProperty simpleProperty = new SimpleProperty();
             simpleProperty.setName(field.getName());
+            simpleProperty.setId(getFieldFullPath(clazz, field));
             simpleProperty.setType(typeClass.getSimpleName());
             simpleProperty.setOptions(buildFieldOptions(field));
             Description description = AnnotationUtil.getAnnotationValue(field, Description.class);

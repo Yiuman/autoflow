@@ -10,5 +10,5 @@ import lombok.Data;
 public class Model {
     private String provider;
     private String modelName;
-    private String implClazz;
+    private String implClass;
 }

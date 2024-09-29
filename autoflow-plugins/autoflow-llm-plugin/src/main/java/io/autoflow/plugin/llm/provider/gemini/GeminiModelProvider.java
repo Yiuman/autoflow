@@ -6,12 +6,12 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.extra.validation.ValidationUtil;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import io.autoflow.plugin.llm.Model;
+import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
-import io.autoflow.spi.model.Linkage;
 import jakarta.validation.ConstraintViolation;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,14 +21,13 @@ import java.util.Set;
 public class GeminiModelProvider implements ChatLanguageModelProvider {
 
     @Override
-    public ChatLanguageModel create(Linkage<Model> modelParameter) {
-        Model model = modelParameter.getValue();
-        GeminiParameter geminiParameter = BeanUtil.toBean(modelParameter.getParameter(), GeminiParameter.class);
+    public ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
+        GeminiParameter geminiParameter = BeanUtil.toBean(parameter, GeminiParameter.class);
         Set<ConstraintViolation<GeminiParameter>> validated = ValidationUtil.validate(geminiParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
 
         return GoogleAiGeminiChatModel.builder()
-                .modelName(model.getModelName())
+                .modelName(modelConfig.getModelName())
                 .apiKey(geminiParameter.getApiKey())
                 .candidateCount(geminiParameter.getCandidateCount())
                 .stopSequences(geminiParameter.getStopSequences())

@@ -1,8 +1,9 @@
 package io.autoflow.plugin.llm.provider;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import io.autoflow.plugin.llm.Model;
-import io.autoflow.spi.model.Linkage;
+import io.autoflow.plugin.llm.ModelConfig;
+
+import java.util.Map;
 
 /**
  * @author yiuman
@@ -10,5 +11,5 @@ import io.autoflow.spi.model.Linkage;
  */
 public interface ChatLanguageModelProvider {
 
-    ChatLanguageModel create(Linkage<Model> modelParameter);
+    ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter);
 }

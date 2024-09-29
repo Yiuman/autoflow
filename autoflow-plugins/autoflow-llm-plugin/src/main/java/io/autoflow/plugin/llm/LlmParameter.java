@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class LlmParameter {
     @NotNull
-    private Linkage<Model> model;
+    private Linkage<String> model = Linkage.from("gpt-3.5-turbo");
     @NotEmpty
     private List<ChatMessage> messages;
 }

@@ -10,6 +10,7 @@ import java.util.List;
  */
 @Data
 public class SimpleProperty implements Property {
+    private String id;
     private String type;
     private String name;
     private String displayName;

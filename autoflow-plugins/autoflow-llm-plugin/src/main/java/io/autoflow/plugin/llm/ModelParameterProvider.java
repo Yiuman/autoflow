@@ -1,5 +1,6 @@
 package io.autoflow.plugin.llm;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONUtil;
@@ -7,6 +8,7 @@ import io.autoflow.spi.LinkageProvider;
 import io.autoflow.spi.OptionValueProvider;
 import io.autoflow.spi.model.Option;
 import io.autoflow.spi.model.Property;
+import io.autoflow.spi.utils.PropertyUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
  * @author yiuman
  * @date 2024/9/27
  */
-public class ModelParameterProvider implements OptionValueProvider, LinkageProvider<Model> {
+public class ModelParameterProvider implements OptionValueProvider, LinkageProvider<String> {
 
     private static final List<ModelConfig> MODEL_CONFIGS = new ArrayList<>();
     private static final List<Option> OPTIONS = new ArrayList<>();
@@ -39,11 +41,7 @@ public class ModelParameterProvider implements OptionValueProvider, LinkageProvi
                 MODEL_CONFIGS.stream().map(modelConfig -> {
                     Option option = new Option();
                     option.setName(modelConfig.getModelName());
-                    Model model = new Model();
-                    model.setProvider(model.getProvider());
-                    model.setModelName(model.getModelName());
-                    model.setImplClazz(model.getImplClazz());
-                    option.setValue(model);
+                    option.setValue(modelConfig.getModelName());
                     return option;
                 }).toList()
         );
@@ -54,12 +52,16 @@ public class ModelParameterProvider implements OptionValueProvider, LinkageProvi
         );
     }
 
+    public static ModelConfig getModelConfigByModelName(String modelName) {
+        return CollUtil.findOne(MODEL_CONFIGS, modelConfig -> Objects.equals(modelName, modelConfig.getModelName()));
+    }
+
     @Override
-    public List<Property> getLinkageProperties(Model model) {
+    public List<Property> getLinkageProperties(String model) {
         if (Objects.isNull(model)) {
             return null;
         }
-        return MODEL_PROPERTIES_MAP.get(model.getModelName());
+        return MODEL_PROPERTIES_MAP.get(model);
     }
 
     @Override
@@ -69,6 +71,6 @@ public class ModelParameterProvider implements OptionValueProvider, LinkageProvi
 
     @Override
     public String getId() {
-        return "";
+        return PropertyUtils.getFieldFullPath(LlmParameter::getModel);
     }
 }

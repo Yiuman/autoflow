@@ -17,6 +17,13 @@ public interface Property {
     String getType();
 
     /**
+     * 属性的ID（默认为类型的属性全路径）
+     *
+     * @return ID值
+     */
+    String getId();
+
+    /**
      * 属性名称
      *
      * @return 名称

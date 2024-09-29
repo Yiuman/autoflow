@@ -33,10 +33,10 @@ public class LlmService extends BaseService<LlmParameter, LlmResult> {
     }
 
     private ChatLanguageModel buildChatLanguageModel(LlmParameter llmParameter) {
-        Linkage<Model> model = llmParameter.getModel();
-        String implClazz = model.getValue().getImplClazz();
-        ChatLanguageModelProvider chatLanguageModelProvider = ChatModelProviders.get(implClazz);
-        return chatLanguageModelProvider.create(model);
+        Linkage<String> model = llmParameter.getModel();
+        ModelConfig modelConfig = ModelParameterProvider.getModelConfigByModelName(model.getValue());
+        ChatLanguageModelProvider chatLanguageModelProvider = ChatModelProviders.get(modelConfig.getImplClass());
+        return chatLanguageModelProvider.create(modelConfig, model.getParameter());
     }
 
 }
