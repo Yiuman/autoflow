@@ -91,7 +91,15 @@ interface Variable {
 
 interface FlowExecutionResult extends ExecutionResult<List<any>> {}
 
+interface Option {
+  name: string
+  value: any
+  description?: string
+  displayTemplate?: string
+}
+
 interface Property {
+  id: string
   type: string
   name: string
   displayName?: string | null
@@ -146,6 +154,7 @@ export {
   Linkage,
   ExecutionError,
   Property,
+  Option,
   Service,
   Loop,
   ValidateRule,

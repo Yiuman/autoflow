@@ -1,4 +1,4 @@
-import type { Service } from '@/types/flow'
+import type { Option, Property, Service } from '@/types/flow'
 import createCrudRequest from '@/api/crud'
 import request, { type UploadFileParams } from '@/utils/request'
 import { urlToBase64 } from '@/utils/download'
@@ -13,5 +13,11 @@ export default {
   },
   getAvatar: async function (serviceId: string) {
     return urlToBase64(`${VITE_BASE_URL || '/api'}/services/image/${serviceId}`)
+  },
+  getOptions: async function (id: string): Promise<Option[]> {
+    return request.get(`/services/options?id=${id}`)
+  },
+  getLinkageProperties: async function (id: string, value: any): Promise<Property[]> {
+    return request.get(`/services/properties?id=${id}&value=${value}`)
   }
 }

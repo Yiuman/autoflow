@@ -268,6 +268,7 @@ export function toComponentAttr(property: Property): ComponentAttr {
   if (property.type === 'Linkage') {
     return {
       cmp: LinkageForm,
+      attrs: { linkageId: property.id },
       property: property
     }
   }

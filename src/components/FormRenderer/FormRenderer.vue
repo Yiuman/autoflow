@@ -118,7 +118,7 @@ const componentAttrs = computed<ComponentAttr[]>(() => {
 </script>
 <template>
   <div class="from-renderer">
-    <AForm :model="form" :layout="props.layout" :rules="rules">
+    <AForm :auto-label-width="true" :model="form" :layout="props.layout" :rules="rules">
       <KeepAlive>
         <AFormItem
           v-for="cmpAttr in componentAttrs"

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import FormRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { Linkage } from '@/types/flow'
+import type { Linkage, Option, Property } from '@/types/flow'
+import ServiceAPI from '@/api/service'
 
 interface Props {
   modelValue: Linkage
+  linkageId: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,19 +23,34 @@ const data = computed({
     emits('update:modelValue', value)
   }
 })
-const properties = computed(() => [])
+const options = ref<Option[]>([])
+watchEffect(async () => {
+  console.warn('linkageId', props.linkageId)
+  options.value = await ServiceAPI.getOptions(props.linkageId)
+})
+
+const properties = ref<Property[]>([])
+watchEffect(
+  async () =>
+    (properties.value = await ServiceAPI.getLinkageProperties(props.linkageId, data.value.value))
+)
 </script>
 
 <template>
   <div class="linkage-form">
-    <ATrigger>
-      <AButton>{{ data.value }}</AButton>
-      <template #content>
-        <AButton>{{ data.value }}</AButton>
-        <FormRenderer v-model="data.parameter" :properties="properties" />
-      </template>
-    </ATrigger>
+    <ASelect v-model="data.value" :options="options" />
+    <div class="linkage-parameter-form">
+      <FormRenderer layout="horizontal" v-model="data.parameter" :properties="properties" />
+    </div>
   </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+.linkage-form {
+  width: 100%;
+  border: 1px solid var(--color-border-1);
+  .linkage-parameter-form {
+    padding: 10px 10px 0 10px;
+  }
+}
+</style>
