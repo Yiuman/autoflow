@@ -9,6 +9,7 @@ import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ChatMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -35,8 +36,8 @@ public class OpenAIService extends BaseService<OpenAIParameter, ChatResult> {
         OpenAiChatOptions openAiChatOptions = new OpenAiChatOptions();
         BeanUtil.copyProperties(openAIParameter, openAiChatOptions);
         OpenAiChatClient openAiChatClient = new OpenAiChatClient(openAiApi, openAiChatOptions);
-        List<Message> list = openAIParameter.getMessages().stream()
-                .map(message -> new ChatMessage(message.getMessageType(), message.getContent()))
+        List<Message> list = openAIParameter.getChatMessages().stream()
+                .map(message -> new ChatMessage(MessageType.valueOf(message.getType().name()), message.getContent()))
                 .collect(Collectors.toList());
         ChatResponse response = openAiChatClient.call(new Prompt(list));
         AssistantMessage output = response.getResult().getOutput();

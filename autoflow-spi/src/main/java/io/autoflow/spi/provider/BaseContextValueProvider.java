@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 
 import static io.autoflow.spi.utils.ExpressUtils.*;
 
@@ -43,7 +44,8 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         //获取上下文中的值
         Object result = get(key);
         //当前为String类型则转换成目标值，有值则直接返回
-        Object expressValue = getExpressValue(result);
+        Object expressValue = getExpressValue(result, valueType);
+
         if (Objects.nonNull(expressValue)) {
             return Convert.convertWithCheck(valueType, expressValue, null, true);
         }
@@ -62,10 +64,18 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         return result;
     }
 
+    public Object getExpressValue(Object input, Type type) {
+        if (String.class.isAssignableFrom(TypeUtil.getClass(type))) {
+            return getExpressStringValue(String.valueOf(input));
+        } else {
+            return getExpressValue(input);
+        }
+    }
+
     public Object fillBeanValue(Object result) {
         Class<?> typeClass = ClassUtil.getClass(result);
         if (ClassUtil.isSimpleValueType(typeClass)) {
-            Object expressValue = getExpressValue(result);
+            Object expressValue = getExpressValue(result, typeClass);
             if (Objects.nonNull(expressValue)) {
                 return expressValue;
             }
@@ -96,7 +106,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
                     continue;
                 }
                 Object fieldValue = ReflectUtil.getFieldValue(result, field);
-                Object expressValue = getExpressValue(fieldValue);
+                Object expressValue = getExpressValue(fieldValue, field.getType());
                 if (Objects.nonNull(expressValue)) {
                     ReflectUtil.setFieldValue(result, field, Convert.convertWithCheck(TypeUtil.getType(field), expressValue, fieldValue, true));
                 }
@@ -130,6 +140,30 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
             }
         }
         return null;
+    }
+
+    public String getExpressStringValue(String input) {
+        // 先替换 JSONPath 部分
+        Matcher jsonPathMatcher = JSON_PATH_PATTERN.matcher(input);
+        StringBuilder result = new StringBuilder();
+        while (jsonPathMatcher.find()) {
+            String jsonPathKey = jsonPathMatcher.group();
+            Object jsonPathValue = extractByJsonPath(jsonPathKey);
+            jsonPathMatcher.appendReplacement(result, jsonPathValue != null ? jsonPathValue.toString() : jsonPathKey);
+        }
+        jsonPathMatcher.appendTail(result);
+
+        // 再替换表达式部分
+        Matcher expressMatcher = EXPRESS_PATTERN.matcher(result.toString());
+        result.setLength(0);  // 清空结果用于第二轮替换
+        while (expressMatcher.find()) {
+            String expressKey = expressMatcher.group();
+            Object expressValue = extractByExpress(expressKey);  // 去掉 ${ 和 }
+            expressMatcher.appendReplacement(result, expressValue != null ? expressValue.toString() : expressKey);
+        }
+        expressMatcher.appendTail(result);
+
+        return result.toString();
     }
 
     public Object extractByJsonPath(String strValue) {

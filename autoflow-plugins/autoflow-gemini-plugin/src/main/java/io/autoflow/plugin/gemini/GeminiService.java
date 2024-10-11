@@ -27,8 +27,9 @@ public class GeminiService extends BaseService<GeminiParameter, GeminiResult> {
                 geminiParameter.getModel(),
                 geminiParameter.getApiKey()
         );
+
         try (HttpResponse response = HttpUtil.createPost(requestUrl)
-                .body(JSONUtil.toJsonStr(new GeminiTextRequest(geminiParameter.getMessage())))
+                .body(JSONUtil.toJsonStr(new GeminiTextRequest(geminiParameter.getMessages())))
                 .execute()) {
             JSON json = JSONUtil.parse(response.body());
             return new GeminiResult(

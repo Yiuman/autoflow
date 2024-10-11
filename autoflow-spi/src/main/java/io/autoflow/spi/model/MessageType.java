@@ -1,8 +1,8 @@
-package io.autoflow.plugin.llm;
+package io.autoflow.spi.model;
 
 /**
  * @author yiuman
- * @date 2024/9/26
+ * @date 2024/10/11
  */
 public enum MessageType {
     SYSTEM,

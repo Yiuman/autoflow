@@ -1,10 +1,11 @@
 package io.autoflow.plugin.gemini;
 
+import io.autoflow.spi.model.ChatMessage;
+import io.autoflow.spi.model.MessageType;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author yiuman
@@ -12,9 +13,18 @@ import java.util.Map;
  */
 @Data
 public class GeminiTextRequest {
-    private final List<Map<String, Object>> contents = new ArrayList<>();
+    private final List<GeminiMessage> contents = new ArrayList<>();
 
-    public GeminiTextRequest(String message) {
-        contents.add(Map.of("parts", List.of(Map.of("text", message))));
+    public GeminiTextRequest(List<ChatMessage> messages) {
+        List<GeminiMessage> userMessages = messages.stream()
+                .map(message -> new GeminiMessage(
+                        MessageType.ASSISTANT == message.getType()
+                                ? "ai"
+                                : (MessageType.SYSTEM == message.getType() ? "model" : "user"),
+                        message.getContent()
+                ))
+                .toList();
+        contents.addAll(userMessages);
     }
+
 }

@@ -3,6 +3,8 @@ package io.autoflow.spi.utils;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
+import java.util.regex.Pattern;
+
 /**
  * @author yiuman
  * @date 2024/4/16
@@ -20,6 +22,15 @@ public final class ExpressUtils {
      * JSON-PATH匹配
      */
     public static final String JSON_PATH_REGEX = "^\\$\\..*$";
+
+    /**
+     * 提取jsonpath的表达式
+     */
+    public static final Pattern JSON_PATH_PATTERN = Pattern.compile("\\$\\.[\\w.]+");
+    /**
+     * 提取变量表达式的正则
+     */
+    public static final Pattern EXPRESS_PATTERN = Pattern.compile("\\$\\{[\\w.]+}");
 
     private ExpressUtils() {
     }

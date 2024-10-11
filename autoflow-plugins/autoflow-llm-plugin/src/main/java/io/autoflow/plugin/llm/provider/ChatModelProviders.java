@@ -1,6 +1,10 @@
 package io.autoflow.plugin.llm.provider;
 
 import cn.hutool.core.util.ReflectUtil;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
+import io.autoflow.spi.model.ChatMessage;
 
 import java.util.Map;
 import java.util.Objects;
@@ -20,5 +24,13 @@ public final class ChatModelProviders {
             CLASS_NAME_CHAT_MODEL_PROVIDER_MAP.put(className, chatLanguageModelProvider);
         }
         return chatLanguageModelProvider;
+    }
+
+    public static dev.langchain4j.data.message.ChatMessage toLangChainMessage(ChatMessage chatMessage) {
+        return switch (chatMessage.getType()) {
+            case USER -> UserMessage.from(chatMessage.getContent());
+            case ASSISTANT -> AiMessage.from(chatMessage.getContent());
+            default -> SystemMessage.from(chatMessage.getContent());
+        };
     }
 }

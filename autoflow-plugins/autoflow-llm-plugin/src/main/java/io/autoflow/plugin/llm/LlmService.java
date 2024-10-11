@@ -26,7 +26,7 @@ public class LlmService extends BaseService<LlmParameter, LlmResult> {
     public LlmResult execute(LlmParameter llmParameter, ExecutionContext executionContext) {
         ChatLanguageModel chatLanguageModel = buildChatLanguageModel(llmParameter);
         List<dev.langchain4j.data.message.ChatMessage> chatMessages = llmParameter.getMessages().stream()
-                .map(ChatMessage::toLangChainMessage)
+                .map(ChatModelProviders::toLangChainMessage)
                 .toList();
         Response<AiMessage> response = chatLanguageModel.generate(chatMessages);
         return LlmResult.from(response.content().text());

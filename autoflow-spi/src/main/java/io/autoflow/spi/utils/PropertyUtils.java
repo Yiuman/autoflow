@@ -17,6 +17,7 @@ import jakarta.validation.metadata.PropertyDescriptor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,7 +68,7 @@ public final class PropertyUtils {
             SimpleProperty simpleProperty = new SimpleProperty();
             simpleProperty.setName(field.getName());
             simpleProperty.setId(getFieldFullPath(clazz, field));
-            simpleProperty.setType(typeClass.getSimpleName());
+            simpleProperty.setType(getSimpleTypeName(type));
             simpleProperty.setOptions(buildFieldOptions(field));
             Description description = AnnotationUtil.getAnnotationValue(field, Description.class);
             if (Objects.nonNull(description)) {
@@ -177,4 +178,38 @@ public final class PropertyUtils {
         return PropertyUtils.buildProperty(inputClass);
     }
 
+    public static String getSimpleTypeName(Type type) {
+        if (type instanceof Class) {
+            // 普通类型直接获取 simpleName
+            return ((Class<?>) type).getSimpleName();
+        } else if (type instanceof ParameterizedType paramType) {
+            // 获取主类型
+            Type rawType = paramType.getRawType();
+            // 获取泛型参数
+            Type[] typeArgs = paramType.getActualTypeArguments();
+            StringBuilder typeName = new StringBuilder();
+            if (rawType instanceof Class) {
+                typeName.append(((Class<?>) rawType).getSimpleName());
+            }
+
+            // 处理泛型参数
+            if (typeArgs.length > 0) {
+                typeName.append("<");
+                for (int i = 0; i < typeArgs.length; i++) {
+                    if (i > 0) {
+                        typeName.append(", ");
+                    }
+                    typeName.append(getSimpleTypeName(typeArgs[i]));
+                }
+                typeName.append(">");
+            }
+
+            return typeName.toString();
+        }
+
+        // 如果不是 Class 或 ParameterizedType，返回全路径类型名
+        return type.getTypeName();
+    }
 }
+
+

@@ -1,8 +1,12 @@
 package io.autoflow.plugin.gemini;
 
+import io.autoflow.spi.model.ChatMessage;
 import io.autoflow.spi.model.OptionValues;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author yiuman
@@ -17,6 +21,6 @@ public class GeminiParameter {
     @NotBlank
     @OptionValues({"gemini-pro", "gemini-pro-vision", "gemini-ultra", "gemini-ultra-vision"})
     private String model = "gemini-pro";
-    @NotBlank
-    private String message;
+    @NotEmpty
+    private List<ChatMessage> messages = List.of(new ChatMessage());
 }

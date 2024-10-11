@@ -1,5 +1,6 @@
 package io.autoflow.plugin.openai;
 
+import io.autoflow.spi.model.ChatMessage;
 import io.autoflow.spi.model.OptionValues;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -42,5 +43,5 @@ public class OpenAIParameter {
     private String toolChoice;
     private String user;
     @NotEmpty
-    private List<Message> messages;
+    private List<ChatMessage> chatMessages = List.of(new ChatMessage());
 }
