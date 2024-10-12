@@ -20,14 +20,13 @@ const columns = [
 ]
 const data = computed({
   get() {
-    return props.modelValue.map((value) => ({ value: value }))
+    return props?.modelValue?.map((value) => ({ value: value }))
   },
   set(value) {
     emits(
       'update:modelValue',
       value.map((item) => item['value'])
     )
-    // doEmitModelValue(value)
   }
 })
 </script>

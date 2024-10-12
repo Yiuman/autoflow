@@ -2,19 +2,19 @@
 import { RouterView } from 'vue-router'
 import { useServiceStore } from '@/stores/service' //初始化数据
 
-const [inited, toggleInitted] = useToggle(false)
+const [initialized, toggleInitialized] = useToggle(false)
 onBeforeMount(async () => {
   //初始化数据
   const serviceStore = useServiceStore()
   await serviceStore.initData()
-  toggleInitted()
+  toggleInitialized()
 })
 </script>
 
 <template>
   <a-layout style="height: 100%">
-    <ASpin dot :loading="!inited">
-      <a-layout-content>
+    <ASpin dot :loading="!initialized">
+      <a-layout-content v-if="initialized">
         <RouterView />
       </a-layout-content>
     </ASpin>

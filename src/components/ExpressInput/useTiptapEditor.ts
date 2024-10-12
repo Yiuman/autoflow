@@ -24,7 +24,6 @@ function jsonToString(jsonData: JSONContent | undefined) {
       contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
     )
     .join(' ')
-    .trimEnd() as string
 }
 
 export function useTipTapEditor(options: TipTapEditorOptions) {

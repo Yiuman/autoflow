@@ -18,14 +18,32 @@ export const useServiceStore = defineStore('service', {
     async initData() {
       const self = this
       await self.fetchServices()
-      for (const serviceItem of self.services) {
-        await self.getServiceAvatar(serviceItem.id)
-      }
     },
     async fetchServices() {
       if (!this.services.length) {
-        this.services = await serviceApi.list()
+        const serviceList = await serviceApi.list()
 
+        this.services = serviceList.map((service) => {
+          // 使用 defineProperty 定义 avatar 的 getter
+          return Object.defineProperty(service, 'avatar', {
+            get: function () {
+              if (this._avatar === undefined) {
+                // 发起请求获取头像，并缓存结果
+                serviceApi
+                  .getAvatar(this.id)
+                  .then((avatar: string) => {
+                    this._avatar = avatar
+                  })
+                  .catch(() => {
+                    this._avatar = null
+                  })
+              }
+              return this._avatar
+            },
+            enumerable: true,
+            configurable: true
+          })
+        })
         this.services.forEach((service) => {
           this.serviceMap[service.id] = service
         })
@@ -33,17 +51,6 @@ export const useServiceStore = defineStore('service', {
     },
     getServiceById(id: string): Service {
       return this.serviceMap[id]
-    },
-    async getServiceAvatar(id: string): Promise<string | null | undefined> {
-      const serviceItem = this.serviceMap[id]
-      if (!serviceItem.avatar) {
-        try {
-          serviceItem.avatar = await serviceApi.getAvatar(id)
-        } catch (ignore) {
-          serviceItem.avatar = null
-        }
-      }
-      return serviceItem.avatar
     }
   }
 })

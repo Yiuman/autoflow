@@ -87,8 +87,9 @@ const { editor, isFocused } = useTipTapEditor({
   <div
     class="express-input"
     @click="() => editor?.commands.focus()"
-    :class="[expressClassName, isFocused ? 'express-input-focus' : '']"
+    :class="[expressClassName, isFocused ? 'express-input-focus' : '', props.type || 'input']"
   >
+    <slot name="top" />
     <EditorContent
       class="editor-content"
       :class="[expressClassName, `${inputType}-type`]"

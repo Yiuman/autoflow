@@ -51,6 +51,7 @@ declare module 'vue' {
     ATrigger: typeof import('@arco-design/web-vue')['Trigger']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     BasicTypeListEditor: typeof import('./src/components/BasicTypeListEditor/BasicTypeListEditor.vue')['default']
+    ChatMessage: typeof import('./src/components/ChatMessage/ChatMessage.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
     ConditionItem: typeof import('./src/components/ConditionFilter/ConditionItem.vue')['default']
     DataItemTable: typeof import('./src/components/NodeFormModal/DataItemTable.vue')['default']

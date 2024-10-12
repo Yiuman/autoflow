@@ -3,7 +3,7 @@ import { ScriptHelper } from '@/utils/util-func'
 import type { FieldRule } from '@arco-design/web-vue/es/form/interface'
 
 import type { ComponentAttr, Property } from '@/types/flow'
-import { toComponentAttrs } from '@/utils/converter'
+import { toComponentAttrs, extractGenericTypes } from '@/utils/converter'
 
 export interface FormProps {
   modelValue?: Record<string, any>
@@ -67,8 +67,11 @@ watchEffect(() => {
 })
 
 function getDefaultList(property: Property) {
+  if (property.defaultValue) {
+    return property.defaultValue
+  }
   if (property.properties?.length == 1) {
-    return ['']
+    return null
   }
   const newObj: Record<string, any> = {}
   property.properties?.forEach((child) => {
@@ -93,15 +96,17 @@ function buildDefaultValue(property: Property) {
   if (property.defaultValue) {
     return property.defaultValue
   }
-  if (property.type === 'List') {
-    return getDefaultList(property)
-  }
 
   if (property.options) {
     return null
   }
 
-  if (isBasicType(property.type)) {
+  const genericType = extractGenericTypes(property.type)
+  if (genericType.mainType === 'List') {
+    return getDefaultList(property)
+  }
+
+  if (isBasicType(genericType.mainType)) {
     return undefined
   }
 

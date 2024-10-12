@@ -97,7 +97,14 @@ function getBindAttr(dataIndex: string): Record<string, any> | undefined {
 
 <template>
   <div class="list-editor">
-    <ATable :data="data" size="mini" :pagination="false" :show-header="showHeader" :stripe="true">
+    <ATable
+      v-if="data && data.length"
+      :data="data"
+      size="mini"
+      :pagination="false"
+      :show-header="showHeader"
+      :stripe="true"
+    >
       <template #columns>
         <ATableColumn
           v-for="column in columns"
@@ -113,8 +120,6 @@ function getBindAttr(dataIndex: string): Record<string, any> | undefined {
               @change="(val: any) => doEmitChange(record, val)"
               v-model="record[getColumnDataIndex(column)]"
             />
-            <!-- <AInput @change="(val) => doEmitChange(record, val)"
-                v-model="record[getColumnDataIndex(column)]" /> -->
           </template>
         </ATableColumn>
         <ATableColumn

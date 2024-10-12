@@ -43,6 +43,11 @@
 
   :global(.vjs-tree) {
     font-family: unset;
+
+  }
+
+  :global(.vjs-tree.is-virtual .vjs-tree-node){
+    white-space:unset;
   }
 
   :global(.vjs-tree-node:hover) {

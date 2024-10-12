@@ -143,6 +143,18 @@ interface NodeFlatData {
   inputData?: Record<string, any>
 }
 
+export type MessageType = 'SYSTEM' | 'USER' | 'ASSISTANT'
+
+interface ChatMessage {
+  type: MessageType
+  content?: string
+}
+
+interface GenericType {
+  mainType: string
+  genericTypes: Array<GenericType | string>
+}
+
 export {
   Flow,
   Node,
@@ -162,5 +174,7 @@ export {
   NodeFlatData,
   ExecutionResult,
   FlowExecutionResult,
-  Variable
+  Variable,
+  ChatMessage,
+  GenericType
 }

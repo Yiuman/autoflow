@@ -25,7 +25,6 @@ const data = computed({
 })
 const options = ref<Option[]>([])
 watchEffect(async () => {
-  console.warn('linkageId', props.linkageId)
   options.value = await ServiceAPI.getOptions(props.linkageId)
 })
 
@@ -48,7 +47,8 @@ watchEffect(
 <style lang="scss">
 .linkage-form {
   width: 100%;
-  border: 1px solid var(--color-border-1);
+  border: 1px solid var(--color-border-2);
+  border-radius: 5px;
   .linkage-parameter-form {
     padding: 10px 10px 0 10px;
   }

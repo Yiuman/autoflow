@@ -13,6 +13,7 @@ import type {
   ComponentAttr,
   Connection,
   Flow,
+  GenericType,
   Node,
   NodeElementData,
   Property,
@@ -28,7 +29,8 @@ import MapEditor from '@/components/MapEditor/MapEditor.vue'
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListEditor.vue'
 import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue'
-import LinkageForm from '@/components/LinkageForm/LinkageForm.vue' //获取当前节点所有的前置节点
+import LinkageForm from '@/components/LinkageForm/LinkageForm.vue'
+import ChatMessage from '@/components/ChatMessage/ChatMessage.vue' //获取当前节点所有的前置节点
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(
@@ -229,10 +231,11 @@ export function getEdges(elements: Elements<NodeElementData>): GraphEdge[] {
 }
 
 export function toComponentAttr(property: Property): ComponentAttr {
-  if (property.type === 'Condition') {
+  const propertyType = extractGenericTypes(property.type)
+  if (propertyType.mainType === 'Condition') {
     return {
       cmp: ConditionFilter,
-      property: property
+      property
     }
   }
 
@@ -240,40 +243,40 @@ export function toComponentAttr(property: Property): ComponentAttr {
     return {
       cmp: 'ASelect',
       attrs: { options: property.options },
-      property: property
+      property
     }
   }
 
-  if (!property.type || property.type == 'String') {
+  if (!propertyType.mainType || propertyType.mainType == 'String') {
     return {
       cmp: ExpressInput,
-      property: property
+      property
     }
   }
 
-  if (property.type == 'FileData') {
+  if (propertyType.mainType == 'FileData') {
     return {
       cmp: FileDataUpload,
-      property: property
+      property
     }
   }
 
-  if (property.type === 'Map') {
+  if (propertyType.mainType === 'Map') {
     return {
       cmp: MapEditor,
-      property: property
+      property
     }
   }
 
-  if (property.type === 'Linkage') {
+  if (propertyType.mainType === 'Linkage') {
     return {
       cmp: LinkageForm,
       attrs: { linkageId: property.id },
-      property: property
+      property
     }
   }
 
-  if (['Integer', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(property.type) > -1) {
+  if (['Integer', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(propertyType.mainType) > -1) {
     if (property.validateRules) {
       const ruleMap: Record<string, ValidateRule> = {}
       property.validateRules.forEach((rule) => {
@@ -289,17 +292,25 @@ export function toComponentAttr(property: Property): ComponentAttr {
             min: Number((ruleMap['Min'] || ruleMap['DecimalMin']).attributes['value']),
             max: Number((ruleMap['Max'] || ruleMap['DecimalMax']).attributes['value'])
           },
-          property: property
+          property
         }
       }
     }
     return {
       cmp: 'AInputNumber',
-      property: property
+      property
     }
   }
 
-  if (property.type === 'List' || property.type === 'Set') {
+  if (propertyType.mainType === 'List' || propertyType.mainType === 'Set') {
+    //聊天消息类型（用于AI对话）
+    const argType = propertyType.genericTypes?.[0]
+    if (argType && argType === 'ChatMessage') {
+      return {
+        cmp: ChatMessage,
+        property
+      }
+    }
     const columns: TableColumnData[] = []
     const columnCmp: Record<string, ComponentAttr> = {}
     if (property.properties?.length || 0 > 1) {
@@ -333,4 +344,56 @@ export function toComponentAttr(property: Property): ComponentAttr {
 
 export function toComponentAttrs(properties: Property[]): ComponentAttr[] {
   return properties.map((property) => toComponentAttr(property))
+}
+
+export function extractGenericTypes(typeString: string): GenericType {
+  // 检查是否有泛型结构（是否有 '<' 和 '>'）
+  if (!typeString.includes('<') || !typeString.includes('>')) {
+    // 如果没有泛型，直接返回普通类型
+    return { mainType: typeString.trim(), genericTypes: [] }
+  }
+
+  const stack: GenericType[] = []
+  let currentType: GenericType | null = null
+  let buffer = ''
+
+  for (let i = 0; i < typeString.length; i++) {
+    const char = typeString[i]
+
+    if (char === '<') {
+      // 在遇到 '<' 之前的 buffer 是主类型
+      const mainType = buffer.trim()
+      currentType = { mainType, genericTypes: [] } // 初始化当前泛型
+      stack.push(currentType) // 将当前类型推入栈
+      buffer = '' // 清空 buffer
+    } else if (char === '>') {
+      // 遇到 '>'，意味着当前泛型解析完成
+      if (buffer.trim()) {
+        currentType?.genericTypes.push(buffer.trim())
+        buffer = ''
+      }
+      const completedType = stack.pop()! // 当前完成的泛型结构
+      if (stack.length > 0) {
+        currentType = stack[stack.length - 1] // 返回到上一层泛型
+        currentType.genericTypes.push(completedType) // 将完成的泛型作为子类型
+      } else {
+        return completedType // 如果栈为空，解析完成，返回整个结构
+      }
+    } else if (char === ',') {
+      // 处理多个泛型参数之间的逗号
+      if (buffer.trim()) {
+        currentType?.genericTypes.push(buffer.trim())
+        buffer = ''
+      }
+    } else {
+      buffer += char // 收集字符
+    }
+  }
+
+  // 如果处理过程中存在 buffer 但未被处理
+  if (buffer.trim() && currentType) {
+    currentType.mainType = buffer.trim()
+  }
+
+  return currentType!
 }
