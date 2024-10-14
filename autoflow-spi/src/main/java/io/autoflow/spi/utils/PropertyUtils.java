@@ -1,6 +1,8 @@
 package io.autoflow.spi.utils;
 
 import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
@@ -20,6 +22,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
  */
 public final class PropertyUtils {
     private static final ValidatorFactory VALIDATORFACTORY = Validation.buildDefaultValidatorFactory();
+
+    public static final CopyOptions DEFAULT_COPY_OPTIONS = CopyOptions.create().ignoreNullValue();
 
     private PropertyUtils() {
     }
@@ -209,6 +214,19 @@ public final class PropertyUtils {
 
         // 如果不是 Class 或 ParameterizedType，返回全路径类型名
         return type.getTypeName();
+    }
+
+    public static void modifyProperties(List<? extends Property> properties, Consumer<Property> consumer) {
+        if (CollUtil.isEmpty(properties)) {
+            return;
+        }
+
+        for (Property property : properties) {
+            consumer.accept(property);
+            if (CollUtil.isNotEmpty(property.getProperties())) {
+                modifyProperties(property.getProperties(), consumer);
+            }
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 package io.autoflow.plugin.llm.provider.openai;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
@@ -18,9 +20,6 @@ public class OpenAiParameter {
     @DecimalMin("-2.0")
     @DecimalMax("2.0")
     private Double frequencyPenalty;
-    @Min(1)
-    @Max(4096)
-    private Integer maxTokens = 4096;
     @DecimalMin("-2.0")
     @DecimalMax("2.0")
     private Double presencePenalty;
@@ -33,6 +32,7 @@ public class OpenAiParameter {
     @DecimalMin("0")
     @DecimalMax("1")
     private Double topP;
+    private Integer maxTokens = 4096;
     private List<String> stop;
 
     private String user;

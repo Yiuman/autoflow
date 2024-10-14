@@ -1,6 +1,6 @@
 {
   "provider": "OpenAI",
-  "modelName": "gpt-3.5-turbo",
+  "modelName": "o1-preview",
   "implClass": "io.autoflow.plugin.llm.provider.openai.OpenAiChatModelProvider",
   "propertyClass": "io.autoflow.plugin.llm.provider.openai.OpenAiParameter",
   "overwriteProperty": {
@@ -15,7 +15,7 @@
         {
           "validateType": "Max",
           "attributes": {
-            "value": 4096
+            "value": 32768
           }
         }
       ]
