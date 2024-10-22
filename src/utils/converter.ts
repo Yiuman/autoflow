@@ -282,7 +282,8 @@ export function toComponentAttr(property: Property): ComponentAttr {
       property.validateRules.forEach((rule) => {
         ruleMap[rule.validateType as string] = rule
       })
-      if (Object.keys(ruleMap).indexOf('Min')) {
+      const ruleKeys = Object.keys(ruleMap).join('|')
+      if (/Min|Max|DecimalMin|DecimalMax/.test(ruleKeys)) {
         return {
           cmp: 'ASlider',
           attrs: {

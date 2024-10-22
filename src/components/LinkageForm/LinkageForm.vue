@@ -37,7 +37,7 @@ watchEffect(
 
 <template>
   <div class="linkage-form">
-    <ASelect v-model="data.value" :options="options" />
+    <ASelect v-model="data.value" :options="options" allow-search />
     <div class="linkage-parameter-form">
       <FormRenderer layout="horizontal" v-model="data.parameter" :properties="properties" />
     </div>

@@ -4,7 +4,13 @@ import { INCOMER_DATA } from '@/symbols'
 import type { Option } from '@/components/ExpressInput/MentionList.vue'
 import type { NodeFlatData } from '@/types/flow'
 
-function createOptions(data: Record<string, any>, prefix: string, type: string): Option[] {
+function createOptions(
+  nodeId: string,
+  data: Record<string, any>,
+  prefix: string,
+  type: string,
+  iconFontCode: string
+): Option[] {
   return Object.keys(data)
     .map((key) => {
       if (!key) return undefined
@@ -13,7 +19,8 @@ function createOptions(data: Record<string, any>, prefix: string, type: string):
         key: `${prefix}.${key}`,
         label: key,
         value: data[key],
-        iconFontCode: type === 'variable' ? 'icon-variable' : 'icon-Input'
+        nodeId,
+        iconFontCode
       }
     })
     .filter(Boolean) as Option[]
@@ -27,14 +34,18 @@ export function useSelectOptions() {
     return flatten(
       nodeFlatDataArray.value.map((nodeFlatData) => {
         const varOptions = createOptions(
+          nodeFlatData.node.id,
           nodeFlatData.variables || {},
           `$.variables.${nodeFlatData.node.id}`,
-          nodeFlatData.node.data?.label
+          nodeFlatData.node.data?.label,
+          'icon-variable'
         )
         const inputOptions = createOptions(
+          nodeFlatData.node.id,
           nodeFlatData.inputData || {},
           `$.inputData.${nodeFlatData.node.id}`,
-          nodeFlatData.node.data?.label
+          nodeFlatData.node.data?.label,
+          'icon-Input'
         )
         return [...varOptions, ...inputOptions]
       })

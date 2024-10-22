@@ -5,9 +5,10 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
 import { type Option } from '@/components/ExpressInput/MentionList.vue'
-import { h, type Ref, render } from 'vue'
+import { createVNode, h, type Ref, render } from 'vue'
 import createMentionSuggestion from './suggestion'
 import { IconFont } from '@/hooks/iconfont'
+import { Descriptions } from '@arco-design/web-vue'
 
 interface TipTapEditorOptions {
   selectOptions: Ref<Option[]>
@@ -86,10 +87,24 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
             class: 'mention-type-icon'
           })
           render(vNode, container)
+
+          // console.warn('nodeValue', nodeValue)
+
+          const descData = [
+            { label: 'node', value: optionValue?.label },
+            { label: 'nodeId', value: optionValue?.nodeId },
+            { label: 'value', value: optionValue?.value }
+          ]
+          const descVNode = createVNode(Descriptions, { data: descData, size: 'mini', column: 1 })
+          const descContainer = document.createElement('div')
+          render(descVNode, descContainer)
+
           const svgIcon = container.firstChild
+          const description = descContainer.firstChild
           const innerHTML = [
             ['span', { class: 'node-mention-type' }, svgIcon, optionValue.type],
-            ['span', { class: 'node-mention-label' }, optionValue.label]
+            ['span', { class: 'node-mention-label' }, optionValue.label],
+            ['span', { class: 'node-mention-desc' }, description]
           ]
           return [
             'span',

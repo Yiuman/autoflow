@@ -10,6 +10,14 @@ import { ArcoResolver } from 'unplugin-vue-components/resolvers'
 import svgLoader from 'vite-svg-loader'
 // https://vitejs.dev/config/
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      less: {
+        modifyVars: {},
+        javascriptEnabled: true
+      }
+    }
+  },
   plugins: [
     vue(),
     svgLoader(),
@@ -22,6 +30,7 @@ export default defineConfig({
     Components({
       resolvers: [
         ArcoResolver({
+          importStyle: 'less',
           sideEffect: true
         })
       ]
@@ -42,5 +51,4 @@ export default defineConfig({
       }
     }
   }
-
 })

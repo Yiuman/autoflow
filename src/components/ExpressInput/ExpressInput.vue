@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useVueFlow } from '@vue-flow/core'
 import { EditorContent } from '@tiptap/vue-3'
 import { useSelectOptions } from '@/components/ExpressInput/useSelectOptions'
 import { useTipTapEditor } from '@/components/ExpressInput/useTiptapEditor'
@@ -24,7 +23,6 @@ const inputType = computed(() => {
   return props.type || 'input'
 })
 
-const { findNode } = useVueFlow()
 const data = computed({
   get() {
     return props.modelValue
@@ -52,31 +50,6 @@ const expressClassName = computed<string>(() => {
   }
 })
 
-const nodeIdRegex = /^\$\.\w+\.(\w+)(?:\[\d+])?\./
-const descData = computed(() => {
-  const dataValue = data.value
-  const nodeIdMatch = dataValue?.match(nodeIdRegex)
-  if (nodeIdMatch) {
-    const nodeId = nodeIdMatch[1]
-    const node = findNode(nodeId)
-    const findValue = selectOptions.value.filter((option) => {
-      return dataValue === option?.key
-    })[0]
-    if (!findValue) {
-      return undefined
-    }
-    return [
-      { label: 'node', value: node?.data?.label },
-      { label: 'nodeId', value: nodeId },
-      { label: 'value', value: findValue?.value }
-    ]
-  } else {
-    return undefined
-  }
-})
-
-const popoverVariable = computed(() => expressClassName.value === 'jsonpath')
-
 const { editor, isFocused } = useTipTapEditor({
   selectOptions,
   data,
@@ -95,9 +68,9 @@ const { editor, isFocused } = useTipTapEditor({
       :class="[expressClassName, `${inputType}-type`]"
       :editor="editor"
     />
-    <div v-if="popoverVariable && descData" class="jsonpath-desc">
-      <ADescriptions :data="descData" size="mini" :column="1" />
-    </div>
+    <!--    <div v-if="popoverVariable && descData" class="jsonpath-desc">-->
+    <!--      <ADescriptions :data="descData" size="mini" :column="1" />-->
+    <!--    </div>-->
   </div>
 </template>
 

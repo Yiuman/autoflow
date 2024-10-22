@@ -1,5 +1,4 @@
 
-
 .express-input {
   text-align: start;
   width: 100%;
@@ -20,8 +19,8 @@
   -webkit-appearance: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
-  &:hover  {
-    .jsonpath-desc{
+  &:hover {
+    .jsonpath-desc {
       display: block;
     }
   }
@@ -94,7 +93,7 @@
       border: 0.5px solid var(--color-border-3);
     }
 
-    .mention-type-icon{
+    .mention-type-icon {
       color: var(--color-text-2);
       margin: 0 2px;
       font-size: 13px;
@@ -112,6 +111,33 @@
 
     .node-mention-label {
       white-space: nowrap;
+    }
+
+
+    .node-mention-desc {
+      //display: none;
+      width: 200px;
+      position: absolute;
+      z-index: 1;
+      top: 15px;
+      background: var(--color-bg-3);
+      box-shadow: 0 4px 10px #0000001a;
+      border-radius: var(--border-radius-medium);
+
+      //:deep(.arco-descriptions-item-value-block) {
+      //  overflow: hidden;
+      //  text-overflow: ellipsis;
+      //  display: -webkit-box;
+      //  -webkit-line-clamp: 1 !important;
+      //  -webkit-box-orient: vertical;
+      //}
+
+    }
+
+    &:hover {
+      .node-mention-desc {
+        display: block;
+      }
     }
 
   }
@@ -137,7 +163,7 @@
     }
   }
 
-  :deep(.textarea-type){
+  :deep(.textarea-type) {
     min-height: 100px;
   }
 }
@@ -179,8 +205,6 @@
   }
 
 }
-
-
 
 
 .expression {
