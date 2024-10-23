@@ -284,16 +284,30 @@ export function toComponentAttr(property: Property): ComponentAttr {
       })
       const ruleKeys = Object.keys(ruleMap).join('|')
       if (/Min|Max|DecimalMin|DecimalMax/.test(ruleKeys)) {
-        return {
-          cmp: 'ASlider',
-          attrs: {
-            step: property.type === 'Integer' ? 1 : 0.1,
-            showInput: true,
-            showTooltip: true,
-            min: Number((ruleMap['Min'] || ruleMap['DecimalMin']).attributes['value']),
-            max: Number((ruleMap['Max'] || ruleMap['DecimalMax']).attributes['value'])
-          },
-          property
+        const minValue = Number((ruleMap['Min'] || ruleMap['DecimalMin'])?.attributes['value'])
+        const maxValue = Number((ruleMap['Max'] || ruleMap['DecimalMax'])?.attributes['value'])
+        if (minValue && maxValue) {
+          return {
+            cmp: 'ASlider',
+            attrs: {
+              step: property.type === 'Integer' ? 1 : 0.1,
+              showInput: true,
+              showTooltip: true,
+              min: minValue,
+              max: maxValue
+            },
+            property
+          }
+        } else {
+          return {
+            cmp: 'AInputNumber',
+            attrs: {
+              step: property.type === 'Integer' ? 1 : 0.1,
+              min: minValue,
+              max: maxValue
+            },
+            property
+          }
         }
       }
     }

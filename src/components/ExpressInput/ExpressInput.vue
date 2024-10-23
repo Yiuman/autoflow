@@ -53,7 +53,7 @@ const expressClassName = computed<string>(() => {
 const { editor, isFocused } = useTipTapEditor({
   selectOptions,
   data,
-  placeholder: '$.插入变量、${}输入表达式'
+  placeholder: ''
 })
 </script>
 <template>
@@ -68,9 +68,6 @@ const { editor, isFocused } = useTipTapEditor({
       :class="[expressClassName, `${inputType}-type`]"
       :editor="editor"
     />
-    <!--    <div v-if="popoverVariable && descData" class="jsonpath-desc">-->
-    <!--      <ADescriptions :data="descData" size="mini" :column="1" />-->
-    <!--    </div>-->
   </div>
 </template>
 

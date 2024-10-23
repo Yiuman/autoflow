@@ -6,6 +6,7 @@ export interface Option {
   key: string
   type?: string
   value?: any
+  nodeId?: string
   iconFontCode?: string
 }
 

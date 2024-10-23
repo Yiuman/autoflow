@@ -7,8 +7,7 @@ import Mention from '@tiptap/extension-mention'
 import { type Option } from '@/components/ExpressInput/MentionList.vue'
 import { createVNode, h, type Ref, render } from 'vue'
 import createMentionSuggestion from './suggestion'
-import { IconFont } from '@/hooks/iconfont'
-import { Descriptions } from '@arco-design/web-vue'
+import MentionTag from '@/components/ExpressInput/MentionTag.vue'
 
 interface TipTapEditorOptions {
   selectOptions: Ref<Option[]>
@@ -81,33 +80,12 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
         renderHTML({ node }) {
           const optionValue = node.attrs.id
           if (!optionValue) return ''
-          const container = document.createElement('div')
-          const vNode = h(IconFont, {
-            type: optionValue.iconFontCode,
-            class: 'mention-type-icon'
-          })
-          render(vNode, container)
-
-          // console.warn('nodeValue', nodeValue)
-
-          const descData = [
-            { label: 'node', value: optionValue?.label },
-            { label: 'nodeId', value: optionValue?.nodeId },
-            { label: 'value', value: optionValue?.value }
-          ]
-          const descVNode = createVNode(Descriptions, { data: descData, size: 'mini', column: 1 })
-          const descContainer = document.createElement('div')
-          render(descVNode, descContainer)
-
-          const svgIcon = container.firstChild
-          const description = descContainer.firstChild
-          const innerHTML = [
-            ['span', { class: 'node-mention-type' }, svgIcon, optionValue.type],
-            ['span', { class: 'node-mention-label' }, optionValue.label],
-            ['span', { class: 'node-mention-desc' }, description]
-          ]
+          const mentionTagVNode = createVNode(MentionTag, { ...optionValue })
+          const mentionTagContainer = document.createElement('div')
+          render(mentionTagVNode, mentionTagContainer)
+          const mentionTag = mentionTagContainer.getElementsByClassName('node-mention-trigger')[0]
           return [
-            'span',
+            'div',
             {
               class: 'mention',
               id: optionValue.key,
@@ -115,7 +93,7 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
               'data-id': optionValue.key,
               'data-value': optionValue.value
             },
-            ...innerHTML
+            mentionTag
           ]
         },
         suggestion: createMentionSuggestion({
