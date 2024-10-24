@@ -26,7 +26,7 @@ public final class ExpressUtils {
     /**
      * 提取jsonpath的表达式
      */
-    public static final Pattern JSON_PATH_PATTERN = Pattern.compile("\\$\\.[\\w.]+");
+    public static final Pattern JSON_PATH_PATTERN = Pattern.compile("\\$(\\.\\w+|\\[\\d+]|\\['[^']+']|\\[\"[^\"]+\"]|\\.[\\w*]+|\\[\\?\\([^)]+\\)])+");
     /**
      * 提取变量表达式的正则
      */

@@ -149,7 +149,12 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         while (jsonPathMatcher.find()) {
             String jsonPathKey = jsonPathMatcher.group();
             Object jsonPathValue = extractByJsonPath(jsonPathKey);
-            jsonPathMatcher.appendReplacement(result, jsonPathValue != null ? jsonPathValue.toString() : jsonPathKey);
+            // 使用 quoteReplacement 处理 jsonPathValue 或 jsonPathKey，防止特殊字符导致错误
+            String replacement = jsonPathValue != null
+                    ? Matcher.quoteReplacement(jsonPathValue.toString())
+                    : Matcher.quoteReplacement(jsonPathKey);
+
+            jsonPathMatcher.appendReplacement(result, replacement);
         }
         jsonPathMatcher.appendTail(result);
 
@@ -158,8 +163,13 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         result.setLength(0);  // 清空结果用于第二轮替换
         while (expressMatcher.find()) {
             String expressKey = expressMatcher.group();
-            Object expressValue = extractByExpress(expressKey);  // 去掉 ${ 和 }
-            expressMatcher.appendReplacement(result, expressValue != null ? expressValue.toString() : expressKey);
+            // 去掉 ${ 和 }
+            Object expressValue = extractByExpress(expressKey);
+            String replacement = expressValue != null
+                    ? Matcher.quoteReplacement(expressValue.toString())
+                    : Matcher.quoteReplacement(expressKey);
+
+            jsonPathMatcher.appendReplacement(result, replacement);
         }
         expressMatcher.appendTail(result);
 

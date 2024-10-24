@@ -50,10 +50,10 @@ public class LiteFlowExecutor implements Executor {
     @SuppressWarnings("unchecked")
     @Override
     public List<ExecutionResult<Object>> executeNode(Node node) {
-        Map<String, List<Object>> inputData = (Map<String, List<Object>>) node.getData().get(Constants.INPUT_DATA);
         FlowExecutionContextImpl flowExecutionContext = new FlowExecutionContextImpl();
+        flowExecutionContext.getInputData().putAll((Map<String, Object>) node.getData().get(Constants.INPUT_DATA_ATTR_NAME));
+        flowExecutionContext.getVariables().putAll((Map<String, Object>) node.getData().get(Constants.VARIABLES_ATTR_NAME));
         flowExecutionContext.getParameters().putAll(node.getData());
-        flowExecutionContext.getInputData().putAll(inputData);
         String chainId = getExecutableId(Flow.singleNodeFlow(node));
         LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, null, flowExecutionContext);
         return liteflowResponse.getContextBean(FlowExecutionContextImpl.class).getExecutionResults();
