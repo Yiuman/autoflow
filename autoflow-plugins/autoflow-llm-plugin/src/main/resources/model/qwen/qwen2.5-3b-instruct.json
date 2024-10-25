@@ -1,0 +1,6 @@
+{
+  "provider": "QWen",
+  "modelName": "qwen2.5-3b-instruct",
+  "implClass": "io.autoflow.plugin.llm.provider.qwen.QWenModelProvider",
+  "propertyClass": "io.autoflow.plugin.llm.provider.qwen.QWenParameter"
+}
