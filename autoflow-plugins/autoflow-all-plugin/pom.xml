@@ -78,5 +78,12 @@
             <artifactId>autoflow-llm-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-textextractor-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

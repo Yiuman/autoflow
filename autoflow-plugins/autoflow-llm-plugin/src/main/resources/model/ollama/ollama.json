@@ -1,0 +1,6 @@
+{
+  "provider": "Ollama",
+  "modelName": "ollama",
+  "implClass": "io.autoflow.plugin.llm.provider.ollama.OllamaModelProvider",
+  "propertyClass": "io.autoflow.plugin.llm.provider.ollama.OllamaParameter"
+}

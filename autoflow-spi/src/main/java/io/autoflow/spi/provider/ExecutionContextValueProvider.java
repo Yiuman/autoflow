@@ -1,5 +1,6 @@
 package io.autoflow.spi.provider;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -43,11 +44,14 @@ public class ExecutionContextValueProvider extends BaseContextValueProvider {
             return expressValue;
         }
 
-        return executionContext.getParameters()
+
+        Object value = executionContext.getParameters()
                 .getOrDefault(
                         (String) key,
                         executionContext.getVariables().get(key)
                 );
+
+        return ObjectUtil.defaultIfNull(value, key);
     }
 
     @Override

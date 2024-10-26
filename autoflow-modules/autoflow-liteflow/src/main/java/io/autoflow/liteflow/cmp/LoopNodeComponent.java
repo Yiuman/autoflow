@@ -1,6 +1,8 @@
 package io.autoflow.liteflow.cmp;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.google.common.collect.Iterators;
 import com.yomahub.liteflow.core.NodeIteratorComponent;
 import io.autoflow.core.model.Loop;
 import io.autoflow.plugin.loopeachitem.LoopItem;
@@ -33,6 +35,9 @@ public class LoopNodeComponent extends NodeIteratorComponent {
             String collectionString = loop.getCollectionString();
             FlowExecutionContextImpl contextBean = getContextBean(FlowExecutionContextImpl.class);
             List<Object> objectList = (List<Object>) contextBean.parseValue(collectionString);
+            if (CollUtil.isEmpty(objectList)) {
+                return Iterators.emptyIterator();
+            }
             int size = objectList.size();
             loop.setLoopCardinality(size);
             return objectList.stream().map(obj -> createLoopItemVariables(loop, obj, objectList.indexOf(obj))).iterator();

@@ -169,7 +169,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
                     ? Matcher.quoteReplacement(expressValue.toString())
                     : Matcher.quoteReplacement(expressKey);
 
-            jsonPathMatcher.appendReplacement(result, replacement);
+            expressMatcher.appendReplacement(result, replacement);
         }
         expressMatcher.appendTail(result);
 

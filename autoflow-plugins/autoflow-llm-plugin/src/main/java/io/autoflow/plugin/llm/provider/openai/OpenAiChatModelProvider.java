@@ -3,6 +3,7 @@ package io.autoflow.plugin.llm.provider.openai;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.validation.ValidationUtil;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -25,9 +26,9 @@ public class OpenAiChatModelProvider implements ChatLanguageModelProvider {
         OpenAiParameter openAiParameter = BeanUtil.toBean(parameter, OpenAiParameter.class);
         Set<ConstraintViolation<OpenAiParameter>> validated = ValidationUtil.validate(openAiParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
-
+        String modelName = StrUtil.blankToDefault(openAiParameter.getModelName(), modelConfig.getModelName());
         return OpenAiChatModel.builder()
-                .modelName(modelConfig.getModelName())
+                .modelName(modelName)
                 .baseUrl(openAiParameter.getBaseUrl())
                 .apiKey(openAiParameter.getApiKey())
                 .frequencyPenalty(openAiParameter.getFrequencyPenalty())

@@ -15,6 +15,7 @@ import java.util.List;
 public class OpenAiParameter {
     @NotBlank
     private String baseUrl = "https://api.openai.com/v1";
+    private String modelName;
     @NotBlank
     private String apiKey;
     @DecimalMin("-2.0")
@@ -34,7 +35,6 @@ public class OpenAiParameter {
     private Double topP;
     private Integer maxTokens = 4096;
     private List<String> stop;
-
     private String user;
     private String responseFormat;
 }

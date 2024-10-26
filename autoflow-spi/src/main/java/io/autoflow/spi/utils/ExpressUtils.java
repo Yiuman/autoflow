@@ -36,11 +36,11 @@ public final class ExpressUtils {
     }
 
     public static String isNotEmptyExpress(Object strValue) {
-        return StrUtil.format("{}({})", IS_NOT_EMPTY_METHOD, strValue);
+        return StrUtil.format("{}(\"{}\")", IS_NOT_EMPTY_METHOD, strValue);
     }
 
     public static String isEmptyExpress(Object strValue) {
-        return StrUtil.format("{}({})", IS_EMPTY_METHOD, strValue);
+        return StrUtil.format("{}(\"{}\")", IS_EMPTY_METHOD, strValue);
     }
 
     public static boolean isJsonPath(String strValue) {
@@ -66,6 +66,6 @@ public final class ExpressUtils {
             }
         }
         String objStr = StrUtil.toString(obj);
-        return StrUtil.isBlank(objStr) ? "\"\"" : objStr;
+        return StrUtil.isBlank(objStr) ? "" : objStr;
     }
 }
