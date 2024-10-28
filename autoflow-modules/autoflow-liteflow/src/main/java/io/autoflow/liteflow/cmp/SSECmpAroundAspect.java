@@ -1,6 +1,5 @@
 package io.autoflow.liteflow.cmp;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.yomahub.liteflow.aop.ICmpAroundAspect;
@@ -17,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author yiuman
@@ -38,12 +38,12 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
 
     @Override
     public void onSuccess(NodeComponent cmp) {
-        log.info(cmp.getNodeId() + "onSuccess");
+        log.debug(cmp.getNodeId() + "onSuccess");
     }
 
     @Override
     public void onError(NodeComponent cmp, Exception e) {
-        log.info(cmp.getNodeId() + "onError");
+        log.debug(cmp.getNodeId() + "onError");
         SSEContext.close(cmp.getChainId());
     }
 
@@ -57,16 +57,14 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
             FlowExecutionContextImpl flowExecutionContext = cmp.getContextBean(FlowExecutionContextImpl.class);
             Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
             String activityId = cmp.getNodeId();
-            LoopItem loopItem = null;
-            if (Objects.nonNull(cmp.getCurrLoopObj())) {
-                loopItem = BeanUtil.toBean(cmp.getCurrLoopObj(), LoopItem.class);
-            }
-            if (Objects.nonNull(nodeExecutionResultMap)) {
+            LoopItem loopItem = cmp.getCurrLoopObj();
+            if (Objects.nonNull(nodeExecutionResultMap) && Event.ACTIVITY_COMPLETED == event) {
                 List<ExecutionResult<Object>> executionResults = nodeExecutionResultMap.get(activityId);
-                if (Event.ACTIVITY_COMPLETED == event
-                        && Objects.nonNull(loopItem)
-                        && !Objects.equals(loopItem.getNrOfInstances(), CollUtil.size(executionResults))) {
-                    return;
+                if (Objects.nonNull(loopItem)) {
+                    executionResults = executionResults.stream().filter(executionResult
+                                    -> Objects.equals(executionResult.getLoopCounter(), loopItem.getLoopCounter())
+                                    && Objects.equals(executionResult.getLoopId(), loopItem.getId()))
+                            .collect(Collectors.toList());
                 }
 
                 if (CollUtil.isNotEmpty(executionResults)) {

@@ -31,4 +31,6 @@ public interface FlowExecutionContext extends ExecutionContext {
      * @param executionResult 执行结果
      */
     void addExecutionResult(ExecutionResult<Object> executionResult);
+
+    Map<String, ExecutionContext> getLoopContextMap();
 }

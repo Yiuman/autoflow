@@ -6,7 +6,10 @@ import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import lombok.Data;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -22,6 +25,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private final Map<String, Object> inputData = new HashMap<>();
+    private final Map<String, ExecutionContext> loopContextMap = new HashMap<>();
     private final Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = new ConcurrentHashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider = new ExecutionContextValueProvider(this);
 
@@ -52,22 +56,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     @Override
     public void addExecutionResult(ExecutionResult<Object> executionResult) {
         executionResults.add(executionResult);
-        //输入数据处理
-        Object executionData = getInputData().get(executionResult.getNodeId());
-        if (Objects.nonNull(executionData)) {
-            if (executionData instanceof Collection) {
-                ((Collection) executionData).add(executionResult.getData());
-            } else {
-                List<Object> objects;
-                synchronized (this) {
-                    objects = Collections.synchronizedList(new ArrayList<>());
-                }
-                objects.add(executionData);
-                getInputData().put(executionResult.getNodeId(), objects);
-            }
-        } else {
-            getInputData().put(executionResult.getNodeId(), executionResult.getData());
-        }
+        ContextUtils.addResult(this, executionResult);
 
         // 结果集处理
         List<ExecutionResult<Object>> nodeExecutionResults = getNodeExecutionResultMap()
@@ -85,4 +74,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
         return parameters;
     }
 
+    public Map<String, ExecutionContext> getLoopContextMap() {
+        return loopContextMap;
+    }
 }

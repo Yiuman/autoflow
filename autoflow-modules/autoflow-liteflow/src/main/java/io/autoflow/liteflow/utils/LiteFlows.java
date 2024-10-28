@@ -16,8 +16,11 @@ import io.autoflow.core.model.NodeType;
 import io.autoflow.liteflow.cmp.IFNodeComponent;
 import io.autoflow.liteflow.cmp.LoopNodeComponent;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
+import io.autoflow.plugin.loopeachitem.LoopItem;
+import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ServiceData;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
  * @author yiuman
  * @date 2024/4/11
  */
+@Slf4j
 public final class LiteFlows {
     private LiteFlows() {
     }
@@ -43,7 +47,9 @@ public final class LiteFlows {
         if (elWrapper instanceof NodeELWrapper) {
             return ELBus.then(elWrapper).toEL(true);
         }
-        return elWrapper.toEL(true);
+        String el = elWrapper.toEL(true);
+        log.debug("FLOW【{} - {}】- EL  {} ", flow.getName(), flow.getId(), el);
+        return el;
     }
 
 
@@ -223,7 +229,7 @@ public final class LiteFlows {
         }
 
         List<Connection> connections = getLoopDoneConnections(flow, subFlow.getId());
-        IteratorELWrapper iteratorELWrapper = createIteratorEL(node).doOpt(elWrapper);
+        LoopELWrapper iteratorELWrapper = createIteratorEL(node).doOpt(elWrapper);
         List<Node> outgoers = flow.getOutgoers(subFlow.getId(), connections::contains);
         if (CollUtil.isNotEmpty(outgoers)) {
             String nextFlowId = "next_flow_" + node.getId();
@@ -244,7 +250,7 @@ public final class LiteFlows {
                 .toList();
     }
 
-    private static IteratorELWrapper createIteratorEL(Node node) {
+    private static LoopELWrapper createIteratorEL(Node node) {
         String loopNodeId = StrUtil.format("{}Loop", node.getId());
         String loopNodeDataId = StrUtil.format("{}LoopData", node.getId());
         return ELBus.iteratorOpt(
@@ -301,21 +307,31 @@ public final class LiteFlows {
                 .filter(connection -> !trueConnections.contains(connection))
                 .toList();
         List<Node> falseOutgoers = flow.getOutgoers(node.getId(), falseConnections::contains);
-        String falseFlowId = node.getId() + "falseFlow";
-        Flow ifFalseFlow = new Flow();
-        ifFalseFlow.setId(falseFlowId);
-        ifFalseFlow.setName(falseFlowId);
-        ifFalseFlow.setNodes(falseOutgoers);
-        ifFalseFlow.setConnections(getOutgoerConnections(flow, node, falseOutgoers));
         String ifNodeId = StrUtil.format("IF_{}", node.getId());
         String ifNodeDataId = StrUtil.format("{}IfData", node.getId());
         String express = String.format("$.inputData.%s.result", node.getId());
-        return ELBus.ifOpt(
-                ELBus.node(ifNodeId)
-                        .data(ifNodeDataId, express),
-                convertEl(ifTrueFlow),
-                convertEl(ifFalseFlow)
-        );
+        List<Connection> falseOutgoerConnections = getOutgoerConnections(flow, node, falseOutgoers);
+        if (CollUtil.isEmpty(falseOutgoerConnections)) {
+            return ELBus.ifOpt(
+                    ELBus.node(ifNodeId)
+                            .data(ifNodeDataId, express),
+                    convertEl(ifTrueFlow)
+            );
+        } else {
+            String falseFlowId = node.getId() + "falseFlow";
+            Flow ifFalseFlow = new Flow();
+            ifFalseFlow.setId(falseFlowId);
+            ifFalseFlow.setName(falseFlowId);
+            ifFalseFlow.setNodes(falseOutgoers);
+            ifFalseFlow.setConnections(falseOutgoerConnections);
+            return ELBus.ifOpt(
+                    ELBus.node(ifNodeId)
+                            .data(ifNodeDataId, express),
+                    convertEl(ifTrueFlow),
+                    convertEl(ifFalseFlow)
+            );
+        }
+
     }
 
     private static ELWrapper createServiceNodeEL(Flow flow, Node node) {
@@ -399,7 +415,13 @@ public final class LiteFlows {
 
     public static <T extends NodeComponent> boolean getBooleanValue(T node) {
         String express = node.getCmpData(String.class);
-        Object value = node.getContextBean(FlowExecutionContextImpl.class).parseValue(express);
+        FlowExecutionContextImpl contextBean = node.getContextBean(FlowExecutionContextImpl.class);
+        LoopItem currLoopObj = node.getCurrLoopObj();
+        ExecutionContext executionContext = contextBean;
+        if (Objects.nonNull(currLoopObj)) {
+            executionContext = contextBean.getLoopContextMap().get(currLoopObj.getLoopKey());
+        }
+        Object value = executionContext.parseValue(express);
         return BooleanUtil.isTrue(BooleanUtil.toBooleanObject(Optional.ofNullable(value).orElse("").toString()));
     }
 }

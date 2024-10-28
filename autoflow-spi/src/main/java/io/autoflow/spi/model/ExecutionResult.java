@@ -18,11 +18,15 @@ public class ExecutionResult<DATA> {
     private String flowId;
     private String nodeId;
     private String serviceId;
+    private String loopId;
+    private Integer loopCounter;
+    private Integer nrOfInstances;
     private DATA data;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Error error;
     private Long durationMs;
+
 
     public static <T> ExecutionResult<T> error(ServiceData serviceData, Throwable throwable) {
         Error error = Error.builder().node(serviceData.getNodeId())

@@ -1,6 +1,5 @@
 package io.autoflow.liteflow.cmp;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Iterators;
 import com.yomahub.liteflow.core.NodeIteratorComponent;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -44,15 +42,20 @@ public class LoopNodeComponent extends NodeIteratorComponent {
         }
     }
 
-    private Map<String, Object> createLoopItemVariables(Loop loop, Object object, Integer index) {
+    private LoopItem createLoopItemVariables(Loop loop, Object object, Integer index) {
         LoopItem loopItem = new LoopItem();
+        loopItem.setId(getNodeId());
         loopItem.setElementVariable(object);
         loopItem.setNrOfInstances(loop.getLoopCardinality());
         loopItem.setSequential(loop.getSequential());
         loopItem.setLoopCounter(index);
-        Map<String, Object> variables = BeanUtil.beanToMap(loopItem);
-        variables.put(loop.getElementVariable(), object);
-        return variables;
+        try {
+            loopItem.setPreLoop(getPreLoopObj());
+        } catch (Throwable ignore) {
+        }
+
+        loopItem.put(loop.getElementVariable(), object);
+        return loopItem;
     }
 
 }

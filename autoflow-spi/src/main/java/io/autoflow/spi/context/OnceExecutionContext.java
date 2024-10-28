@@ -10,20 +10,20 @@ import java.util.Map;
  * @date 2024/4/15
  */
 public class OnceExecutionContext implements ExecutionContext {
-    private final ExecutionContext executionContext;
     private final Map<String, Object> parameters = new HashMap<>();
+    private final Map<String, Object> inputData = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider;
 
     public OnceExecutionContext(ExecutionContext executionContext) {
-        this.executionContext = executionContext;
         this.variables.putAll(executionContext.getVariables());
+        this.inputData.putAll(executionContext.getInputData());
         this.executionContextValueProvider = new ExecutionContextValueProvider(this);
     }
 
     public OnceExecutionContext(ExecutionContext executionContext, Map<String, Object> parameters) {
-        this.executionContext = executionContext;
         this.variables.putAll(executionContext.getVariables());
+        this.inputData.putAll(executionContext.getInputData());
         this.executionContextValueProvider = new ExecutionContextValueProvider(this);
         this.parameters.putAll(parameters);
     }
@@ -35,7 +35,7 @@ public class OnceExecutionContext implements ExecutionContext {
 
     @Override
     public Map<String, Object> getInputData() {
-        return executionContext.getInputData();
+        return inputData;
     }
 
     @Override
