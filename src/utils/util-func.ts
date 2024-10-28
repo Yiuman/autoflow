@@ -77,6 +77,7 @@ function flatten(data: Object): Record<string, any> {
       result[prop] = cur
     } else if (Array.isArray(cur)) {
       const length = cur.length
+      result[prop] = cur
       for (let i = 0; i < length; i++) {
         recurse(cur[i], `${prop}[${i}]`)
       }
@@ -84,10 +85,9 @@ function flatten(data: Object): Record<string, any> {
         result[prop] = []
       }
     } else {
+      result[prop] = { ...cur }
       if (!isEmpty(cur)) {
         Object.keys(cur).forEach((key) => recurse(cur[key], prop ? `${prop}.${key}` : key))
-      } else {
-        result[prop] = {}
       }
     }
   }

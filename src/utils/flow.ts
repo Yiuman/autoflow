@@ -58,4 +58,23 @@ function getResultFirst<T>(
   return result
 }
 
-export { getResultData, getResultFirstData, getResultFirst, getHandleDirection, validateConnection }
+function getExecutionDurationSeconds<T>(result: ExecutionResult<T> | ExecutionResult<T>[]) {
+  if (!result) {
+    return undefined
+  }
+
+  if (result instanceof Array) {
+    const totalDuration = result.reduce((acc, r) => acc + (r?.durationMs || 0), 0)
+    return (totalDuration / 1000).toFixed(3)
+  }
+  return ((result?.durationMs || 0) / 1000).toFixed(3)
+}
+
+export {
+  getResultData,
+  getResultFirstData,
+  getResultFirst,
+  getHandleDirection,
+  validateConnection,
+  getExecutionDurationSeconds
+}

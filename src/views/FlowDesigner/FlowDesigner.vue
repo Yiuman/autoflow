@@ -348,9 +348,9 @@ function executeFlowSSE(flow: Flow) {
     },
     body: JSON.stringify(flow),
     async onmessage(message: EventSourceMessage) {
+      const currentNode = findNode(message.id)
       switch (message.event) {
         case 'ACTIVITY_STARTED':
-          const currentNode = findNode(message.id)
           if (!currentNode || currentNode.data.running) {
             break
           }
@@ -359,8 +359,19 @@ function executeFlowSSE(flow: Flow) {
         case 'ACTIVITY_COMPLETED':
           if (message.data) {
             const resultData = JSON.parse(message.data)
+            let currentNodeData = currentNode?.data?.executionResult
+            const executionResult = resultData.length > 1 ? resultData : resultData[0]
+            if (currentNodeData) {
+              if (currentNodeData instanceof Array) {
+                currentNodeData.push(executionResult)
+              } else {
+                currentNodeData = [currentNodeData, executionResult]
+              }
+            } else {
+              currentNodeData = executionResult
+            }
             updateNodeData(message.id, {
-              executionResult: resultData.length > 1 ? resultData : resultData[0],
+              executionResult: currentNodeData,
               running: false
             })
           }

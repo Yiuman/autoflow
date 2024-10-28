@@ -7,7 +7,7 @@ const props = defineProps<Props>()
 </script>
 
 <template>
-  <ServiceNode class="if-node" v-bind="props" :actionClass="'none-action'">
+  <ServiceNode class="if-node" v-bind="props">
     <template #default>
       <Handle
         id="INPUT"

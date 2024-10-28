@@ -143,12 +143,14 @@ export function flattenProperties(
   const result: Record<string, any> = {}
 
   properties.forEach((property) => {
+    if (!property.name) {
+      return
+    }
     const fullName = parentName ? `${parentName}.${property.name}` : property.name
     // 如果有嵌套的 properties，则递归处理
+    result[fullName] = property.defaultValue
     if (property.properties && property.properties.length > 0) {
       Object.assign(result, flattenProperties(property.properties, fullName))
-    } else {
-      result[fullName] = property.defaultValue
     }
   })
 

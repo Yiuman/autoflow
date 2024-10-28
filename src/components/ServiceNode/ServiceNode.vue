@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Connection, CustomEvent, ElementData, NodeProps } from '@vue-flow/core'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
-import { getResultFirst, validateConnection } from '@/utils/flow'
+import { getExecutionDurationSeconds, getResultFirst, validateConnection } from '@/utils/flow'
 import {
   IconCheckCircle,
   IconClockCircle,
@@ -72,7 +72,7 @@ const isSuccess = computed(() => {
 })
 
 const durationSeconds = computed(() => {
-  return ((executionResult.value?.durationMs || 0) / 1000).toFixed(3)
+  return getExecutionDurationSeconds(props.data.executionResult)
 })
 const avatarSize = 32
 </script>
