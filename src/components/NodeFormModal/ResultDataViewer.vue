@@ -35,11 +35,11 @@ const dataColumns = computed(() => {
 <template>
   <div class="result-data-viewer">
     <div class="result-box" v-if="result">
-      <template v-if="result.error">
-        <VueJsonPretty :virtual="true" :data="result.error as JSONDataType" :show-icon="true" />
-      </template>
-      <template v-else-if="data instanceof Array">
+      <template v-if="data instanceof Array">
         <DataItemTable :data="data" :columns="dataColumns" />
+      </template>
+      <template v-else-if="result.error">
+        <VueJsonPretty :virtual="true" :data="result.error as JSONDataType" :show-icon="true" />
       </template>
       <template v-else>
         <VueJsonPretty :virtual="true" :data="data as JSONDataType" :show-icon="true" />

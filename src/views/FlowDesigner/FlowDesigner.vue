@@ -127,11 +127,13 @@ async function defaultRun(node: VueFlowNode) {
   const nodeData = executeNodeData.data || {}
   const allIncomers = getAllIncomers(node.id, getIncomers)
   const inputData: Record<string, any[]> = {}
-
+  const variables: Record<string, any[]> = {}
   for (const incomer of allIncomers) {
     inputData[incomer.id] = getResultData(incomer.data?.executionResult)
+    variables[incomer.id] = incomer.data?.parameters
   }
-  nodeData.inputData = inputData
+  nodeData._inputData = inputData
+  nodeData._variables = variables
   executeNodeData.data = nodeData
   const executionResult = await executeNode(executeNodeData)
   updateNodeData(node.id, {

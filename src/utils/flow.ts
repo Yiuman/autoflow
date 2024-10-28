@@ -1,4 +1,4 @@
-import type { Connection, ValidConnectionFunc } from '@vue-flow/core'
+import type { Connection } from '@vue-flow/core'
 import type { ExecutionResult } from '@/types/flow'
 
 /**
@@ -25,7 +25,12 @@ function getResultData<T>(result: ExecutionResult<T> | ExecutionResult<T>[]): un
     return undefined
   }
   if (result instanceof Array) {
-    return result.map((r) => r.data) as T[]
+    return result.map((r) => {
+      return {
+        ...r.data,
+        error: r.error
+      }
+    }) as T[]
   }
   return result.data as T
 }
@@ -35,7 +40,7 @@ function getResultFirstData<T>(result: ExecutionResult<T> | ExecutionResult<T>[]
     return undefined
   }
   if (result instanceof Array) {
-    return result.map((r) => r.data)[0] as T
+    return result.filter((r) => r).map((r) => r.data)[0] as T
   }
   return result.data as T
 }
