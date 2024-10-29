@@ -1,0 +1,234 @@
+@keyframes action {
+  0% {
+    outline-offset: -1px;
+  }
+
+  50% {
+    outline-offset: -3px;
+  }
+
+  100% {
+    outline-offset: -1px;
+  }
+}
+
+.node-form-modal {
+  :global(.node-form-modal_body) {
+    overflow: visible !important;
+    padding: 0 !important;
+    height: calc(100vh - 150px);
+  }
+
+  .node-form-modal-body {
+    height: 100%;
+
+    :deep(.arco-tabs-nav) {
+      height: 46px;
+    }
+  }
+
+  .selected-input-node {
+    border-radius: 3px;
+    overflow: hidden;
+    border: 0.5px solid var(--color-border-3);
+
+
+    .selected-input-node-label {
+    }
+
+    .selected-input-node-id {
+      background-color: var(--color-bg-3);
+    }
+  }
+
+  :global(.vjs-tree) {
+    font-family: unset;
+
+  }
+
+  :global(.vjs-tree.is-virtual .vjs-tree-node){
+    white-space:unset;
+  }
+
+  :global(.vjs-tree-node:hover) {
+    background-color: var(--color-fill-2);
+  }
+
+  .node-form-service {
+    position: absolute;
+    top: -48px;
+    left: 0;
+    padding: 10px;
+    font-size: 18px;
+    margin: 0;
+    color: var(--color-text-1);
+    border-radius: 5px 5px 0 0;
+    background-color: var(--color-bg-5);
+    //font-weight: bold;
+    border-bottom: 1px solid var(--color-border);
+
+    :deep(.arco-input-wrapper) {
+      background-color: transparent;
+      margin-left: 8px;
+      max-width: 120px;
+    }
+
+    :deep(.arco-input-wrapper:not(.arco-input-focus)){
+      &:hover {
+        background-color: var(--color-fill-3);
+      }
+    }
+
+  }
+
+  .node-form-title {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #5b6574;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .node-form-modal-btn {
+    position: absolute;
+    top: 8px;
+    right: -32px;
+    z-index: 1;
+
+    :deep(.arco-btn) {
+      border-radius: 0 5px 5px 0;
+    }
+  }
+
+  .splitpanes {
+    :deep(.splitpanes__splitter) {
+      background-color: var(--color-border);
+      min-width: 4px;
+
+      &:hover {
+        background-color: rgba(var(--primary-5));
+      }
+
+    }
+
+    :deep(.splitpanes__pane) {
+      position: relative;
+    }
+
+    :deep(.node-setting-pane) {
+      overflow: visible;
+    }
+
+    .show-toggle {
+      --toggler-color-bg: #fff;
+      --toggler-color-text: #6a6a6a;
+      color: var(--fgColor-default, var(--color-fg-default, #24292f));
+      background-color: var(--color-border);
+      opacity: 1;
+      line-height: 1;
+      position: absolute;
+      top: var(--octotree-toggler-y, 66%);
+      text-align: center;
+      width: 15px;
+      z-index: 998;
+      cursor: pointer;
+      border-width: 1.5px 1.5px 1.5px;
+      border-color: rgb(207, 215, 223) rgb(207, 215, 223) rgb(207, 215, 223);
+      border-image: initial;
+      border-left: none;
+      padding: 2px 0 25px;
+      transition: right 0.25s ease-in 0.2s, opacity 0.35s ease-in 0.2s;
+    }
+
+    .show-toggle-left {
+      left: -15px;
+      border-radius: 5px 0 0 5px;
+    }
+
+    .show-toggle-right {
+      right: -15px;
+      border-radius: 0 5px 5px 0;
+    }
+
+    .show-toggle-icon {
+      position: relative;
+      opacity: 0.65;
+      pointer-events: none;
+      top: 11.5px;
+      color: var(--color-text-2);
+    }
+  }
+
+  .node-form-model-desc {
+    position: relative;
+
+    :deep(.arco-tabs-content) {
+      height: calc(100% - 50px);
+      overflow: auto;
+
+      .arco-tabs-content-list{
+        min-height: 100%;
+      }
+    }
+
+    :deep(.arco-tabs) {
+      height: 100%;
+    }
+
+    .node-form-model-action-btn {
+      position: absolute;
+      z-index: 1;
+      right: 5px;
+      top: 8px;
+      border-radius: 50%;
+      border: 1px solid transparent;
+    }
+
+    .node-action {
+      border: 1px solid rgba(var(--primary-6), .5);
+      outline: rgba(var(--primary-6), .5) solid 2px;
+      animation: action 1.2s infinite linear;
+    }
+
+    :deep(.arco-tabs-pane) {
+      padding: 0 10px;
+    }
+  }
+
+
+  .node-form-modal-output-empty {
+    height: 100%;
+  }
+
+}
+
+.node-form-modal-input,
+.node-form-modal-output {
+  :deep(.arco-tabs) {
+    height: calc(100% - 50px);
+  }
+
+  .input-data-box {
+    overflow: auto;
+    height: calc(100% - 80px);
+  }
+
+  .output-result-box {
+    overflow: auto;
+    height: calc(100% - 50px);
+  }
+
+  :deep(.arco-tabs-content) {
+    height: calc(100% - 80px);
+    overflow: auto;
+    padding-top: 0;
+  }
+
+  :deep(.arco-tabs-pane) {
+    padding-top: 0;
+    height: 100%;
+  }
+}
+
+.node-form-modal-pane {
+  height: 100%;
+}

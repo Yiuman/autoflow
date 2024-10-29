@@ -1,0 +1,77 @@
+<script setup lang="ts">
+import type { Option } from '@/components/ExpressInput/MentionList.vue'
+import { IconFont } from '@/hooks/iconfont'
+
+const props = defineProps<Option>()
+defineOptions({
+  name: 'MentionTag'
+})
+
+const data = [
+  { label: 'node', value: props.type },
+  { label: 'nodeId', value: props.nodeId },
+  { label: 'value', value: props.value }
+]
+</script>
+<template>
+  <ATrigger position="top" auto-fit-position :popup-translate="[0, -5]">
+    <div class="node-mention-trigger">
+      <span class="node-mention-type">
+        <IconFont
+          class="mention-type-icon"
+          v-if="props.iconFontCode"
+          :type="props.iconFontCode"
+        />{{ props.type }}
+      </span>
+      <span class="node-mention-label">{{ props.label }}</span>
+    </div>
+    <template #content>
+      <div class="node-mention-desc">
+        <ADescriptions :data="data" :column="1" />
+        <em class="arrow"></em>
+      </div>
+    </template>
+  </ATrigger>
+</template>
+
+<style lang="scss" scoped>
+.node-mention-type {
+  display: inline-block;
+  border-radius: 3px 0 0 3px;
+  padding: 0 2px;
+  margin-right: 6px;
+  white-space: nowrap;
+  color: rgb(var(--orangered-6));
+  background-color: rgba(var(--orangered-6), 0.2);
+  border: 1px solid transparent;
+}
+
+.mention-type-icon {
+  color: var(--color-text-2);
+  margin: 0 2px;
+  font-size: 13px;
+}
+
+.node-mention-label {
+  white-space: nowrap;
+}
+
+.node-mention-desc {
+  padding: 5px 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  background: var(--color-bg-popup);
+
+  .arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border: 5px solid transparent;
+    border-top-color: var(--color-bg-popup);
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+</style>

@@ -1,0 +1,1 @@
+1709262278027|130|statement|connection 0|url jdbc:p6spy:mysql://10.0.0.240:9030/xiaobaogong?useSSL=false|select * from dr_case_tag limit 5|select * from dr_case_tag limit 5

@@ -1,0 +1,120 @@
+.autoflow-node {
+  //height: 80px;
+  max-width: 200px;
+  border-radius: 10px;
+  background-color: var(--color-bg-3);
+  border: 2px solid var(--color-border-2);
+  color: var(--color-text-1);
+
+  &:hover {
+    .node-toolbar {
+      opacity: 1;
+      transition-delay: 0s;
+    }
+  }
+
+  .node-duration {
+    position: absolute;
+    bottom: -20px;
+    right: -40px;
+
+
+    :deep(.arco-tag) {
+      color: rgba(var(--primary-6));
+      background-color: transparent;
+    }
+
+    :deep(.arco-tag-icon) {
+      color: rgba(var(--primary-6));
+    }
+  }
+
+}
+
+.node-avatar {
+  padding: 6px;
+  display: flex;
+  position: relative;
+  align-items: center;
+
+  .node-status-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    font-size: 18px;
+
+    .node-status-success {
+      color: rgb(var(--green-8))
+    }
+
+    .node-status-error {
+      color: rgb(var(--orange-6))
+    }
+  }
+
+  .node-label {
+    font-size: 12px;
+    font-weight: bold;
+    margin: auto;
+    padding: 0 10px;
+    word-wrap: break-word;
+    word-break: break-all;  /* 长单词自动换行 */
+    white-space: normal;    /* 允许换行 */
+    overflow-wrap: break-word; /* 适应现代浏览器 */
+  }
+}
+
+.selected {
+  .autoflow-node {
+    box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .node-toolbar {
+    display: block;
+  }
+}
+
+.toolbar-btn {
+  font-size: 14px;
+}
+
+.node-toolbar {
+  position: absolute;
+  top: -26px;
+  right: 1px;
+  z-index: 99;
+  transition: 0.5s;
+  opacity: 0;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  .toolbar-delete-btn {
+    &:hover {
+      color: rgb(var(--danger-6));
+    }
+  }
+}
+
+.vue-flow__node-SERVICE {
+  .vue-flow__handle {
+    height: 10px;
+    width: 10px;
+    z-index: 10;
+  }
+
+  .vue-flow__handle-left {
+    height: 15px;
+    width: 6px;
+    left: 1px;
+    border-radius: unset;
+  }
+
+  .vue-flow__handle-right {
+    background: white;
+    border: 2px solid var(--vf-handle);
+    right: 0;
+  }
+}

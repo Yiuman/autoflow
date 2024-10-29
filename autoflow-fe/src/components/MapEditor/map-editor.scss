@@ -1,0 +1,13 @@
+.map-editor {
+  width: 100%;
+
+  .map-editor-cell {
+    .arco-table-cell {
+      padding: 2px 1px !important;
+    }
+  }
+
+  .map-editor-add {
+    text-align: center;
+  }
+}

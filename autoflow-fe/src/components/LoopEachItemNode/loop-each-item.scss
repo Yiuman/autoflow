@@ -1,0 +1,35 @@
+.vue-flow__node-LOOP_EACH_ITEM {
+  .vue-flow__handle {
+    height: 10px;
+    width: 10px;
+    z-index: 10;
+  }
+
+  .vue-flow__handle-left {
+    height: 15px;
+    width: 6px;
+    left: 1px;
+    border-radius: unset;
+  }
+
+  .vue-flow__handle-right, .vue-flow__handle-bottom {
+    background: white;
+    border: 2px solid var(--vf-handle);
+    right: 0px;
+
+    .done-label {
+      color: var(--color-text-1);
+      position: absolute;
+      top: 14px;
+      left: -8px;
+    }
+
+    .loop-label {
+      color: var(--color-text-1);
+      position: absolute;
+      top: -18px;
+      left: 10px;
+    }
+  }
+
+}
