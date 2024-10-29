@@ -229,7 +229,7 @@ public final class LiteFlows {
         }
 
         List<Connection> connections = getLoopDoneConnections(flow, subFlow.getId());
-        LoopELWrapper iteratorELWrapper = createIteratorEL(node).doOpt(elWrapper);
+        IteratorELWrapper iteratorELWrapper = createIteratorEL(node).doOpt(elWrapper);
         List<Node> outgoers = flow.getOutgoers(subFlow.getId(), connections::contains);
         if (CollUtil.isNotEmpty(outgoers)) {
             String nextFlowId = "next_flow_" + node.getId();
@@ -250,7 +250,7 @@ public final class LiteFlows {
                 .toList();
     }
 
-    private static LoopELWrapper createIteratorEL(Node node) {
+    private static IteratorELWrapper createIteratorEL(Node node) {
         String loopNodeId = StrUtil.format("{}Loop", node.getId());
         String loopNodeDataId = StrUtil.format("{}LoopData", node.getId());
         return ELBus.iteratorOpt(

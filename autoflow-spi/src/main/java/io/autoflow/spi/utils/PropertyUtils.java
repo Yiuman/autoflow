@@ -61,7 +61,8 @@ public final class PropertyUtils {
 
         List<Property> properties = new ArrayList<>();
         T defaultInstance = ReflectUtil.newInstanceIfPossible(clazz);
-        Field[] fields = ReflectUtil.getFields(clazz, field -> !Modifier.isFinal(field.getModifiers()));
+        Field[] fields = ReflectUtil.getFields(clazz, field -> !Modifier.isFinal(field.getModifiers())
+                && !Modifier.isTransient(field.getModifiers()));
         BeanDescriptor constraintsForClass = VALIDATORFACTORY.getValidator().getConstraintsForClass(clazz);
         cache.put(clazz, properties);
         for (Field field : fields) {

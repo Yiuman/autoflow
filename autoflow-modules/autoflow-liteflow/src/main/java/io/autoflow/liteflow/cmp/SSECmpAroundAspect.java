@@ -60,7 +60,7 @@ public class SSECmpAroundAspect implements ICmpAroundAspect {
             LoopItem loopItem = cmp.getCurrLoopObj();
             if (Objects.nonNull(nodeExecutionResultMap) && Event.ACTIVITY_COMPLETED == event) {
                 List<ExecutionResult<Object>> executionResults = nodeExecutionResultMap.get(activityId);
-                if (Objects.nonNull(loopItem)) {
+                if (Objects.nonNull(loopItem) && CollUtil.isNotEmpty(executionResults)) {
                     executionResults = executionResults.stream().filter(executionResult
                                     -> Objects.equals(executionResult.getLoopCounter(), loopItem.getLoopCounter())
                                     && Objects.equals(executionResult.getLoopId(), loopItem.getId()))
