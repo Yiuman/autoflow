@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
     <version>${revision}</version>
     <modules>
-        <module>autoflow-flowbale</module>
+        <module>autoflow-flowable</module>
         <module>autoflow-liteflow</module>
     </modules>
 
