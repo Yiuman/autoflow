@@ -1,23 +1,24 @@
 <script setup lang="ts">
-import type { Connection, CustomEvent, ElementData, NodeProps } from '@vue-flow/core'
-import { Handle, Position, useVueFlow } from '@vue-flow/core'
-import { getExecutionDurationSeconds, getResultFirst, validateConnection } from '@/utils/flow'
+import type {Connection, CustomEvent, ElementData, NodeProps} from '@vue-flow/core'
+import {Handle, Position, useVueFlow} from '@vue-flow/core'
+import {getExecutionDurationSeconds, getResultFirst, validateConnection} from '@/utils/flow'
 import {
-  IconCheckCircle,
-  IconClockCircle,
-  IconDelete,
-  IconEdit,
-  IconExclamationCircle,
-  IconPauseCircleFill,
-  IconPlayCircleFill
+    IconCheckCircle,
+    IconClockCircle,
+    IconDelete,
+    IconEdit,
+    IconExclamationCircle,
+    IconPauseCircleFill,
+    IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
-import { randomRgba } from '@/utils/util-func'
-import { getAllIncomers } from '@/utils/converter'
+import {randomRgba} from '@/utils/util-func'
+import {getAllIncomers} from '@/utils/converter'
 
-const { removeNodes, updateNodeData, getIncomers } = useVueFlow()
+const {removeNodes, updateNodeData, getIncomers} = useVueFlow()
+const avatarSize = 32
 
 export interface ToolBarData {
   toolbarVisible: boolean
@@ -64,31 +65,52 @@ function validConnectionFunc(connection: Connection): boolean {
 }
 
 const executionResult = computed(() => {
-  return getResultFirst(props.data.executionResult)
+    return getResultFirst(props.data.executionResult)
 })
 
 const isSuccess = computed(() => {
-  return !executionResult?.value?.error
+    return !executionResult?.value?.error
 })
 
 const durationSeconds = computed(() => {
-  return getExecutionDurationSeconds(props.data.executionResult)
+    return getExecutionDurationSeconds(props.data.executionResult)
 })
-const avatarSize = 32
+
+let animationTimeout: number | undefined = undefined
+const running = ref()
+
+function setRunning(value: boolean) {
+    running.value = value
+}
+
+watch(
+    () => props.data.running,
+    (newValue) => {
+        if (!animationTimeout) {
+            setRunning(newValue)
+        }
+        clearTimeout(animationTimeout)
+        animationTimeout = setTimeout(() => {
+            setRunning(newValue)
+            animationTimeout = undefined
+            // 动画结束后清除动画状态
+        }, 300) // 与动画持续时间相同
+    }
+)
 </script>
 
 <template>
-  <div class="autoflow-node" :class="data.running ? actionClass || 'node-action' : ''">
-    <div class="node-toolbar">
-      <AButtonGroup size="mini">
-        <AButton @click="data.running ? stopNode() : runNode()" class="toolbar-btn">
-          <template #icon>
-            <IconPauseCircleFill v-if="data.running" class="toolbar-stop-btn" />
-            <IconPlayCircleFill v-else class="toolbar-action-btn" />
-          </template>
-        </AButton>
-        <AButton class="toolbar-btn" @click="props.events.edit(props)">
-          <template #icon>
+    <div :class="running ? actionClass || 'node-action' : ''" class="autoflow-node">
+        <div class="node-toolbar">
+            <AButtonGroup size="mini">
+                <AButton class="toolbar-btn" @click="data.running ? stopNode() : runNode()">
+                    <template #icon>
+                        <IconPauseCircleFill v-if="data.running" class="toolbar-stop-btn"/>
+                        <IconPlayCircleFill v-else class="toolbar-action-btn"/>
+                    </template>
+                </AButton>
+                <AButton class="toolbar-btn" @click="props.events.edit(props)">
+                    <template #icon>
             <IconEdit />
           </template>
         </AButton>

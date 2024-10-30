@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { Property, VueFlowNode } from '@/types/flow'
-import { useVueFlow } from '@vue-flow/core'
+import type {Property, VueFlowNode} from '@/types/flow'
+import {useVueFlow} from '@vue-flow/core'
 import {
-  IconClockCircle,
-  IconCloseCircleFill,
-  IconDoubleLeft,
-  IconDoubleRight,
-  IconPauseCircleFill,
-  IconPlayCircleFill
+    IconClockCircle,
+    IconCloseCircleFill,
+    IconDoubleLeft,
+    IconDoubleRight,
+    IconPauseCircleFill,
+    IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
-import { MdPreview } from 'md-editor-v3'
+import {MdPreview} from 'md-editor-v3'
 import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 import 'md-editor-v3/lib/style.css'
-import { Pane, Splitpanes } from 'splitpanes'
+import {Pane, Splitpanes} from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-import { groupBy } from 'lodash'
-import { darkTheme } from '@/hooks/theme'
+import {groupBy} from 'lodash'
+import {darkTheme} from '@/hooks/theme'
 import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
-import { useNodeDataProvider } from '@/components/NodeFormModal/useNodeDataProvider'
-import { getResultFirst } from '@/utils/flow'
+import {useNodeDataProvider} from '@/components/NodeFormModal/useNodeDataProvider'
+import {getExecutionDurationSeconds} from '@/utils/flow'
 
 interface Props {
   modelValue: VueFlowNode
@@ -75,8 +75,8 @@ const selectedNode = computed(() => {
   return findNode(selectedIncomerNodeId.value)
 })
 
-const outputResult = computed(() => {
-  return getResultFirst(props.modelValue.data?.executionResult)
+const durationSeconds = computed(() => {
+    return getExecutionDurationSeconds(props.modelValue.data?.executionResult)
 })
 
 function doClose() {
@@ -224,12 +224,12 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
           <div class="node-form-modal-pane node-form-modal-output">
             <div class="node-form-title">
               Output
-              <ATag v-if="outputResult && outputResult.durationMs && !outputResult.error">
-                <template #icon>
-                  <IconClockCircle />
-                </template>
-                {{ `${(outputResult.durationMs / 1000).toFixed(3)}s` }}
-              </ATag>
+                <ATag v-if="durationSeconds">
+                    <template #icon>
+                        <IconClockCircle/>
+                    </template>
+                    {{ `${durationSeconds}s` }}
+                </ATag>
             </div>
             <div class="output-result-box">
               <ResultDataViewer :node="modelValue" />

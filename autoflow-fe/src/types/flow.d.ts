@@ -1,5 +1,5 @@
-import type { Node as VueFlowCordNode } from '@vue-flow/core'
-import type { Component } from 'vue'
+import type {Node as VueFlowCordNode} from '@vue-flow/core'
+import type {Component} from 'vue'
 
 interface Flow {
   id: string
@@ -77,9 +77,11 @@ interface ExecutionError {
 }
 
 interface ExecutionResult<T> {
-  data?: T
-  error?: ExecutionError
-  durationMs?: number
+    data?: T
+    error?: ExecutionError
+    durationMs?: number
+    startTime: number
+    endTime: number
 }
 
 interface Variable {

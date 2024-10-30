@@ -7,7 +7,7 @@ import {
   MarkerType,
   type Node as VueFlowNode
 } from '@vue-flow/core'
-import type { TableColumnData } from '@arco-design/web-vue'
+import type {TableColumnData} from '@arco-design/web-vue'
 
 import type {
   ComponentAttr,
@@ -20,9 +20,9 @@ import type {
   Service,
   ValidateRule
 } from '@/types/flow'
-import { uuid } from '@/utils/util-func'
-import { uniq } from 'lodash'
-import type { Position } from '@vueuse/core' //需要使用的组件
+import {uuid} from '@/utils/util-func'
+import {uniq} from 'lodash'
+import type {Position} from '@vueuse/core' //需要使用的组件
 import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
@@ -243,9 +243,9 @@ export function toComponentAttr(property: Property): ComponentAttr {
 
   if (property.options) {
     return {
-      cmp: 'ASelect',
-      attrs: { options: property.options },
-      property
+        cmp: 'ASelect',
+        attrs: {options: property.options, allowCreate: true},
+        property
     }
   }
 

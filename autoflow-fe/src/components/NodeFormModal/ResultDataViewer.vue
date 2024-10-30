@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { JSONDataType } from 'vue-json-pretty/types/utils'
-import type { Property, VueFlowNode } from '@/types/flow'
-import { getResultData, getResultFirst, getResultFirstData } from '@/utils/flow'
-import { objectKeysToColumn, propertyToColumn } from '@/utils/converter'
+import type {JSONDataType} from 'vue-json-pretty/types/utils'
+import type {Property, VueFlowNode} from '@/types/flow'
+import {getResultData, getResultFirst, getResultFirstData} from '@/utils/flow'
+import {objectKeysToColumn, propertyToColumn} from '@/utils/converter'
 import DataItemTable from '@/components/NodeFormModal/DataItemTable.vue'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
@@ -25,7 +25,8 @@ const dataColumns = computed(() => {
     return propertyToColumn(props?.node?.data?.service?.outputType as Property[])
   }
   const firstData = getResultFirstData(props?.node?.data?.executionResult)
-  if (firstData instanceof Array) {
+
+    if (firstData instanceof Array) {
     return objectKeysToColumn(firstData[0])
   }
   return objectKeysToColumn(firstData)

@@ -2,7 +2,7 @@
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import FileDataViewer from '@/components/FileDataViewer/FileDataViewer.vue'
-import type { TableColumnData, TableData } from '@arco-design/web-vue/es/table/interface'
+import type {TableColumnData, TableData} from '@arco-design/web-vue/es/table/interface'
 
 interface Props {
   columns: TableColumnData[]
@@ -14,13 +14,13 @@ const props = defineProps<Props>()
 
 <template>
   <ATable
-    column-resizable
-    :stripe="true"
-    :bordered="false"
-    :pagination="false"
-    style="padding: 5px 10px"
-    :columns="props.columns"
-    :data="props.data"
+          :bordered="false"
+          :columns="props.columns"
+          :data="props.data"
+          :pagination="true"
+          :stripe="true"
+          column-resizable
+          style="padding: 5px 10px"
   >
     <template #typeMapColumn="{ record, column }">
       <VueJsonPretty

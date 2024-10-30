@@ -1,5 +1,5 @@
-import type { Connection } from '@vue-flow/core'
-import type { ExecutionResult } from '@/types/flow'
+import type {Connection} from '@vue-flow/core'
+import type {ExecutionResult} from '@/types/flow'
 
 /**
  * 获取连接的处理器的类型（input\output）
@@ -64,8 +64,19 @@ function getExecutionDurationSeconds<T>(result: ExecutionResult<T> | ExecutionRe
   }
 
   if (result instanceof Array) {
-    const totalDuration = result.reduce((acc, r) => acc + (r?.durationMs || 0), 0)
-    return (totalDuration / 1000).toFixed(3)
+      const maxEndTime = result
+          .filter((r) => !r.error)
+          .reduce((max, obj) => {
+              return max.endTime > obj.endTime ? max : obj
+          })
+      const minStartTime = result
+          .filter((r) => !r.error)
+          .reduce((min, obj) => {
+              return min.startTime < obj.startTime ? min : obj
+          })
+      return ((maxEndTime.endTime - minStartTime.startTime) / 1000).toFixed(3)
+      // const totalDuration = result.reduce((acc, r) => acc + (r?.durationMs || 0), 0)
+      // return (totalDuration / 1000).toFixed(3)
   }
   return ((result?.durationMs || 0) / 1000).toFixed(3)
 }

@@ -1,59 +1,37 @@
 <script lang="ts" setup>
-import type {
-  Connection,
-  EdgeMouseEvent,
-  Elements,
-  GraphEdge,
-  ViewportTransform,
-  XYPosition
-} from '@vue-flow/core'
-import { ConnectionMode, MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import type {Connection, EdgeMouseEvent, Elements, GraphEdge, ViewportTransform, XYPosition} from '@vue-flow/core'
+import {ConnectionMode, MarkerType, Panel, useVueFlow, VueFlow} from '@vue-flow/core'
+import {elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode} from '@/utils/converter'
 import {
-  elementsToFlow,
-  getAllIncomers,
-  serviceToGraphNode,
-  toGraphEdge,
-  toGraphNode,
-  toNode
-} from '@/utils/converter'
-import {
-  IconCloudDownload,
-  IconPauseCircleFill,
-  IconPlayCircleFill,
-  IconSave,
-  IconUpload
+    IconCloudDownload,
+    IconPauseCircleFill,
+    IconPlayCircleFill,
+    IconSave,
+    IconUpload
 } from '@arco-design/web-vue/es/icon'
-import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
+import {Background} from '@vue-flow/background'
+import {Controls} from '@vue-flow/controls'
 
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
-import { type FileItem, Notification } from '@arco-design/web-vue'
-import type {
-  BoundingBox,
-  Flow,
-  NodeElementData,
-  Position,
-  Property,
-  Service,
-  VueFlowNode
-} from '@/types/flow'
+import {type FileItem, Notification} from '@arco-design/web-vue'
+import type {BoundingBox, Flow, NodeElementData, Position, Property, Service, VueFlowNode} from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
-import { computed } from 'vue'
-import { downloadByData } from '@/utils/download'
-import { getContainerClientXY } from '@/utils/util-func'
-import { executeNode, stopExecution } from '@/api/execution'
-import { useServiceStore } from '@/stores/service'
+import {computed} from 'vue'
+import {downloadByData} from '@/utils/download'
+import {getContainerClientXY} from '@/utils/util-func'
+import {executeNode, stopExecution} from '@/api/execution'
+import {useServiceStore} from '@/stores/service'
 import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
 import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
-import { type EventSourceMessage, fetchEventSource } from '@microsoft/fetch-event-source'
-import { useEnv } from '@/hooks/env'
+import {type EventSourceMessage, fetchEventSource} from '@microsoft/fetch-event-source'
+import {useEnv} from '@/hooks/env'
 import useTheme from '@/hooks/theme'
 import workflowApi from '@/api/workflow'
-import { useRoute } from 'vue-router'
-import { getResultData } from '@/utils/flow'
+import {useRoute} from 'vue-router'
+import {getResultData} from '@/utils/flow'
 
 const [theme] = useTheme()
 
@@ -361,16 +339,20 @@ function executeFlowSSE(flow: Flow) {
             const resultData = JSON.parse(message.data)
             let currentNodeData = currentNode?.data?.executionResult
             const executionResult = resultData.length > 1 ? resultData : resultData[0]
+
             if (currentNodeData) {
-              if (currentNodeData instanceof Array) {
-                currentNodeData.push(executionResult)
-              } else {
-                currentNodeData = [currentNodeData, executionResult]
-              }
+                if (Array.isArray(currentNodeData)) {
+                    Array.isArray(executionResult)
+                        ? currentNodeData.push(...executionResult)
+                        : currentNodeData.push(executionResult)
+                } else {
+                    currentNodeData = [currentNodeData, executionResult]
+                }
             } else {
               currentNodeData = executionResult
             }
-            updateNodeData(message.id, {
+
+              updateNodeData(message.id, {
               executionResult: currentNodeData,
               running: false
             })
