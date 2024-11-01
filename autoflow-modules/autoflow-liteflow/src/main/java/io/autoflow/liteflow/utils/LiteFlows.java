@@ -96,8 +96,8 @@ public final class LiteFlows {
         return CollUtil.getFirst(commonNodes);
     }
 
-    private static Map<List<String>, Node> findJointNodes(Map<String, List<Node>> startNodeIdOutgoerMap) {
-        Map<List<String>, Node> jointNodes = new HashMap<>();
+    private static Map<Node, Set<String>> findJointNodes(Map<String, List<Node>> startNodeIdOutgoerMap) {
+        Map<Node, Set<String>> jointNodes = new HashMap<>();
         List<String> keys = new ArrayList<>(startNodeIdOutgoerMap.keySet());
 
         for (int i = 0; i < keys.size(); i++) {
@@ -109,7 +109,13 @@ public final class LiteFlows {
 
                 for (Node node : outgoers2) {
                     if (outgoers1.contains(node)) {
-                        jointNodes.put(List.of(key1, key2), node);
+                        Set<String> startKeys = jointNodes.get(node);
+                        if (Objects.isNull(startKeys)) {
+                            startKeys = new HashSet<>();
+                        }
+                        startKeys.add(key1);
+                        startKeys.add(key2);
+                        jointNodes.put(node, startKeys);
                         break;
                     }
                 }
@@ -168,9 +174,9 @@ public final class LiteFlows {
                                                 List<Node> startNodes,
                                                 Map<String, List<Node>> startNodeOutgoers) {
         List<ELWrapper> whenElList = new ArrayList<>();
-        Map<List<String>, Node> jointNodes = findJointNodes(startNodeOutgoers);
+        Map<Node, Set<String>> jointNodes = findJointNodes(startNodeOutgoers);
         //有交集的节点ID集合
-        List<String> startNodeKeys = jointNodes.keySet()
+        List<String> startNodeKeys = jointNodes.values()
                 .stream().flatMap(Collection::stream)
                 .distinct()
                 .toList();
@@ -186,11 +192,14 @@ public final class LiteFlows {
 
         //有交集节点
         if (CollUtil.isNotEmpty(jointNodes)) {
-            List<Node> jointStartNodes = startNodes.stream()
-                    .filter(node -> startNodeKeys.contains(node.getId()))
-                    .toList();
-            Flow jointFlow = createJointFlow(flow, jointStartNodes, startNodeOutgoers, null);
-            whenElList.add(convertEl(jointFlow));
+            for (Map.Entry<Node, Set<String>> nodeSetEntry : jointNodes.entrySet()) {
+                Set<String> currentNodeKeys = nodeSetEntry.getValue();
+                List<Node> jointStartNodes = startNodes.stream()
+                        .filter(node -> currentNodeKeys.contains(node.getId()))
+                        .toList();
+                Flow jointFlow = createJointFlow(flow, jointStartNodes, startNodeOutgoers, null);
+                whenElList.add(convertEl(jointFlow));
+            }
         }
 
         return whenEls(whenElList);
