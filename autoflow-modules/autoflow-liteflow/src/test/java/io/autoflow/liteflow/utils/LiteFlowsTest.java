@@ -30,6 +30,19 @@ class LiteFlowsTest {
     }
 
     @Test
+    public void testMultipleBranchEachEl() {
+        Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("multiple_branch.json"), Flow.class);
+        log.info("\n" + LiteFlows.convertElStr(flow));
+    }
+
+    @Test
+    public void testMultipleBranch2EachEl() {
+        Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("multiple_branch2.json"), Flow.class);
+        log.info("\n" + LiteFlows.convertElStr(flow));
+    }
+
+
+    @Test
     public void testConvertComplexEl() {
         Flow flow = JSONUtil.toBean(ResourceUtil.readUtf8Str("complex.json"), Flow.class);
         log.info("\n" + LiteFlows.convertElStr(flow));

@@ -24,13 +24,13 @@ public class TextExtractor extends BaseService<TextExtractParameter, TextExtract
         byte[] content = file.getContent();
         String fileType = FileUtil.getSuffix(file.getFilename());
         try {
+            Thread.sleep(3000);
             return TextExtractResult.builder()
                     .text(OfficeUtils.toText(IoUtil.toStream(content), fileType.toLowerCase()))
                     .build();
         } catch (Throwable throwable) {
             throw new ExecuteException(throwable, getId());
         }
-
 
     }
 }

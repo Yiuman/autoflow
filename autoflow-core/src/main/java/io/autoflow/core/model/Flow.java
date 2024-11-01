@@ -59,8 +59,9 @@ public class Flow {
     }
 
     public List<Node> getStartNodes() {
+        Set<String> connectionTargetList = getConnectionTargets();
         List<Node> startNodes = getNodes().stream()
-                .filter(node -> !getConnectionTargets().contains(node.getId()))
+                .filter(node -> !connectionTargetList.contains(node.getId()))
                 .collect(Collectors.toList());
         return CollUtil.isNotEmpty(startNodes) ? startNodes : getNodes();
     }
@@ -160,6 +161,7 @@ public class Flow {
         List<String> outgoerIds = getOutgoerIds(nodeId, deep);
         return nodes.stream()
                 .filter(nodeItem -> outgoerIds.contains(nodeItem.getId()))
+                .sorted(Comparator.comparingInt(o -> outgoerIds.indexOf(o.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -201,8 +203,24 @@ public class Flow {
             }
 
         }
-        return CollUtil.reverse(outgoerIds);
 
+        return outgoerIds;
+    }
+
+    private void findAllOutgoers(List<String> allOutgoers, List<String> currentOutgoers, Set<String> visited, Predicate<Connection> matchConnect) {
+        for (String outgoerId : currentOutgoers) {
+            if (!visited.contains(outgoerId)) {
+                visited.add(outgoerId);
+                allOutgoers.add(outgoerId);
+
+                List<String> nextOutgoers = connections.stream()
+                        .filter(connection -> Objects.equals(connection.getSource(), outgoerId) && matchConnect.test(connection))
+                        .map(Connection::getTarget)
+                        .collect(Collectors.toList());
+
+                findAllOutgoers(allOutgoers, nextOutgoers, visited, matchConnect);
+            }
+        }
     }
 
     public List<Connection> getNodeConnections(Node node) {

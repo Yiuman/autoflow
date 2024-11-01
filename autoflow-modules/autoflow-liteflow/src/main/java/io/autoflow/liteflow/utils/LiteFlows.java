@@ -83,47 +83,158 @@ public final class LiteFlows {
     }
 
 
-    public static ELWrapper convertEl(Flow flow) {
-        List<Node> currentNodes = flow.getStartNodes();
-        if (CollUtil.isEmpty(currentNodes)) {
-            return ELBus.node("empty");
+    private static Map<String, List<Node>> getStartNodeOutgoers(Flow flow, List<Node> startNodes) {
+        return startNodes.stream()
+                .collect(Collectors.toMap(Node::getId, flow::getOutgoers));
+    }
+
+    private static Node findCommonNode(Map<String, List<Node>> startNodeIdOutgoerMap) {
+        List<Node> commonNodes = new ArrayList<>(startNodeIdOutgoerMap.values().iterator().next());
+        for (List<Node> outgoers : startNodeIdOutgoerMap.values()) {
+            commonNodes.retainAll(outgoers);
         }
-        List<ELWrapper> elWrappers = new ArrayList<>();
+        return CollUtil.getFirst(commonNodes);
+    }
 
-        while (CollUtil.isNotEmpty(currentNodes)) {
-            List<Node> specialNodes = filterSpecialNodes(currentNodes);
-            elWrappers.addAll(specialNodes.stream()
-                    .map(node -> processNode(flow, node))
-                    .toList());
-            List<Node> normalNodes = filterNonSpecialNodes(currentNodes);
-            if (CollUtil.isEmpty(normalNodes)) {
-                break;
-            }
-            if (CollUtil.size(normalNodes) > 1) {
-                Map<String, List<Node>> nodeOutgoerMap = normalNodes.stream()
-                        .collect(Collectors.toMap(Node::getId, node -> flow.getOutgoers(node, false)));
+    private static Map<List<String>, Node> findJointNodes(Map<String, List<Node>> startNodeIdOutgoerMap) {
+        Map<List<String>, Node> jointNodes = new HashMap<>();
+        List<String> keys = new ArrayList<>(startNodeIdOutgoerMap.keySet());
 
-                List<Node> distinctOutgoers = nodeOutgoerMap.values().stream()
-                        .flatMap(Collection::stream).distinct()
-                        .toList();
+        for (int i = 0; i < keys.size(); i++) {
+            for (int j = i + 1; j < keys.size(); j++) {
+                String key1 = keys.get(i);
+                String key2 = keys.get(j);
+                List<Node> outgoers1 = startNodeIdOutgoerMap.get(key1);
+                List<Node> outgoers2 = startNodeIdOutgoerMap.get(key2);
 
-                if (CollUtil.size(distinctOutgoers) > 1) {
-                    // 处理节点交集
-                    processNodeIntersection(flow, elWrappers, normalNodes, nodeOutgoerMap);
-                    currentNodes = null;
-                } else {
-                    List<ELWrapper> whenEl = normalNodes.stream()
-                            .map(currentNode -> processNode(flow, currentNode))
-                            .toList();
-                    elWrappers.add(whenEls(whenEl));
-                    currentNodes = distinctOutgoers;
+                for (Node node : outgoers2) {
+                    if (outgoers1.contains(node)) {
+                        jointNodes.put(List.of(key1, key2), node);
+                        break;
+                    }
                 }
+            }
+        }
 
+        return jointNodes;
+    }
 
+    private static Flow createSubFlow(Flow flow, Node head, List<Node> outgoers) {
+        Flow flowItem = new Flow();
+        flowItem.setId("sub_flow_" + head.getId());
+        List<Node> nodes = new ArrayList<>();
+        nodes.add(head);
+        nodes.addAll(outgoers);
+        flowItem.setNodes(nodes);
+        List<Connection> allConnections = flow.getConnections();
+        List<Connection> connections = nodes.stream()
+                .flatMap(node -> allConnections.stream()
+                        .filter(connection -> Objects.equals(connection.getSource(), node.getId())
+                                || Objects.equals(connection.getTarget(), node.getId())))
+                .filter(connection -> !Objects.equals(connection.getTarget(), head.getId()))
+                .toList();
+        flowItem.setConnections(connections);
+        return flowItem;
+    }
+
+    private static Flow createJointFlow(Flow flow, List<Node> jointStartNodes,
+                                        Map<String, List<Node>> outgoerMap,
+                                        Node jointNode
+    ) {
+        Set<Node> nodes = new HashSet<>();
+        for (Node jointStartNode : jointStartNodes) {
+            nodes.add(jointStartNode);
+            List<Node> currentNodeOutgoers = outgoerMap.get(jointStartNode.getId());
+            if (Objects.nonNull(jointNode)) {
+                currentNodeOutgoers = currentNodeOutgoers.subList(0, currentNodeOutgoers.indexOf(jointNode));
+            }
+            nodes.addAll(currentNodeOutgoers);
+        }
+        List<String> startNodeIds = jointStartNodes.stream()
+                .map(Node::getId).toList();
+        String flowId = String.join("$", startNodeIds);
+        Flow subflow = new Flow();
+        subflow.setId("sub_flow_" + flowId);
+        subflow.setNodes(new ArrayList<>(nodes));
+        List<Connection> connectionList = nodes.stream()
+                .flatMap(node -> flow.getNodeConnections(node).stream())
+                .filter(connection -> !startNodeIds.contains(connection.getTarget()))
+                .toList();
+        subflow.setConnections(connectionList);
+        return subflow;
+    }
+
+    private static ELWrapper handleNoCommonNode(Flow flow,
+                                                List<Node> startNodes,
+                                                Map<String, List<Node>> startNodeOutgoers) {
+        List<ELWrapper> whenElList = new ArrayList<>();
+        Map<List<String>, Node> jointNodes = findJointNodes(startNodeOutgoers);
+        //有交集的节点ID集合
+        List<String> startNodeKeys = jointNodes.keySet()
+                .stream().flatMap(Collection::stream)
+                .distinct()
+                .toList();
+
+        //无交集节点
+        List<Node> unJoinStartNodes = startNodes.stream()
+                .filter(startNode -> !startNodeKeys.contains(startNode.getId()))
+                .toList();
+        for (Node unJoinStartNode : unJoinStartNodes) {
+            Flow subFlow = createSubFlow(flow, unJoinStartNode, startNodeOutgoers.get(unJoinStartNode.getId()));
+            whenElList.add(convertEl(subFlow));
+        }
+
+        //有交集节点
+        if (CollUtil.isNotEmpty(jointNodes)) {
+            List<Node> jointStartNodes = startNodes.stream()
+                    .filter(node -> startNodeKeys.contains(node.getId()))
+                    .toList();
+            Flow jointFlow = createJointFlow(flow, jointStartNodes, startNodeOutgoers, null);
+            whenElList.add(convertEl(jointFlow));
+        }
+
+        return whenEls(whenElList);
+    }
+
+    private static ELWrapper handleCommonNode(Flow flow,
+                                              List<Node> startNodes,
+                                              Map<String, List<Node>> startNodeOutgoers,
+                                              Node commonNode) {
+        Flow jointFlow = createJointFlow(
+                flow,
+                startNodes,
+                startNodeOutgoers,
+                commonNode
+        );
+        return convertEl(jointFlow);
+
+    }
+
+    public static ELWrapper convertEl(Flow flow) {
+        List<Node> startNodes = flow.getStartNodes();
+        List<ELWrapper> elWrappers = new ArrayList<>();
+        while (CollUtil.isNotEmpty(startNodes)) {
+            if (CollUtil.size(startNodes) > 1) {
+                //如果当前节点有多个，则先找到他们的共同交点，切割子流程
+                Map<String, List<Node>> startNodeOutgoers = getStartNodeOutgoers(flow, startNodes);
+                // 查找所有起始节点的第一个共同交点
+                Node commonNode = findCommonNode(startNodeOutgoers);
+                //没有共同的交点则共同的交点是End节点
+                if (Objects.isNull(commonNode)) {
+                    elWrappers.add(handleNoCommonNode(flow, startNodes, startNodeOutgoers));
+                    startNodes = null;
+                } else {
+                    elWrappers.add(handleCommonNode(flow, startNodes, startNodeOutgoers, commonNode));
+                    startNodes = CollUtil.newArrayList(commonNode);
+                }
             } else {
-                Node first = CollUtil.getFirst(normalNodes);
+                Node first = CollUtil.getFirst(startNodes);
                 elWrappers.add(processNode(flow, first));
-                currentNodes = flow.getOutgoers(first, false);
+                //特殊节点不处理
+                startNodes = List.of(NodeType.IF, NodeType.LOOP_EACH_ITEM).contains(first.getType())
+                        ? null
+                        : flow.getOutgoers(first, false);
+
             }
         }
         return thenEls(elWrappers);
@@ -139,80 +250,6 @@ public final class LiteFlows {
         return CollUtil.size(elWrappers) == 1
                 ? elWrappers.get(0)
                 : ELBus.then(elWrappers.toArray());
-    }
-
-    private static void processNodeIntersection(Flow flow, List<ELWrapper> elWrappers, List<Node> currentNodes,
-                                                Map<String, List<Node>> nodeOutgoerMap) {
-        // 找到交集
-        Set<Node> intersection = nodeOutgoerMap.values().stream()
-                .reduce((list1, list2) -> new ArrayList<>(CollUtil.intersection(list1, list2)))
-                .map(HashSet::new)
-                .orElse(CollUtil.newHashSet());
-        Set<Node> intersectionOutgoers = intersection.stream()
-                .flatMap(item -> flow.getOutgoers(item).stream())
-                .collect(Collectors.toSet());
-        List<ELWrapper> intersectionEls = intersection.stream()
-                .map(node -> createSubFlowElWrapper(flow, node))
-                .toList();
-
-        List<ELWrapper> childChain = createChildChain(flow, currentNodes, intersectionOutgoers, intersection);
-
-        if (CollUtil.isNotEmpty(intersectionEls)) {
-            ELWrapper elWrapper = whenEls(intersectionEls);
-            elWrappers.add(ELBus.then(ELBus.when(childChain.toArray()), elWrapper));
-        } else {
-            elWrappers.add(ELBus.when(childChain.toArray()));
-        }
-    }
-
-    // 创建子链
-    private static List<ELWrapper> createChildChain(Flow flow,
-                                                    List<Node> currentNodes,
-                                                    Set<Node> intersectionOutgoers,
-                                                    Set<Node> intersection) {
-        return currentNodes.stream()
-                .map(currentNode -> (ELWrapper) ELBus.then(
-                        processNode(flow, currentNode),
-                        convertEl(
-                                createNextFlow(
-                                        StrUtil.format("flow_{}", currentNode.getId()),
-                                        flow.getOutgoers(currentNode).stream()
-                                                .filter(node -> !intersectionOutgoers.contains(node)
-                                                        && !intersection.contains(node))
-                                                .collect(Collectors.toList()),
-                                        flow,
-                                        currentNode
-                                )
-                        )
-                )).toList();
-    }
-
-    private static ELWrapper createSubFlowElWrapper(Flow flow, Node node) {
-        List<Node> nodes = CollUtil.newArrayList(node);
-        nodes.addAll(flow.getOutgoers(node));
-        List<String> nodeIds = nodes.stream().map(Node::getId).toList();
-        List<Connection> connections = flow.getConnections().stream()
-                .filter(connection -> nodeIds.contains(connection.getSource())
-                        && nodeIds.contains(connection.getTarget()))
-                .toList();
-        Flow subFlow = new Flow();
-        subFlow.setId(StrUtil.format("flow_{}", node.getId()));
-        subFlow.setNodes(nodes);
-        subFlow.setConnections(connections);
-        subFlow.setParentId(flow.getId());
-        return convertEl(subFlow);
-    }
-
-    private static List<Node> filterSpecialNodes(Collection<Node> nodes) {
-        return nodes.stream()
-                .filter(node -> Set.of(NodeType.LOOP_EACH_ITEM, NodeType.IF).contains(node.getType()))
-                .toList();
-    }
-
-    private static List<Node> filterNonSpecialNodes(Collection<Node> nodes) {
-        return nodes.stream()
-                .filter(node -> !Set.of(NodeType.LOOP_EACH_ITEM, NodeType.IF).contains(node.getType()))
-                .toList();
     }
 
     private static ELWrapper createIteratorEL(Node node, Flow flow) {
@@ -352,7 +389,8 @@ public final class LiteFlows {
             String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
             String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
             wrapper = ELBus.ifOpt(
-                    ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition),
+                    ELBus.node(completionConditionId)
+                            .data(completionConditionDataId, completionCondition),
                     elWrapper
             );
         }

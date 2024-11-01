@@ -1,0 +1,390 @@
+{
+  "id": "UToT5ebG",
+  "name": "UToT5ebG",
+  "nodes": [
+    {
+      "id": "PJjcWB8J",
+      "label": "3",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 211,
+        "y": 241
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "sQJnFi5r",
+      "label": "6",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 447.44731098805437,
+        "y": 199.9890685903016
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "n66ygtE9",
+      "label": "4",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 475.60734606043786,
+        "y": 45.53082619254852
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "l7jPV5Tc",
+      "label": "5",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 754.7345869037256,
+        "y": 39.25448168657576
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "nJF4QbO1",
+      "label": "7",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 672.3149719733493,
+        "y": 202.24805010753767
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "SPANMa7K",
+      "label": "1",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": -0.35286437386213265,
+        "y": 172.28727591567122
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "sCO1ktog",
+      "label": "2",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 4.508963373151573,
+        "y": 310.3926539395622
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "Sbt4P7WB",
+      "label": "8",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 851.8765880702767,
+        "y": 197.03750336220082
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "C7Pp2f2b",
+      "label": "9",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 861.1990770481552,
+        "y": 301.86936455012193
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "rCkKx14e",
+      "label": "10",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 1057.7020019770755,
+        "y": 141.9593682079075
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {
+        "loopCardinality": null,
+        "collectionString": null,
+        "elementVariable": null,
+        "sequential": false,
+        "completionCondition": null
+      }
+    },
+    {
+      "id": "qRueZVOX",
+      "label": "11",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 695.523830855944,
+        "y": 497.59641465073935
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {}
+    },
+    {
+      "id": "AMBcNZ34",
+      "label": "12",
+      "serviceId": "io.autoflow.plugin.textextractor.TextExtractor",
+      "type": "SERVICE",
+      "position": {
+        "x": 1343.3797985289198,
+        "y": 191.69938540159458
+      },
+      "data": {
+        "file": {}
+      },
+      "loop": {}
+    }
+  ],
+  "connections": [
+    {
+      "id": "vueflow__edge-PJjcWB8JOUTPUT-sQJnFi5rINPUT",
+      "source": "PJjcWB8J",
+      "target": "sQJnFi5r",
+      "sourceX": 294.0312524614131,
+      "sourceY": 264.9999984009615,
+      "targetX": 444.4473066485253,
+      "targetY": 223.98906482149852,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-PJjcWB8JOUTPUT-n66ygtE9INPUT",
+      "source": "PJjcWB8J",
+      "target": "n66ygtE9",
+      "sourceX": 294.0312524614131,
+      "sourceY": 264.9999984009615,
+      "targetX": 472.6074202900191,
+      "targetY": 69.53082242374543,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-n66ygtE9OUTPUT-l7jPV5TcINPUT",
+      "source": "n66ygtE9",
+      "target": "l7jPV5Tc",
+      "sourceX": 558.8573742095501,
+      "sourceY": 69.53082459350998,
+      "targetX": 751.7345825641964,
+      "targetY": 63.254497560050254,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-sQJnFi5rOUTPUT-nJF4QbO1INPUT",
+      "source": "sQJnFi5r",
+      "target": "nJF4QbO1",
+      "sourceX": 530.6504333783028,
+      "sourceY": 223.98906699126306,
+      "targetX": 669.3149676338202,
+      "targetY": 226.24808562328974,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-SPANMa7KOUTPUT-PJjcWB8JINPUT",
+      "source": "SPANMa7K",
+      "target": "PJjcWB8J",
+      "sourceX": 80.78777958580702,
+      "sourceY": 196.28727431663268,
+      "targetX": 207.9999956604709,
+      "targetY": 264.9999962311969,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-sCO1ktogOUTPUT-PJjcWB8JINPUT",
+      "source": "sCO1ktog",
+      "target": "PJjcWB8J",
+      "sourceX": 87.22772684052563,
+      "sourceY": 334.3926523405237,
+      "targetX": 207.9999956604709,
+      "targetY": 264.9999962311969,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-nJF4QbO1OUTPUT-Sbt4P7WBINPUT",
+      "source": "nJF4QbO1",
+      "target": "Sbt4P7WB",
+      "sourceX": 754.5728293972809,
+      "sourceY": 226.24808779305428,
+      "targetX": 848.8765837307476,
+      "targetY": 221.03749959339774,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-nJF4QbO1OUTPUT-C7Pp2f2bINPUT",
+      "source": "nJF4QbO1",
+      "target": "C7Pp2f2b",
+      "sourceX": 754.5728293972809,
+      "sourceY": 226.24808779305428,
+      "targetX": 858.1990727086261,
+      "targetY": 325.86936078131885,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-Sbt4P7WBOUTPUT-rCkKx14eINPUT",
+      "source": "Sbt4P7WB",
+      "target": "rCkKx14e",
+      "sourceX": 935.2047139150518,
+      "sourceY": 221.03750176316228,
+      "targetX": 1054.7020762066568,
+      "targetY": 165.9593644391044,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-C7Pp2f2bOUTPUT-rCkKx14eINPUT",
+      "source": "C7Pp2f2b",
+      "target": "rCkKx14e",
+      "sourceX": 944.4021994384036,
+      "sourceY": 325.8693629510834,
+      "targetX": 1054.7020762066568,
+      "targetY": 165.9593644391044,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-PJjcWB8JOUTPUT-qRueZVOXINPUT",
+      "source": "PJjcWB8J",
+      "target": "qRueZVOX",
+      "sourceX": 294.0312524614131,
+      "sourceY": 264.9999984009615,
+      "targetX": 692.5238265164148,
+      "targetY": 521.5963715973811,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-l7jPV5TcOUTPUT-rCkKx14eINPUT",
+      "source": "l7jPV5Tc",
+      "target": "rCkKx14e",
+      "sourceX": 837.7033376378754,
+      "sourceY": 63.25449972981481,
+      "targetX": 1054.7020762066568,
+      "targetY": 165.9593644391044,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-rCkKx14eOUTPUT-AMBcNZ34INPUT",
+      "source": "rCkKx14e",
+      "target": "AMBcNZ34",
+      "sourceX": 1147.061407006818,
+      "sourceY": 165.95936660886895,
+      "targetX": 1340.3797156202804,
+      "targetY": 215.6993816327915,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    },
+    {
+      "id": "vueflow__edge-qRueZVOXOUTPUT-AMBcNZ34INPUT",
+      "source": "qRueZVOX",
+      "target": "AMBcNZ34",
+      "sourceX": 782.8050829175975,
+      "sourceY": 521.5964130517008,
+      "targetX": 1340.3797156202804,
+      "targetY": 215.6993816327915,
+      "sourcePointType": "OUTPUT",
+      "targetPointType": "INPUT"
+    }
+  ]
+}

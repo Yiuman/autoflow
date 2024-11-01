@@ -9,6 +9,7 @@ import io.autoflow.app.model.ServiceEntity;
 import io.autoflow.app.service.FileResourceService;
 import io.autoflow.app.service.ServiceEntityService;
 import io.autoflow.core.Services;
+import io.autoflow.spi.I18n;
 import io.ola.crud.service.impl.BaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,10 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         serviceEntity.setName(service.getName());
         serviceEntity.setProperties(service.getProperties());
         serviceEntity.setOutputType(service.getOutputType());
+        if (service instanceof I18n i18n) {
+            serviceEntity.setI18n(i18n.getI18n());
+        }
+
         serviceEntity.setDescription(service.getDescription());
         serviceEntity.setSystem(true);
         return serviceEntity;

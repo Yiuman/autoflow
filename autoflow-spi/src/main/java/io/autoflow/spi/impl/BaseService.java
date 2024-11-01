@@ -9,6 +9,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.TypeUtil;
 import cn.hutool.extra.validation.ValidationUtil;
+import io.autoflow.spi.I18n;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.exception.InputValidateException;
@@ -28,7 +29,7 @@ import java.util.Set;
  * @date 2023/7/27
  */
 @SuppressWarnings("unchecked")
-public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT> {
+public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT>, I18n {
 
     private final transient Class<INPUT> inputClass = (Class<INPUT>) TypeUtil.getTypeArgument(getClass(), 0);
     private final transient Class<OUTPUT> outputClass = (Class<OUTPUT>) TypeUtil.getClass(
@@ -46,6 +47,7 @@ public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT> {
         if (Objects.isNull(properties)) {
             properties = PropertyUtils.buildProperies(getClass(), inputClass);
         }
+
         return properties;
     }
 
@@ -92,4 +94,5 @@ public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT> {
     public OUTPUT execute(INPUT input) {
         return execute(input, null);
     }
+
 }
