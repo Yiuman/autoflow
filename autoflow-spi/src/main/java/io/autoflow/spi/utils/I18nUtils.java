@@ -1,21 +1,16 @@
 package io.autoflow.spi.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * @author yiuman
@@ -31,32 +26,49 @@ public final class I18nUtils {
             return cacheI18n;
         }
         Map<String, Properties> i18n = new HashMap<>();
-        URL resource = clazz.getResource("resource/messages");
-        if (Objects.isNull(resource)) {
-            I18N_CACHE.put(clazz, i18n);
-            return i18n;
-        }
-        Path messagesDir = Paths.get(resource.getPath());
-        // 遍历 messages 文件夹下的所有 .properties 文件
-        try (Stream<Path> paths = Files.walk(messagesDir)) {
-            paths.filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".properties"))
-                    .forEach(path -> {
-                        String filename = FileUtil.getName(path);
-                        Matcher matcher = LOCALE_PATTERN.matcher(filename);
-                        if (!matcher.matches()) {
-                            return;
-                        }
-                        Properties properties = new Properties();
-                        try (InputStream is = Files.newInputStream(path)) {
-                            properties.load(is);
-                            i18n.put(matcher.group(1), properties);
-                        } catch (IOException ignore) {
-                        }
+        URL jarLocation = clazz.getProtectionDomain().getCodeSource().getLocation();
+        String jarPath = jarLocation.getPath();
+        if (jarPath.endsWith(".jar")) {
+            try (JarFile jarFile = new JarFile(jarPath)) {
+                // 获取资源文件名
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    // 检查条目是否在 messages 目录下
+                    String filename = FileUtil.getName(entry.getName());
+                    Matcher matcher = LOCALE_PATTERN.matcher(filename);
+                    if (!matcher.matches()) {
+                        continue;
+                    }
+                    Properties properties = new Properties();
 
-                    });
-        } catch (IOException ignore) {
+                    try (BufferedReader bf = new BufferedReader(new InputStreamReader(jarFile.getInputStream(entry)))) {
+                        properties.load(bf);
+                        i18n.put(matcher.group(1), properties);
+                    } catch (IOException ignore) {
+                    }
+                }
+            } catch (Throwable ignore) {
+            }
+        } else {
+            List<File> files = FileUtil.loopFiles(jarPath + "/messages");
+            if (CollUtil.isNotEmpty(files)) {
+                for (File file : files) {
+                    String filename = FileUtil.getName(file.getName());
+                    Matcher matcher = LOCALE_PATTERN.matcher(filename);
+                    if (!matcher.matches()) {
+                        continue;
+                    }
+                    Properties properties = new Properties();
+                    try (BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+                        properties.load(bf);
+                        i18n.put(matcher.group(1), properties);
+                    } catch (IOException ignore) {
+                    }
+                }
+            }
         }
+
         I18N_CACHE.put(clazz, i18n);
         return i18n;
     }
