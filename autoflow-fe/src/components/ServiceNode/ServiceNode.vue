@@ -141,7 +141,7 @@ watch(
           :src="data.service?.avatar"
         />
         <AAvatar v-else shape="square" :size="avatarSize" :style="{ 'background-color': rgba }"
-          >{{ data.service?.name || data.label }}
+          >{{ data.service?.name }}
         </AAvatar>
 
         <div class="node-label">{{ data.label }}</div>

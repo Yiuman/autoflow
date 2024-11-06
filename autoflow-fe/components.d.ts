@@ -60,6 +60,7 @@ declare module 'vue' {
     FileDataUpload: typeof import('./src/components/FileDataUpload/FileDataUpload.vue')['default']
     FileDataViewer: typeof import('./src/components/FileDataViewer/FileDataViewer.vue')['default']
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
+    I18nSwitch: typeof import('./src/components/I18nSwitch/I18nSwitch.vue')['default']
     IfNode: typeof import('./src/components/IfNode/IfNode.vue')['default']
     LinkageForm: typeof import('./src/components/LinkageForm/LinkageForm.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']

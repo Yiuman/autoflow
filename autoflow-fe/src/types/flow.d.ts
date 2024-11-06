@@ -1,5 +1,5 @@
-import type {Node as VueFlowCordNode} from '@vue-flow/core'
-import type {Component} from 'vue'
+import type { Node as VueFlowCordNode } from '@vue-flow/core'
+import type { Component } from 'vue'
 
 interface Flow {
   id: string
@@ -77,11 +77,11 @@ interface ExecutionError {
 }
 
 interface ExecutionResult<T> {
-    data?: T
-    error?: ExecutionError
-    durationMs?: number
-    startTime: number
-    endTime: number
+  data?: T
+  error?: ExecutionError
+  durationMs?: number
+  startTime: number
+  endTime: number
 }
 
 interface Variable {
@@ -91,7 +91,8 @@ interface Variable {
   desc?: string
 }
 
-interface FlowExecutionResult extends ExecutionResult<List<any>> {}
+interface FlowExecutionResult extends ExecutionResult<List<any>> {
+}
 
 interface Option {
   name: string
@@ -118,6 +119,7 @@ interface Service {
   properties: Property[]
   description?: string
   avatar?: string | null
+  i18n?: Record<string,Record<string, string>>
 }
 
 interface ValidateRule {

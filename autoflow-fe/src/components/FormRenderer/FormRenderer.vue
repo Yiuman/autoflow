@@ -3,7 +3,8 @@ import { ScriptHelper } from '@/utils/util-func'
 import type { FieldRule } from '@arco-design/web-vue/es/form/interface'
 
 import type { ComponentAttr, Property } from '@/types/flow'
-import { toComponentAttrs, extractGenericTypes } from '@/utils/converter'
+import { extractGenericTypes, toComponentAttrs } from '@/utils/converter'
+import { getOrDefault } from '@/locales/i18n'
 
 export interface FormProps {
   modelValue?: Record<string, any>
@@ -120,6 +121,10 @@ function isBasicType(type: string) {
 const componentAttrs = computed<ComponentAttr[]>(() => {
   return toComponentAttrs(props.properties as Property[])
 })
+
+function getFieldItemLabel(cmpAttr: ComponentAttr) {
+  return cmpAttr.property.displayName || getOrDefault(cmpAttr.property.id,cmpAttr.property.name);
+}
 </script>
 <template>
   <div class="from-renderer">
@@ -129,7 +134,7 @@ const componentAttrs = computed<ComponentAttr[]>(() => {
           v-for="cmpAttr in componentAttrs"
           :key="cmpAttr.property.name"
           :field="cmpAttr.property.name"
-          :label="cmpAttr.property.displayName || cmpAttr.property.name"
+          :label="getFieldItemLabel(cmpAttr)"
           :tooltip="cmpAttr.property.description || undefined"
         >
           <Component

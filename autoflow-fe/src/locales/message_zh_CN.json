@@ -1,0 +1,8 @@
+{
+  "menu.workflow": "工作流",
+  "menu.plugins": "插件",
+  "menu.variables": "全局变量",
+  "workflow.list.workFlowName": "工作流名称",
+  "workflow.list.updateTime": "更新时间",
+  "workflow.list.usePlugins": "插件"
+}

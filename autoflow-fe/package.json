@@ -38,6 +38,7 @@
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.3.4",
     "vue-codemirror": "^6.1.1",
+    "vue-i18n": "10",
     "vue-json-pretty": "^2.3.0",
     "vue-router": "^4.2.4"
   },

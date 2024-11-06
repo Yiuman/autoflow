@@ -7,7 +7,7 @@ import {
   MarkerType,
   type Node as VueFlowNode
 } from '@vue-flow/core'
-import type {TableColumnData} from '@arco-design/web-vue'
+import type { TableColumnData } from '@arco-design/web-vue'
 
 import type {
   ComponentAttr,
@@ -20,9 +20,9 @@ import type {
   Service,
   ValidateRule
 } from '@/types/flow'
-import {uuid} from '@/utils/util-func'
-import {uniq} from 'lodash'
-import type {Position} from '@vueuse/core' //需要使用的组件
+import { uuid } from '@/utils/util-func'
+import { uniq } from 'lodash'
+import type { Position } from '@vueuse/core' //需要使用的组件
 import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
@@ -31,6 +31,7 @@ import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListE
 import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue'
 import LinkageForm from '@/components/LinkageForm/LinkageForm.vue'
 import ChatMessage from '@/components/ChatMessage/ChatMessage.vue' //获取当前节点所有的前置节点
+import { getOrDefault } from '@/locales/i18n'
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(
@@ -76,18 +77,18 @@ export function toNode(graphNode: VueFlowNode): Node {
 export function toGraphNode(node: Node): VueFlowNode {
   const nodeData: Record<string, any> = {}
   nodeData.serviceId = node.serviceId
-  nodeData.label = node.label
+  nodeData.label = getOrDefault(`${node.serviceId}.name`, node.label)
   nodeData.parameters = node.data
   nodeData.service = nodeData.loop =
     node.loop && Object.keys(node.loop).length
       ? node.loop
       : {
-          loopCardinality: null,
-          collectionString: null,
-          elementVariable: null,
-          sequential: false,
-          completionCondition: null
-        }
+        loopCardinality: null,
+        collectionString: null,
+        elementVariable: null,
+        sequential: false,
+        completionCondition: null
+      }
   return {
     ...node,
     data: nodeData
@@ -243,9 +244,9 @@ export function toComponentAttr(property: Property): ComponentAttr {
 
   if (property.options) {
     return {
-        cmp: 'ASelect',
-        attrs: {options: property.options, allowCreate: true},
-        property
+      cmp: 'ASelect',
+      attrs: { options: property.options, allowCreate: true },
+      property
     }
   }
 

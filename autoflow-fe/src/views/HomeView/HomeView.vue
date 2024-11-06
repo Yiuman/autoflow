@@ -1,16 +1,10 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router'
-import {
-  IconDown,
-  IconHome,
-  IconLanguage,
-  IconMenuFold,
-  IconMenuUnfold,
-  IconMoonFill,
-  IconSunFill
-} from '@arco-design/web-vue/es/icon'
+import { IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon'
 import useTheme from '@/hooks/theme'
 import { IconFont } from '@/hooks/iconfont'
+import { getOrDefault } from '@/locales/i18n'
+import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
 
 const [collapsed, toggleCollapsed] = useToggle(false)
 
@@ -45,15 +39,15 @@ function handleMenuClick(key: string) {
       <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['workflows']">
         <AMenuItem key="workflows">
           <IconFont type="icon-workflow_" />
-          Workflows
+          {{ getOrDefault('menu.workflow', 'Workflows') }}
         </AMenuItem>
         <AMenuItem key="plugins">
           <IconFont type="icon-plugins" />
-          Plugins
+          {{ getOrDefault('menu.plugins', 'Plugins') }}
         </AMenuItem>
         <AMenuItem key="variables">
           <IconFont type="icon-variables" />
-          Variables
+          {{ getOrDefault('menu.variables', 'Variables') }}
         </AMenuItem>
       </AMenu>
 
@@ -81,18 +75,7 @@ function handleMenuClick(key: string) {
           </ABreadcrumb>
         </div>
         <div class="layout-header-right">
-          <ADropdown>
-            <div class="layout-header-right-item layout-header-lang">
-              <IconLanguage size="20" />
-              <IconDown size="12"></IconDown>
-            </div>
-
-            <template #content>
-              <ADoption>中文</ADoption>
-              <ADoption>English</ADoption>
-            </template>
-          </ADropdown>
-
+          <I18nSwitch/>
           <div class="layout-header-right-item">
             <ASwitch
               :value="theme"

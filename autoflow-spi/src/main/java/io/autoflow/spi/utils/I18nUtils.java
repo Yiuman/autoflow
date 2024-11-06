@@ -5,6 +5,7 @@ import cn.hutool.core.io.FileUtil;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
@@ -42,7 +43,9 @@ public final class I18nUtils {
                     }
                     Properties properties = new Properties();
 
-                    try (BufferedReader bf = new BufferedReader(new InputStreamReader(jarFile.getInputStream(entry)))) {
+                    try (BufferedReader bf = new BufferedReader(
+                            new InputStreamReader(jarFile.getInputStream(entry), StandardCharsets.UTF_8)
+                    )) {
                         properties.load(bf);
                         i18n.put(matcher.group(1), properties);
                     } catch (IOException ignore) {
@@ -60,7 +63,9 @@ public final class I18nUtils {
                         continue;
                     }
                     Properties properties = new Properties();
-                    try (BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+                    try (BufferedReader bf = new BufferedReader(
+                            new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
+                    )) {
                         properties.load(bf);
                         i18n.put(matcher.group(1), properties);
                     } catch (IOException ignore) {
