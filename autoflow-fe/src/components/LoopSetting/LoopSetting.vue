@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
-import { type Loop } from '@/types/flow'
+import {type Loop} from '@/types/flow'
 
 interface LoopProps {
   modelValue?: Loop
@@ -46,5 +46,5 @@ const data = computed<Loop>({
 </template>
 
 <style lang="scss">
-@import 'loop-setting';
+@use 'loop-setting';
 </style>

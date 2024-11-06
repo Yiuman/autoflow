@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ComponentAttr } from '@/types/flow'
-import type { TableColumnData } from '@arco-design/web-vue'
-import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
-import type { Component } from 'vue'
+import type {ComponentAttr} from '@/types/flow'
+import type {TableColumnData} from '@arco-design/web-vue'
+import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon'
+import type {Component} from 'vue'
 
 export interface ListEditorProps {
   columns: TableColumnData[]
@@ -149,5 +149,5 @@ function getBindAttr(dataIndex: string): Record<string, any> | undefined {
 </template>
 
 <style lang="scss">
-@import 'list-editor';
+@use 'list-editor';
 </style>

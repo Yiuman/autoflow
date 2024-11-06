@@ -10,10 +10,10 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
-import io.autoflow.common.utils.NamedValue;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
 import io.autoflow.spi.model.FileData;
+import io.autoflow.spi.model.NamedValue;
 
 import java.util.HashMap;
 import java.util.List;

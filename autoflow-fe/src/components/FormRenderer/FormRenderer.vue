@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ScriptHelper } from '@/utils/util-func'
-import type { FieldRule } from '@arco-design/web-vue/es/form/interface'
+import {ScriptHelper} from '@/utils/util-func'
+import type {FieldRule} from '@arco-design/web-vue/es/form/interface'
 
-import type { ComponentAttr, Property } from '@/types/flow'
-import { extractGenericTypes, toComponentAttrs } from '@/utils/converter'
-import { getOrDefault } from '@/locales/i18n'
+import type {ComponentAttr, Property} from '@/types/flow'
+import {extractGenericTypes, toComponentAttrs} from '@/utils/converter'
+import {getOrDefault} from '@/locales/i18n'
 
 export interface FormProps {
   modelValue?: Record<string, any>
@@ -149,5 +149,5 @@ function getFieldItemLabel(cmpAttr: ComponentAttr) {
 </template>
 
 <style scoped lang="scss">
-@import 'form-renderer';
+@use 'form-renderer';
 </style>

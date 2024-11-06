@@ -32,6 +32,7 @@ import useTheme from '@/hooks/theme'
 import workflowApi from '@/api/workflow'
 import {useRoute} from 'vue-router'
 import {getResultData} from '@/utils/flow'
+import {getOrDefault} from '@/locales/i18n'
 
 const [theme] = useTheme()
 
@@ -413,9 +414,9 @@ async function stopFlow() {
       style="display: flex; align-items: center"
     >
       <SearchModal
-        :placeholder="'搜索添加节点'"
-        v-model:visible="searchModalVisible"
-        @input="(event) => searchModalInput(event as InputEvent)"
+              v-model:visible="searchModalVisible"
+              :placeholder="getOrDefault('flowdesigner.searchAddNode','search and add node')"
+              @input="(event) => searchModalInput(event as InputEvent)"
       >
         <AList>
           <AListItem
@@ -485,5 +486,5 @@ async function stopFlow() {
 </template>
 
 <style scoped lang="scss">
-@import 'flow-designer';
+@use 'flow-designer';
 </style>

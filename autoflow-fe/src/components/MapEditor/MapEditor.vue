@@ -46,5 +46,5 @@ const data = computed({
 </template>
 
 <style lang="scss">
-@import 'map-editor';
+@use 'map-editor';
 </style>

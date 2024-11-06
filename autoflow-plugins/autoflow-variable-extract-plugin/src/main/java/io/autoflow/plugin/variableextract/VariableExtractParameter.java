@@ -1,6 +1,6 @@
 package io.autoflow.plugin.variableextract;
 
-import io.autoflow.common.utils.NamedValue;
+import io.autoflow.spi.model.NamedValue;
 import lombok.Data;
 
 import java.util.List;

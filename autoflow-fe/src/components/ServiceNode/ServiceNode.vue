@@ -173,6 +173,6 @@ watch(
 </template>
 
 <style scoped lang="scss">
-@import 'node';
-@import '../../assets/action.scss';
+@use 'node';
+@use '../../assets/action.scss';
 </style>

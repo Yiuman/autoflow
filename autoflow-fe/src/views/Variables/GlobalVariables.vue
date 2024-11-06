@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import RestCrud from '@/components/Crud/RestCrud.vue'
-import { IconSearch } from '@arco-design/web-vue/es/icon'
-import type { TableColumnData } from '@arco-design/web-vue'
-import type { Variable } from '@/types/flow'
+import {IconSearch} from '@arco-design/web-vue/es/icon'
+import type {TableColumnData} from '@arco-design/web-vue'
+import type {Variable} from '@/types/flow'
+import {getOrDefault} from '@/locales/i18n'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
@@ -50,41 +51,48 @@ async function deleteVariable(record: Variable) {
   <div class="variables-table">
     <div class="variables-table-top-box">
       <div class="top-box-left">
-        <AInput v-model="queryObj.keyword" allow-clear placeholder="搜索">
-          <template #prefix>
-            <IconSearch />
-          </template>
-        </AInput>
+          <AInput v-model="queryObj.keyword" :placeholder="getOrDefault('search')" allow-clear>
+              <template #prefix>
+                  <IconSearch/>
+              </template>
+          </AInput>
       </div>
 
       <div class="top-box-right">
-        <AButton type="primary" @click="() => toggleFormVisible()">新增</AButton>
+          <AButton type="primary" @click="() => toggleFormVisible()">{{ getOrDefault('create') }}</AButton>
       </div>
     </div>
     <div class="variables-list">
       <RestCrud ref="variableCrud" :uri="'/variables'" :query-object="queryObj" :columns="columns">
         <template #optional="{ record }">
-          <div class="optional-column">
-            <AButton size="small" type="text" @click="() => editVariable(record)">编辑</AButton>
-            <AButton size="small" type="text" @click="() => deleteVariable(record)">删除</AButton>
-          </div>
+            <div class="optional-column">
+                <AButton size="small" type="text" @click="() => editVariable(record)">{{
+                    getOrDefault('edit')
+                    }}
+                </AButton>
+                <AButton size="small" type="text" @click="() => deleteVariable(record)">{{ getOrDefault('delete') }}
+                </AButton>
+            </div>
         </template>
       </RestCrud>
     </div>
 
     <AModal v-model:visible="formVisible" @ok="saveVariable" @cancel="resetInstance" draggable>
-      <template #title> 添加变量</template>
-      <AForm :model="variableInstance" layout="vertical">
-        <AFormItem field="key" label="变量名称" validate-trigger="input" required>
-          <AInput v-model="variableInstance.key" placeholder="输入变量名称" />
-        </AFormItem>
-        <AFormItem field="value" label="变量值" validate-trigger="input">
-          <AInput v-model="variableInstance.value" placeholder="输入变量值" />
-        </AFormItem>
-        <AFormItem field="desc" label="描述" validate-trigger="input">
-          <ATextarea v-model="variableInstance.desc" placeholder="输入变量值" />
-        </AFormItem>
-      </AForm>
+        <template #title> {{ getOrDefault('variable.form.title', 'Create a new variable') }}</template>
+        <AForm :model="variableInstance" layout="vertical">
+            <AFormItem :label="getOrDefault('variable.form.field.name','variable name')" field="key"
+                       required validate-trigger="input">
+                <AInput v-model="variableInstance.key"/>
+            </AFormItem>
+            <AFormItem :label="getOrDefault('variable.form.field.value','variable value')" field="value"
+                       validate-trigger="input">
+                <AInput v-model="variableInstance.value"/>
+            </AFormItem>
+            <AFormItem :label="getOrDefault('variable.form.field.desc','description')" field="desc"
+                       validate-trigger="input">
+                <ATextarea v-model="variableInstance.desc"/>
+            </AFormItem>
+        </AForm>
     </AModal>
   </div>
 </template>

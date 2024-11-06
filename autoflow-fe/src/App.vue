@@ -1,24 +1,28 @@
 <script setup lang="ts">
 import {RouterView} from 'vue-router'
 import {useServiceStore} from '@/stores/service' //初始化数据
+import {arcoLocale} from '@/locales/i18n'
 
 const [initialized, toggleInitialized] = useToggle(false)
 onBeforeMount(async () => {
-  //初始化数据
-  const serviceStore = useServiceStore()
-  await serviceStore.initData()
-  toggleInitialized()
+    //初始化数据
+    const serviceStore = useServiceStore()
+    await serviceStore.initData()
+    toggleInitialized()
 })
 </script>
 
 <template>
-    <a-layout class="layout">
-        <ASpin :loading="!initialized" class="layout-spin" dot>
-            <a-layout-content v-if="initialized">
-                <RouterView/>
-            </a-layout-content>
-        </ASpin>
-    </a-layout>
+    <AConfigProvider :global="true" :locale="arcoLocale">
+        <ALayout class="layout">
+            <ASpin :loading="!initialized" class="layout-spin" dot>
+                <ALayoutContent v-if="initialized">
+                    <RouterView/>
+                </ALayoutContent>
+            </ASpin>
+        </ALayout>
+    </AConfigProvider>
+
 </template>
 
 <style lang="scss" scoped>

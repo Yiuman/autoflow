@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { getOS } from '@/utils/util-func'
-import { IconSearch } from '@arco-design/web-vue/es/icon'
+import {getOS} from '@/utils/util-func'
+import {IconSearch} from '@arco-design/web-vue/es/icon'
+import {getOrDefault} from '@/locales/i18n'
 
 const searchInput = ref()
 const { focused } = useFocus(searchInput)
@@ -87,7 +88,7 @@ window.addEventListener('keydown', (e) => {
           </div>
 
           <div class="search-modal-input-right">
-            <div class="input-key-desc">退出</div>
+              <div class="input-key-desc">{{ getOrDefault('exit', 'Exit') }}</div>
             <div class="hot-key">
               <div class="input-key">ESC</div>
             </div>
@@ -102,5 +103,5 @@ window.addEventListener('keydown', (e) => {
 </template>
 
 <style scoped lang="scss">
-@import 'search-modal';
+@use 'search-modal';
 </style>

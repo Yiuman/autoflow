@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { useRoute, useRouter } from 'vue-router'
-import { IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon'
+import {useRoute, useRouter} from 'vue-router'
+import {IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill} from '@arco-design/web-vue/es/icon'
 import useTheme from '@/hooks/theme'
-import { IconFont } from '@/hooks/iconfont'
-import { getOrDefault } from '@/locales/i18n'
+import {IconFont} from '@/hooks/iconfont'
+import {getOrDefault} from '@/locales/i18n'
 import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
 
 const [collapsed, toggleCollapsed] = useToggle(false)
@@ -115,5 +115,5 @@ function handleMenuClick(key: string) {
 </template>
 
 <style scoped lang="scss">
-@import 'home-view';
+@use 'home-view';
 </style>

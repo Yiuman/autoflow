@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useServiceStore } from '@/stores/service'
-import { IconLeftCircle } from '@arco-design/web-vue/es/icon'
-import { type FileItem } from '@arco-design/web-vue'
+import {useServiceStore} from '@/stores/service'
+import {IconLeftCircle} from '@arco-design/web-vue/es/icon'
+import {type FileItem} from '@arco-design/web-vue'
 import serviceApi from '@/api/service'
-import type { Service } from '@/types/flow'
-import { MdPreview } from 'md-editor-v3'
+import type {Service} from '@/types/flow'
+import {MdPreview} from 'md-editor-v3'
+import {getOrDefault} from '@/locales/i18n'
 
 const serviceStore = useServiceStore()
 
@@ -30,7 +31,7 @@ function selectPlugin(serviceItem: Service) {
           <template #icon>
             <IconLeftCircle />
           </template>
-          返回
+            {{ getOrDefault('return') }}
         </AButton>
         <ACard class="plugin-card">
           <div class="cover-box">
@@ -75,7 +76,7 @@ function selectPlugin(serviceItem: Service) {
             <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }}</AAvatar>
           </div>
         </div>
-        <div class="plugins-title">{{ serviceItem.name }}</div>
+          <div class="plugins-title">{{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}</div>
       </ACard>
     </div>
   </div>
@@ -86,17 +87,19 @@ function selectPlugin(serviceItem: Service) {
   height: calc(100% - 40px);
   padding: 20px;
 
+  :deep(.arco-upload-drag-text) {
+    max-height: 20px
+  }
+
   :deep(.arco-card) {
     border-radius: 5px;
     border: none;
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
 
     &:hover {
-      box-shadow:
-        0 4px 6px -1px rgb(0 0 0 / 0.1),
-        0 2px 4px -2px rgb(0 0 0 / 0.1);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
   }
 

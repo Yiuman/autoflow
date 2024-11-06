@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { EditorContent } from '@tiptap/vue-3'
-import { useSelectOptions } from '@/components/ExpressInput/useSelectOptions'
-import { useTipTapEditor } from '@/components/ExpressInput/useTiptapEditor'
+import {computed} from 'vue'
+import {EditorContent} from '@tiptap/vue-3'
+import {useSelectOptions} from '@/components/ExpressInput/useSelectOptions'
+import {useTipTapEditor} from '@/components/ExpressInput/useTiptapEditor'
 
 interface ExpressInputProps {
   modelValue?: string
@@ -72,5 +72,5 @@ const { editor, isFocused } = useTipTapEditor({
 </template>
 
 <style lang="scss" scoped>
-@import 'express-input';
+@use 'express-input';
 </style>

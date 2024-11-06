@@ -1,4 +1,4 @@
-package io.autoflow.common.utils;
+package io.autoflow.spi.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

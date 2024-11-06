@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
-import { Handle, Position } from '@vue-flow/core'
-import { validateConnection } from '@/utils/flow'
+import ServiceNode, {type Props} from '@/components/ServiceNode/ServiceNode.vue'
+import {Handle, Position} from '@vue-flow/core'
+import {validateConnection} from '@/utils/flow'
 
 const props = defineProps<Props>()
 </script>
@@ -36,6 +36,6 @@ const props = defineProps<Props>()
 </template>
 
 <style scoped lang="scss">
-@import 'if-node';
-@import '../../assets/action.scss';
+@use 'if-node';
+@use '../../assets/action.scss';
 </style>

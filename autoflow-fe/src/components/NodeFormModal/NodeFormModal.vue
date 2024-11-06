@@ -242,5 +242,5 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
 </template>
 
 <style scoped lang="scss">
-@import 'node-form-modal';
+@use 'node-form-modal';
 </style>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { IconPlus, IconTags } from '@arco-design/web-vue/es/icon'
-import type { SelectOptionData, SelectProps } from '@arco-design/web-vue'
-import tagApi, { type Tag, type TagQuery } from '@/api/tag'
+import {IconPlus, IconTags} from '@arco-design/web-vue/es/icon'
+import type {SelectOptionData, SelectProps} from '@arco-design/web-vue'
+import tagApi, {type Tag, type TagQuery} from '@/api/tag'
+import {getOrDefault} from '@/locales/i18n'
 
 const options = ref<SelectOptionData[]>()
 const [loading, toggleLoading] = useToggle(false)
@@ -11,7 +12,8 @@ const tagQuery = ref<TagQuery>({
 })
 
 interface TagSelectorProps extends SelectProps {
-  allowCreate?: boolean
+    allowCreate?: boolean,
+    placeholder?: string
 }
 
 const props = withDefaults(defineProps<TagSelectorProps>(), {
@@ -92,18 +94,18 @@ function fallbackOption(value: string): SelectOptionData {
 
 <template>
   <ASelect
-    :fallback-option="(value) => fallbackOption(value as string)"
-    class="tag-selector"
-    :allow-clear="props.allowClear"
-    v-model="data"
-    :options="options"
-    placeholder="选择标签"
-    :max-tag-count="2"
-    :loading="loading"
-    multiple
-    @search="handleSearch"
-    :filter-option="false"
-    :show-extra-options="false"
+          v-model="data"
+          :allow-clear="props.allowClear"
+          :fallback-option="(value) => fallbackOption(value as string)"
+          :filter-option="false"
+          :loading="loading"
+          :max-tag-count="2"
+          :options="options"
+          :placeholder="props.placeholder"
+          :show-extra-options="false"
+          class="tag-selector"
+          multiple
+          @search="handleSearch"
   >
     <template #prefix>
       <IconTags />
@@ -114,7 +116,7 @@ function fallbackOption(value: string): SelectOptionData {
           <template #icon>
             <IconPlus />
           </template>
-          创建"
+            {{ getOrDefault('create') }}"
           <span class="tag-add-value">{{ tagQuery.name }}</span>
           "
         </AButton>

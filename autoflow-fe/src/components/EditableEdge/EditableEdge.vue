@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { EdgeProps } from '@vue-flow/core'
-import { BezierEdge, EdgeLabelRenderer, getBezierPath, useVueFlow } from '@vue-flow/core'
-import type { StyleValue } from 'vue'
-import { IconClose } from '@arco-design/web-vue/es/icon'
+import type {EdgeProps} from '@vue-flow/core'
+import {BezierEdge, EdgeLabelRenderer, getBezierPath, useVueFlow} from '@vue-flow/core'
+import type {StyleValue} from 'vue'
+import {IconClose} from '@arco-design/web-vue/es/icon'
 
 const props = defineProps<EdgeProps<any>>()
 const { removeEdges } = useVueFlow()
@@ -26,5 +26,5 @@ const toolBarStyle = computed(() => {
   </EdgeLabelRenderer>
 </template>
 <style lang="scss">
-@import 'editable-edge';
+@use 'editable-edge';
 </style>

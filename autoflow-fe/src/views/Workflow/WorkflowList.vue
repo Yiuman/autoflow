@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import workflowApi, { type Workflow, type WorkflowQuery } from '@/api/workflow'
-import { IconMoreVertical, IconPlus, IconSearch, IconTags } from '@arco-design/web-vue/es/icon'
-import { type FileItem, Icon, Modal, Notification } from '@arco-design/web-vue'
-import { type PageRecord } from '@/types/crud'
-import { useServiceStore } from '@/stores/service'
-import { format } from 'date-fns'
-import type { Service } from '@/types/flow'
+import workflowApi, {type Workflow, type WorkflowQuery} from '@/api/workflow'
+import {IconMoreVertical, IconPlus, IconSearch, IconTags} from '@arco-design/web-vue/es/icon'
+import {type FileItem, Icon, Modal, Notification} from '@arco-design/web-vue'
+import {type PageRecord} from '@/types/crud'
+import {useServiceStore} from '@/stores/service'
+import {format} from 'date-fns'
+import type {Service} from '@/types/flow'
 import TagSelector from '@/components/TagSelector/TagSelector.vue'
-import { useRouter } from 'vue-router'
-import { downloadByData } from '@/utils/download'
-import { debounce } from 'lodash'
+import {useRouter} from 'vue-router'
+import {downloadByData} from '@/utils/download'
+import {debounce} from 'lodash'
 import useDelayedLoading from '@/hooks/delayLoading'
-import { getOrDefault } from '../../locales/i18n'
+import {getOrDefault} from '@/locales/i18n'
 
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
 const router = useRouter()
 const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl })
-
 // Fetch Workflow Data
 const currentPageRecord = ref<PageRecord<Workflow>>()
 const queryObj = ref<WorkflowQuery>({ pageSize: 10, pageNumber: 1 })
@@ -45,9 +44,9 @@ async function saveWorkflow() {
 }
 
 function modifyWorkflow(workflow: Workflow) {
-  workflowInstance.value = workflow
-  formTitle.value = '编辑'
-  toggleCreateBlankFormVisible()
+    workflowInstance.value = workflow
+    formTitle.value = getOrDefault('edit')
+    toggleCreateBlankFormVisible()
 }
 
 // Export Workflow
@@ -59,17 +58,17 @@ function exportWorkflow(workflow: Workflow) {
 // Delete Workflow
 function deleteWorkflow(workflow: Workflow) {
   Modal.error({
-    title: '确认删除吗?',
-    content: '确认删除后，数据将无法找回',
-    cancelText: '取消',
-    hideCancel: false,
-    bodyStyle: { 'text-align': 'center' },
-    closable: true,
-    onOk: async () => {
-      await workflowApi.delete(workflow.id as string)
-      Notification.success('删除成功')
-      await fetch()
-    }
+      title: getOrDefault('workflow.list.deleteConfirm.title', 'Are you sure to delete it?'),
+      content: getOrDefault('workflow.list.deleteConfirm.content', 'After the deletion is confirmed, the data cannot be retrieved'),
+      // cancelText: '取消',
+      hideCancel: false,
+      bodyStyle: {'text-align': 'center'},
+      closable: true,
+      onOk: async () => {
+          await workflowApi.delete(workflow.id as string)
+          Notification.success('删除成功')
+          await fetch()
+      }
   })
 }
 
@@ -134,29 +133,31 @@ const delayLoading = useDelayedLoading(loading)
 <template>
   <div class="workflow-container">
     <div class="workflow-list-top-box">
-      <AInput v-model="queryObj.name" allow-clear placeholder="搜索">
-        <template #prefix>
-          <IconSearch />
-        </template>
-      </AInput>
+        <AInput v-model="queryObj.name" :placeholder="getOrDefault('search')" allow-clear>
+            <template #prefix>
+                <IconSearch/>
+            </template>
+        </AInput>
 
-      <TagSelector v-model="queryObj.tagIds" />
+        <TagSelector v-model="queryObj.tagIds"
+                     :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"/>
     </div>
     <ASpin dot :loading="delayLoading">
       <div class="workflow-list">
-        <ACard class="workflow-add-card" :bordered="false" hoverable title="创建新的工作流">
-          <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
-            <IconFont type="icon-chuangjian" />
-            {{ getOrDefault('workflow.list.createBlank', '创建空白工作流') }}
-          </div>
-          <div class="workflow-add-btn">
-            <IconFont type="icon-template-success-fill" />
-            {{ getOrDefault('workflow.list.createByTemplate', '从应用模板创建') }}
-          </div>
-          <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
-            <IconFont type="icon-w_daoru" />
-            {{ getOrDefault('workflow.list.createByImport', '导入工作流文件创建') }}
-          </div>
+          <ACard :bordered="false" :title="getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow')" class="workflow-add-card"
+                 hoverable>
+              <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
+                  <IconFont type="icon-chuangjian"/>
+                  {{ getOrDefault('workflow.list.createEmpty', 'Create an empty workflow') }}
+              </div>
+              <div class="workflow-add-btn">
+                  <IconFont type="icon-template-success-fill"/>
+                  {{ getOrDefault('workflow.list.createByTemplate', 'Create from template') }}
+              </div>
+              <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
+                  <IconFont type="icon-w_daoru"/>
+                  {{ getOrDefault('workflow.list.createByImport', 'Create from an imported workflow file') }}
+              </div>
         </ACard>
         <ACard
           class="workflow-card-item"
@@ -170,22 +171,22 @@ const delayLoading = useDelayedLoading(loading)
               <template #content>
                 <div class="workflow-card-operator-box">
                   <div class="workflow-card-operator-item" @click="modifyWorkflow(workflow)">
-                    {{getOrDefault('workflow.list.edit','编辑')  }}
+                      {{ getOrDefault('workflow.list.edit', 'edit') }}
                   </div>
                   <div
                     class="workflow-card-operator-item"
                     @click="router.push(`/flowdesign?flowId=${workflow.id}`)"
                   >
-                    {{getOrDefault('workflow.list.choreographing','编排')  }}
+                      {{ getOrDefault('workflow.list.choreographing', 'choreographing') }}
                   </div>
                   <div class="workflow-card-operator-item" @click="exportWorkflow(workflow)">
-                    {{getOrDefault('workflow.list.export','导出工作流文件')  }}
+                      {{ getOrDefault('workflow.list.export', 'export') }}
                   </div>
                   <div
                     class="workflow-card-operator-item card-delete-btn"
                     @click="deleteWorkflow(workflow)"
                   >
-                    {{getOrDefault('workflow.list.delete','删除')  }}
+                      {{ getOrDefault('workflow.list.delete', 'delete') }}
                   </div>
                 </div>
               </template>
@@ -234,20 +235,27 @@ const delayLoading = useDelayedLoading(loading)
           draggable
         >
           <template #title>
-            {{ formTitle || '创建空白工作流' }}
+              {{ formTitle || getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow') }}
           </template>
-          <AForm :model="workflowInstance" layout="vertical">
-            <AFormItem field="name" :label="getOrDefault('workflow.list.form.name','名称')" validate-trigger="input" required>
-              <AInput v-model="workflowInstance.name" :placeholder="getOrDefault('workflow.list.form.name.placeholder','给你的工作流起一个名字')" />
-            </AFormItem>
-            <AFormItem field="desc" :label="getOrDefault('workflow.list.form.desc','描述')" validate-trigger="input">
-              <ATextarea v-model="workflowInstance.desc" :placeholder="getOrDefault('workflow.list.form.desc.placeholder','输入工作流的描述')" />
-            </AFormItem>
+            <AForm :model="workflowInstance" layout="vertical">
+                <AFormItem :label="getOrDefault('workflow.list.form.name','name')" field="name" required
+                           validate-trigger="input">
+                    <AInput v-model="workflowInstance.name"
+                            :placeholder="getOrDefault('workflow.list.form.name.placeholder','Give your workflow a name')"/>
+                </AFormItem>
+                <AFormItem :label="getOrDefault('workflow.list.form.description','description')" field="desc"
+                           validate-trigger="input">
+                    <ATextarea v-model="workflowInstance.desc"
+                               :placeholder="getOrDefault('workflow.list.form.description.placeholder','Describe what this workflow does')"/>
+                </AFormItem>
 
-            <AFormItem field="tags" :label="getOrDefault('workflow.list.form.label','标签')" validate-trigger="input">
-              <TagSelector v-model="workflowInstance.tagIds" allow-create />
-            </AFormItem>
-          </AForm>
+                <AFormItem :label="getOrDefault('workflow.list.form.label','label')" field="tags"
+                           validate-trigger="input">
+                    <TagSelector v-model="workflowInstance.tagIds"
+                                 :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"
+                                 allow-create/>
+                </AFormItem>
+            </AForm>
         </AModal>
         <AModal
           :hide-title="true"
@@ -270,28 +278,31 @@ const delayLoading = useDelayedLoading(loading)
                 <div class="arco-upload-picture-card-text" v-if="fileItem">
                   {{ fileItem.name }}
                 </div>
-                <div class="arco-upload-picture-card-text" v-else>
-                  <IconPlus />
-                  <div style="margin-top: 10px; font-weight: 600">点击或拖拽文件到此处上传</div>
-                </div>
+                  <div v-else class="arco-upload-picture-card-text">
+                      <IconPlus/>
+                      <div style="margin-top: 10px; font-weight: 600">
+                          {{ getOrDefault('workflow.list.form.upload', 'Click or drag the file here to upload') }}
+                      </div>
+                  </div>
               </div>
             </template>
           </AUpload>
           <template v-if="uploadExists">
             <div class="upload-repeat-alert">
-              当前导入的工作流已存在，请选择
-              <AButton
-                size="mini"
-                status="warning"
-                type="outline"
-                @click="() => saveUploadWorkflow(true)"
-              >覆盖
-              </AButton>
-              或
-              <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)"
-              >创建
-              </AButton>
-              新的工作流
+
+                {{ getOrDefault('workflow.list.form.uploadExists', 'The imported workflow already exists. Choose to') }}
+                <AButton
+                        size="mini"
+                        status="warning"
+                        type="outline"
+                        @click="() => saveUploadWorkflow(true)"
+                >{{ getOrDefault('overwrite', 'overwrite') }}
+                </AButton>
+                {{ getOrDefault('or') }}
+                <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)"
+                >{{ getOrDefault('create') }}
+                </AButton>
+                {{ getOrDefault('workflow.list.form.uploadExists.newWorkflow', 'a new Workflow') }}
             </div>
           </template>
         </AModal>
@@ -311,5 +322,5 @@ const delayLoading = useDelayedLoading(loading)
 </template>
 
 <style lang="scss" scoped>
-@import 'workflow-list';
+@use 'workflow-list';
 </style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { CalcType, Clause, type Condition } from './condition-filter'
-import { pull } from 'lodash'
-import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
+import {CalcType, Clause, type Condition} from './condition-filter'
+import {pull} from 'lodash'
+import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon'
 import ConditionItem from '@/components/ConditionFilter/ConditionItem.vue'
 
 interface PropType {
@@ -163,5 +163,5 @@ const isAnd = computed({
 </template>
 
 <style scoped lang="scss">
-@import 'condition-filter';
+@use 'condition-filter';
 </style>
