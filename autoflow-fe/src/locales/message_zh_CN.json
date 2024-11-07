@@ -32,9 +32,20 @@
   "delete": "删除",
   "return": "返回",
   "exit": "退出",
+  "input": "输入",
+  "output": "输出",
   "variable.form.title": "创建变量",
   "variable.form.field.key": "变量名称",
   "variable.form.field.value": "变量值",
   "variable.form.field.desc": "描述",
-  "flowdesigner.searchAddNode": "搜索添加节点"
+  "flowDesigner.searchAddNode": "搜索添加节点",
+  "nodeForm.parameters": "参数",
+  "nodeForm.doc": "文档",
+  "nodeForm.settings": "配置",
+  "loop.loopCardinality": "循环基数",
+  "loop.loopCardinality.tooltip": "循环基数（次数）必须大于1",
+  "loop.collectionString": "循环表达式取值",
+  "loop.elementVariable": "循环项变量名",
+  "loop.sequential": "是否串行",
+  "loop.completionCondition": "完成条件表达式"
 }

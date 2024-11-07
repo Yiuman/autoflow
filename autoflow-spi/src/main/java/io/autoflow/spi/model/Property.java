@@ -70,4 +70,5 @@ public interface Property {
     default List<? extends Property> getProperties() {
         return null;
     }
+
 }

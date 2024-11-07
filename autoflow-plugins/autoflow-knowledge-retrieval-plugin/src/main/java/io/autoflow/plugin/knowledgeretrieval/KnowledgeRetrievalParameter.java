@@ -14,7 +14,6 @@ import lombok.Data;
 public class KnowledgeRetrievalParameter {
     @NotBlank
     private String query;
-    private String type;
     @NotNull
     private FileData fileData;
     @Min(1)

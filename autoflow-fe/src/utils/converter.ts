@@ -7,7 +7,7 @@ import {
   MarkerType,
   type Node as VueFlowNode
 } from '@vue-flow/core'
-import type { TableColumnData } from '@arco-design/web-vue'
+import type {TableColumnData} from '@arco-design/web-vue'
 
 import type {
   ComponentAttr,
@@ -20,9 +20,9 @@ import type {
   Service,
   ValidateRule
 } from '@/types/flow'
-import { uuid } from '@/utils/util-func'
-import { uniq } from 'lodash'
-import type { Position } from '@vueuse/core' //需要使用的组件
+import {uuid} from '@/utils/util-func'
+import {uniq} from 'lodash'
+import type {Position} from '@vueuse/core' //需要使用的组件
 import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import MapEditor from '@/components/MapEditor/MapEditor.vue'
@@ -31,7 +31,7 @@ import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListE
 import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue'
 import LinkageForm from '@/components/LinkageForm/LinkageForm.vue'
 import ChatMessage from '@/components/ChatMessage/ChatMessage.vue' //获取当前节点所有的前置节点
-import { getOrDefault } from '@/locales/i18n'
+import {getOrDefault} from '@/locales/i18n'
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(
@@ -104,8 +104,8 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
   const nodeData: Record<string, any> = {}
   nodeData.serviceId = service.id
   nodeData.service = service
-  nodeData.label = service.name
-  nodeData.parameters = {}
+    nodeData.label = getOrDefault(`${service.id}.name`, service.name)
+    nodeData.parameters = {}
   nodeData.loop = {}
   nodeData.avatar = service.avatar
   return {
@@ -334,8 +334,8 @@ export function toComponentAttr(property: Property): ComponentAttr {
     if (property.properties?.length || 0 > 1) {
       property.properties?.forEach((child) => {
         columns.push({
-          title: child.displayName || child.name,
-          dataIndex: child.name
+            title: child.displayName || getOrDefault(`${property.id}.${child.name}`, child.name),
+            dataIndex: child.name
         })
 
         columnCmp[child.name] = toComponentAttr(child)

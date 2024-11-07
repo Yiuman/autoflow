@@ -7,13 +7,13 @@ import {extractGenericTypes, toComponentAttrs} from '@/utils/converter'
 import {getOrDefault} from '@/locales/i18n'
 
 export interface FormProps {
-  modelValue?: Record<string, any>
-  layout?: 'inline' | 'horizontal' | 'vertical'
-  properties?: Property[]
+    modelValue?: Record<string, any>
+    layout?: 'inline' | 'horizontal' | 'vertical'
+    properties?: Property[]
 }
 
 const props = withDefaults(defineProps<FormProps>(), {
-  layout: 'vertical'
+    layout: 'vertical'
 })
 
 const emits = defineEmits<{
@@ -115,15 +115,24 @@ function buildDefaultValue(property: Property) {
 }
 
 function isBasicType(type: string) {
-  return ['Integer', 'BigDecimal', 'Double', 'Float', 'String', 'Long', 'Date'].includes(type)
+    return ['Integer', 'BigDecimal', 'Double', 'Float', 'String', 'Long', 'Date'].includes(type)
 }
 
 const componentAttrs = computed<ComponentAttr[]>(() => {
-  return toComponentAttrs(props.properties as Property[])
+    return toComponentAttrs(props.properties as Property[])
 })
 
 function getFieldItemLabel(cmpAttr: ComponentAttr) {
-  return cmpAttr.property.displayName || getOrDefault(cmpAttr.property.id,cmpAttr.property.name);
+    return cmpAttr.property.displayName || getOrDefault(cmpAttr.property.id, cmpAttr.property.name)
+}
+
+function getToolTip(cmpAttr: ComponentAttr): string {
+    const i18nDescription = `${cmpAttr.property.id}.description`
+    const result = getOrDefault(i18nDescription)
+    if (i18nDescription === result) {
+        return cmpAttr.property.description as string
+    }
+    return result
 }
 </script>
 <template>
@@ -131,11 +140,11 @@ function getFieldItemLabel(cmpAttr: ComponentAttr) {
     <AForm :auto-label-width="true" :model="form" :layout="props.layout" :rules="rules">
       <KeepAlive>
         <AFormItem
-          v-for="cmpAttr in componentAttrs"
-          :key="cmpAttr.property.name"
-          :field="cmpAttr.property.name"
-          :label="getFieldItemLabel(cmpAttr)"
-          :tooltip="cmpAttr.property.description || undefined"
+                v-for="cmpAttr in componentAttrs"
+                :key="cmpAttr.property.name"
+                :field="cmpAttr.property.name"
+                :label="getFieldItemLabel(cmpAttr)"
+                :tooltip="getToolTip(cmpAttr)"
         >
           <Component
             :is="cmpAttr.cmp"

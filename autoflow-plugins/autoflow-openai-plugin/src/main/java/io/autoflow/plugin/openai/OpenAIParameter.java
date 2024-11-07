@@ -40,7 +40,6 @@ public class OpenAIParameter {
     @DecimalMin("0")
     @DecimalMax("1")
     private Float topP = 1f;
-    private String toolChoice;
     private String user;
     @NotEmpty
     private List<ChatMessage> chatMessages = List.of(new ChatMessage());

@@ -356,8 +356,7 @@ public final class LiteFlows {
         String ifNodeId = StrUtil.format("IF_{}", node.getId());
         String ifNodeDataId = StrUtil.format("{}IfData", node.getId());
         String express = String.format("$.inputData.%s.result", node.getId());
-        List<Connection> falseOutgoerConnections = getOutgoerConnections(flow, node, falseOutgoers);
-        if (CollUtil.isEmpty(falseOutgoerConnections)) {
+        if (CollUtil.isEmpty(falseConnections)) {
             return ELBus.ifOpt(
                     ELBus.node(ifNodeId)
                             .data(ifNodeDataId, express),
@@ -369,7 +368,7 @@ public final class LiteFlows {
             ifFalseFlow.setId(falseFlowId);
             ifFalseFlow.setName(falseFlowId);
             ifFalseFlow.setNodes(falseOutgoers);
-            ifFalseFlow.setConnections(falseOutgoerConnections);
+            ifFalseFlow.setConnections(falseConnections);
             return ELBus.ifOpt(
                     ELBus.node(ifNodeId)
                             .data(ifNodeDataId, express),

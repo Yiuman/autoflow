@@ -50,7 +50,6 @@ public class SqlService extends BaseService<SqlParameter, SqlResult> {
         setting.put(LambdaUtil.getFieldName(SqlParameter::getUrl), sqlParameter.getUrl());
         setting.put(LambdaUtil.getFieldName(SqlParameter::getUsername), sqlParameter.getUsername());
         setting.put(LambdaUtil.getFieldName(SqlParameter::getPassword), sqlParameter.getPassword());
-        setting.put(LambdaUtil.getFieldName(SqlParameter::getDriver), sqlParameter.getDriver());
         return setting;
     }
 }

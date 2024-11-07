@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import {type Loop} from '@/types/flow'
+import {getOrDefault} from '@/locales/i18n'
 
 interface LoopProps {
-  modelValue?: Loop
+    modelValue?: Loop
 }
 
 const props = withDefaults(defineProps<LoopProps>(), {
-  modelValue: () => ({ sequential: false })
+    modelValue: () => ({sequential: false})
 })
 const emits = defineEmits<{
-  (e: 'update:modelValue', item: Loop): void
+    (e: 'update:modelValue', item: Loop): void
 }>()
 
 const data = computed<Loop>({
@@ -25,22 +26,25 @@ const data = computed<Loop>({
 
 <template>
   <div class="loop-setting">
-    <AForm :model="data" layout="vertical">
-      <AFormItem field="loopCardinality" label="loopCardinality">
-        <AInputNumber :min="0" mode="button" v-model="data.loopCardinality" />
-      </AFormItem>
-      <AFormItem field="collectionString" label="collectionString">
-        <ExpressInput v-model="data.collectionString" />
-      </AFormItem>
-      <AFormItem field="elementVariable" label="elementVariable">
-        <ExpressInput v-model="data.elementVariable" />
-      </AFormItem>
-      <AFormItem field="sequential" label="sequential">
-        <ASwitch v-model="data.sequential" type="line" />
-      </AFormItem>
-      <AFormItem field="completionCondition" label="completionCondition">
-        <ExpressInput v-model="data.completionCondition" />
-      </AFormItem>
+      <AForm :model="data" layout="vertical">
+          <AFormItem :label="getOrDefault('loop.loopCardinality','loopCardinality')"
+                     :tooltip="getOrDefault('loop.loopCardinality.tooltip','Must be greater than 1')"
+                     field="loopCardinality">
+              <AInputNumber v-model="data.loopCardinality" :min="1" mode="button"/>
+          </AFormItem>
+          <AFormItem :label="getOrDefault('loop.collectionString','collectionString')" field="collectionString">
+              <ExpressInput v-model="data.collectionString"/>
+          </AFormItem>
+          <AFormItem :label="getOrDefault('loop.elementVariable','elementVariable')" field="elementVariable">
+              <ExpressInput v-model="data.elementVariable"/>
+          </AFormItem>
+          <AFormItem :label="getOrDefault('loop.sequential','sequential')" field="sequential">
+              <ASwitch v-model="data.sequential" type="line"/>
+          </AFormItem>
+          <AFormItem :label="getOrDefault('loop.completionCondition','completionCondition')"
+                     field="completionCondition">
+              <ExpressInput v-model="data.completionCondition"/>
+          </AFormItem>
     </AForm>
   </div>
 </template>

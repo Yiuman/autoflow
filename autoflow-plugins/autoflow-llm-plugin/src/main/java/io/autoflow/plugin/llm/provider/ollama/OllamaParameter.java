@@ -12,8 +12,8 @@ import java.util.List;
  */
 @Data
 public class OllamaParameter {
-    private String modelName;
     private String baseUrl;
+    private String modelName;
     @DecimalMin("0")
     @DecimalMax("1")
     private Double temperature;

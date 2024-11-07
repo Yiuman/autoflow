@@ -20,16 +20,17 @@ import {darkTheme} from '@/hooks/theme'
 import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
 import {useNodeDataProvider} from '@/components/NodeFormModal/useNodeDataProvider'
 import {getExecutionDurationSeconds} from '@/utils/flow'
+import {getOrDefault} from '@/locales/i18n'
 
 interface Props {
-  modelValue: VueFlowNode
-  description?: string
-  visible?: boolean
-  properties?: Property[]
+    modelValue: VueFlowNode
+    description?: string
+    visible?: boolean
+    properties?: Property[]
 }
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', item: Record<string, any>): void
+    (e: 'update:modelValue', item: Record<string, any>): void
   (e: 'update:visible', item: boolean): void
 }>()
 
@@ -148,16 +149,16 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
       <Splitpanes>
         <Pane v-if="inputPaneVisible && incomers && incomers.length">
           <div class="node-form-modal-pane node-form-modal-input">
-            <div class="node-form-title">Input</div>
+              <div class="node-form-title">{{ getOrDefault('input', 'Inputs') }}</div>
             <ASelect v-model="selectedIncomerNodeId">
               <template #label="{ data }">
                 <span class="selected-input-node">
                   <ATag class="selected-input-node-label" color="orangered">{{
-                    selectedNode?.data?.service?.name
-                  }}</ATag>
+                      selectedNode?.data?.service?.name
+                      }}</ATag>
                   <ATag class="selected-input-node-id">{{
-                    selectedNode?.data?.label || data?.value
-                  }}</ATag>
+                      selectedNode?.data?.label || data?.value
+                      }}</ATag>
                 </span>
               </template>
               <AOptgroup
@@ -200,18 +201,18 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
             </div>
             <ATabs v-model:active-key="activeTab">
               <ATabPane
-                key="parameters"
-                title="Parameters"
-                v-if="props.properties && props.properties.length"
+                      v-if="props.properties && props.properties.length"
+                      key="parameters"
+                      :title="getOrDefault('nodeForm.parameters','Parameters')"
               >
                 <FromRenderer v-model="nodeData.parameters" :properties="props.properties" />
               </ATabPane>
-              <ATabPane key="doc" title="Doc" v-if="props.description">
-                <MdPreview :theme="darkTheme ? 'dark' : 'light'" :modelValue="props.description" />
-              </ATabPane>
-              <ATabPane key="settings" title="Settings" v-if="showLoopSetting">
-                <LoopSetting v-model="nodeData.loop" />
-              </ATabPane>
+                <ATabPane v-if="props.description" key="doc" :title="getOrDefault('nodeForm.doc','Doc')">
+                    <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'"/>
+                </ATabPane>
+                <ATabPane v-if="showLoopSetting" key="settings" :title="getOrDefault('nodeForm.settings','Settings')">
+                    <LoopSetting v-model="nodeData.loop"/>
+                </ATabPane>
             </ATabs>
           </div>
 
@@ -222,15 +223,15 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
         </Pane>
         <Pane v-if="outputPaneVisible">
           <div class="node-form-modal-pane node-form-modal-output">
-            <div class="node-form-title">
-              Output
-                <ATag v-if="durationSeconds">
-                    <template #icon>
-                        <IconClockCircle/>
-                    </template>
-                    {{ `${durationSeconds}s` }}
-                </ATag>
-            </div>
+              <div class="node-form-title">
+                  {{ getOrDefault('output', 'Outputs') }}
+                  <ATag v-if="durationSeconds">
+                      <template #icon>
+                          <IconClockCircle/>
+                      </template>
+                      {{ `${durationSeconds}s` }}
+                  </ATag>
+              </div>
             <div class="output-result-box">
               <ResultDataViewer :node="modelValue" />
             </div>

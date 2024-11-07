@@ -415,7 +415,7 @@ async function stopFlow() {
     >
       <SearchModal
               v-model:visible="searchModalVisible"
-              :placeholder="getOrDefault('flowdesigner.searchAddNode','search and add node')"
+              :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
               @input="(event) => searchModalInput(event as InputEvent)"
       >
         <AList>
@@ -424,17 +424,19 @@ async function stopFlow() {
             :key="serviceItem.name"
             @click="() => addNode(serviceItem)"
           >
-            <AListItemMeta :title="serviceItem.name">
-              <template #avatar>
-                <AImage
-                  v-if="serviceItem.avatar"
-                  :preview="false"
-                  :width="68"
-                  :height="68"
-                  :src="serviceItem.avatar"
-                />
-                <AAvatar v-else shape="square" :size="68">{{ serviceItem.name }}</AAvatar>
-              </template>
+              <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
+                  <template #avatar>
+                      <AImage
+                              v-if="serviceItem.avatar"
+                              :height="68"
+                              :preview="false"
+                              :src="serviceItem.avatar"
+                              :width="68"
+                      />
+                      <AAvatar v-else :size="68" shape="square">
+                          {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
+                      </AAvatar>
+                  </template>
             </AListItemMeta>
           </AListItem>
         </AList>
