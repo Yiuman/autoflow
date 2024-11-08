@@ -16,9 +16,9 @@ public class SimpleProperty implements Property {
     private String displayName;
     private String description;
     private Object defaultValue;
-    private List<Option> options;
     private List<Property> properties;
     private List<ValidateRule> validateRules;
+    private Component component;
 
     public static SimpleProperty basicType(Class<?> basicType) {
         SimpleProperty simpleProperty = new SimpleProperty();

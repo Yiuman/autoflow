@@ -9,6 +9,9 @@ import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.Service;
+import io.autoflow.spi.annotation.Cmp;
+import io.autoflow.spi.annotation.Description;
+import io.autoflow.spi.enums.ComponentType;
 import io.autoflow.spi.model.*;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
@@ -17,13 +20,13 @@ import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import jakarta.validation.metadata.PropertyDescriptor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author yiuman
@@ -75,7 +78,7 @@ public final class PropertyUtils {
             simpleProperty.setName(field.getName());
             simpleProperty.setId(getFieldFullPath(clazz, field));
             simpleProperty.setType(getSimpleTypeName(type));
-            simpleProperty.setOptions(buildFieldOptions(field));
+            simpleProperty.setComponent(buildFieldComponent(field));
             Description description = AnnotationUtil.getAnnotationValue(field, Description.class);
             if (Objects.nonNull(description)) {
                 simpleProperty.setDescription(description.value());
@@ -105,36 +108,42 @@ public final class PropertyUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Option> buildFieldOptions(Field field) {
+    public static Component buildFieldComponent(Field field) {
         Class<?> typeClass = field.getType();
         if (typeClass.isEnum()) {
             List<String> names = EnumUtil.getNames((Class<? extends Enum<?>>) typeClass);
-            return names.stream().map(enumName -> {
+            List<Option> options = names.stream().map(enumName -> {
                 Option option = new Option();
                 option.setName(enumName);
                 option.setValue(enumName);
                 return option;
-            }).collect(Collectors.toList());
+            }).toList();
+
+            Component component = new Component();
+            component.setType(ComponentType.Select);
+            component.setProps(Map.of("options", options));
+            return component;
         }
 
-        OptionValues annotation = AnnotationUtil.getAnnotation(field, OptionValues.class);
-        if (Objects.nonNull(annotation)) {
-            String[] value = annotation.value();
-            return Arrays.stream(value).map(valueStr -> {
-                Option option;
-                try {
-                    option = JSONUtil.toBean(valueStr, Option.class);
-                } catch (Throwable throwable) {
-                    option = new Option();
-                    option.setName(valueStr);
-                    option.setValue(valueStr);
-                }
+        Annotation[] annotations = AnnotationUtil.getAnnotations(field, true);
+        return Arrays.stream(annotations).map(annotation -> {
+                    Cmp cmp;
+                    if (Cmp.class.equals(annotation.annotationType())) {
+                        cmp = (Cmp) annotation;
+                    } else {
+                        cmp = AnnotationUtil.getAnnotation(annotation.annotationType(), Cmp.class);
+                    }
 
-                return option;
-            }).collect(Collectors.toList());
-        }
-        return null;
+                    if (Objects.isNull(cmp)) {
+                        return null;
+                    }
+
+                    return Component.of(cmp.value(), AnnotationUtil.getAnnotationValueMap(field, annotation.annotationType()));
+                }).filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
+
 
     public static List<ValidateRule> buildValidateRules(Field field, BeanDescriptor constraintsForClass) {
         MessageInterpolator messageInterpolator = VALIDATORFACTORY.getMessageInterpolator();
@@ -171,7 +180,7 @@ public final class PropertyUtils {
         return null;
     }
 
-    public static <SERVICE extends Service<?>> List<Property> buildProperies(Class<SERVICE> serviceClass, Class<?> inputClass) {
+    public static <SERVICE extends Service<?>> List<Property> buildProperties(Class<SERVICE> serviceClass, Class<?> inputClass) {
         try {
             String propertiesJsonFile = StrUtil.format("{}_properties.json", serviceClass.getName());
             String propertiesJsonStr = ResourceUtil.readUtf8Str(propertiesJsonFile);

@@ -2,6 +2,7 @@ package io.autoflow.plugin.http;
 
 import cn.hutool.http.Header;
 import cn.hutool.http.Method;
+import io.autoflow.spi.annotation.Textarea;
 import io.autoflow.spi.model.NamedValue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -24,5 +25,6 @@ public class HttpRequestParameter {
     private String url;
     private Method method = Method.GET;
     private List<NamedValue<Object>> params;
+    @Textarea
     private String body;
 }

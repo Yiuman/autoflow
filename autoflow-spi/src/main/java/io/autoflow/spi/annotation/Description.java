@@ -1,4 +1,4 @@
-package io.autoflow.spi.model;
+package io.autoflow.spi.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

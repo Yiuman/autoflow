@@ -1,5 +1,6 @@
 package io.autoflow.spi.model;
 
+import io.autoflow.spi.enums.MessageType;
 import lombok.Data;
 
 /**

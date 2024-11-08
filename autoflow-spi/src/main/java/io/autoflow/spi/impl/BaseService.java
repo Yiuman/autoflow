@@ -45,7 +45,7 @@ public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT>, I18
     @Override
     public List<Property> getProperties() {
         if (Objects.isNull(properties)) {
-            properties = PropertyUtils.buildProperies(getClass(), inputClass);
+            properties = PropertyUtils.buildProperties(getClass(), inputClass);
         }
 
         return properties;
@@ -54,7 +54,7 @@ public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT>, I18
     @Override
     public List<Property> getOutputType() {
         if (Objects.isNull(outputType)) {
-            outputType = PropertyUtils.buildProperies(getClass(), outputClass);
+            outputType = PropertyUtils.buildProperties(getClass(), outputClass);
         }
         return outputType;
     }

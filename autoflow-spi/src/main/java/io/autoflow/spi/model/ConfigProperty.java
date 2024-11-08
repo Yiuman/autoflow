@@ -17,8 +17,8 @@ public class ConfigProperty extends SimpleProperty {
         setDisplayName(config.getString(LambdaUtil.getFieldName(SimpleProperty::getDisplayName)));
         setDescription(config.getString(LambdaUtil.getFieldName(SimpleProperty::getDescription)));
         setDefaultValue(config.getAnyRef(LambdaUtil.getFieldName(SimpleProperty::getDefaultValue)));
-        String optionsStr = config.getString(LambdaUtil.getFieldName(SimpleProperty::getOptions));
-        setOptions(JSONUtil.toList(optionsStr, Option.class));
+        String componentStr = config.getString(LambdaUtil.getFieldName(SimpleProperty::getComponent));
+        setComponent(JSONUtil.toBean(componentStr, Component.class));
     }
 
     public ConfigProperty(String configStr) {

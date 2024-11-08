@@ -1,4 +1,4 @@
-package io.autoflow.spi.model;
+package io.autoflow.spi.enums;
 
 /**
  * @author yiuman

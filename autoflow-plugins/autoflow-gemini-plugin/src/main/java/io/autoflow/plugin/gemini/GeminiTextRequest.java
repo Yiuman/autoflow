@@ -1,7 +1,7 @@
 package io.autoflow.plugin.gemini;
 
+import io.autoflow.spi.enums.MessageType;
 import io.autoflow.spi.model.ChatMessage;
-import io.autoflow.spi.model.MessageType;
 import lombok.Data;
 
 import java.util.ArrayList;

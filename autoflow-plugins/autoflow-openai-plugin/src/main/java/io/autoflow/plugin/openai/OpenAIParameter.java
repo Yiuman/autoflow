@@ -1,7 +1,7 @@
 package io.autoflow.plugin.openai;
 
+import io.autoflow.spi.annotation.Select;
 import io.autoflow.spi.model.ChatMessage;
-import io.autoflow.spi.model.OptionValues;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +22,7 @@ public class OpenAIParameter {
     @NotBlank
     private String openaiApiKey;
     @NotBlank
-    @OptionValues({"gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4"})
+    @Select(options = {"gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4"})
     private String model = "gpt-3.5-turbo";
     @DecimalMin("-2.0")
     @DecimalMax("2.0")

@@ -56,18 +56,20 @@ public interface Property {
     }
 
     /**
-     * 属性的选项
-     *
-     * @return 选项集合
-     */
-    List<Option> getOptions();
-
-    /**
      * 当type是object是此属性必须
      *
      * @return object类型的属性集合
      */
     default List<? extends Property> getProperties() {
+        return null;
+    }
+
+    /**
+     * 返回null，默认根据属性类型自动适配
+     *
+     * @return 前端的组件数据
+     */
+    default Component getComponent() {
         return null;
     }
 

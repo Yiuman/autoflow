@@ -1,5 +1,6 @@
 package io.autoflow.plugin.sql;
 
+import io.autoflow.spi.annotation.Code;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ import lombok.Data;
 @Data
 public class SqlParameter {
     @NotBlank
+    @Code(lang = "sql")
     private String sql;
     @NotBlank
     private String url;
