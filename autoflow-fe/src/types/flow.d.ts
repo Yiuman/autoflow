@@ -1,5 +1,5 @@
-import type { Node as VueFlowCordNode } from '@vue-flow/core'
-import type { Component } from 'vue'
+import type {Node as VueFlowCordNode} from '@vue-flow/core'
+import type {Component} from 'vue'
 
 interface Flow {
   id: string
@@ -95,21 +95,37 @@ interface FlowExecutionResult extends ExecutionResult<List<any>> {
 }
 
 interface Option {
-  name: string
-  value: any
-  description?: string
-  displayTemplate?: string
+    name: string
+    value: any
+    description?: string
+    displayTemplate?: string
+}
+
+type ComponentType =
+    "Input"
+    | "Textarea"
+    | "Code"
+    | "Select"
+    | "Switch"
+    | "Slider"
+    | "TimePicker"
+    | "DatePicker"
+    | "Upload";
+
+interface IComponent {
+    type: ComponentType,
+    props?: Record<string, any>
 }
 
 interface Property {
-  id: string
-  type: string
-  name: string
-  displayName?: string | null
-  description?: string | null
-  defaultValue?: any | null
-  options?: Option[] | null
-  properties?: Property[] | null
+    id: string
+    type: string
+    name: string
+    displayName?: string | null
+    description?: string | null
+    defaultValue?: any | null
+    component?: IComponent
+    properties?: Property[] | null
   validateRules?: ValidateRule[] | null
 }
 
@@ -118,8 +134,8 @@ interface Service {
   name: string
   properties: Property[]
   description?: string
-  avatar?: string | null
-  i18n?: Record<string,Record<string, string>>
+    avatar?: string | null
+    i18n?: Record<string, Record<string, string>>
 }
 
 interface ValidateRule {
@@ -160,25 +176,27 @@ interface GenericType {
 }
 
 export {
-  Flow,
-  Node,
-  Connection,
-  Position,
-  BoundingBox,
-  Bounding,
-  FileData,
-  Linkage,
-  ExecutionError,
-  Property,
-  Option,
-  Service,
-  Loop,
-  ValidateRule,
-  ComponentAttr,
-  NodeFlatData,
-  ExecutionResult,
-  FlowExecutionResult,
-  Variable,
+    Flow,
+    Node,
+    Connection,
+    Position,
+    BoundingBox,
+    Bounding,
+    FileData,
+    Linkage,
+    ExecutionError,
+    IComponent,
+    ComponentType,
+    Property,
+    Option,
+    Service,
+    Loop,
+    ValidateRule,
+    ComponentAttr,
+    NodeFlatData,
+    ExecutionResult,
+    FlowExecutionResult,
+    Variable,
   ChatMessage,
   GenericType
 }

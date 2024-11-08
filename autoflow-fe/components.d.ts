@@ -53,6 +53,8 @@ declare module 'vue' {
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     BasicTypeListEditor: typeof import('./src/components/BasicTypeListEditor/BasicTypeListEditor.vue')['default']
     ChatMessage: typeof import('./src/components/ChatMessage/ChatMessage.vue')['default']
+    CodeBlockComponent: typeof import('./src/components/ExpressInput/CodeBlockComponent.vue')['default']
+    CodeInput: typeof import('./src/components/CodeInput/CodeInput.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
     ConditionItem: typeof import('./src/components/ConditionFilter/ConditionItem.vue')['default']
     DataItemTable: typeof import('./src/components/NodeFormModal/DataItemTable.vue')['default']

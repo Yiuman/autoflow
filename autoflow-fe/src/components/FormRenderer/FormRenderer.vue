@@ -98,10 +98,6 @@ function buildDefaultValue(property: Property) {
     return property.defaultValue
   }
 
-  if (property.options) {
-    return null
-  }
-
   const genericType = extractGenericTypes(property.type)
   if (genericType.mainType === 'List') {
     return getDefaultList(property)

@@ -9,38 +9,21 @@ import {
 } from '@vue-flow/core'
 import type {TableColumnData} from '@arco-design/web-vue'
 
-import type {
-  ComponentAttr,
-  Connection,
-  Flow,
-  GenericType,
-  Node,
-  NodeElementData,
-  Property,
-  Service,
-  ValidateRule
-} from '@/types/flow'
+import type {ComponentAttr, Connection, Flow, GenericType, Node, NodeElementData, Property, Service} from '@/types/flow'
 import {uuid} from '@/utils/util-func'
 import {uniq} from 'lodash'
 import type {Position} from '@vueuse/core' //需要使用的组件
-import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
-import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
-import MapEditor from '@/components/MapEditor/MapEditor.vue'
-import ListEditor from '@/components/ListEditor/ListEditor.vue'
-import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListEditor.vue'
-import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue'
-import LinkageForm from '@/components/LinkageForm/LinkageForm.vue'
-import ChatMessage from '@/components/ChatMessage/ChatMessage.vue' //获取当前节点所有的前置节点
 import {getOrDefault} from '@/locales/i18n'
+import {toComponentAttr} from '@/utils/cmp'
 
 //获取当前节点所有的前置节点
 export function getAllIncomers(
-  nodeId: string | undefined,
-  getIncomers: (nodeOrId: Node | string) => GraphNode[]
+    nodeId: string | undefined,
+    getIncomers: (nodeOrId: Node | string) => GraphNode[]
 ): VueFlowNode[] {
-  if (!nodeId) {
-    return []
-  }
+    if (!nodeId) {
+        return []
+    }
 
   let nodeIncomers = getIncomers(nodeId)
   if (!nodeIncomers || nodeIncomers.length === 0) {
@@ -101,20 +84,20 @@ const nodeTypeMap: Record<string, string> = {
 }
 
 export function serviceToGraphNode(service: Service, position?: Position): VueFlowNode {
-  const nodeData: Record<string, any> = {}
-  nodeData.serviceId = service.id
-  nodeData.service = service
+    const nodeData: Record<string, any> = {}
+    nodeData.serviceId = service.id
+    nodeData.service = service
     nodeData.label = getOrDefault(`${service.id}.name`, service.name)
     nodeData.parameters = {}
-  nodeData.loop = {}
-  nodeData.avatar = service.avatar
-  return {
-    type: nodeTypeMap[service.name] || 'SERVICE',
-    id: uuid(8, true),
-    position: position || { x: 0, y: 0 },
-    data: nodeData,
-    label: service.name
-  }
+    nodeData.loop = {}
+    nodeData.avatar = service.avatar
+    return {
+        type: nodeTypeMap[service.name] || 'SERVICE',
+        id: uuid(8, true),
+        position: position || {x: 0, y: 0},
+        data: nodeData,
+        label: service.name
+    }
 }
 
 export function objectKeysToColumn(obj: any): TableColumnData[] {
@@ -233,132 +216,6 @@ export function getEdges(elements: Elements<NodeElementData>): GraphEdge[] {
   return elements.filter((item) => isEdge(item)) as GraphEdge[]
 }
 
-export function toComponentAttr(property: Property): ComponentAttr {
-  const propertyType = extractGenericTypes(property.type)
-  if (propertyType.mainType === 'Condition') {
-    return {
-      cmp: ConditionFilter,
-      property
-    }
-  }
-
-  if (property.options) {
-    return {
-      cmp: 'ASelect',
-      attrs: { options: property.options, allowCreate: true },
-      property
-    }
-  }
-
-  if (!propertyType.mainType || propertyType.mainType == 'String') {
-    return {
-      cmp: ExpressInput,
-      property
-    }
-  }
-
-  if (propertyType.mainType == 'FileData') {
-    return {
-      cmp: FileDataUpload,
-      property
-    }
-  }
-
-  if (propertyType.mainType === 'Map') {
-    return {
-      cmp: MapEditor,
-      property
-    }
-  }
-
-  if (propertyType.mainType === 'Linkage') {
-    return {
-      cmp: LinkageForm,
-      attrs: { linkageId: property.id },
-      property
-    }
-  }
-
-  if (['Integer', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(propertyType.mainType) > -1) {
-    if (property.validateRules) {
-      const ruleMap: Record<string, ValidateRule> = {}
-      property.validateRules.forEach((rule) => {
-        ruleMap[rule.validateType as string] = rule
-      })
-      const ruleKeys = Object.keys(ruleMap).join('|')
-      if (/Min|Max|DecimalMin|DecimalMax/.test(ruleKeys)) {
-        const minValue = Number((ruleMap['Min'] || ruleMap['DecimalMin'])?.attributes['value'])
-        const maxValue = Number((ruleMap['Max'] || ruleMap['DecimalMax'])?.attributes['value'])
-        if (minValue && maxValue) {
-          return {
-            cmp: 'ASlider',
-            attrs: {
-              step: property.type === 'Integer' ? 1 : 0.1,
-              showInput: true,
-              showTooltip: true,
-              min: minValue,
-              max: maxValue
-            },
-            property
-          }
-        } else {
-          return {
-            cmp: 'AInputNumber',
-            attrs: {
-              step: property.type === 'Integer' ? 1 : 0.1,
-              min: minValue,
-              max: maxValue
-            },
-            property
-          }
-        }
-      }
-    }
-    return {
-      cmp: 'AInputNumber',
-      property
-    }
-  }
-
-  if (propertyType.mainType === 'List' || propertyType.mainType === 'Set') {
-    //聊天消息类型（用于AI对话）
-    const argType = propertyType.genericTypes?.[0]
-    if (argType && argType === 'ChatMessage') {
-      return {
-        cmp: ChatMessage,
-        property
-      }
-    }
-    const columns: TableColumnData[] = []
-    const columnCmp: Record<string, ComponentAttr> = {}
-    if (property.properties?.length || 0 > 1) {
-      property.properties?.forEach((child) => {
-        columns.push({
-            title: child.displayName || getOrDefault(`${property.id}.${child.name}`, child.name),
-            dataIndex: child.name
-        })
-
-        columnCmp[child.name] = toComponentAttr(child)
-      })
-    } else {
-      columns.push({
-        title: '',
-        dataIndex: 'value'
-      })
-    }
-
-    return {
-      cmp: property.properties?.length == 1 ? BasicTypeListEditor : ListEditor,
-      attrs: { columns, columnCmp },
-      property: property
-    }
-  }
-
-  return {
-    cmp: ExpressInput,
-    property: property
-  }
-}
 
 export function toComponentAttrs(properties: Property[]): ComponentAttr[] {
   return properties.map((property) => toComponentAttr(property))
