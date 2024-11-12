@@ -192,18 +192,18 @@ const delayLoading = useDelayedLoading(loading)
               </template>
             </ADropdown>
             <ADescriptions :title="workflow.name" :column="1">
-              <ADescriptionsItem :label="getOrDefault('workflow.list.workFlowName','name')">
-                <span>{{ workflow.name }}</span>
-              </ADescriptionsItem>
-              <ADescriptionsItem :label="getOrDefault('workflow.list.usePlugins','plugins')">
-                <AOverflowList>
-                  <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
-                    <AImage
-                      v-if="service.avatar"
-                      class="workflow-card-plugin-col-item"
-                      :preview="false"
-                      :width="30"
-                      :height="30"
+                <ADescriptionsItem :label="getOrDefault('workflow.list.workFlowAuthor','author')">
+                    <span>{{ workflow.creator || 'system' }}</span>
+                </ADescriptionsItem>
+                <ADescriptionsItem :label="getOrDefault('workflow.list.usePlugins','plugins')">
+                    <AOverflowList>
+                        <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
+                            <AImage
+                                    v-if="service.avatar"
+                                    :height="30"
+                                    :preview="false"
+                                    :width="30"
+                                    class="workflow-card-plugin-col-item"
                       :src="service.avatar"
                     />
                     <AAvatar v-else class="workflow-card-plugin-col-item" shape="square" :size="30">

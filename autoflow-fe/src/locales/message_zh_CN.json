@@ -11,6 +11,7 @@
   "workflow.list.export": "导出工作流文件",
   "workflow.list.delete": "删除",
   "workflow.list.workFlowName": "工作流名称",
+  "workflow.list.workFlowAuthor": "作者",
   "workflow.list.updateTime": "更新时间",
   "workflow.list.usePlugins": "插件",
   "workflow.list.form.name": "名称",

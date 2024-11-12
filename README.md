@@ -5,6 +5,7 @@
   <div align="left">
    autoflow 是一个插拔式工作流工具，旨在通过灵活的模块化设计提供高度可定制的工作流编排与调度
   </div>
+    <img src="images/system_screenshot.jpeg" width="100%"/>
 </p>
 
 # 特性

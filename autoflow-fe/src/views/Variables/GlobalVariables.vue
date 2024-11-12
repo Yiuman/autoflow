@@ -80,7 +80,7 @@ async function deleteVariable(record: Variable) {
     <AModal v-model:visible="formVisible" @ok="saveVariable" @cancel="resetInstance" draggable>
         <template #title> {{ getOrDefault('variable.form.title', 'Create a new variable') }}</template>
         <AForm :model="variableInstance" layout="vertical">
-            <AFormItem :label="getOrDefault('variable.form.field.name','variable name')" field="key"
+            <AFormItem :label="getOrDefault('variable.form.field.key','variable name')" field="key"
                        required validate-trigger="input">
                 <AInput v-model="variableInstance.key"/>
             </AFormItem>
