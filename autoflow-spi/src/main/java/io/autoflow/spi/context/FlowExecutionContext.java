@@ -32,5 +32,11 @@ public interface FlowExecutionContext extends ExecutionContext {
      */
     void addExecutionResult(ExecutionResult<Object> executionResult);
 
+    /**
+     * 获取遍历上下文的Map
+     * key为遍历组件的ID，value为当前整个遍历的独立上下文
+     *
+     * @return 遍历上下文的Map
+     */
     Map<String, ExecutionContext> getLoopContextMap();
 }

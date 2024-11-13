@@ -38,4 +38,9 @@ public interface Executor {
     List<ExecutionResult<Object>> executeNode(Node node);
 
     void startByExecutableId(String executableId);
+
+    default ServiceExecutor getServiceExecutor() {
+        return ServiceExecutors.getDefaultServiceExecutor();
+    }
+
 }

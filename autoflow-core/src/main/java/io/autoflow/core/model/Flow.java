@@ -28,12 +28,7 @@ public class Flow {
      */
     private Set<String> connectionSources;
     private Set<String> connectionTargets;
-
-    /**
-     * key为nodeId,value为从属的流程ID
-     * 因为node可能是子流程
-     */
-    private Map<String, String> nodeDependentFlowCache = new HashMap<>();
+    private Map<String, Object> data;
 
     public static Flow singleNodeFlow(Node node) {
         Flow flow = new Flow();
@@ -94,25 +89,6 @@ public class Flow {
                 .filter(node -> !getConnectionSources().contains(node.getId())
                         && getConnectionTargets().contains(node.getId()))
                 .collect(Collectors.toList());
-    }
-
-    public String getDependentFlowId(String nodeId) {
-        String dependentFlowId = nodeDependentFlowCache.get(nodeId);
-        if (StrUtil.isNotBlank(dependentFlowId)) {
-            return dependentFlowId;
-        }
-
-        List<Node> collect = getIncomers(nodeId).stream()
-                .filter(nodeItem -> NodeType.SUBFLOW == nodeItem.getType())
-                .collect(Collectors.toList());
-        Node last = CollUtil.getLast(collect);
-        dependentFlowId = Objects.nonNull(last) ? last.getId() : id;
-        nodeDependentFlowCache.put(nodeId, dependentFlowId);
-        return nodeDependentFlowCache.get(nodeId);
-    }
-
-    public String getDependentFlowId(Node node) {
-        return getDependentFlowId(node.getId());
     }
 
     public List<Node> getIncomers(Node node) {

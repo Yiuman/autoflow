@@ -116,12 +116,19 @@ public final class Flows {
                 if (flowElementIds.contains(sequenceFlowId)) {
                     continue;
                 }
-                String dependentFlowId = flow.getDependentFlowId(connection.getSource());
-                FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(dependentFlowId);
+
                 FlowElementsContainer currentSourceContainer = idFlowElementsContainerMap.get(connection.getSource());
                 if (Objects.nonNull(currentSourceContainer) && currentSourceContainer instanceof SubProcess) {
                     continue;
                 }
+
+                List<Node> incomers = flow.getIncomers(connection.getSource());
+                Node last = CollUtil.getLast(incomers);
+                String flowId = flow.getId();
+                if (Objects.nonNull(last) && NodeType.LOOP_EACH_ITEM == last.getType()) {
+                    flowId = "loopProcess_" + connection.getSource();
+                }
+                FlowElementsContainer flowElementsContainer = idFlowElementsContainerMap.get(flowId);
                 flowElementsContainer.addFlowElement(createSequenceFlow(connection));
             }
         }

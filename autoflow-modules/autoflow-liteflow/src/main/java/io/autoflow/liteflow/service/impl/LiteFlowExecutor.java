@@ -7,12 +7,14 @@ import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
+import io.autoflow.core.runtime.ServiceExecutor;
 import io.autoflow.liteflow.utils.LiteFlows;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.FlowExecutionResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ import java.util.Map;
 public class LiteFlowExecutor implements Executor {
 
     private final FlowExecutor flowExecutor;
+    private ServiceExecutor serviceExecutor;
 
     @Override
     public FlowExecutionResult execute(Flow flow) {
@@ -36,10 +39,18 @@ public class LiteFlowExecutor implements Executor {
         String chainId = getExecutableId(flow);
         executionResult.setStartTime(LocalDateTime.now());
         LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, null, FlowExecutionContextImpl.class);
+        executionResult.setFlowInstId(liteflowResponse.getRequestId());
         executionResult.setEndTime(LocalDateTime.now());
-        List<ExecutionResult<Object>> executionResults = liteflowResponse.getContextBean(FlowExecutionContextImpl.class).getExecutionResults();
+        List<ExecutionResult<Object>> executionResults = liteflowResponse
+                .getContextBean(FlowExecutionContextImpl.class)
+                .getExecutionResults();
         executionResult.setData(executionResults);
         return executionResult;
+    }
+
+    @Override
+    public ServiceExecutor getServiceExecutor() {
+        return serviceExecutor;
     }
 
     @Override
@@ -68,5 +79,10 @@ public class LiteFlowExecutor implements Executor {
                     SSEContext.close(executableId);
                 }
         );
+    }
+
+    @Autowired(required = false)
+    public void setServiceExecutor(ServiceExecutor serviceExecutor) {
+        this.serviceExecutor = serviceExecutor;
     }
 }

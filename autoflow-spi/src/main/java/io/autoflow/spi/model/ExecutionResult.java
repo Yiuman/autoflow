@@ -16,6 +16,7 @@ import java.util.Objects;
 @Data
 public class ExecutionResult<DATA> {
     private String flowId;
+    private String flowInstId;
     private String nodeId;
     private String serviceId;
     private String loopId;
@@ -37,6 +38,7 @@ public class ExecutionResult<DATA> {
         }
         ExecutionResult<T> executionResult = new ExecutionResult<>();
         executionResult.setNodeId(serviceData.getNodeId());
+        executionResult.setFlowInstId(serviceData.getFlowInstId());
         executionResult.setFlowId(serviceData.getFlowId());
         executionResult.setServiceId(serviceData.getServiceId());
         executionResult.setError(error);

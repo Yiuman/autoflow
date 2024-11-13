@@ -10,6 +10,5 @@ public enum NodeType {
     GATEWAY,
     IF,
     USER,
-    SUBFLOW,
     LOOP_EACH_ITEM
 }

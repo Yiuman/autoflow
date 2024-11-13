@@ -47,7 +47,9 @@ public class FlowableExecutor implements Executor {
         FlowExecutionResult executionResult = new FlowExecutionResult();
         executionResult.setFlowId(flow.getId());
         executionResult.setStartTime(LocalDateTime.now());
-        runtimeService.startProcessInstanceById(getExecutableId(flow));
+        String executableId = getExecutableId(flow);
+        runtimeService.startProcessInstanceById(executableId);
+        executionResult.setFlowInstId(executableId);
         executionResult.setEndTime(LocalDateTime.now());
         FlowExecutionContextImpl flowExecutionContext = (FlowExecutionContextImpl) FlowContextHolder.get();
         executionResult.setData(flowExecutionContext.getExecutionResults());
@@ -106,5 +108,6 @@ public class FlowableExecutor implements Executor {
     public void startByExecutableId(String executableId) {
         runtimeService.startProcessInstanceById(executableId);
     }
+
 }
 

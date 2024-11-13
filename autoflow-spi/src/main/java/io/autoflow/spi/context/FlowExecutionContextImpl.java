@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author yiuman
  * @date 2023/7/14
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
 @Data
 public class FlowExecutionContextImpl implements FlowExecutionContext {
     private final List<ExecutionResult<Object>> executionResults = Collections.synchronizedList(CollUtil.newArrayList());
@@ -74,6 +73,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
         return parameters;
     }
 
+    @Override
     public Map<String, ExecutionContext> getLoopContextMap() {
         return loopContextMap;
     }
