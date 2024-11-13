@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.autoflow</groupId>
-        <artifactId>root</artifactId>
+        <artifactId>autoflow-plugins</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>autoflow-core</artifactId>
+    <artifactId>autoflow-knowledge-retrieval</artifactId>
     <version>${revision}</version>
 
     <properties>
@@ -20,15 +20,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-plugin-all</artifactId>
-            <version>${revision}</version>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${langchain4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-embeddings</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
+            <version>${langchain4j.version}</version>
         </dependency>
     </dependencies>
 

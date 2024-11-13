@@ -5,31 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.autoflow</groupId>
-        <artifactId>root</artifactId>
+        <artifactId>autoflow-plugins</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>autoflow-core</artifactId>
-    <version>${revision}</version>
+    <artifactId>autoflow-if</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-plugin-all</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
 </project>

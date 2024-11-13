@@ -24,6 +24,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.ola</groupId>
             <artifactId>ola-security-starter</artifactId>
             <version>${ola.vision}</version>

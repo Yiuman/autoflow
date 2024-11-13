@@ -20,6 +20,12 @@ spring:
     init:
       schema-locations: classpath:sql/schema.sql
       mode: always
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
 ola:
   crud:
     default-db-type: mongodb

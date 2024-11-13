@@ -13,18 +13,18 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>autoflow-http-plugin</module>
-        <module>autoflow-all-plugin</module>
-        <module>autoflow-regex-plugin</module>
-        <module>autoflow-sql-plugin</module>
-        <module>autoflow-if-plugin</module>
-        <module>autoflow-loop-each-item-plugin</module>
-        <module>autoflow-openai-plugin</module>
-        <module>autoflow-gemini-plugin</module>
-        <module>autoflow-variable-extract-plugin</module>
-        <module>autoflow-knowledge-retrieval-plugin</module>
-        <module>autoflow-llm-plugin</module>
-        <module>autoflow-textextractor-plugin</module>
+        <module>autoflow-plugin-all</module>
+        <module>autoflow-http</module>
+        <module>autoflow-regex</module>
+        <module>autoflow-sql</module>
+        <module>autoflow-if</module>
+        <module>autoflow-loop-each-item</module>
+        <module>autoflow-openai</module>
+        <module>autoflow-gemini</module>
+        <module>autoflow-variable-extract</module>
+        <module>autoflow-knowledge-retrieval</module>
+        <module>autoflow-llm</module>
+        <module>autoflow-textextractor</module>
     </modules>
 
     <properties>

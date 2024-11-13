@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.autoflow</groupId>
-        <artifactId>root</artifactId>
+        <artifactId>autoflow-plugins</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>autoflow-core</artifactId>
+    <artifactId>autoflow-openai</artifactId>
     <version>${revision}</version>
 
     <properties>
@@ -20,15 +20,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.autoflow</groupId>
-            <artifactId>autoflow-plugin-all</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
         </dependency>
     </dependencies>
 

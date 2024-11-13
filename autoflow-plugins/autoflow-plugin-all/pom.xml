@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.autoflow</groupId>
+        <artifactId>autoflow-plugins</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>autoflow-plugin-all</artifactId>
+    <version>${revision}</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-http</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-regex</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-sql</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-if</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-loop-each-item</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-openai</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-gemini</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-variable-extract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-knowledge-retrieval</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-llm</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-textextractor</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
+</project>
