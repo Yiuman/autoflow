@@ -73,6 +73,9 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
     }
 
     public Object fillBeanValue(Object result) {
+        if (Objects.isNull(result)) {
+            return result;
+        }
         Class<?> typeClass = ClassUtil.getClass(result);
         if (ClassUtil.isSimpleValueType(typeClass)) {
             Object expressValue = getExpressValue(result, typeClass);

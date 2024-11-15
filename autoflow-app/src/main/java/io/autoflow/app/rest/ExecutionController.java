@@ -1,12 +1,12 @@
 package io.autoflow.app.rest;
 
-import cn.hutool.core.thread.ThreadUtil;
+import io.autoflow.app.model.Workflow;
+import io.autoflow.app.model.WorkflowInst;
+import io.autoflow.app.service.ExecutionService;
 import io.autoflow.common.http.SSEContext;
-import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.spi.model.ExecutionResult;
-import io.autoflow.spi.model.FlowExecutionResult;
 import io.ola.common.http.R;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -28,29 +28,24 @@ import java.util.List;
 @RequestMapping("/executions")
 @RequiredArgsConstructor
 public class ExecutionController {
-    private final Executor executor;
+    private final ExecutionService executionService;
 
     @PostMapping
-    public R<FlowExecutionResult> execute(@RequestBody Flow flow) {
-        return R.ok(executor.execute(flow));
-    }
-
-    @PostMapping("/getExecutableId")
-    public R<String> executableId(@RequestBody Flow flow) {
-        return R.ok(executor.getExecutableId(flow));
+    public R<WorkflowInst> execute(@RequestBody Workflow workflow) {
+        return R.ok(executionService.execute(workflow));
     }
 
     @PostMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter executeSse(@RequestBody Flow flow) {
+    public SseEmitter executeSse(@RequestBody Workflow workflow) {
         SseEmitter sseEmitter = new SseEmitter(0L);
-        String executableId = executor.getExecutableId(flow);
-        SSEContext.add(executableId, sseEmitter);
-        ThreadUtil.execute(() -> executor.startByExecutableId(executableId));
+        WorkflowInst workflowInst = executionService.executeAsync(workflow);
+        SSEContext.add(workflowInst.getId(), sseEmitter);
         return sseEmitter;
     }
 
     @PostMapping("/node")
     public R<List<ExecutionResult<Object>>> executeNode(@RequestBody Node node) {
+        Executor executor = executionService.getExecutor();
         return R.ok(executor.executeNode(node));
     }
 

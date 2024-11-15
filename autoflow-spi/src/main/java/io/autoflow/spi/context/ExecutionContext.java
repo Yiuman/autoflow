@@ -33,4 +33,8 @@ public interface ExecutionContext {
      */
     Object parseValue(String key);
 
+    default ExecutionContext getParent() {
+        return null;
+    }
+
 }

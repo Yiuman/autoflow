@@ -1,13 +1,15 @@
 package io.autoflow.liteflow.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.yomahub.liteflow.core.FlowExecutor;
 import com.yomahub.liteflow.flow.LiteflowResponse;
-import io.autoflow.common.http.SSEContext;
+import io.autoflow.core.events.EventHelper;
+import io.autoflow.core.events.EventListener;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
-import io.autoflow.core.runtime.ServiceExecutor;
 import io.autoflow.liteflow.utils.LiteFlows;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.FlowExecutionContextImpl;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author yiuman
@@ -30,7 +33,16 @@ import java.util.Map;
 public class LiteFlowExecutor implements Executor {
 
     private final FlowExecutor flowExecutor;
-    private ServiceExecutor serviceExecutor;
+
+    @Autowired(required = false)
+    public void setEventListeners(List<EventListener> eventListeners) {
+        if (CollUtil.isEmpty(eventListeners)) {
+            return;
+        }
+        for (EventListener eventListener : eventListeners) {
+            getEventDispatcher().addEventListener(eventListener);
+        }
+    }
 
     @Override
     public FlowExecutionResult execute(Flow flow) {
@@ -38,19 +50,19 @@ public class LiteFlowExecutor implements Executor {
         executionResult.setFlowId(flow.getId());
         String chainId = getExecutableId(flow);
         executionResult.setStartTime(LocalDateTime.now());
-        LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, null, FlowExecutionContextImpl.class);
-        executionResult.setFlowInstId(liteflowResponse.getRequestId());
+        FlowExecutionContextImpl flowExecutionContext = FlowExecutionContextImpl.create(
+                Optional.ofNullable(flow.getData()).orElse(MapUtil.empty())
+        );
+        getEventDispatcher().dispatch(EventHelper.createFlowStartEvent(flow, flowExecutionContext));
+        LiteflowResponse liteflowResponse = flowExecutor.execute2RespWithRid(chainId, this, flow.getRequestId(), flowExecutionContext);
         executionResult.setEndTime(LocalDateTime.now());
+        executionResult.setFlowInstId(liteflowResponse.getRequestId());
         List<ExecutionResult<Object>> executionResults = liteflowResponse
                 .getContextBean(FlowExecutionContextImpl.class)
                 .getExecutionResults();
         executionResult.setData(executionResults);
+        getEventDispatcher().dispatch(EventHelper.createFlowEndEvent(flow, flowExecutionContext, executionResult));
         return executionResult;
-    }
-
-    @Override
-    public ServiceExecutor getServiceExecutor() {
-        return serviceExecutor;
     }
 
     @Override
@@ -66,7 +78,7 @@ public class LiteFlowExecutor implements Executor {
         flowExecutionContext.getVariables().putAll((Map<String, Object>) node.getData().get(Constants.VARIABLES_ATTR_NAME));
         flowExecutionContext.getParameters().putAll(node.getData());
         String chainId = getExecutableId(Flow.singleNodeFlow(node));
-        LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, null, flowExecutionContext);
+        LiteflowResponse liteflowResponse = flowExecutor.execute2Resp(chainId, this, flowExecutionContext);
         return liteflowResponse.getContextBean(FlowExecutionContextImpl.class).getExecutionResults();
     }
 
@@ -75,14 +87,9 @@ public class LiteFlowExecutor implements Executor {
     public void startByExecutableId(String executableId) {
         ThreadUtil.execute(
                 () -> {
-                    flowExecutor.execute2Resp(executableId, null, FlowExecutionContextImpl.class);
-                    SSEContext.close(executableId);
+                    flowExecutor.execute2Resp(executableId, this, FlowExecutionContextImpl.class);
                 }
         );
     }
 
-    @Autowired(required = false)
-    public void setServiceExecutor(ServiceExecutor serviceExecutor) {
-        this.serviceExecutor = serviceExecutor;
-    }
 }

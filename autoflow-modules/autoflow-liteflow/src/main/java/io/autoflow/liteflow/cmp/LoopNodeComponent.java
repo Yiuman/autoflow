@@ -1,11 +1,11 @@
 package io.autoflow.liteflow.cmp;
 
 import cn.hutool.core.collection.CollUtil;
-import com.google.common.collect.Iterators;
 import com.yomahub.liteflow.core.NodeIteratorComponent;
 import io.autoflow.core.model.Loop;
 import io.autoflow.plugin.loopeachitem.LoopItem;
 import io.autoflow.spi.context.FlowExecutionContextImpl;
+import org.apache.commons.collections.IteratorUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -34,7 +34,7 @@ public class LoopNodeComponent extends NodeIteratorComponent {
             FlowExecutionContextImpl contextBean = getContextBean(FlowExecutionContextImpl.class);
             List<Object> objectList = (List<Object>) contextBean.parseValue(collectionString);
             if (CollUtil.isEmpty(objectList)) {
-                return Iterators.emptyIterator();
+                return IteratorUtils.emptyIterator();
             }
             int size = objectList.size();
             loop.setLoopCardinality(size);

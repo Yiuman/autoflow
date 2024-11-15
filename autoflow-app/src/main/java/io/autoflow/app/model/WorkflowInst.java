@@ -5,9 +5,11 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.keygen.KeyGenerators;
 import io.autoflow.app.enums.FlowState;
+import io.autoflow.core.model.Flow;
 import io.ola.crud.model.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Transient;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +28,10 @@ public class WorkflowInst extends BaseEntity<String> {
      */
     private String workflowId;
     /**
+     * 提交时间
+     */
+    private LocalDateTime submitTime;
+    /**
      * 流程启动时间
      */
     private LocalDateTime startTime;
@@ -41,4 +47,8 @@ public class WorkflowInst extends BaseEntity<String> {
      * 流程状态
      */
     private FlowState flowState;
+
+    private String flowStr;
+    @Transient
+    private Flow flow;
 }

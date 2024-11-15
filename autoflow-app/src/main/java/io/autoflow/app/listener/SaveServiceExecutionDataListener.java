@@ -1,15 +1,18 @@
-package io.autoflow.app.service.impl;
+package io.autoflow.app.listener;
 
 import cn.hutool.json.JSONUtil;
 import io.autoflow.app.model.ExecutionInst;
 import io.autoflow.app.service.ExecutionInstService;
-import io.autoflow.core.runtime.ServiceExecutors;
-import io.autoflow.spi.Service;
-import io.autoflow.spi.context.ExecutionContext;
+import io.autoflow.core.enums.EventType;
+import io.autoflow.core.events.Event;
+import io.autoflow.core.events.EventListener;
+import io.autoflow.core.events.ServiceEndEvent;
 import io.autoflow.spi.model.ExecutionResult;
-import io.autoflow.spi.model.ServiceData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -17,16 +20,11 @@ import java.util.Objects;
  * @date 2024/11/13
  */
 @RequiredArgsConstructor
-public class ServiceExecutorImpl extends ServiceExecutors.DefaultServiceExecutor {
+@Component
+public class SaveServiceExecutionDataListener implements EventListener {
 
     private final ExecutionInstService executionInstService;
 
-    @Override
-    public <T> ExecutionResult<T> execute(ServiceData serviceData, Service<T> service, ExecutionContext executionContext) {
-        ExecutionResult<T> executionResult = super.execute(serviceData, service, executionContext);
-        saveExecutionInst(executionResult);
-        return executionResult;
-    }
 
     /**
      * 保存执行实例
@@ -52,5 +50,16 @@ public class ServiceExecutorImpl extends ServiceExecutors.DefaultServiceExecutor
         }
 
         executionInstService.save(executionInst);
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        ServiceEndEvent serviceEndEvent = (ServiceEndEvent) event;
+        saveExecutionInst(serviceEndEvent.getExecutionResult());
+    }
+
+    @Override
+    public Collection<? extends EventType> getTypes() {
+        return List.of(EventType.SERVICE_END);
     }
 }

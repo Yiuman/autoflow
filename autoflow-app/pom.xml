@@ -62,6 +62,18 @@
             <artifactId>x-file-storage-spring</artifactId>
             <version>${x-file-storage.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.dromara.dynamictp</groupId>
+            <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
+            <version>${dynamic-tp.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version> <!-- or another version before 19 -->
+        </dependency>
     </dependencies>
 
     <build>

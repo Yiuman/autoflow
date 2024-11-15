@@ -1,6 +1,8 @@
 package io.autoflow.app.service;
 
-import io.autoflow.spi.model.FlowExecutionResult;
+import io.autoflow.app.model.Workflow;
+import io.autoflow.app.model.WorkflowInst;
+import io.autoflow.core.runtime.Executor;
 
 /**
  * @author yiuman
@@ -8,7 +10,14 @@ import io.autoflow.spi.model.FlowExecutionResult;
  */
 public interface ExecutionService {
 
-    FlowExecutionResult executeByWorkflowId(String workflowId);
+    WorkflowInst execute(String workflowId);
 
+    WorkflowInst execute(Workflow workflow);
+
+    WorkflowInst executeAsync(String workflowId);
+
+    WorkflowInst executeAsync(Workflow workflow);
+
+    Executor getExecutor();
 
 }

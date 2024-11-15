@@ -5,13 +5,15 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.core.NodeComponent;
 import io.autoflow.core.Services;
+import io.autoflow.core.events.EventDispatcher;
+import io.autoflow.core.events.EventHelper;
+import io.autoflow.core.runtime.Executor;
 import io.autoflow.core.runtime.ServiceExecutor;
 import io.autoflow.plugin.loopeachitem.LoopItem;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.*;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.ServiceData;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,17 +28,18 @@ import java.util.Optional;
 @SuppressWarnings("unchecked")
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class ServiceNodeComponent extends NodeComponent {
-
-    private final ServiceExecutor serviceExecutor;
 
     @Override
     public void process() {
         // 防止转义异常
         ServiceData serviceData = getCmpData(ServiceData.class);
         Assert.notNull(serviceData);
+        serviceData.setFlowInstId(getSlot().getRequestId());
         String serviceId = serviceData.getServiceId();
+        Executor executor = getRequestData();
+        ServiceExecutor serviceExecutor = executor.getServiceExecutor();
+        EventDispatcher eventDispatcher = executor.getEventDispatcher();
         // 获取服务插件实例
         Service<Object> service = getServiceInstance(serviceId);
         // 获取全局上下文并将当前节点的ID作为key放到环境变量中
@@ -45,25 +48,13 @@ public class ServiceNodeComponent extends NodeComponent {
         // 构建执行上下文
         ExecutionContext executionContext = buildExecutionContext(flowExecutionContext, serviceData);
         // 执行并处理结果
-        ExecutionResult<Object> executionResult = executeService(serviceData, service, executionContext);
+        eventDispatcher.dispatch(EventHelper.createServiceStartEvent(serviceData, executionContext));
+        ExecutionResult<Object> executionResult = serviceExecutor.execute(serviceData, service, executionContext);
+        eventDispatcher.dispatch(EventHelper.createServiceEndEvent(serviceData, executionContext, executionResult));
         // 处理执行结果
         processExecutionResult(flowExecutionContext, executionResult);
         // 最终清理和更新上下文（确保无论成功还是失败都能执行）
         finalizeExecution(flowExecutionContext, executionResult);
-    }
-
-    private ExecutionResult<Object> executeService(ServiceData serviceData, Service<Object> service, ExecutionContext executionContext) {
-        ExecutionResult<Object> executionResult = serviceExecutor.execute(serviceData, service, executionContext);
-        LoopItem currLoopObj = getCurrLoopObj();
-        if (Objects.nonNull(currLoopObj)
-                && Objects.nonNull(executionContext)
-                && executionContext instanceof LoopExecutionContext) {
-            executionResult.setLoopId(currLoopObj.getId());
-            executionResult.setLoopCounter(currLoopObj.getLoopCounter());
-            executionResult.setNrOfInstances(currLoopObj.getNrOfInstances());
-            ContextUtils.addResult(executionContext, executionResult);
-        }
-        return executionResult;
     }
 
     private Service<Object> getServiceInstance(String serviceId) {

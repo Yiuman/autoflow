@@ -1,5 +1,7 @@
 package io.autoflow.core.runtime;
 
+import io.autoflow.core.events.EventDispatcher;
+import io.autoflow.core.events.EventDispatcherImpl;
 import io.autoflow.core.model.Flow;
 import io.autoflow.core.model.Node;
 import io.autoflow.spi.model.ExecutionResult;
@@ -41,6 +43,10 @@ public interface Executor {
 
     default ServiceExecutor getServiceExecutor() {
         return ServiceExecutors.getDefaultServiceExecutor();
+    }
+
+    default EventDispatcher getEventDispatcher() {
+        return EventDispatcherImpl.getDefault();
     }
 
 }

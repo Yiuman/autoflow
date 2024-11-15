@@ -20,6 +20,14 @@ spring:
     init:
       schema-locations: classpath:sql/schema.sql
       mode: always
+  dynamic:
+    tp:
+      executors:
+        - threadPoolName: workflow_thread_pool
+          executorType: eager
+          corePoolSize: 10
+          maximumPoolSize: 20
+          queueCapacity: 2000
 management:
   endpoints:
     web:

@@ -17,18 +17,19 @@ import java.util.stream.Collectors;
 @Data
 public class Flow {
     private String id;
+    private String requestId;
     private String name;
     private List<Node> nodes;
     private List<Connection> connections;
     private String description;
     private String parentId;
+    private Map<String, Object> data;
 
     /**
      * 下面这两个属性只读
      */
     private Set<String> connectionSources;
     private Set<String> connectionTargets;
-    private Map<String, Object> data;
 
     public static Flow singleNodeFlow(Node node) {
         Flow flow = new Flow();

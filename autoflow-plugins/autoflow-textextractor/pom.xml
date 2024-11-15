@@ -30,6 +30,10 @@
                     <artifactId>guava</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.collections</groupId>
+                    <artifactId>google-collections</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>cn.hutool</groupId>
                     <artifactId>hutool-all</artifactId>
                 </exclusion>

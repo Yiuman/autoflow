@@ -14,11 +14,13 @@ public class OnceExecutionContext implements ExecutionContext {
     private final Map<String, Object> inputData = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider;
+    private final ExecutionContext parent;
 
     public OnceExecutionContext(ExecutionContext executionContext) {
         this.variables.putAll(executionContext.getVariables());
         this.inputData.putAll(executionContext.getInputData());
         this.executionContextValueProvider = new ExecutionContextValueProvider(this);
+        this.parent = executionContext;
     }
 
     public OnceExecutionContext(ExecutionContext executionContext, Map<String, Object> parameters) {
@@ -26,6 +28,7 @@ public class OnceExecutionContext implements ExecutionContext {
         this.inputData.putAll(executionContext.getInputData());
         this.executionContextValueProvider = new ExecutionContextValueProvider(this);
         this.parameters.putAll(parameters);
+        this.parent = executionContext;
     }
 
     @Override
@@ -48,4 +51,8 @@ public class OnceExecutionContext implements ExecutionContext {
         return executionContextValueProvider.get(key);
     }
 
+    @Override
+    public ExecutionContext getParent() {
+        return parent;
+    }
 }
