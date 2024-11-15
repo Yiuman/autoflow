@@ -26,22 +26,21 @@ import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
 import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
-import {type EventSourceMessage, fetchEventSource} from '@microsoft/fetch-event-source'
-import {useEnv} from '@/hooks/env'
 import useTheme from '@/hooks/theme'
 import workflowApi from '@/api/workflow'
 import {useRoute} from 'vue-router'
 import {getResultData} from '@/utils/flow'
 import {getOrDefault} from '@/locales/i18n'
+import {executeFlowSSE} from '@/views/FlowDesigner/flowsse'
 
 const [theme] = useTheme()
 
 const route = useRoute()
 //---------------------------- 初始化定义数据 ----------------------------
 const nodeTypes = {
-  SERVICE: markRaw(ServiceNode),
-  IF: markRaw(IfNode),
-  LOOP_EACH_ITEM: markRaw(LoopEachItemNode)
+    SERVICE: markRaw(ServiceNode),
+    IF: markRaw(IfNode),
+    LOOP_EACH_ITEM: markRaw(LoopEachItemNode)
 }
 
 const edgeTypes = {
@@ -227,16 +226,16 @@ function addNode(node: Service) {
     const isInputHandler = selectHandlerId.value === 'INPUT'
     const newConnect = isInputHandler
       ? {
-          source: newNode.id,
-          target: selectedNodeId.value as string,
-          sourceHandle: 'OUTPUT',
-          targetHandle: selectHandlerId.value
+            source: newNode.id,
+            target: selectedNodeId.value as string,
+            sourceHandle: 'OUTPUT',
+            targetHandle: selectHandlerId.value
         }
       : {
-          source: selectedNodeId.value as string,
-          target: newNode.id,
-          sourceHandle: selectHandlerId.value,
-          targetHandle: 'INPUT'
+            source: selectedNodeId.value as string,
+            target: newNode.id,
+            sourceHandle: selectHandlerId.value,
+            targetHandle: 'INPUT'
         }
     doConnect(newConnect)
   }
@@ -270,10 +269,10 @@ async function saveWorkflow() {
 function importJson(fileList: FileItem[]): void {
   const reader = new FileReader()
   const fileItem = fileList[0]
-  reader.readAsText(fileItem.file as Blob)
-  reader.onload = function () {
-    doParseJson(reader.result as string)
-  }
+    reader.readAsText(fileItem.file as Blob)
+    reader.onload = function () {
+        doParseJson(reader.result as string)
+    }
 }
 
 function doParseJson(json: string) {
@@ -315,70 +314,20 @@ function searchModalInput(event: InputEvent) {
 const running = ref<boolean>(false)
 const executeFlowId = ref<string>()
 
-const { VITE_BASE_URL } = useEnv()
-
-function executeFlowSSE(flow: Flow) {
-  const ctrl = new AbortController()
-  const url = VITE_BASE_URL || '/api' + '/executions/sse'
-  fetchEventSource(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(flow),
-    async onmessage(message: EventSourceMessage) {
-      const currentNode = findNode(message.id)
-      switch (message.event) {
-        case 'ACTIVITY_STARTED':
-          if (!currentNode || currentNode.data.running) {
-            break
-          }
-          updateNodeData(message.id, { running: true })
-          break
-        case 'ACTIVITY_COMPLETED':
-          if (message.data) {
-            const resultData = JSON.parse(message.data)
-            let currentNodeData = currentNode?.data?.executionResult
-            const executionResult = resultData.length > 1 ? resultData : resultData[0]
-
-            if (currentNodeData) {
-                if (Array.isArray(currentNodeData)) {
-                    Array.isArray(executionResult)
-                        ? currentNodeData.push(...executionResult)
-                        : currentNodeData.push(executionResult)
-                } else {
-                    currentNodeData = [currentNodeData, executionResult]
-                }
-            } else {
-              currentNodeData = executionResult
-            }
-
-              updateNodeData(message.id, {
-              executionResult: currentNodeData,
-              running: false
-            })
-          }
-          break
-        default:
-      }
-    },
-    signal: ctrl.signal,
-    onclose() {
-      executeFlowId.value = ''
-      running.value = false
-      ctrl.abort()
-    },
-    onerror(error: Error) {
-      throw error
-    }
-  })
-}
 
 function runFlow() {
-  running.value = true
-  const flow = elementsToFlow(elements.value)
-  executeFlowId.value = flow.id
-  executeFlowSSE(flow)
+    running.value = true
+    const flow = elementsToFlow(elements.value)
+    executeFlowId.value = flow.id
+    executeFlowSSE({id: flow.id, flowStr: JSON.stringify(flow)},
+        findNode,
+        updateNodeData,
+        {
+            onClose: () => {
+                executeFlowId.value = ''
+                running.value = false
+            }
+        })
 }
 
 async function stopFlow() {
@@ -413,32 +362,32 @@ async function stopFlow() {
       position="top-right"
       style="display: flex; align-items: center"
     >
-      <SearchModal
-              v-model:visible="searchModalVisible"
-              :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
-              @input="(event) => searchModalInput(event as InputEvent)"
-      >
-        <AList>
-          <AListItem
-            v-for="serviceItem in matchServices"
-            :key="serviceItem.name"
-            @click="() => addNode(serviceItem)"
-          >
-              <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
-                  <template #avatar>
-                      <AImage
-                              v-if="serviceItem.avatar"
-                              :height="68"
-                              :preview="false"
-                              :src="serviceItem.avatar"
-                              :width="68"
-                      />
-                      <AAvatar v-else :size="68" shape="square">
-                          {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
-                      </AAvatar>
-                  </template>
-            </AListItemMeta>
-          </AListItem>
+        <SearchModal
+                v-model:visible="searchModalVisible"
+                :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
+                @input="(event) => searchModalInput(event as InputEvent)"
+        >
+            <AList>
+                <AListItem
+                        v-for="serviceItem in matchServices"
+                        :key="serviceItem.name"
+                        @click="() => addNode(serviceItem)"
+                >
+                    <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
+                        <template #avatar>
+                            <AImage
+                                    v-if="serviceItem.avatar"
+                                    :height="68"
+                                    :preview="false"
+                                    :src="serviceItem.avatar"
+                                    :width="68"
+                            />
+                            <AAvatar v-else :size="68" shape="square">
+                                {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
+                            </AAvatar>
+                        </template>
+                    </AListItemMeta>
+                </AListItem>
         </AList>
       </SearchModal>
       <ADivider direction="vertical" margin="5px" />
