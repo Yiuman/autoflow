@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import {useRoute, useRouter} from 'vue-router'
-import {IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill} from '@arco-design/web-vue/es/icon'
+import { useRoute, useRouter } from 'vue-router'
+import { IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon'
 import useTheme from '@/hooks/theme'
-import {IconFont} from '@/hooks/iconfont'
-import {getOrDefault} from '@/locales/i18n'
+import { IconFont } from '@/hooks/iconfont'
+import { getOrDefault } from '@/locales/i18n'
 import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
 
 const [collapsed, toggleCollapsed] = useToggle(false)
@@ -36,7 +36,11 @@ function handleMenuClick(key: string) {
           <span v-show="!collapsed">autoflow</span>
         </div>
       </div>
-      <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['workflows']">
+      <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['dashboard']">
+        <AMenuItem key="dashboard">
+          <IconFont type="icon-workflow_" />
+          {{ getOrDefault('menu.dashboard', 'Dashboard') }}
+        </AMenuItem>
         <AMenuItem key="workflows">
           <IconFont type="icon-workflow_" />
           {{ getOrDefault('menu.workflow', 'Workflows') }}
@@ -75,7 +79,7 @@ function handleMenuClick(key: string) {
           </ABreadcrumb>
         </div>
         <div class="layout-header-right">
-          <I18nSwitch/>
+          <I18nSwitch />
           <div class="layout-header-right-item">
             <ASwitch
               :value="theme"

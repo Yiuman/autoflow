@@ -4,12 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.common.http.SSEContext;
 import io.autoflow.core.enums.EventType;
-import io.autoflow.core.events.Event;
-import io.autoflow.core.events.EventListener;
-import io.autoflow.core.events.ServiceEndEvent;
-import io.autoflow.core.events.ServiceStartEvent;
+import io.autoflow.core.events.*;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.ServiceData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -22,6 +20,7 @@ import java.util.Objects;
  * @date 2024/11/14
  */
 @Component
+@Slf4j
 public class ServiceSSEListener implements EventListener {
 
     private void sendServiceStartEvent(ServiceStartEvent serviceStartEvent) {
@@ -34,6 +33,7 @@ public class ServiceSSEListener implements EventListener {
                         .name(serviceStartEvent.name())
                         .data(""));
             } catch (Throwable throwable) {
+                log.warn("sse send service start data error", throwable);
             }
         }
     }
@@ -51,6 +51,7 @@ public class ServiceSSEListener implements EventListener {
                                 .data(JSONUtil.toJsonStr(CollUtil.newArrayList(executionResult)))
                 );
             } catch (Throwable throwable) {
+                log.warn("sse send service end data error", throwable);
             }
         }
     }
@@ -64,10 +65,14 @@ public class ServiceSSEListener implements EventListener {
         if (event instanceof ServiceEndEvent serviceEndEvent) {
             sendServiceEndEvent(serviceEndEvent);
         }
+
+        if (event instanceof FlowEndEvent flowEndEvent) {
+            SSEContext.close(flowEndEvent.getFlowInstId());
+        }
     }
 
     @Override
     public Collection<? extends EventType> getTypes() {
-        return List.of(EventType.SERVICE_START, EventType.SERVICE_END);
+        return List.of(EventType.SERVICE_START, EventType.SERVICE_END, EventType.FLOW_END);
     }
 }
