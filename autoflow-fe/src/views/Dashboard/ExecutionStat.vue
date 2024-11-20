@@ -2,32 +2,28 @@
 import 'echarts'
 import VChart from 'vue-echarts'
 import { getOrDefault } from '@/locales/i18n'
-import ThreadPool from '@/views/Dashboard/ThreadPool.vue'
-import { useMonitorChart } from '@/views/Dashboard/monitoring'
+import { useExecutionStat } from '@/views/Dashboard/executionStat'
 
-const { option } = useMonitorChart()
-
+const { option } = useExecutionStat()
 </script>
 
 <template>
-  <div class="dashboard-monitoring">
+  <div class="dashboard-execution-stat">
     <div class="title">
-      <span>{{ getOrDefault('stat.monitoring', 'Monitoring View') }}</span>
+      <span>{{ getOrDefault('stat.executionStat', 'Execution Statistics') }}</span>
     </div>
-    <div class="monitoring-container">
-      <div class="monitoring-charts">
+    <div class="execution-chart-container">
+      <div class="execution-charts">
         <VChart :option="option" autoresize />
       </div>
 
-      <ThreadPool class="monitoring-thread-pool" />
     </div>
 
   </div>
 </template>
 
 <style scoped lang="scss">
-
-.dashboard-monitoring {
+.dashboard-execution-stat {
   background-color: var(--color-bg-2);
   padding: 10px;
 
@@ -43,22 +39,15 @@ const { option } = useMonitorChart()
     margin-bottom: 20px;
   }
 
-  .monitoring-container {
+  .execution-chart-container {
     display: flex;
 
-    .monitoring-charts {
+    .execution-charts {
       flex: 1;
       padding: 0 10px;
       width: 50%;
       height: 60vh;
     }
-
-    .monitoring-thread-pool {
-      flex: 1;
-      margin: auto;
-    }
   }
-
-
 }
 </style>

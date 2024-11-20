@@ -14,7 +14,7 @@ const { width } = useElementSize(menuRef)
 const headerWidth = computed(() => {
   return `calc(100% - ${width.value}px)`
 })
-const [theme, toggleTheme] = useTheme()
+const [darkTheme, toggleTheme] = useTheme()
 const router = useRouter()
 const route = useRoute()
 
@@ -82,7 +82,7 @@ function handleMenuClick(key: string) {
           <I18nSwitch />
           <div class="layout-header-right-item">
             <ASwitch
-              :value="theme"
+              :default-checked="darkTheme"
               class="panel-item"
               type="line"
               @change="() => toggleTheme()"
