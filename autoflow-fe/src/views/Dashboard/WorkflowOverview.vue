@@ -43,18 +43,6 @@ import { getOrDefault } from '@/locales/i18n'
   background-color: var(--color-bg-2);
   border-radius: var(--border-radius-large);
 
-  .title{
-    span{
-      padding: 5px;
-      border-bottom: 3px solid rgb(var(--primary-6));
-    }
-
-    font-weight: bold;
-    font-size: 18px;
-    color: var(--color-text-1);
-    margin-bottom: 20px;
-  }
-
   .workflow-stat {
     display: flex;
     padding: 0 20px;

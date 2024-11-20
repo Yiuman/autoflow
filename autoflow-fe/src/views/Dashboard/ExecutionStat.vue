@@ -27,17 +27,6 @@ const { option } = useExecutionStat()
   background-color: var(--color-bg-2);
   padding: 10px;
 
-  .title {
-    span {
-      padding: 5px;
-      border-bottom: 3px solid rgb(var(--primary-6));
-    }
-
-    font-weight: bold;
-    font-size: 18px;
-    color: var(--color-text-1);
-    margin-bottom: 20px;
-  }
 
   .execution-chart-container {
     display: flex;
