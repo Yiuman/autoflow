@@ -16,6 +16,11 @@ export function useExecutionStat() {
     ]
   })
 
+  const legendFontColor = ref(getComputedStyle(document.body).getPropertyValue('--color-text-1'));
+  watch(darkTheme, () => {
+      legendFontColor.value =getComputedStyle(document.body).getPropertyValue('--color-text-1')
+  })
+
   const option = computed(() => {
     const dimension = chartData.value.dimension[0]
     const data = chartData.value.data
@@ -39,13 +44,12 @@ export function useExecutionStat() {
       tooltip: {
         trigger: 'axis',
         axisPointer: {
-          // Use axis to trigger tooltip
-          type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+          type: 'shadow'
         }
       },
       legend: {
         textStyle: {
-          color: getComputedStyle(document.body).getPropertyValue('--color-text-1')
+          color: legendFontColor.value
         }
       },
       grid: {
@@ -70,12 +74,7 @@ export function useExecutionStat() {
       }
     }
   })
-  watch(darkTheme, () => {
-    console.warn("darkTheme",getComputedStyle(document.body).getPropertyValue('--color-text-1'))
-    option.value.legend.textStyle.color =darkTheme
-      ? getComputedStyle(document.body).getPropertyValue('--color-text-1')
-      :'red'
-  })
+
   return {
     chartData,
     option
