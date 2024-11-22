@@ -19,6 +19,19 @@ import ExecutionStat from '@/views/Dashboard/ExecutionStat.vue'
   .dashboard-item:not(:first-child) {
     margin-top: 20px;
   }
+
+  :deep(.title) {
+    span {
+      padding: 5px;
+      border-bottom: 2px solid rgb(var(--primary-6));
+    }
+
+    font-size: 18px;
+    color: var(--color-text-1);
+    margin-bottom: 20px;
+  }
 }
+
+
 
 </style>

@@ -1,5 +1,6 @@
-import type {ChartData} from '@/types/crud'
-import {getOrDefault} from '@/locales/i18n'
+import type { ChartData } from '@/types/crud'
+import { getOrDefault } from '@/locales/i18n'
+import { darkTheme } from '@/hooks/theme'
 
 export function useExecutionStat() {
   const chartData = ref<ChartData>({
@@ -13,6 +14,11 @@ export function useExecutionStat() {
       { serviceId: 'OpenAI', Total: 20, Success: 20, Fail: 0 },
       { serviceId: 'Gemini', Total: 30, Success: 28, Fail: 2 }
     ]
+  })
+
+  const legendFontColor = ref(getComputedStyle(document.body).getPropertyValue('--color-text-1'));
+  watch(darkTheme, () => {
+      legendFontColor.value =getComputedStyle(document.body).getPropertyValue('--color-text-1')
   })
 
   const option = computed(() => {
@@ -38,13 +44,12 @@ export function useExecutionStat() {
       tooltip: {
         trigger: 'axis',
         axisPointer: {
-          // Use axis to trigger tooltip
-          type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+          type: 'shadow'
         }
       },
       legend: {
         textStyle: {
-          color: 'rgba(255, 255, 255, 0.5)'
+          color: legendFontColor.value
         }
       },
       grid: {
@@ -69,6 +74,7 @@ export function useExecutionStat() {
       }
     }
   })
+
   return {
     chartData,
     option
