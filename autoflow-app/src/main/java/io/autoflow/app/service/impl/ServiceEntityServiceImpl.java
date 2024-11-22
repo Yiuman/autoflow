@@ -13,10 +13,11 @@ import io.autoflow.spi.I18n;
 import io.ola.crud.service.impl.BaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> implements ServiceEntityService {
+public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> implements ServiceEntityService, ApplicationRunner {
     private static final Map<String, byte[]> SERVICE_SVG_CACHE = new ConcurrentHashMap<>();
     private final FileResourceService fileResourceService;
 
-    @PostConstruct
     public void init() {
         addOrUpdateSystemServices();
         loadExtensionServices();
@@ -60,7 +60,6 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         serviceEntity.setSystem(true);
         return serviceEntity;
     }
-
 
     private void loadExtensionServices() {
         List<ServiceEntity> extensionServices = findAllExtensionServices();
@@ -108,5 +107,10 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
             log.error("load jar service happen error", throwable);
             throw new MessageException("add plugin happen error");
         }
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        init();
     }
 }

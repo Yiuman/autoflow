@@ -1,9 +1,11 @@
 package io.autoflow.app.model;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.Table;
 import io.autoflow.spi.model.Property;
 import io.ola.crud.model.BaseEntity;
+import io.ola.crud.utils.JsonbTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,7 +19,7 @@ import java.util.Properties;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Table("AF_SERVICE")
+@Table("af_service")
 public class ServiceEntity extends BaseEntity<String> {
     @Id
     private String id;
@@ -25,7 +27,9 @@ public class ServiceEntity extends BaseEntity<String> {
     private Boolean system;
     private String jarFileId;
     private String description;
+    @Column(typeHandler = JsonbTypeHandler.class)
     private List<Property> properties;
+    @Column(typeHandler = JsonbTypeHandler.class)
     private List<Property> outputType;
     private Boolean uninstall;
     private transient Map<String, Properties> i18n;

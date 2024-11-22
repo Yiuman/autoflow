@@ -16,11 +16,11 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Table("AF_GLOBAL_VAR")
+@Table("af_global_var")
 public class GlobalVariable extends BaseEntity<String> {
     @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
     private String id;
     private String key;
     private String value;
-    private String desc;
+    private String description;
 }

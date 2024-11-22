@@ -16,6 +16,10 @@ spring:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:100MB}
       max-request-size: ${MAX_REQUEST_SIZE:200MB}
+  datasource:
+    url: jdbc:postgresql://localhost:5432/autoflow
+    username: postgres
+    password: 123456
   sql:
     init:
       schema-locations: classpath:sql/schema.sql
@@ -36,7 +40,7 @@ management:
           - '*'
 ola:
   crud:
-    default-db-type: mongodb
+    default-db-type: postgresql
   security:
     authenticate-endpoint: "/login"
     excluded-uris:

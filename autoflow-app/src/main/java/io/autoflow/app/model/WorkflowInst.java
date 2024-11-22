@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Table("AF_WORKFLOW_INST")
+@Table("af_workflow_inst")
 public class WorkflowInst extends BaseEntity<String> {
     @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
     private String id;

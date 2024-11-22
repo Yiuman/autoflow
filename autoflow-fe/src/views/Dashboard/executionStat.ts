@@ -1,6 +1,5 @@
-import type { ChartData } from '@/types/crud'
-import { getOrDefault } from '@/locales/i18n'
-import { darkTheme } from '@/hooks/theme'
+import type {ChartData} from '@/types/crud'
+import {getOrDefault} from '@/locales/i18n'
 
 export function useExecutionStat() {
   const chartData = ref<ChartData>({
@@ -45,7 +44,7 @@ export function useExecutionStat() {
       },
       legend: {
         textStyle: {
-          color: getComputedStyle(document.body).getPropertyValue('--color-text-1')
+          color: 'rgba(255, 255, 255, 0.5)'
         }
       },
       grid: {
@@ -69,12 +68,6 @@ export function useExecutionStat() {
         }
       }
     }
-  })
-  watch(darkTheme, () => {
-    console.warn("darkTheme",getComputedStyle(document.body).getPropertyValue('--color-text-1'))
-    option.value.legend.textStyle.color =darkTheme
-      ? getComputedStyle(document.body).getPropertyValue('--color-text-1')
-      :'red'
   })
   return {
     chartData,
