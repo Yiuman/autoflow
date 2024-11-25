@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @Data
 public class TagQuery {
-    @In(mapping = "_id")
+    @In(mapping = "id")
     private Set<String> ids;
     @Like
     private String name;

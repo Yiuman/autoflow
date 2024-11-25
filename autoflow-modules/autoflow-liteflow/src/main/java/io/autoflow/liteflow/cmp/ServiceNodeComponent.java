@@ -50,11 +50,12 @@ public class ServiceNodeComponent extends NodeComponent {
         // 执行并处理结果
         eventDispatcher.dispatch(EventHelper.createServiceStartEvent(serviceData, executionContext));
         ExecutionResult<Object> executionResult = serviceExecutor.execute(serviceData, service, executionContext);
-        eventDispatcher.dispatch(EventHelper.createServiceEndEvent(serviceData, executionContext, executionResult));
         // 处理执行结果
         processExecutionResult(flowExecutionContext, executionResult);
         // 最终清理和更新上下文（确保无论成功还是失败都能执行）
         finalizeExecution(flowExecutionContext, executionResult);
+        //发布服务结束事件
+        eventDispatcher.dispatch(EventHelper.createServiceEndEvent(serviceData, executionContext, executionResult));
     }
 
     private Service<Object> getServiceInstance(String serviceId) {

@@ -11,6 +11,7 @@ import io.autoflow.spi.model.Property;
 import io.ola.crud.serializer.EpochToLocalDateTimeDeserializer;
 import io.ola.crud.serializer.LocalDateTimeToEpochSerializer;
 import io.ola.crud.utils.JsonbTypeHandler;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -24,8 +25,8 @@ import java.time.LocalDateTime;
  * @date 2024/11/22
  */
 @Configuration
+@MapperScan(basePackages = {"io.autoflow.app.mapper", "io.autoflow.app.dao"})
 public class BeanConfig {
-
     @Bean
     @ConditionalOnBean
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {

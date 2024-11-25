@@ -1,11 +1,21 @@
 <script setup lang="ts">
 import 'echarts'
 import VChart from 'vue-echarts'
-import { getOrDefault } from '@/locales/i18n'
+import {getOrDefault} from '@/locales/i18n'
 import ThreadPool from '@/views/Dashboard/ThreadPool.vue'
-import { useMonitorChart } from '@/views/Dashboard/monitoring'
+import {autoRefresh, useMonitorChart} from '@/views/Dashboard/monitoring'
 
-const { option } = useMonitorChart()
+const {pause, resume, sysCpuUsage, sysMemoryMax, sysMemoryUsed} = autoRefresh()
+
+const {cpuUsage, memoryMax, memoryUsed, option} = useMonitorChart()
+onMounted(() => {
+    resume()
+})
+
+onUnmounted(() => {
+    pause()
+})
+
 
 </script>
 
