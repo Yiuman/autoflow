@@ -1,32 +1,5 @@
 import {getOrDefault} from '@/locales/i18n'
-import {metrics} from '@/api/statistics'
 
-const sysCpuUsage = ref(0)
-const sysMemoryMax = ref(0)
-const sysMemoryUsed = ref(0)
-
-async function refresh() {
-    const chartData = await metrics()
-    const metricData = chartData.data[0]
-    sysCpuUsage.value = parseFloat((metricData['cpuUsage'] * 100).toFixed(2))
-    sysMemoryMax.value = metricData['memoryMax'] as number
-    sysMemoryUsed.value = metricData['memoryUsed'] as number
-}
-
-export function autoRefresh() {
-    const {pause, resume, isActive} = useIntervalFn(() => {
-        refresh()
-    }, 2000)
-
-    return {
-        pause,
-        resume,
-        isActive,
-        sysCpuUsage,
-        sysMemoryMax,
-        sysMemoryUsed
-    }
-}
 
 /**
  * 由绿到红的百分比色号
@@ -37,6 +10,16 @@ function getColor(percentage: number) {
     const hue = 120 - (percentage * 1.2) // 1.2 ensures 100% maps to hue 0
     const lightness = 70
     return `hsl(${hue}, 100%, ${lightness}%)`
+}
+
+function formatSize(sizeInBytes: number): string {
+    const sizeInMB = sizeInBytes / (1024 * 1024) // 将字节转换为MB
+    if (sizeInMB >= 1024) {
+        const sizeInGB = sizeInMB / 1024 // 如果大于1024MB，转换为GB
+        return `${sizeInGB.toFixed(2)} GB`
+    } else {
+        return `${sizeInMB.toFixed(2)} MB` // 否则返回MB
+    }
 }
 
 export function useMonitorChart() {
@@ -56,16 +39,16 @@ export function useMonitorChart() {
                         startAngle: 200,
                         endAngle: -20,
                         min: 0,
-            max: 100,
-            splitNumber: 10,
-            itemStyle: {
-              color: getColor(cpuUsage.value)
-            },
-            progress: {
-              show: true,
-              width: 30
-            },
-            pointer: {
+                        max: 100,
+                        splitNumber: 10,
+                        itemStyle: {
+                            color: getColor(cpuUsage.value)
+                        },
+                        progress: {
+                            show: true,
+                            width: 30
+                        },
+                        pointer: {
               show: false
             },
             axisLine: {
@@ -148,24 +131,32 @@ export function useMonitorChart() {
               show: false
             },
             detail: {
-              valueAnimation: true,
-              width: '60%',
-              lineHeight: 40,
-              borderRadius: 8,
-              offsetCenter: [0, 0],
-              fontSize: 15,
-              fontWeight: 'bolder',
-              formatter: `${getOrDefault('stat.memoryUsage', 'Memory Usage')} {value} %`,
-              color: 'inherit'
+                valueAnimation: true,
+                width: '60%',
+                lineHeight: 15,
+                borderRadius: 8,
+                offsetCenter: [0, 20],
+                fontSize: 15,
+                fontWeight: 'bolder',
+                formatter: function () {
+                    return `Max ${formatSize(memoryMax.value)}\n${getOrDefault('stat.memoryUsage', 'Memory Usage')} ${memoryUsage.value} %`
+                },
+                color: 'inherit'
             },
-            data: [
-              {
-                value: memoryUsage.value
-              }
-            ]
+              data: [
+                  {
+                      value: memoryUsage.value
+                  }
+              ]
           }
-        ]
-      }
+                ],
+                aria: {
+                    enabled: true,
+                    decal: {
+                        show: true
+                    }
+                }
+            }
     }
   )
 

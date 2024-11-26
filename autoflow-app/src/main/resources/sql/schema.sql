@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS af_workflow
     create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
     update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
 );
-
+-- 服务插件
 CREATE TABLE IF NOT EXISTS af_service
 (
     id            VARCHAR(255) PRIMARY KEY,            -- 主键，UUID 类型，默认值自动生成
@@ -77,4 +77,16 @@ CREATE TABLE IF NOT EXISTS af_execution_inst
     last_modifier    VARCHAR(32),                           -- 最后修改者 ID，使用 UUID 类型
     create_time      TIMESTAMP   DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
     update_time      TIMESTAMP   DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+);
+
+-- 全局变量
+CREATE TABLE IF NOT EXISTS af_global_var
+(
+    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    key           VARCHAR(255) not null,               -- 变量key
+    value         TEXT,                                -- 变量值
+    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
+    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
 );

@@ -8,8 +8,6 @@ import cn.hutool.json.JSONUtil;
 import com.yomahub.liteflow.builder.LiteFlowNodeBuilder;
 import com.yomahub.liteflow.builder.el.*;
 import com.yomahub.liteflow.core.NodeComponent;
-import com.yomahub.liteflow.flow.FlowBus;
-import com.yomahub.liteflow.flow.element.Chain;
 import io.autoflow.core.enums.PointType;
 import io.autoflow.core.model.Connection;
 import io.autoflow.core.model.Flow;
@@ -37,10 +35,6 @@ public final class LiteFlows {
     }
 
     public static String createChain(Flow flow) {
-        Chain chain = FlowBus.getChain(flow.getId());
-        if (Objects.nonNull(chain)) {
-            return chain.getId();
-        }
         LiteFlowChainELBuilder.createChain()
                 .setChainId(flow.getId())
                 .setEL(convertElStr(flow))

@@ -1,10 +1,25 @@
 <script setup lang="ts">
 import 'echarts'
 import VChart from 'vue-echarts'
-import { getOrDefault } from '@/locales/i18n'
-import { useExecutionStat } from '@/views/Dashboard/executionStat'
+import {getOrDefault} from '@/locales/i18n'
+import {useExecutionStat} from '@/views/Dashboard/executionStat'
+import {executionInstStat} from '@/api/statistics'
 
-const { option } = useExecutionStat()
+const {chartData, option} = useExecutionStat()
+
+async function refresh() {
+    const executionStat = await executionInstStat()
+    chartData.value.data = executionStat.data.map(data => {
+        return {
+            ...data,
+            service_id: getOrDefault(`${data.service_id}.name`, data.service_id)
+        }
+    })
+}
+
+onMounted(() => {
+    refresh()
+})
 </script>
 
 <template>

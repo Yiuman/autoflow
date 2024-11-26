@@ -31,7 +31,7 @@ function selectPlugin(serviceItem: Service) {
           <template #icon>
             <IconLeftCircle />
           </template>
-            {{ getOrDefault('return') }}
+            {{ getOrDefault('back') }}
         </AButton>
         <ACard class="plugin-card">
           <div class="cover-box">

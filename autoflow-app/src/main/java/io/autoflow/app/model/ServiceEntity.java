@@ -8,6 +8,7 @@ import io.ola.crud.model.BaseEntity;
 import io.ola.crud.utils.JsonbTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 import java.util.Map;
@@ -32,5 +33,6 @@ public class ServiceEntity extends BaseEntity<String> {
     @Column(typeHandler = JsonbTypeHandler.class)
     private List<Property> outputType;
     private Boolean uninstall;
-    private transient Map<String, Properties> i18n;
+    @Transient
+    private Map<String, Properties> i18n;
 }

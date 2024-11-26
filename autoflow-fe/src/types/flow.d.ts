@@ -2,11 +2,11 @@ import type {Node as VueFlowCordNode} from '@vue-flow/core'
 import type {Component} from 'vue'
 
 interface Flow {
-  id: string
-  name: string
-  nodes?: Node[]
-  connections?: Connection[]
-  description?: string
+    id: string
+    name: string
+    nodes?: Node[]
+    connections?: Connection[]
+    description?: string
 }
 
 interface Node {
@@ -102,15 +102,15 @@ interface Option {
 }
 
 type ComponentType =
-    "Input"
-    | "Textarea"
-    | "Code"
-    | "Select"
-    | "Switch"
-    | "Slider"
-    | "TimePicker"
-    | "DatePicker"
-    | "Upload";
+    'Input'
+    | 'Textarea'
+    | 'Code'
+    | 'Select'
+    | 'Switch'
+    | 'Slider'
+    | 'TimePicker'
+    | 'DatePicker'
+    | 'Upload';
 
 interface IComponent {
     type: ComponentType,
@@ -126,14 +126,14 @@ interface Property {
     defaultValue?: any | null
     component?: IComponent
     properties?: Property[] | null
-  validateRules?: ValidateRule[] | null
+    validateRules?: ValidateRule[] | null
 }
 
 interface Service {
-  id: string
-  name: string
-  properties: Property[]
-  description?: string
+    id: string
+    name: string
+    properties: Property[]
+    description?: string
     avatar?: string | null
     i18n?: Record<string, Record<string, string>>
 }
@@ -166,13 +166,31 @@ interface NodeFlatData {
 export type MessageType = 'SYSTEM' | 'USER' | 'ASSISTANT'
 
 interface ChatMessage {
-  type: MessageType
-  content?: string
+    type: MessageType
+    content?: string
 }
 
 interface GenericType {
-  mainType: string
-  genericTypes: Array<GenericType | string>
+    mainType: string
+    genericTypes: Array<GenericType | string>
+}
+
+interface ThreadPoolData {
+    name: string,
+    corePoolSize: number,
+    activeCount: number,
+    maximumPoolSize: number,
+    completedTaskCount: number,
+    queueSize: number,
+    idleThreadRate: number,
+}
+
+interface MetricData {
+    cpuUsage: number,
+    memoryMax: number,
+    memoryUsed: number,
+    workflowThreadPool: ThreadPoolData,
+    asyncTaskThreadPool: ThreadPoolData
 }
 
 export {
@@ -197,6 +215,8 @@ export {
     ExecutionResult,
     FlowExecutionResult,
     Variable,
-  ChatMessage,
-  GenericType
+    ChatMessage,
+    GenericType,
+    ThreadPoolData,
+    MetricData
 }

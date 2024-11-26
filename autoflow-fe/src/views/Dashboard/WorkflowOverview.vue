@@ -7,7 +7,7 @@ const countWorkflow = ref(0)
 const countWorkflowInst = ref(0)
 const countWorkflowRunning = ref(0)
 const countWorkflowEnd = ref(0)
-const countWorkflowPendding = ref(0)
+const countWorkflowPending = ref(0)
 
 async function refresh() {
     const chartData = await overview()
@@ -19,13 +19,20 @@ async function refresh() {
     countWorkflowInst.value = dataMap['COUNT_INST'] || 0
     countWorkflowRunning.value = dataMap['COUNT_RUNNING'] || 0
     countWorkflowEnd.value = dataMap['COUNT_END'] || 0
-    countWorkflowPendding.value = dataMap['COUNT_CREATED'] || 0
+    countWorkflowPending.value = dataMap['COUNT_CREATED'] || 0
 }
 
-onMounted(async () => {
-    useIntervalFn(() => {
-        refresh()
-    }, 2000)
+const {resume, pause} = useIntervalFn(() => {
+    refresh()
+}, 5000)
+
+onMounted(() => {
+    refresh();
+    resume();
+})
+
+onBeforeUnmount(() => {
+    pause()
 })
 </script>
 
@@ -57,7 +64,7 @@ onMounted(async () => {
                   :show-group-separator="true" />
 
       <AStatistic class="workflow-stat-item" :title="getOrDefault('stat.pendingWorkflow','Pending Workflow Task')"
-                  :value="countWorkflowPendding"
+                  :value="countWorkflowPending"
                   :animation="true"
                   :show-group-separator="true" />
     </div>

@@ -3,19 +3,42 @@ import 'echarts'
 import VChart from 'vue-echarts'
 import {getOrDefault} from '@/locales/i18n'
 import ThreadPool from '@/views/Dashboard/ThreadPool.vue'
-import {autoRefresh, useMonitorChart} from '@/views/Dashboard/monitoring'
-
-const {pause, resume, sysCpuUsage, sysMemoryMax, sysMemoryUsed} = autoRefresh()
+import {useMonitorChart} from '@/views/Dashboard/monitoring'
+import {metrics} from '@/api/statistics'
+import type {ThreadPoolData} from '@/types/flow'
 
 const {cpuUsage, memoryMax, memoryUsed, option} = useMonitorChart()
+const threadPoolData = ref<ThreadPoolData[]>([])
+
+async function refresh() {
+    const metricData = await metrics()
+    cpuUsage.value = parseFloat((metricData.cpuUsage * 100).toFixed(2))
+    memoryMax.value = metricData.memoryMax
+    memoryUsed.value = metricData.memoryUsed
+    threadPoolData.value = reactive([
+        {
+            ...metricData.workflowThreadPool,
+            name: getOrDefault('stat.workflowPool', 'Workflow pool'),
+        },
+        {
+            ...metricData.asyncTaskThreadPool,
+            name: getOrDefault('stat.taskPool', 'Task pool')
+        }
+    ])
+}
+
+const {pause, resume} = useIntervalFn(() => {
+    refresh()
+}, 5000)
+
 onMounted(() => {
+    refresh();
     resume()
 })
 
 onUnmounted(() => {
     pause()
 })
-
 
 </script>
 
@@ -29,7 +52,7 @@ onUnmounted(() => {
         <VChart :option="option" autoresize />
       </div>
 
-      <ThreadPool class="monitoring-thread-pool" />
+        <ThreadPool :data="threadPoolData" class="monitoring-thread-pool"/>
     </div>
 
   </div>

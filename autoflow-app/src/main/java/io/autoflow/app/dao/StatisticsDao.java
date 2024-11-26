@@ -20,8 +20,17 @@ public interface StatisticsDao {
             SELECT 'COUNT_INST' AS metric, count(1) AS quantity
             FROM af_workflow_inst
             UNION ALL
-            SELECT concat('COUNT_',flow_state) AS metric, COUNT(CASE WHEN flow_state = 'START' THEN 1 END) AS quantity
+            SELECT concat('COUNT_',flow_state) AS metric, COUNT(*) AS quantity
             FROM af_workflow_inst  group by flow_state
             """)
     List<Map<String, Object>> countOverview();
+
+    @Select("""
+            SELECT SERVICE_ID, TOTAL, FAIL, (TOTAL - FAIL) AS SUCCESS
+                  FROM (SELECT SERVICE_ID, COUNT(*) AS TOTAL, COUNT(ERROR_MESSAGE) AS FAIL
+                        FROM AF_EXECUTION_INST
+                        GROUP BY SERVICE_ID)
+                        COUNT_EXECUTION
+            """)
+    List<Map<String, Object>> countExecutionGroupByService();
 }

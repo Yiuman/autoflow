@@ -3,6 +3,7 @@ package io.autoflow.app.service.impl;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import com.mybatisflex.core.query.QueryWrapper;
 import io.autoflow.app.exceptions.MessageException;
 import io.autoflow.app.model.FileResource;
 import io.autoflow.app.model.ServiceEntity;
@@ -10,6 +11,7 @@ import io.autoflow.app.service.FileResourceService;
 import io.autoflow.app.service.ServiceEntityService;
 import io.autoflow.core.Services;
 import io.autoflow.spi.I18n;
+import io.autoflow.spi.utils.I18nUtils;
 import io.ola.crud.service.impl.BaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,16 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         List<io.autoflow.spi.Service> serviceList = Services.getServiceList();
         List<ServiceEntity> systemServices = serviceList.stream().map(this::convert).toList();
         saveAll(systemServices);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends ServiceEntity> List<T> list(QueryWrapper queryWrapper) {
+        List<ServiceEntity> list = super.list(queryWrapper);
+        for (ServiceEntity serviceEntity : list) {
+            serviceEntity.setI18n(I18nUtils.getI18n(serviceEntity.getId()));
+        }
+        return (List<T>) list;
     }
 
     private ServiceEntity convert(io.autoflow.spi.Service<?> service) {

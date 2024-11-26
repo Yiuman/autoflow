@@ -21,10 +21,14 @@ import java.util.regex.Pattern;
 public final class I18nUtils {
     private static final Log LOGGER = LogFactory.getLog(I18nUtils.class);
     private static final Pattern LOCALE_PATTERN = Pattern.compile("messages_(\\w+_\\w+)\\.properties");
-    private static final Map<Class<?>, Map<String, Properties>> I18N_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Map<String, Properties>> I18N_CACHE = new ConcurrentHashMap<>();
+
+    public static Map<String, Properties> getI18n(String key) {
+        return I18N_CACHE.get(key);
+    }
 
     public static Map<String, Properties> getI18n(Class<?> clazz) {
-        Map<String, Properties> cacheI18n = I18N_CACHE.get(clazz);
+        Map<String, Properties> cacheI18n = I18N_CACHE.get(clazz.getName());
         if (Objects.nonNull(cacheI18n)) {
             return cacheI18n;
         }
@@ -34,7 +38,7 @@ public final class I18nUtils {
         Map<String, Properties> i18n = jarPath.endsWith(".jar")
                 ? loadPropertiesFromJar(jarPath)
                 : loadPropertiesFromDirectory(jarPath);
-        I18N_CACHE.put(clazz, i18n);
+        I18N_CACHE.put(clazz.getName(), i18n);
         return i18n;
     }
 

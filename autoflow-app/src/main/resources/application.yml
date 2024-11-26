@@ -6,6 +6,7 @@ server:
       enabled: true
     context-path: /api
   port: 8096
+
 spring:
   application:
     name: autoflow

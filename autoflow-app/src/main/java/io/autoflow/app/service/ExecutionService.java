@@ -9,6 +9,7 @@ import io.autoflow.core.runtime.Executor;
  * @date 2024/11/13
  */
 public interface ExecutionService {
+    String THREAD_POOL_NAME = "workflow_thread_pool";
 
     WorkflowInst execute(String workflowId);
 

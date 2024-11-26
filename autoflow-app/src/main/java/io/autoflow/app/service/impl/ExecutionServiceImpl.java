@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class ExecutionServiceImpl implements ExecutionService {
-    private static final String THREAD_POOL_NAME = "workflow_thread_pool";
     private final WorkflowService workflowService;
     private final Executor executor;
     private final WorkflowInstService workflowInstService;
