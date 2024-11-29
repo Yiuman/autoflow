@@ -4,14 +4,14 @@ import {darkTheme} from '@/hooks/theme'
 
 export function useExecutionStat() {
   const chartData = ref<ChartData>({
-      dimension: ['service_id'],
-      indicator: ['total', 'success', 'fail'],
-      data: []
+    dimension: ['service_id'],
+    indicator: ['total', 'success', 'fail'],
+    data: []
   })
 
-  const legendFontColor = ref(getComputedStyle(document.body).getPropertyValue('--color-text-1'));
+  const legendFontColor = ref(getComputedStyle(document.body).getPropertyValue('--color-text-1'))
   watch(darkTheme, () => {
-      legendFontColor.value =getComputedStyle(document.body).getPropertyValue('--color-text-1')
+    legendFontColor.value = getComputedStyle(document.body).getPropertyValue('--color-text-1')
   })
 
   const option = computed(() => {

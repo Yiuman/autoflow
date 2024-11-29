@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.Service;
@@ -27,6 +28,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author yiuman
@@ -237,6 +239,15 @@ public final class PropertyUtils {
                 modifyProperties(property.getProperties(), consumer);
             }
         }
+    }
+
+    public static <T> Map<String, T> nameValuesToMap(List<NamedValue<T>> namedValues) {
+        if (CollUtil.isEmpty(namedValues)) {
+            return MapUtil.empty();
+        }
+
+        return namedValues.stream()
+                .collect(Collectors.toMap(NamedValue::getName, NamedValue::getValue));
     }
 }
 

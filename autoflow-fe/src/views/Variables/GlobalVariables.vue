@@ -7,15 +7,15 @@ import {getOrDefault} from '@/locales/i18n'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
-  { dataIndex: 'key', title: 'key', width: 300 },
-  { dataIndex: 'value', title: 'value', width: 300 },
-  { dataIndex: 'desc', title: 'desc' },
-  {
-    title: 'Optional',
-    slotName: 'optional',
-    width: 10,
-    align: 'center'
-  }
+    {dataIndex: 'key', title: getOrDefault("globalVariable.key", "Key"), width: 300},
+    {dataIndex: 'value', title: getOrDefault("globalVariable.value", "Value"), width: 300},
+    {dataIndex: 'description', title: getOrDefault("globalVariable.description", "Description")},
+    {
+        title: getOrDefault("globalVariable.optional", "Optional"),
+        slotName: 'optional',
+        width: 80,
+        align: 'center'
+    }
 ]
 
 const DEFAULT_INSTANCE = {

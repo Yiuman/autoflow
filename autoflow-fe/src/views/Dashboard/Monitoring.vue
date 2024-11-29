@@ -18,7 +18,7 @@ async function refresh() {
     threadPoolData.value = reactive([
         {
             ...metricData.workflowThreadPool,
-            name: getOrDefault('stat.workflowPool', 'Workflow pool'),
+            name: getOrDefault('stat.workflowPool', 'Workflow pool')
         },
         {
             ...metricData.asyncTaskThreadPool,
@@ -32,7 +32,7 @@ const {pause, resume} = useIntervalFn(() => {
 }, 5000)
 
 onMounted(() => {
-    refresh();
+    refresh()
     resume()
 })
 

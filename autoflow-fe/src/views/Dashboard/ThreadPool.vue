@@ -27,14 +27,14 @@ const props = defineProps<Props>()
             </ADescriptionsItem>
             <ADescriptionsItem :label="getOrDefault('completedTaskCount','Completed Task Count')">
                 <ATag>{{ threadPool.completedTaskCount }}</ATag>
-      </ADescriptionsItem>
-      <ADescriptionsItem :label="getOrDefault('queueSize','Queue Size')">
-          <ATag>{{ threadPool.queueSize }}</ATag>
-      </ADescriptionsItem>
-      <ADescriptionsItem :label="getOrDefault('idleThreadRate','Idle Thread Rate')">
-          <ATag>{{ parseFloat((threadPool.idleThreadRate * 100).toFixed(2)) }}%</ATag>
-      </ADescriptionsItem>
-    </ADescriptions>
+            </ADescriptionsItem>
+            <ADescriptionsItem :label="getOrDefault('queueSize','Queue Size')">
+                <ATag>{{ threadPool.queueSize }}</ATag>
+            </ADescriptionsItem>
+            <ADescriptionsItem :label="getOrDefault('idleThreadRate','Idle Thread Rate')">
+                <ATag>{{ parseFloat((threadPool.idleThreadRate * 100).toFixed(2)) }}%</ATag>
+            </ADescriptionsItem>
+        </ADescriptions>
   </div>
 </template>
 

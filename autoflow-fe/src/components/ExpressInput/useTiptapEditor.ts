@@ -1,11 +1,11 @@
-import { type JSONContent, useEditor } from '@tiptap/vue-3'
+import {type JSONContent, useEditor} from '@tiptap/vue-3'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
-import { type Option } from '@/components/ExpressInput/MentionList.vue'
-import { createVNode, h, type Ref, render } from 'vue'
+import {type Option} from '@/components/ExpressInput/MentionList.vue'
+import {createVNode, type Ref, render} from 'vue'
 import createMentionSuggestion from './suggestion'
 import MentionTag from '@/components/ExpressInput/MentionTag.vue'
 
@@ -19,11 +19,17 @@ function jsonToString(jsonData: JSONContent | undefined) {
   if (!jsonData) {
     return ''
   }
-  return jsonData?.content?.[0]?.content
-    ?.map((contentItem: JSONContent) =>
-      contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
+  return jsonData?.content?.map(paragraph => {
+    return paragraph.content?.map((contentItem: JSONContent) =>
+        contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
     )
-    .join(' ')
+        .join(' ')
+  }).join(' ')
+  // return jsonData?.content?.[0]?.content
+  //   ?.map((contentItem: JSONContent) =>
+  //     contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
+  //   )
+  //   .join(' ')
 }
 
 export function useTipTapEditor(options: TipTapEditorOptions) {
@@ -118,6 +124,7 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
     },
     onUpdate: ({ editor }) => {
       const jsonData = editor.getJSON()
+      console.warn("jsonData", jsonData)
       options.data.value = jsonToString(jsonData)
     },
     content: convertToJSONContent()

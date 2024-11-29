@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { IconFont } from '@/hooks/iconfont'
+import {IconFont} from '@/hooks/iconfont'
 
 export interface Option {
   label?: string
@@ -11,39 +11,53 @@ export interface Option {
 }
 
 interface Props {
-  items: Option[]
-  command: (arg: { id: Option }) => void
+    items: Option[]
+    command: (arg: { id: Option }) => void
 }
 
 const props = defineProps<Props>()
-const dropdownMenu = ref(null)
-const scrollY = 30
-const { y } = useScroll(dropdownMenu)
+const dropdownMenu = ref<HTMLDivElement | null>(null)
 const selectedIndex = ref(0)
 
+function scrollToSelected() {
+    if (dropdownMenu.value && props.items.length > 0) {
+        const selectedItem = dropdownMenu.value.children[selectedIndex.value] as HTMLElement
+        const menuHeight = dropdownMenu.value.clientHeight
+        const itemTop = selectedItem.offsetTop
+        const itemHeight = selectedItem.offsetHeight
+
+        // 控制滚动位置，保证选中的项始终可见
+        if (itemTop < dropdownMenu.value.scrollTop) {
+            dropdownMenu.value.scrollTop = itemTop
+        } else if (itemTop + itemHeight > dropdownMenu.value.scrollTop + menuHeight) {
+            dropdownMenu.value.scrollTop = itemTop + itemHeight - menuHeight
+        }
+    }
+}
+
 watch(
-  () => props.items,
-  () => {
-    selectedIndex.value = 0
-  }
+    () => props.items,
+    () => {
+        selectedIndex.value = 0
+    }
 )
 const onKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'ArrowUp') {
-    upHandler()
-    event.preventDefault()
-    y.value -= scrollY
-    return true
-  }
+    if (event.key === 'ArrowUp') {
+        upHandler()
+        event.preventDefault()
+        scrollToSelected()  // 滚动到选中的项
+        return true
+    }
 
-  if (event.key === 'ArrowDown') {
-    downHandler()
-    event.preventDefault()
-    y.value += scrollY
-    return true
-  }
+    if (event.key === 'ArrowDown') {
+        downHandler()
+        event.preventDefault()
+        scrollToSelected()  // 滚动到选中的项
+        return true
+    }
 
-  if (event.key === 'Enter') {
-    enterHandler()
+    if (event.key === 'Enter') {
+        enterHandler()
     event.preventDefault()
     return true
   }
@@ -99,9 +113,8 @@ const selectItem = (index: number) => {
 .dropdown-menu {
   background: var(--color-bg-2);
   border-radius: var(--border-radius-medium);
-  box-shadow:
-    0 12px 33px 0 rgba(0, 0, 0, 0.06),
-    0 3.618px 9.949px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 33px 0 rgba(0, 0, 0, 0.06),
+  0 3.618px 9.949px 0 rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   gap: 0.1rem;

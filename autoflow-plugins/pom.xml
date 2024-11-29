@@ -25,6 +25,7 @@
         <module>autoflow-knowledge-retrieval</module>
         <module>autoflow-llm</module>
         <module>autoflow-textextractor</module>
+        <module>autoflow-template</module>
     </modules>
 
     <properties>

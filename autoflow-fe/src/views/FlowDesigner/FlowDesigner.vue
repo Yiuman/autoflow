@@ -267,8 +267,8 @@ async function saveWorkflow() {
 }
 
 function importJson(fileList: FileItem[]): void {
-  const reader = new FileReader()
-  const fileItem = fileList[0]
+    const reader = new FileReader()
+    const fileItem = fileList[0]
     reader.readAsText(fileItem.file as Blob)
     reader.onload = function () {
         doParseJson(reader.result as string)
@@ -319,6 +319,9 @@ function runFlow() {
     running.value = true
     const flow = elementsToFlow(elements.value)
     executeFlowId.value = flow.id
+    flow.nodes?.forEach(node => {
+        updateNodeData(node.id, {executionResult: null})
+    })
     executeFlowSSE({id: flow.id, flowStr: JSON.stringify(flow)},
         findNode,
         updateNodeData,
@@ -342,72 +345,72 @@ async function stopFlow() {
 
 <template>
   <VueFlow
-    ref="vueFlow"
-    :connection-mode="ConnectionMode.Strict"
-    v-model="elements"
-    @edge-mouse-move="edgeMouseMove"
-    @edge-mouse-leave="edgeMouseMove"
-    :class="{ theme }"
-    class="vue-flow-basic"
-    :node-types="nodeTypes"
-    :edge-types="edgeTypes"
+          ref="vueFlow"
+          v-model="elements"
+          :class="{ theme }"
+          :connection-mode="ConnectionMode.Strict"
+          :edge-types="edgeTypes"
+          :node-types="nodeTypes"
+          class="vue-flow-basic"
+          @edge-mouse-move="edgeMouseMove"
+          @edge-mouse-leave="edgeMouseMove"
   >
-    <!-- 背景 -->
-    <Background :pattern-color="theme ? '#FFFFFB' : '#aaa'" :gap="8" />
-    <!-- 面板控制器 -->
-    <Controls />
-    <!-- 左上角的操作按钮 -->
-    <Panel
-      class="flow-designer-panel"
-      position="top-right"
-      style="display: flex; align-items: center"
-    >
-        <SearchModal
-                v-model:visible="searchModalVisible"
-                :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
-                @input="(event) => searchModalInput(event as InputEvent)"
-        >
-            <AList>
-                <AListItem
-                        v-for="serviceItem in matchServices"
-                        :key="serviceItem.name"
-                        @click="() => addNode(serviceItem)"
-                >
-                    <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
-                        <template #avatar>
-                            <AImage
-                                    v-if="serviceItem.avatar"
-                                    :height="68"
-                                    :preview="false"
-                                    :src="serviceItem.avatar"
-                                    :width="68"
-                            />
-                            <AAvatar v-else :size="68" shape="square">
-                                {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
-                            </AAvatar>
-                        </template>
-                    </AListItemMeta>
-                </AListItem>
-        </AList>
-      </SearchModal>
-      <ADivider direction="vertical" margin="5px" />
-      <AButton class="panel-item" type="text" @click="saveWorkflow">
-        <template #icon>
-          <IconSave size="22px" />
-        </template>
-      </AButton>
-      <ADivider direction="vertical" margin="5px" />
-      <AButton class="panel-item" type="text" @click="exportJson">
-        <template #icon>
-          <IconCloudDownload size="22px" />
-        </template>
-      </AButton>
-      <ADivider direction="vertical" margin="5px" />
-      <AUpload class="panel-item" @change="importJson" :auto-upload="false" :show-file-list="false">
-        <template #upload-button>
-          <AButton class="panel-item" type="text">
-            <template #icon>
-              <IconUpload size="22px" />
+      <!-- 背景 -->
+      <Background :gap="8" :pattern-color="theme ? '#FFFFFB' : '#aaa'"/>
+      <!-- 面板控制器 -->
+      <Controls/>
+      <!-- 左上角的操作按钮 -->
+      <Panel
+              class="flow-designer-panel"
+              position="top-right"
+              style="display: flex; align-items: center"
+      >
+          <SearchModal
+                  v-model:visible="searchModalVisible"
+                  :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
+                  @input="(event) => searchModalInput(event as InputEvent)"
+          >
+              <AList>
+                  <AListItem
+                          v-for="serviceItem in matchServices"
+                          :key="serviceItem.name"
+                          @click="() => addNode(serviceItem)"
+                  >
+                      <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
+                          <template #avatar>
+                              <AImage
+                                      v-if="serviceItem.avatar"
+                                      :height="68"
+                                      :preview="false"
+                                      :src="serviceItem.avatar"
+                                      :width="68"
+                              />
+                              <AAvatar v-else :size="68" shape="square">
+                                  {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
+                              </AAvatar>
+                          </template>
+                      </AListItemMeta>
+                  </AListItem>
+              </AList>
+          </SearchModal>
+          <ADivider direction="vertical" margin="5px"/>
+          <AButton class="panel-item" type="text" @click="saveWorkflow">
+              <template #icon>
+                  <IconSave size="22px"/>
+              </template>
+          </AButton>
+          <ADivider direction="vertical" margin="5px"/>
+          <AButton class="panel-item" type="text" @click="exportJson">
+              <template #icon>
+                  <IconCloudDownload size="22px"/>
+              </template>
+          </AButton>
+          <ADivider direction="vertical" margin="5px"/>
+          <AUpload :auto-upload="false" :show-file-list="false" class="panel-item" @change="importJson">
+              <template #upload-button>
+                  <AButton class="panel-item" type="text">
+                      <template #icon>
+                          <IconUpload size="22px"/>
             </template>
           </AButton>
         </template>

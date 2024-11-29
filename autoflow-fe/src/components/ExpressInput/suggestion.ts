@@ -1,8 +1,8 @@
-import { VueRenderer } from '@tiptap/vue-3'
-import tippy, { type GetReferenceClientRect, type Instance } from 'tippy.js'
+import {VueRenderer} from '@tiptap/vue-3'
+import tippy, {type GetReferenceClientRect, type Instance} from 'tippy.js'
 import MentionList from './MentionList.vue'
-import { type SuggestionOptions, type SuggestionProps } from '@tiptap/suggestion'
-import { Editor } from '@tiptap/core'
+import {type SuggestionOptions, type SuggestionProps} from '@tiptap/suggestion'
+import {Editor} from '@tiptap/core'
 
 interface CreateMentionSuggestionOptions {
   char?: string
@@ -38,7 +38,7 @@ function createMentionSuggestion(
             interactive: true,
             trigger: 'manual',
             placement: 'bottom-start'
-          })
+          } as Partial<any>)
         },
 
         onUpdate(props: SuggestionProps) {

@@ -27,8 +27,8 @@ const {resume, pause} = useIntervalFn(() => {
 }, 5000)
 
 onMounted(() => {
-    refresh();
-    resume();
+    refresh()
+    resume()
 })
 
 onBeforeUnmount(() => {

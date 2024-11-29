@@ -49,26 +49,26 @@ export function useMonitorChart() {
                             width: 30
                         },
                         pointer: {
-              show: false
-            },
-            axisLine: {
-              lineStyle: {
-                width: 30
-              }
-            },
-            axisTick: {
-              distance: -45,
-              splitNumber: 5,
-              lineStyle: {
-                width: 2,
-                color: '#999'
-              }
-            },
-            splitLine: {
-              distance: -52,
-              length: 14,
-              lineStyle: {
-                width: 3,
+                            show: false
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                width: 30
+                            }
+                        },
+                        axisTick: {
+                            distance: -45,
+                            splitNumber: 5,
+                            lineStyle: {
+                                width: 2,
+                                color: '#999'
+                            }
+                        },
+                        splitLine: {
+                            distance: -52,
+                            length: 14,
+                            lineStyle: {
+                                width: 3,
                 color: '#999'
               }
             },

@@ -191,7 +191,6 @@ const AutoAdapter: CmpAdapter = {
         const component = cmpTypeMap[property.component?.type as ComponentType]
         if (component) {
             const attrs: Record<string, any> = {}
-            console.warn('property', property.component?.type, property)
             if (property.component?.type == 'Textarea') {
                 attrs.type = 'textarea'
             }
