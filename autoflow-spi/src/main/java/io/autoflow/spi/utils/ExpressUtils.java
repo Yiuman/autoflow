@@ -14,14 +14,6 @@ public final class ExpressUtils {
     public static final String IS_EMPTY_METHOD = "IsEmpty";
     public static final String JSONPATH_EXPRESS_METHOD = "JsonPath";
     public static final String JSONPATH_EXPRESS_TPL = "JsonPath(\"{}\")";
-    /**
-     * 表达式匹配
-     */
-    public static final String EXPRESS_REGEX = "^\\$\\{(.*)}";
-    /**
-     * JSON-PATH匹配
-     */
-    public static final String JSON_PATH_REGEX = "^\\$\\..*$";
 
     /**
      * 提取jsonpath的表达式
@@ -44,20 +36,20 @@ public final class ExpressUtils {
     }
 
     public static boolean isJsonPath(String strValue) {
-        return ReUtil.isMatch(JSON_PATH_REGEX, strValue);
+        return ReUtil.isMatch(JSON_PATH_PATTERN, strValue);
     }
 
     public static boolean isExpress(String strValue) {
-        return StrUtil.isNotBlank(ReUtil.get(EXPRESS_REGEX, strValue, 1));
+        return ReUtil.isMatch(EXPRESS_PATTERN, strValue);
     }
 
     public static String getExpressText(String strValue) {
-        return ReUtil.get(EXPRESS_REGEX, strValue, 1);
+        return ReUtil.get(EXPRESS_PATTERN, strValue, 1);
     }
 
     public static String convertCtxExpressStr(Object obj) {
         if (obj instanceof String strValue) {
-            String express = ReUtil.get(EXPRESS_REGEX, strValue.trim(), 1);
+            String express = ReUtil.get(EXPRESS_PATTERN, strValue.trim(), 1);
             if (StrUtil.isNotBlank(express)) {
                 return express;
             }

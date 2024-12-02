@@ -66,6 +66,11 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
 
     public Object getExpressValue(Object input, Type type) {
         if (String.class.isAssignableFrom(TypeUtil.getClass(type))) {
+            String strInput = (String) input;
+            if (ExpressUtils.isExpress(strInput) || ExpressUtils.isJsonPath(strInput)) {
+                return getExpressValue(input);
+            }
+
             return getExpressStringValue(String.valueOf(input));
         } else {
             return getExpressValue(input);
