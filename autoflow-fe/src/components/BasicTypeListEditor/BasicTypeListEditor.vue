@@ -2,7 +2,7 @@
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 
 interface BasicListEditorProps {
-  modelValue: Array<any>[]
+  modelValue: Array<any>[] | null
 }
 
 const props = withDefaults(defineProps<BasicListEditorProps>(), {
@@ -23,10 +23,13 @@ const data = computed({
     return props?.modelValue?.map((value) => ({ value: value }))
   },
   set(value) {
-    emits(
-      'update:modelValue',
-      value.map((item) => item['value'])
-    )
+      if (value) {
+          emits(
+              'update:modelValue',
+              value.map((item) => item['value'])
+          )
+      }
+
   }
 })
 </script>

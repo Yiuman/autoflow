@@ -10,62 +10,60 @@ import createMentionSuggestion from './suggestion'
 import MentionTag from '@/components/ExpressInput/MentionTag.vue'
 
 interface TipTapEditorOptions {
-  selectOptions: Ref<Option[]>
-  data: Ref<string | undefined>
-  placeholder?: string
+    selectOptions: Ref<Option[]>
+    data: Ref<string | undefined>
+    placeholder?: string
 }
 
 function jsonToString(jsonData: JSONContent | undefined) {
-  if (!jsonData) {
-    return ''
-  }
-  return jsonData?.content?.map(paragraph => {
-    return paragraph.content?.map((contentItem: JSONContent) =>
-        contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
-    )
-        .join(' ')
-  }).join(' ')
-  // return jsonData?.content?.[0]?.content
-  //   ?.map((contentItem: JSONContent) =>
-  //     contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
-  //   )
-  //   .join(' ')
+    if (!jsonData) {
+        return ''
+    }
+    return jsonData?.content?.map(paragraph => {
+        return paragraph.content?.map((contentItem: JSONContent) =>
+            contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
+        )
+            .join(' ')
+    }).join('\n')
+
 }
 
 export function useTipTapEditor(options: TipTapEditorOptions) {
   function convertToJSONContent() {
     const docJSONContent: JSONContent[] = (options?.data?.value || '')
-      .split(' ')
-      .filter((item) => item)
-      .map((item) => {
-        const findOption = options.selectOptions.value?.find((option) => option.key === item)
-        if (findOption) {
-          return {
-            type: 'mention',
-            attrs: {
-              id: {
-                type: `${findOption.type}`,
-                key: `${findOption.key}`,
-                label: `${findOption.label}`,
-                value: null,
-                iconFontCode: findOption.iconFontCode
-              }
+        .split('\n')
+        .filter((paragraph) => paragraph)
+        .map((paragraph) => {
+            return {
+                type: 'paragraph',
+                content: paragraph.split(' ')
+                    .filter(item => item)
+                    .map(item => {
+                        const findOption = options.selectOptions.value?.find((option) => option.key === item)
+                        if (findOption) {
+                            return {
+                                type: 'mention',
+                                attrs: {
+                                    id: {
+                                        type: `${findOption.type}`,
+                                        key: `${findOption.key}`,
+                                        label: `${findOption.label}`,
+                                        value: null,
+                                        iconFontCode: findOption.iconFontCode
+                                    }
+                                }
+                            }
+                        }
+                        return {
+                            type: 'text',
+                            text: item
+                        }
+                    })
             }
-          }
-        }
-        return {
-          type: 'text',
-          text: item
-        }
-      })
+        })
     return {
       type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: docJSONContent
-        }
-      ]
+        content: docJSONContent
     }
   }
 
@@ -124,7 +122,6 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
     },
     onUpdate: ({ editor }) => {
       const jsonData = editor.getJSON()
-      console.warn("jsonData", jsonData)
       options.data.value = jsonToString(jsonData)
     },
     content: convertToJSONContent()

@@ -19,28 +19,22 @@ const props = defineProps<Props>()
 const dropdownMenu = ref<HTMLDivElement | null>(null)
 const selectedIndex = ref(0)
 
-function scrollToSelected() {
-    if (dropdownMenu.value && props.items.length > 0) {
-        const selectedItem = dropdownMenu.value.children[selectedIndex.value] as HTMLElement
-        const menuHeight = dropdownMenu.value.clientHeight
-        const itemTop = selectedItem.offsetTop
-        const itemHeight = selectedItem.offsetHeight
-
-        // 控制滚动位置，保证选中的项始终可见
-        if (itemTop < dropdownMenu.value.scrollTop) {
-            dropdownMenu.value.scrollTop = itemTop
-        } else if (itemTop + itemHeight > dropdownMenu.value.scrollTop + menuHeight) {
-            dropdownMenu.value.scrollTop = itemTop + itemHeight - menuHeight
-        }
-    }
-}
-
 watch(
     () => props.items,
     () => {
         selectedIndex.value = 0
     }
 )
+
+const itemList = computed(() => props.items)
+const {list, containerProps, wrapperProps, scrollTo} = useVirtualList(itemList, {itemHeight: 30, overscan: 10})
+
+function scrollToSelected() {
+    if (dropdownMenu.value && props.items.length > 0) {
+        scrollTo(selectedIndex.value)
+    }
+}
+
 const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'ArrowUp') {
         upHandler()
@@ -58,11 +52,11 @@ const onKeyDown = (event: KeyboardEvent) => {
 
     if (event.key === 'Enter') {
         enterHandler()
-    event.preventDefault()
-    return true
-  }
+        event.preventDefault()
+        return true
+    }
 
-  return false
+    return false
 }
 
 defineExpose({ onKeyDown })
@@ -88,25 +82,28 @@ const selectItem = (index: number) => {
 </script>
 
 <template>
-  <div class="dropdown-menu" ref="dropdownMenu">
-    <template v-if="items.length">
-      <div
-        class="select-item"
-        :class="{ 'is-selected': index === selectedIndex }"
-        v-for="(item, index) in items"
-        :key="index"
-        @click="() => selectItem(index)"
-      >
-        <span class="item-type" v-if="item.type">
-          <IconFont class="item-type-icon" v-if="item.iconFontCode" :type="item.iconFontCode" />{{
-            item.type
-          }}
+    <div ref="dropdownMenu" class="dropdown-menu">
+        <div v-if="items.length" class="dropdown-container" v-bind="containerProps">
+            <div v-bind="wrapperProps">
+                <div
+                        v-for="(item, index) in list"
+                        :key="index"
+                        :class="{ 'is-selected': index === selectedIndex }"
+                        class="select-item"
+                        @click="() => selectItem(index)"
+                >
+        <span v-if="item.data.type" class="item-type">
+          <IconFont v-if="item.data.iconFontCode" :type="item.data.iconFontCode" class="item-type-icon"/>{{
+            item.data.type
+            }}
         </span>
-        <span class="item-label"> {{ item.label ?? item.key }} </span>
-      </div>
-    </template>
-    <div class="item" v-else>No result</div>
-  </div>
+                    <span class="item-label"> {{ item.data.label ?? item.data.key }} </span>
+                </div>
+            </div>
+
+        </div>
+        <div v-else class="item">No result</div>
+    </div>
 </template>
 
 <style scoped lang="scss">
@@ -121,6 +118,10 @@ const selectItem = (index: number) => {
   overflow: auto;
   padding: 0.4rem;
   position: relative;
+
+  .dropdown-container {
+    max-height: 200px;
+  }
 
   .select-item {
     cursor: pointer;
