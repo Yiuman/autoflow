@@ -42,44 +42,52 @@ public final class PropertyUtils {
     private PropertyUtils() {
     }
 
-    public static <T> List<Property> buildProperty(Class<T> clazz) {
-        return buildProperty(clazz, new HashMap<>());
+    public static List<Property> buildProperty(Type type) {
+        return buildProperty(type, new HashMap<>());
     }
 
-    public static String getFieldFullPath(Class<?> clazz, Field field) {
-        return getFieldFullPath(clazz, field.getName());
+    public static String getFieldFullPath(Type type, Field field) {
+        return getFieldFullPath(type, field.getName());
     }
 
-    public static String getFieldFullPath(Class<?> clazz, String fieldName) {
-        return StrUtil.format("{}.{}", clazz.getName(), fieldName);
+    public static String getFieldFullPath(Type type, String fieldName) {
+        return StrUtil.format("{}.{}", type.getTypeName(), fieldName);
     }
 
     public static <T> String getFieldFullPath(Func1<T, ?> func) {
         return getFieldFullPath(LambdaUtil.getRealClass(func), LambdaUtil.getFieldName(func));
     }
 
-    public static <T> List<Property> buildProperty(Class<T> clazz, Map<Class<?>, List<Property>> cache) {
-        if (cache.containsKey(clazz) || ClassUtil.isSimpleValueType(clazz)) {
+    public static List<Property> buildProperty(Type type, Map<Class<?>, List<Property>> cache) {
+        Class<?> clazz = TypeUtil.getClass(type);
+        if (cache.containsKey(type) || ClassUtil.isSimpleValueType(clazz)) {
             // 返回一个属性，该属性类型与当前类相同，表示递归结构
             return List.of(SimpleProperty.basicType(clazz));
         }
 
+        if (Collection.class.isAssignableFrom(clazz)) {
+            SimpleProperty simpleProperty = new SimpleProperty();
+            simpleProperty.setType(getSimpleTypeName(type));
+            simpleProperty.setProperties(buildCollectionProperties(type, cache));
+            return List.of(simpleProperty);
+        }
+
         List<Property> properties = new ArrayList<>();
-        T defaultInstance = ReflectUtil.newInstanceIfPossible(clazz);
+        Object defaultInstance = ReflectUtil.newInstanceIfPossible(clazz);
         Field[] fields = ReflectUtil.getFields(clazz, field -> !Modifier.isFinal(field.getModifiers())
                 && !Modifier.isTransient(field.getModifiers()));
         BeanDescriptor constraintsForClass = VALIDATORFACTORY.getValidator().getConstraintsForClass(clazz);
         cache.put(clazz, properties);
         for (Field field : fields) {
-            Type type = TypeUtil.getType(field);
-            Class<?> typeClass = TypeUtil.getClass(type);
+            Type fieldType = TypeUtil.getType(field);
+            Class<?> typeClass = TypeUtil.getClass(fieldType);
             if (Objects.isNull(typeClass)) {
                 continue;
             }
             SimpleProperty simpleProperty = new SimpleProperty();
             simpleProperty.setName(field.getName());
             simpleProperty.setId(getFieldFullPath(clazz, field));
-            simpleProperty.setType(getSimpleTypeName(type));
+            simpleProperty.setType(getSimpleTypeName(fieldType));
             simpleProperty.setComponent(buildFieldComponent(field));
             Description description = AnnotationUtil.getAnnotationValue(field, Description.class);
             if (Objects.nonNull(description)) {
@@ -88,25 +96,30 @@ public final class PropertyUtils {
 
             if (!ClassUtil.isSimpleValueType(typeClass) && !Map.class.isAssignableFrom(typeClass)) {
                 if (Collection.class.isAssignableFrom(typeClass)) {
-                    Type[] typeArguments = TypeUtil.getTypeArguments(type);
-                    Class<?> childType = TypeUtil.getClass(typeArguments[0]);
-                    List<Property> propertyList = ClassUtil.isSimpleTypeOrArray(childType)
-                            ? List.of(SimpleProperty.basicType(childType))
-                            : buildProperty(childType, cache);
-                    simpleProperty.setProperties(propertyList);
-
+                    simpleProperty.setProperties(buildCollectionProperties(fieldType, cache));
                 } else {
                     simpleProperty.setProperties(buildProperty(typeClass, cache));
                 }
 
             }
 
-            simpleProperty.setDefaultValue(ReflectUtil.getFieldValue(defaultInstance, field));
+            if (Objects.nonNull(defaultInstance)) {
+                simpleProperty.setDefaultValue(ReflectUtil.getFieldValue(defaultInstance, field));
+            }
+
             simpleProperty.setValidateRules(buildValidateRules(field, constraintsForClass));
             properties.add(simpleProperty);
         }
         cache.remove(clazz);
         return properties;
+    }
+
+    private static List<Property> buildCollectionProperties(Type type, Map<Class<?>, List<Property>> cache) {
+        Type[] typeArguments = TypeUtil.getTypeArguments(type);
+        Class<?> childType = TypeUtil.getClass(typeArguments[0]);
+        return ClassUtil.isSimpleTypeOrArray(childType)
+                ? List.of(SimpleProperty.basicType(childType))
+                : buildProperty(childType, cache);
     }
 
     @SuppressWarnings("unchecked")
@@ -182,7 +195,7 @@ public final class PropertyUtils {
         return null;
     }
 
-    public static <SERVICE extends Service<?>> List<Property> buildProperties(Class<SERVICE> serviceClass, Class<?> inputClass) {
+    public static <SERVICE extends Service<?>> List<Property> buildProperties(Class<SERVICE> serviceClass, Type type) {
         try {
             String propertiesJsonFile = StrUtil.format("{}_properties.json", serviceClass.getName());
             String propertiesJsonStr = ResourceUtil.readUtf8Str(propertiesJsonFile);
@@ -192,7 +205,7 @@ public final class PropertyUtils {
         } catch (cn.hutool.core.io.resource.NoResourceException ignore) {
         }
 
-        return PropertyUtils.buildProperty(inputClass);
+        return PropertyUtils.buildProperty(type);
     }
 
     public static String getSimpleTypeName(Type type) {

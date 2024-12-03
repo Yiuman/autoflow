@@ -21,7 +21,7 @@ public class TemplateRender extends BaseService<TemplateParameter, TemplateResul
 
     @Override
     public String getName() {
-        return "Template Render";
+        return "TemplateRenderer";
     }
 
     @Override
