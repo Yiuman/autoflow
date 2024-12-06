@@ -1,11 +1,11 @@
 import {
-  type Elements,
-  type GraphEdge,
-  type GraphNode,
-  isEdge,
-  isNode,
-  MarkerType,
-  type Node as VueFlowNode
+    type Elements,
+    type GraphEdge,
+    type GraphNode,
+    isEdge,
+    isNode,
+    MarkerType,
+    type Node as VueFlowNode
 } from '@vue-flow/core'
 import type {TableColumnData} from '@arco-design/web-vue'
 
@@ -25,15 +25,15 @@ export function getAllIncomers(
         return []
     }
 
-  let nodeIncomers = getIncomers(nodeId)
-  if (!nodeIncomers || nodeIncomers.length === 0) {
-    return []
-  }
+    let nodeIncomers = getIncomers(nodeId)
+    if (!nodeIncomers || nodeIncomers.length === 0) {
+        return []
+    }
 
-  if (nodeIncomers && nodeIncomers.length > 0) {
-    for (const node of nodeIncomers) {
-      const preIncomers = getAllIncomers(node.id, getIncomers) as GraphNode[]
-      nodeIncomers = nodeIncomers.concat(preIncomers)
+    if (nodeIncomers && nodeIncomers.length > 0) {
+        for (const node of nodeIncomers) {
+            const preIncomers = getAllIncomers(node.id, getIncomers) as GraphNode[]
+            nodeIncomers = nodeIncomers.concat(preIncomers)
     }
   }
   return uniq(nodeIncomers)
@@ -127,32 +127,57 @@ export function flattenProperties(
   const result: Record<string, any> = {}
 
   properties.forEach((property) => {
-    if (!property.name) {
-      return
-    }
-    const fullName = parentName ? `${parentName}.${property.name}` : property.name
-    // 如果有嵌套的 properties，则递归处理
-    result[fullName] = property.defaultValue
-    if (property.properties && property.properties.length > 0) {
-      Object.assign(result, flattenProperties(property.properties, fullName))
-    }
+      const genericType = extractGenericTypes(property.type)
+      let propertyName = property.name
+      if (!propertyName && (genericType.mainType === 'List' || genericType.mainType === 'Set')) {
+          propertyName = '*'
+      }
+      if (!propertyName) {
+          return
+      }
+      const fullName = parentName ? `${parentName}.${propertyName}` : propertyName
+      // 如果有嵌套的 properties，则递归处理
+      result[fullName] = property.defaultValue
+      if (property.properties && property.properties.length > 0) {
+          Object.assign(result, flattenProperties(property.properties, fullName))
+      }
   })
 
-  return result
+    return result
+}
+
+export function getColumnType(property: Property) {
+    const genericType = extractGenericTypes(property.type)
+    if (isUnknownType(genericType) && property.properties?.length) {
+        return 'Object'
+    }
+
+    return property.type
 }
 
 export function propertyToColumn(properties: Property[]): TableColumnData[] {
-  if (!properties || !properties.length) {
-    return []
-  }
-  return properties.map((property) => ({
-    title: property.displayName || property.name,
-    dataIndex: property.name,
-    align: 'center',
-    slotName: `type${property.type}Column`,
-    ellipsis: true,
-    tooltip: true
-  }))
+    if (!properties || !properties.length) {
+        return []
+    }
+    if (properties.length === 1) {
+        const property = properties[0]
+        const genericType = extractGenericTypes(property.type)
+        if (!property.name && isArrayType(genericType)) {
+            return propertyToColumn(property.properties as Property[])
+        }
+    }
+
+    return properties.map((property) => {
+        const columnType = getColumnType(property)
+        return {
+            title: property.displayName || property.name,
+            dataIndex: property.name,
+            align: 'center',
+            slotName: `type${columnType}Column`,
+            ellipsis: true,
+            tooltip: true
+        }
+    })
 }
 
 export function toConnect(edge: GraphEdge): Connection {
@@ -265,10 +290,39 @@ export function extractGenericTypes(typeString: string): GenericType {
     }
   }
 
-  // 如果处理过程中存在 buffer 但未被处理
-  if (buffer.trim() && currentType) {
-    currentType.mainType = buffer.trim()
-  }
+    // 如果处理过程中存在 buffer 但未被处理
+    if (buffer.trim() && currentType) {
+        currentType.mainType = buffer.trim()
+    }
 
-  return currentType!
+    return currentType!
+}
+
+
+export function isUnknownType(genericType: GenericType) {
+    return !(isBasicType(genericType)
+        || isArrayType(genericType)
+        || isSpecialType(genericType))
+}
+
+export function isBasicType(genericType: GenericType) {
+    return isNumberType(genericType)
+        || genericType.mainType === 'String'
+        || genericType.mainType === 'Date'
+}
+
+export function isSpecialType(genericType: GenericType) {
+    return genericType.mainType === 'Condition'
+        || genericType.mainType == 'FileData'
+        || genericType.mainType === 'Map'
+        || genericType.mainType === 'Linkage'
+        || genericType.mainType === 'ChatMessage'
+}
+
+export function isNumberType(genericType: GenericType) {
+    return ['Integer', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(genericType.mainType) > -1
+}
+
+export function isArrayType(genericType: GenericType) {
+    return genericType.mainType === 'List' || genericType.mainType === 'Set' || genericType.mainType === 'Array'
 }

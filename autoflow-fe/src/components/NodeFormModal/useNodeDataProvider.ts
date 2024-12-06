@@ -1,10 +1,10 @@
-import type { NodeFlatData, VueFlowNode } from '@/types/flow'
-import { computed, provide, type Ref } from 'vue'
-import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
-import { flattenProperties, getAllIncomers } from '@/utils/converter'
-import { flatten } from '@/utils/util-func'
-import { getResultData } from '@/utils/flow'
-import { useVueFlow } from '@vue-flow/core'
+import type {NodeFlatData, VueFlowNode} from '@/types/flow'
+import {computed, provide, type Ref} from 'vue'
+import {CURRENT_NODE, INCOMER, INCOMER_DATA} from '@/symbols'
+import {flattenProperties, getAllIncomers} from '@/utils/converter'
+import {flatten} from '@/utils/util-func'
+import {getResultData} from '@/utils/flow'
+import {useVueFlow} from '@vue-flow/core'
 
 export function useNodeDataProvider(node: Ref<VueFlowNode>) {
   const { getIncomers } = useVueFlow()
@@ -28,7 +28,6 @@ export function useNodeDataProvider(node: Ref<VueFlowNode>) {
         //前节点的输出选项
         const inputData = getResultData(incomer.data?.executionResult)
         let nodeExecutionDataFlatData
-
         if (inputData) {
           nodeExecutionDataFlatData = flatten(inputData)
         } else if (incomer.data?.service?.outputType && incomer.data?.service?.outputType.length) {

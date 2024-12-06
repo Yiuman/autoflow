@@ -13,24 +13,24 @@ const props = defineProps<Props>()
 </script>
 
 <template>
-  <ATable
-          :bordered="false"
-          :columns="props.columns"
-          :data="props.data"
-          :pagination="true"
-          :stripe="true"
-          column-resizable
-          style="padding: 5px 10px"
-  >
-    <template #typeMapColumn="{ record, column }">
-      <VueJsonPretty
-        class="output-json"
-        :data="record[column.dataIndex]"
-        :collapsedNodeLength="3"
-        :show-icon="true"
-      />
-    </template>
-    <template #typeObjectColumn="{ record, column }">
+    <ATable
+            :bordered="false"
+            :columns="props.columns"
+            :data="props.data"
+            :pagination="true"
+            :stripe="true"
+            column-resizable
+            style="padding: 5px 10px"
+    >
+        <template #typeMapColumn="{ record, column }">
+            <VueJsonPretty
+                    :collapsedNodeLength="3"
+                    :data="record[column.dataIndex]"
+                    :show-icon="true"
+                    class="output-json"
+            />
+        </template>
+        <template #typeObjectColumn="{ record, column }">
       <VueJsonPretty
         class="output-json"
         :data="record[column.dataIndex]"
