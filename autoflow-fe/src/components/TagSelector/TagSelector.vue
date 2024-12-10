@@ -7,8 +7,8 @@ import {getOrDefault} from '@/locales/i18n'
 const options = ref<SelectOptionData[]>()
 const [loading, toggleLoading] = useToggle(false)
 const tagQuery = ref<TagQuery>({
-  pageNumber: 1,
-  pageSize: 20
+    pageNumber: 1,
+    pageSize: 20
 })
 
 interface TagSelectorProps extends SelectProps {
@@ -93,31 +93,31 @@ function fallbackOption(value: string): SelectOptionData {
 </script>
 
 <template>
-  <ASelect
-          v-model="data"
-          :allow-clear="props.allowClear"
-          :fallback-option="(value) => fallbackOption(value as string)"
-          :filter-option="false"
-          :loading="loading"
-          :max-tag-count="2"
-          :options="options"
-          :placeholder="props.placeholder"
-          :show-extra-options="false"
-          class="tag-selector"
-          multiple
-          @search="handleSearch"
-  >
-    <template #prefix>
-      <IconTags />
-    </template>
-    <template #empty>
-      <div class="tag-add-btn" v-if="props.allowCreate && tagQuery.name" @click="createTag()">
-        <AButton long>
-          <template #icon>
-            <IconPlus />
-          </template>
-            {{ getOrDefault('create') }}"
-          <span class="tag-add-value">{{ tagQuery.name }}</span>
+    <ASelect
+            v-model="data"
+            :allow-clear="props.allowClear"
+            :fallback-option="(value) => fallbackOption(value as string)"
+            :filter-option="false"
+            :loading="loading"
+            :max-tag-count="2"
+            :options="options"
+            :placeholder="props.placeholder"
+            :show-extra-options="false"
+            class="tag-selector"
+            multiple
+            @search="handleSearch"
+    >
+        <template #prefix>
+            <IconTags/>
+        </template>
+        <template #empty>
+            <div v-if="props.allowCreate && tagQuery.name" class="tag-add-btn" @click="createTag()">
+                <AButton long>
+                    <template #icon>
+                        <IconPlus/>
+                    </template>
+                    {{ getOrDefault('create') }}"
+                    <span class="tag-add-value">{{ tagQuery.name }}</span>
           "
         </AButton>
       </div>

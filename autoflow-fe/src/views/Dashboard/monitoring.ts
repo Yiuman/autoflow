@@ -69,16 +69,16 @@ export function useMonitorChart() {
                             length: 14,
                             lineStyle: {
                                 width: 3,
-                color: '#999'
-              }
-            },
-            axisLabel: {
-              distance: -20,
-              color: '#999',
-              fontSize: 20
-            },
-            anchor: {
-              show: false
+                                color: '#999'
+                            }
+                        },
+                        axisLabel: {
+                            distance: -20,
+                            color: '#999',
+                            fontSize: 20
+                        },
+                        anchor: {
+                            show: false
             },
             title: {
               show: false

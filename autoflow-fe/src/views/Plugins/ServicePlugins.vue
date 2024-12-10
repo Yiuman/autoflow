@@ -10,8 +10,8 @@ import {getOrDefault} from '@/locales/i18n'
 const serviceStore = useServiceStore()
 
 async function uploadJar(fileList: FileItem[]): Promise<void> {
-  await serviceApi.upload({ file: fileList[0].file as File })
-  await serviceStore.initData()
+    await serviceApi.upload({file: fileList[0].file as File})
+    await serviceStore.initData()
 }
 
 const selectedPlugin = ref()

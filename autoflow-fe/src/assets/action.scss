@@ -1,5 +1,6 @@
 .node-action {
   animation-fill-mode: forwards;
+
   &::before,
   &::after {
     transition: opacity 0.5s;

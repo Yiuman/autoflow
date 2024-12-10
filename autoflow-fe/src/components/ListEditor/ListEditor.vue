@@ -5,14 +5,14 @@ import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon'
 import type {Component} from 'vue'
 
 export interface ListEditorProps {
-  columns: TableColumnData[]
-  columnCmp?: Record<string, ComponentAttr>
-  modelValue: Record<string, any>[]
-  showHeader?: boolean
+    columns: TableColumnData[]
+    columnCmp?: Record<string, ComponentAttr>
+    modelValue: Record<string, any>[]
+    showHeader?: boolean
 }
 
 function newRecord(): Record<string, any> {
-  const newObj: Record<string, any> = {}
+    const newObj: Record<string, any> = {}
   props.columns.forEach((column) => {
     newObj[column.dataIndex as string] = ''
   })

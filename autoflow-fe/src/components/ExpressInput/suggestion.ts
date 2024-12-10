@@ -5,14 +5,14 @@ import {type SuggestionOptions, type SuggestionProps} from '@tiptap/suggestion'
 import {Editor} from '@tiptap/core'
 
 interface CreateMentionSuggestionOptions {
-  char?: string
-  items?: (props: { query: string; editor: Editor }) => any[] | Promise<any[]>
+    char?: string
+    items?: (props: { query: string; editor: Editor }) => any[] | Promise<any[]>
 }
 
 function createMentionSuggestion(
-  options: CreateMentionSuggestionOptions
+    options: CreateMentionSuggestionOptions
 ): Omit<SuggestionOptions, 'editor'> {
-  return {
+    return {
     char: options.char || '@',
     items: options.items,
     render: () => {

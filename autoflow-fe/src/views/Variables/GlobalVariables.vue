@@ -7,11 +7,11 @@ import {getOrDefault} from '@/locales/i18n'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
-    {dataIndex: 'key', title: getOrDefault("globalVariable.key", "Key"), width: 300},
-    {dataIndex: 'value', title: getOrDefault("globalVariable.value", "Value"), width: 300},
-    {dataIndex: 'description', title: getOrDefault("globalVariable.description", "Description")},
+    {dataIndex: 'key', title: getOrDefault('globalVariable.key', 'Key'), width: 300},
+    {dataIndex: 'value', title: getOrDefault('globalVariable.value', 'Value'), width: 300},
+    {dataIndex: 'description', title: getOrDefault('globalVariable.description', 'Description')},
     {
-        title: getOrDefault("globalVariable.optional", "Optional"),
+        title: getOrDefault('globalVariable.optional', 'Optional'),
         slotName: 'optional',
         width: 80,
         align: 'center'
@@ -50,13 +50,13 @@ async function deleteVariable(record: Variable) {
 <template>
   <div class="variables-table">
     <div class="variables-table-top-box">
-      <div class="top-box-left">
-          <AInput v-model="queryObj.keyword" :placeholder="getOrDefault('search')" allow-clear>
-              <template #prefix>
-                  <IconSearch/>
-              </template>
-          </AInput>
-      </div>
+        <div class="top-box-left">
+            <AInput v-model="queryObj.keyword" :placeholder="getOrDefault('search')" allow-clear>
+                <template #prefix>
+                    <IconSearch/>
+                </template>
+            </AInput>
+        </div>
 
       <div class="top-box-right">
           <AButton type="primary" @click="() => toggleFormVisible()">{{ getOrDefault('create') }}</AButton>
@@ -64,36 +64,36 @@ async function deleteVariable(record: Variable) {
     </div>
     <div class="variables-list">
       <RestCrud ref="variableCrud" :uri="'/variables'" :query-object="queryObj" :columns="columns">
-        <template #optional="{ record }">
-            <div class="optional-column">
-                <AButton size="small" type="text" @click="() => editVariable(record)">{{
-                    getOrDefault('edit')
-                    }}
-                </AButton>
-                <AButton size="small" type="text" @click="() => deleteVariable(record)">{{ getOrDefault('delete') }}
-                </AButton>
-            </div>
-        </template>
+          <template #optional="{ record }">
+              <div class="optional-column">
+                  <AButton size="small" type="text" @click="() => editVariable(record)">{{
+                      getOrDefault('edit')
+                      }}
+                  </AButton>
+                  <AButton size="small" type="text" @click="() => deleteVariable(record)">{{ getOrDefault('delete') }}
+                  </AButton>
+              </div>
+          </template>
       </RestCrud>
     </div>
 
-    <AModal v-model:visible="formVisible" @ok="saveVariable" @cancel="resetInstance" draggable>
-        <template #title> {{ getOrDefault('variable.form.title', 'Create a new variable') }}</template>
-        <AForm :model="variableInstance" layout="vertical">
-            <AFormItem :label="getOrDefault('variable.form.field.key','variable name')" field="key"
-                       required validate-trigger="input">
-                <AInput v-model="variableInstance.key"/>
-            </AFormItem>
-            <AFormItem :label="getOrDefault('variable.form.field.value','variable value')" field="value"
-                       validate-trigger="input">
-                <AInput v-model="variableInstance.value"/>
-            </AFormItem>
-            <AFormItem :label="getOrDefault('variable.form.field.desc','description')" field="desc"
-                       validate-trigger="input">
-                <ATextarea v-model="variableInstance.desc"/>
-            </AFormItem>
-        </AForm>
-    </AModal>
+      <AModal v-model:visible="formVisible" draggable @cancel="resetInstance" @ok="saveVariable">
+          <template #title> {{ getOrDefault('variable.form.title', 'Create a new variable') }}</template>
+          <AForm :model="variableInstance" layout="vertical">
+              <AFormItem :label="getOrDefault('variable.form.field.key','variable name')" field="key"
+                         required validate-trigger="input">
+                  <AInput v-model="variableInstance.key"/>
+              </AFormItem>
+              <AFormItem :label="getOrDefault('variable.form.field.value','variable value')" field="value"
+                         validate-trigger="input">
+                  <AInput v-model="variableInstance.value"/>
+              </AFormItem>
+              <AFormItem :label="getOrDefault('variable.form.field.desc','description')" field="desc"
+                         validate-trigger="input">
+                  <ATextarea v-model="variableInstance.desc"/>
+              </AFormItem>
+          </AForm>
+      </AModal>
   </div>
 </template>
 

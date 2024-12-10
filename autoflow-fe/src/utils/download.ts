@@ -55,21 +55,21 @@ export function urlToBase64(url: string, mineType?: string): Promise<string> {
 
     const img = new Image()
     img.crossOrigin = ''
-    img.onload = function () {
-      if (!canvas || !ctx) {
-        return reject()
+      img.onload = function () {
+          if (!canvas || !ctx) {
+              return reject()
+          }
+          canvas.height = img.height
+          canvas.width = img.width
+          ctx.drawImage(img, 0, 0)
+          const dataURL = canvas.toDataURL(mineType || 'image/png')
+          canvas = null
+          resolve(dataURL)
       }
-      canvas.height = img.height
-      canvas.width = img.width
-      ctx.drawImage(img, 0, 0)
-      const dataURL = canvas.toDataURL(mineType || 'image/png')
-      canvas = null
-      resolve(dataURL)
-    }
-    img.onerror = function () {
-      reject()
-    }
-    img.src = url
+      img.onerror = function () {
+          reject()
+      }
+      img.src = url
   })
 }
 
@@ -128,13 +128,13 @@ export function downloadByData(data: BlobPart, filename: string, mime?: string, 
  * @param {*} sUrl
  */
 export function downloadByUrl({
-  url,
-  target = '_blank',
-  fileName
-}: {
-  url: string
-  target?: TargetContext
-  fileName?: string
+                                  url,
+                                  target = '_blank',
+                                  fileName
+                              }: {
+    url: string
+    target?: TargetContext
+    fileName?: string
 }): boolean {
   const isChrome = window.navigator.userAgent.toLowerCase().indexOf('chrome') > -1
   const isSafari = window.navigator.userAgent.toLowerCase().indexOf('safari') > -1

@@ -8,7 +8,7 @@ import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
 interface ResultDataViewerProps {
-  node?: VueFlowNode
+    node?: VueFlowNode
 }
 
 const props = defineProps<ResultDataViewerProps>()
@@ -21,15 +21,15 @@ const result = computed(() => {
 })
 
 const dataColumns = computed(() => {
-  if (props?.node?.data?.service?.outputType && props?.node?.data?.service?.outputType.length) {
-    return propertyToColumn(props?.node?.data?.service?.outputType as Property[])
-  }
-  const firstData = getResultFirstData(props?.node?.data?.executionResult)
+    if (props?.node?.data?.service?.outputProperties && props?.node?.data?.service?.outputProperties.length) {
+        return propertyToColumn(props?.node?.data?.service?.outputProperties as Property[])
+    }
+    const firstData = getResultFirstData(props?.node?.data?.executionResult)
 
     if (firstData instanceof Array) {
-    return objectKeysToColumn(firstData[0])
-  }
-  return objectKeysToColumn(firstData)
+        return objectKeysToColumn(firstData[0])
+    }
+    return objectKeysToColumn(firstData)
 })
 </script>
 

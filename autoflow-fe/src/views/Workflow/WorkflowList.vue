@@ -15,10 +15,10 @@ import {getOrDefault} from '@/locales/i18n'
 
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
 const router = useRouter()
-const IconFont = Icon.addFromIconFontCn({ src: iconfontUrl })
+const IconFont = Icon.addFromIconFontCn({src: iconfontUrl})
 // Fetch Workflow Data
 const currentPageRecord = ref<PageRecord<Workflow>>()
-const queryObj = ref<WorkflowQuery>({ pageSize: 10, pageNumber: 1 })
+const queryObj = ref<WorkflowQuery>({pageSize: 10, pageNumber: 1})
 const [loading, toggleLoading] = useToggle<boolean>(false)
 const fetch = debounce(async () => {
   toggleLoading()
@@ -132,42 +132,43 @@ const delayLoading = useDelayedLoading(loading)
 
 <template>
   <div class="workflow-container">
-    <div class="workflow-list-top-box">
-        <AInput v-model="queryObj.name" :placeholder="getOrDefault('search')" allow-clear>
-            <template #prefix>
-                <IconSearch/>
-            </template>
-        </AInput>
+      <div class="workflow-list-top-box">
+          <AInput v-model="queryObj.name" :placeholder="getOrDefault('search')" allow-clear>
+              <template #prefix>
+                  <IconSearch/>
+              </template>
+          </AInput>
 
-        <TagSelector v-model="queryObj.tagIds"
-                     :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"/>
-    </div>
+          <TagSelector v-model="queryObj.tagIds"
+                       :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"/>
+      </div>
     <ASpin dot :loading="delayLoading">
-      <div class="workflow-list">
-          <ACard :bordered="false" :title="getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow')" class="workflow-add-card"
-                 hoverable>
-              <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
-                  <IconFont type="icon-chuangjian"/>
-                  {{ getOrDefault('workflow.list.createEmpty', 'Create an empty workflow') }}
-              </div>
-              <div class="workflow-add-btn">
-                  <IconFont type="icon-template-success-fill"/>
-                  {{ getOrDefault('workflow.list.createByTemplate', 'Create from template') }}
-              </div>
-              <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
-                  <IconFont type="icon-w_daoru"/>
-                  {{ getOrDefault('workflow.list.createByImport', 'Create from an imported workflow file') }}
-              </div>
-        </ACard>
-        <ACard
-          class="workflow-card-item"
-          hoverable
-          v-for="workflow in currentPageRecord?.records"
-          :key="workflow.id"
-        >
-          <div>
-            <ADropdown trigger="hover">
-              <IconMoreVertical size="16" class="workflow-card-operator" />
+        <div class="workflow-list">
+            <ACard :bordered="false" :title="getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow')"
+                   class="workflow-add-card"
+                   hoverable>
+                <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
+                    <IconFont type="icon-chuangjian"/>
+                    {{ getOrDefault('workflow.list.createEmpty', 'Create an empty workflow') }}
+                </div>
+                <div class="workflow-add-btn">
+                    <IconFont type="icon-template-success-fill"/>
+                    {{ getOrDefault('workflow.list.createByTemplate', 'Create from template') }}
+                </div>
+                <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
+                    <IconFont type="icon-w_daoru"/>
+                    {{ getOrDefault('workflow.list.createByImport', 'Create from an imported workflow file') }}
+                </div>
+            </ACard>
+            <ACard
+                    v-for="workflow in currentPageRecord?.records"
+                    :key="workflow.id"
+                    class="workflow-card-item"
+                    hoverable
+            >
+                <div>
+                    <ADropdown trigger="hover">
+                        <IconMoreVertical class="workflow-card-operator" size="16"/>
               <template #content>
                 <div class="workflow-card-operator-box">
                   <div class="workflow-card-operator-item" @click="modifyWorkflow(workflow)">
@@ -191,28 +192,28 @@ const delayLoading = useDelayedLoading(loading)
                 </div>
               </template>
             </ADropdown>
-            <ADescriptions :title="workflow.name" :column="1">
-                <ADescriptionsItem :label="getOrDefault('workflow.list.workFlowAuthor','author')">
-                    <span>{{ workflow.creator || 'system' }}</span>
-                </ADescriptionsItem>
-                <ADescriptionsItem :label="getOrDefault('workflow.list.usePlugins','plugins')">
-                    <AOverflowList>
-                        <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
-                            <AImage
-                                    v-if="service.avatar"
-                                    :height="30"
-                                    :preview="false"
-                                    :width="30"
-                                    class="workflow-card-plugin-col-item"
-                      :src="service.avatar"
-                    />
-                    <AAvatar v-else class="workflow-card-plugin-col-item" shape="square" :size="30">
-                      {{ service.name }}
-                    </AAvatar>
-                  </template>
-                </AOverflowList>
-              </ADescriptionsItem>
-              <ADescriptionsItem :label="getOrDefault('workflow.list.updateTime','update')">
+                    <ADescriptions :column="1" :title="workflow.name">
+                        <ADescriptionsItem :label="getOrDefault('workflow.list.workFlowAuthor','author')">
+                            <span>{{ workflow.creator || 'system' }}</span>
+                        </ADescriptionsItem>
+                        <ADescriptionsItem :label="getOrDefault('workflow.list.usePlugins','plugins')">
+                            <AOverflowList>
+                                <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
+                                    <AImage
+                                            v-if="service.avatar"
+                                            :height="30"
+                                            :preview="false"
+                                            :src="service.avatar"
+                                            :width="30"
+                                            class="workflow-card-plugin-col-item"
+                                    />
+                                    <AAvatar v-else :size="30" class="workflow-card-plugin-col-item" shape="square">
+                                        {{ service.name }}
+                                    </AAvatar>
+                                </template>
+                            </AOverflowList>
+                        </ADescriptionsItem>
+                        <ADescriptionsItem :label="getOrDefault('workflow.list.updateTime','update')">
                 <span style="font-size: 13px">{{
                     format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss')
                   }}</span>
@@ -228,35 +229,35 @@ const delayLoading = useDelayedLoading(loading)
           </div>
         </ACard>
 
-        <AModal
-          v-model:visible="createBlankFormVisible"
-          @ok="saveWorkflow"
-          @cancel="resetInstance"
-          draggable
-        >
-          <template #title>
-              {{ formTitle || getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow') }}
-          </template>
-            <AForm :model="workflowInstance" layout="vertical">
-                <AFormItem :label="getOrDefault('workflow.list.form.name','name')" field="name" required
-                           validate-trigger="input">
-                    <AInput v-model="workflowInstance.name"
-                            :placeholder="getOrDefault('workflow.list.form.name.placeholder','Give your workflow a name')"/>
-                </AFormItem>
-                <AFormItem :label="getOrDefault('workflow.list.form.description','description')" field="desc"
-                           validate-trigger="input">
-                    <ATextarea v-model="workflowInstance.desc"
-                               :placeholder="getOrDefault('workflow.list.form.description.placeholder','Describe what this workflow does')"/>
-                </AFormItem>
+            <AModal
+                    v-model:visible="createBlankFormVisible"
+                    draggable
+                    @cancel="resetInstance"
+                    @ok="saveWorkflow"
+            >
+                <template #title>
+                    {{ formTitle || getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow') }}
+                </template>
+                <AForm :model="workflowInstance" layout="vertical">
+                    <AFormItem :label="getOrDefault('workflow.list.form.name','name')" field="name" required
+                               validate-trigger="input">
+                        <AInput v-model="workflowInstance.name"
+                                :placeholder="getOrDefault('workflow.list.form.name.placeholder','Give your workflow a name')"/>
+                    </AFormItem>
+                    <AFormItem :label="getOrDefault('workflow.list.form.description','description')" field="desc"
+                               validate-trigger="input">
+                        <ATextarea v-model="workflowInstance.desc"
+                                   :placeholder="getOrDefault('workflow.list.form.description.placeholder','Describe what this workflow does')"/>
+                    </AFormItem>
 
-                <AFormItem :label="getOrDefault('workflow.list.form.label','label')" field="tags"
-                           validate-trigger="input">
-                    <TagSelector v-model="workflowInstance.tagIds"
-                                 :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"
-                                 allow-create/>
-                </AFormItem>
-            </AForm>
-        </AModal>
+                    <AFormItem :label="getOrDefault('workflow.list.form.label','label')" field="tags"
+                               validate-trigger="input">
+                        <TagSelector v-model="workflowInstance.tagIds"
+                                     :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"
+                                     allow-create/>
+                    </AFormItem>
+                </AForm>
+            </AModal>
         <AModal
           :hide-title="true"
           v-model:visible="uploadFormVisible"
@@ -274,36 +275,38 @@ const delayLoading = useDelayedLoading(loading)
             @change="uploadWorkflowJson"
           >
             <template #upload-button>
-              <div class="arco-upload-picture-card">
-                <div class="arco-upload-picture-card-text" v-if="fileItem">
-                  {{ fileItem.name }}
+                <div class="arco-upload-picture-card">
+                    <div v-if="fileItem" class="arco-upload-picture-card-text">
+                        {{ fileItem.name }}
+                    </div>
+                    <div v-else class="arco-upload-picture-card-text">
+                        <IconPlus/>
+                        <div style="margin-top: 10px; font-weight: 600">
+                            {{ getOrDefault('workflow.list.form.upload', 'Click or drag the file here to upload') }}
+                        </div>
+                    </div>
                 </div>
-                  <div v-else class="arco-upload-picture-card-text">
-                      <IconPlus/>
-                      <div style="margin-top: 10px; font-weight: 600">
-                          {{ getOrDefault('workflow.list.form.upload', 'Click or drag the file here to upload') }}
-                      </div>
-                  </div>
-              </div>
             </template>
           </AUpload>
           <template v-if="uploadExists">
-            <div class="upload-repeat-alert">
+              <div class="upload-repeat-alert">
 
-                {{ getOrDefault('workflow.list.form.uploadExists', 'The imported workflow already exists. Choose to') }}
-                <AButton
-                        size="mini"
-                        status="warning"
-                        type="outline"
-                        @click="() => saveUploadWorkflow(true)"
-                >{{ getOrDefault('overwrite', 'overwrite') }}
-                </AButton>
-                {{ getOrDefault('or') }}
-                <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)"
-                >{{ getOrDefault('create') }}
-                </AButton>
-                {{ getOrDefault('workflow.list.form.uploadExists.newWorkflow', 'a new Workflow') }}
-            </div>
+                  {{
+                  getOrDefault('workflow.list.form.uploadExists', 'The imported workflow already exists. Choose to')
+                  }}
+                  <AButton
+                          size="mini"
+                          status="warning"
+                          type="outline"
+                          @click="() => saveUploadWorkflow(true)"
+                  >{{ getOrDefault('overwrite', 'overwrite') }}
+                  </AButton>
+                  {{ getOrDefault('or') }}
+                  <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)"
+                  >{{ getOrDefault('create') }}
+                  </AButton>
+                  {{ getOrDefault('workflow.list.form.uploadExists.newWorkflow', 'a new Workflow') }}
+              </div>
           </template>
         </AModal>
       </div>

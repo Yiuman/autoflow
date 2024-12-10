@@ -1,7 +1,7 @@
-import type {Workflow} from '@/api/workflow'
 import {type EventSourceMessage, fetchEventSource} from '@microsoft/fetch-event-source'
 import {useEnv} from '@/hooks/env'
 import type {FindNode, UpdateNodeData} from '@vue-flow/core'
+import type {WorkflowInst} from '@/api/execution'
 
 const {VITE_BASE_URL} = useEnv()
 
@@ -10,7 +10,7 @@ export interface SseCallback {
     onError?: () => void;
 }
 
-export function executeFlowSSE(flow: Workflow,
+export function executeFlowSSE(flowInst: WorkflowInst,
                                findNode: FindNode,
                                updateNodeData: UpdateNodeData,
                                callback?: SseCallback) {
@@ -21,7 +21,7 @@ export function executeFlowSSE(flow: Workflow,
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(flow),
+        body: JSON.stringify({id: flowInst.id}),
         async onmessage(message: EventSourceMessage) {
             const currentNode = findNode(message.id)
             switch (message.event) {

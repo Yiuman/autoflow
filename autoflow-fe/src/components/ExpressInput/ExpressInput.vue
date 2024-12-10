@@ -5,14 +5,14 @@ import {useSelectOptions} from '@/components/ExpressInput/useSelectOptions'
 import {useTipTapEditor} from '@/components/ExpressInput/useTiptapEditor'
 
 interface ExpressInputProps {
-  modelValue?: string
-  placeholder?: string
-  allowClear?: boolean
-  type?: 'input' | 'textarea' | undefined
+    modelValue?: string
+    placeholder?: string
+    allowClear?: boolean
+    type?: 'input' | 'textarea' | undefined
 }
 
 const props = withDefaults(defineProps<ExpressInputProps>(), {
-  allowClear: true,
+    allowClear: true,
   type: 'input'
 })
 const emits = defineEmits<{

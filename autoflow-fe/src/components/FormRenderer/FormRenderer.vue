@@ -135,19 +135,19 @@ function getToolTip(cmpAttr: ComponentAttr): string {
   <div class="from-renderer">
     <AForm :auto-label-width="true" :model="form" :layout="props.layout" :rules="rules">
       <KeepAlive>
-        <AFormItem
-                v-for="cmpAttr in componentAttrs"
-                :key="cmpAttr.property.name"
-                :field="cmpAttr.property.name"
-                :label="getFieldItemLabel(cmpAttr)"
-                :tooltip="getToolTip(cmpAttr)"
-        >
-          <Component
-            :is="cmpAttr.cmp"
-            v-model="form[cmpAttr.property.name]"
-            v-bind="cmpAttr.attrs"
-          />
-        </AFormItem>
+          <AFormItem
+                  v-for="cmpAttr in componentAttrs"
+                  :key="cmpAttr.property.name"
+                  :field="cmpAttr.property.name"
+                  :label="getFieldItemLabel(cmpAttr)"
+                  :tooltip="getToolTip(cmpAttr)"
+          >
+              <Component
+                      :is="cmpAttr.cmp"
+                      v-model="form[cmpAttr.property.name]"
+                      v-bind="cmpAttr.attrs"
+              />
+          </AFormItem>
       </KeepAlive>
     </AForm>
   </div>

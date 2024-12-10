@@ -31,7 +31,7 @@ interface Props {
 
 const emits = defineEmits<{
     (e: 'update:modelValue', item: Record<string, any>): void
-  (e: 'update:visible', item: boolean): void
+    (e: 'update:visible', item: boolean): void
 }>()
 
 const props = defineProps<Props>()
@@ -199,21 +199,21 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 </template>
               </AButton>
             </div>
-            <ATabs v-model:active-key="activeTab">
-              <ATabPane
-                      v-if="props.properties && props.properties.length"
-                      key="parameters"
-                      :title="getOrDefault('nodeForm.parameters','Parameters')"
-              >
-                <FromRenderer v-model="nodeData.parameters" :properties="props.properties" />
-              </ATabPane>
-                <ATabPane v-if="props.description" key="doc" :title="getOrDefault('nodeForm.doc','Doc')">
-                    <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'"/>
-                </ATabPane>
-                <ATabPane v-if="showLoopSetting" key="settings" :title="getOrDefault('nodeForm.settings','Settings')">
-                    <LoopSetting v-model="nodeData.loop"/>
-                </ATabPane>
-            </ATabs>
+              <ATabs v-model:active-key="activeTab">
+                  <ATabPane
+                          v-if="props.properties && props.properties.length"
+                          key="parameters"
+                          :title="getOrDefault('nodeForm.parameters','Parameters')"
+                  >
+                      <FromRenderer v-model="nodeData.parameters" :properties="props.properties"/>
+                  </ATabPane>
+                  <ATabPane v-if="props.description" key="doc" :title="getOrDefault('nodeForm.doc','Doc')">
+                      <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'"/>
+                  </ATabPane>
+                  <ATabPane v-if="showLoopSetting" key="settings" :title="getOrDefault('nodeForm.settings','Settings')">
+                      <LoopSetting v-model="nodeData.loop"/>
+                  </ATabPane>
+              </ATabs>
           </div>
 
           <div class="show-toggle show-toggle-right" @click="() => toggleOutputPane()">
@@ -222,20 +222,20 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
           </div>
         </Pane>
         <Pane v-if="outputPaneVisible">
-          <div class="node-form-modal-pane node-form-modal-output">
-              <div class="node-form-title">
-                  {{ getOrDefault('output', 'Outputs') }}
-                  <ATag v-if="durationSeconds">
-                      <template #icon>
-                          <IconClockCircle/>
-                      </template>
-                      {{ `${durationSeconds}s` }}
-                  </ATag>
-              </div>
-            <div class="output-result-box">
-              <ResultDataViewer :node="modelValue" />
+            <div class="node-form-modal-pane node-form-modal-output">
+                <div class="node-form-title">
+                    {{ getOrDefault('output', 'Outputs') }}
+                    <ATag v-if="durationSeconds">
+                        <template #icon>
+                            <IconClockCircle/>
+                        </template>
+                        {{ `${durationSeconds}s` }}
+                    </ATag>
+                </div>
+                <div class="output-result-box">
+                    <ResultDataViewer :node="modelValue"/>
+                </div>
             </div>
-          </div>
         </Pane>
       </Splitpanes>
     </div>

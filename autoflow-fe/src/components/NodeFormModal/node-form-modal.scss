@@ -46,8 +46,8 @@
 
   }
 
-  :global(.vjs-tree.is-virtual .vjs-tree-node){
-    white-space:unset;
+  :global(.vjs-tree.is-virtual .vjs-tree-node) {
+    white-space: unset;
   }
 
   :global(.vjs-tree-node:hover) {
@@ -73,7 +73,7 @@
       max-width: 120px;
     }
 
-    :deep(.arco-input-wrapper:not(.arco-input-focus)){
+    :deep(.arco-input-wrapper:not(.arco-input-focus)) {
       &:hover {
         background-color: var(--color-fill-3);
       }
@@ -165,7 +165,7 @@
       height: calc(100% - 50px);
       overflow: auto;
 
-      .arco-tabs-content-list{
+      .arco-tabs-content-list {
         min-height: 100%;
       }
     }

@@ -1,8 +1,8 @@
-import { computed, inject, type Ref } from 'vue'
-import { flatten } from 'lodash'
-import { INCOMER_DATA } from '@/symbols'
-import type { Option } from '@/components/ExpressInput/MentionList.vue'
-import type { NodeFlatData } from '@/types/flow'
+import {computed, inject, type Ref} from 'vue'
+import {flatten} from 'lodash'
+import {INCOMER_DATA} from '@/symbols'
+import type {Option} from '@/components/ExpressInput/MentionList.vue'
+import type {NodeFlatData} from '@/types/flow'
 
 function createOptions(
   nodeId: string,
@@ -33,7 +33,8 @@ export function useSelectOptions() {
     if (!nodeFlatDataArray?.value) return []
     return flatten(
       nodeFlatDataArray.value.map((nodeFlatData) => {
-        const varOptions = createOptions(
+
+          const varOptions = createOptions(
           nodeFlatData.node.id,
           nodeFlatData.variables || {},
           `$.variables.${nodeFlatData.node.id}`,

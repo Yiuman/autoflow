@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { FileData } from '@/types/flow'
-import { computed } from 'vue'
-import { IconPlus } from '@arco-design/web-vue/es/icon'
-import type { FileItem } from '@arco-design/web-vue'
+import type {FileData} from '@/types/flow'
+import {computed} from 'vue'
+import {IconPlus} from '@arco-design/web-vue/es/icon'
+import type {FileItem} from '@arco-design/web-vue'
 
 interface Props {
   modelValue?: FileData
@@ -28,17 +28,17 @@ function uploadFileChange(fileList: FileItem[]) {
   const reader = new FileReader()
   let fileItem = fileList[0]
   reader.readAsDataURL(fileItem.file as Blob)
-  reader.onload = async function () {
-    const base64Url = reader.result as string
-    const base64String = base64Url.split(',')[1] // 去掉前缀
-    const filename = fileItem.file?.name as string
-    const fileType = filename.split('.').pop()
-    data.value = {
-      filename,
-      base64: base64String,
-      fileType
+    reader.onload = async function () {
+        const base64Url = reader.result as string
+        const base64String = base64Url.split(',')[1] // 去掉前缀
+        const filename = fileItem.file?.name as string
+        const fileType = filename.split('.').pop()
+        data.value = {
+            filename,
+            base64: base64String,
+            fileType
+        }
     }
-  }
 }
 </script>
 

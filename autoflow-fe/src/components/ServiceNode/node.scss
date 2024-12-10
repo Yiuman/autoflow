@@ -59,8 +59,8 @@
     margin: auto;
     padding: 0 10px;
     word-wrap: break-word;
-    word-break: break-all;  /* 长单词自动换行 */
-    white-space: normal;    /* 允许换行 */
+    word-break: break-all; /* 长单词自动换行 */
+    white-space: normal; /* 允许换行 */
     overflow-wrap: break-word; /* 适应现代浏览器 */
   }
 }

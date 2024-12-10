@@ -5,13 +5,13 @@ import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon'
 import ConditionItem from '@/components/ConditionFilter/ConditionItem.vue'
 
 interface PropType {
-  modelValue: Condition
-  parent?: Condition
+    modelValue: Condition
+    parent?: Condition
 }
 
 const props = withDefaults(defineProps<PropType>(), {
-  modelValue: () => ({
-    children: [{ dataKey: '', calcType: CalcType.Equal, value: '', clause: Clause.AND }],
+    modelValue: () => ({
+        children: [{dataKey: '', calcType: CalcType.Equal, value: '', clause: Clause.AND}],
     clause: Clause.AND,
     root: true
   })
@@ -44,8 +44,8 @@ function addGroup() {
   const resetCurrentModel = currentModel.children
     ? currentModel
     : {
-        clause: Clause.AND,
-        children: [currentModel]
+          clause: Clause.AND,
+          children: [currentModel]
       }
   const newCondition: Condition = {
     children: [

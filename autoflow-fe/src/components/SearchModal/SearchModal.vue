@@ -4,14 +4,14 @@ import {IconSearch} from '@arco-design/web-vue/es/icon'
 import {getOrDefault} from '@/locales/i18n'
 
 const searchInput = ref()
-const { focused } = useFocus(searchInput)
+const {focused} = useFocus(searchInput)
 const keys = useMagicKeys()
 const os = getOS()
 const commandK = os === 'Mac' ? keys['Command+K'] : keys['Ctrl+K']
 const hotkeyDesc = os === 'Mac' ? '⌘ K' : 'Ctrl K'
 
 interface Props {
-  visible?: boolean
+    visible?: boolean
   placeholder?: string
   width?: number | string
 }

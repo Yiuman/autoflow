@@ -34,9 +34,9 @@ export function getAllIncomers(
         for (const node of nodeIncomers) {
             const preIncomers = getAllIncomers(node.id, getIncomers) as GraphNode[]
             nodeIncomers = nodeIncomers.concat(preIncomers)
+        }
     }
-  }
-  return uniq(nodeIncomers)
+    return uniq(nodeIncomers)
 }
 
 export function toNode(graphNode: VueFlowNode): Node {
@@ -129,7 +129,7 @@ export function flattenProperties(
   properties.forEach((property) => {
       const genericType = extractGenericTypes(property.type)
       let propertyName = property.name
-      if (!propertyName && (genericType.mainType === 'List' || genericType.mainType === 'Set')) {
+      if (!propertyName && isArrayType(genericType)) {
           propertyName = '*'
       }
       if (!propertyName) {
@@ -280,13 +280,13 @@ export function extractGenericTypes(typeString: string): GenericType {
         return completedType // 如果栈为空，解析完成，返回整个结构
       }
     } else if (char === ',') {
-      // 处理多个泛型参数之间的逗号
-      if (buffer.trim()) {
-        currentType?.genericTypes.push(buffer.trim())
-        buffer = ''
-      }
+        // 处理多个泛型参数之间的逗号
+        if (buffer.trim()) {
+            currentType?.genericTypes.push(buffer.trim())
+            buffer = ''
+        }
     } else {
-      buffer += char // 收集字符
+        buffer += char // 收集字符
     }
   }
 

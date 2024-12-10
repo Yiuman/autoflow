@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FormRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type { Linkage, Option, Property } from '@/types/flow'
+import type {Linkage, Option, Property} from '@/types/flow'
 import ServiceAPI from '@/api/service'
 
 interface Props {
@@ -49,6 +49,7 @@ watchEffect(
   width: 100%;
   border: 1px solid var(--color-border-2);
   border-radius: 5px;
+
   .linkage-parameter-form {
     padding: 10px 10px 0 10px;
   }

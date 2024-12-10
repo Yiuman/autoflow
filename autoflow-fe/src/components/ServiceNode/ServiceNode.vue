@@ -21,8 +21,8 @@ const {removeNodes, updateNodeData, getIncomers} = useVueFlow()
 const avatarSize = 32
 
 export interface ToolBarData {
-  toolbarVisible: boolean
-  toolbarPosition: Position
+    toolbarVisible: boolean
+    toolbarPosition: Position
 }
 
 export interface NodeAction extends Record<string, CustomEvent> {
@@ -111,16 +111,16 @@ watch(
                 </AButton>
                 <AButton class="toolbar-btn" @click="props.events.edit(props)">
                     <template #icon>
-            <IconEdit />
-          </template>
-        </AButton>
-        <AButton class="toolbar-btn toolbar-delete-btn" @click="removeNodes(id)">
-          <template #icon>
-            <IconDelete />
-          </template>
-        </AButton>
-      </AButtonGroup>
-    </div>
+                        <IconEdit/>
+                    </template>
+                </AButton>
+                <AButton class="toolbar-btn toolbar-delete-btn" @click="removeNodes(id)">
+                    <template #icon>
+                        <IconDelete/>
+                    </template>
+                </AButton>
+            </AButtonGroup>
+        </div>
 
     <div class="node-duration" v-if="executionResult && isSuccess">
       <ATag>
@@ -140,9 +140,9 @@ watch(
           :height="avatarSize"
           :src="data.service?.avatar"
         />
-        <AAvatar v-else shape="square" :size="avatarSize" :style="{ 'background-color': rgba }"
+          <AAvatar v-else :size="avatarSize" :style="{ 'background-color': rgba }" shape="square"
           >{{ data.service?.name }}
-        </AAvatar>
+          </AAvatar>
 
         <div class="node-label">{{ data.label }}</div>
 

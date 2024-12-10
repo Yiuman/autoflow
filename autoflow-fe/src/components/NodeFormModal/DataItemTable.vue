@@ -14,7 +14,7 @@ const props = defineProps<Props>()
 
 <template>
     <ATable
-            :bordered="false"
+            :bordered="{cell:true}"
             :columns="props.columns"
             :data="props.data"
             :pagination="true"
@@ -31,16 +31,16 @@ const props = defineProps<Props>()
             />
         </template>
         <template #typeObjectColumn="{ record, column }">
-      <VueJsonPretty
-        class="output-json"
-        :data="record[column.dataIndex]"
-        :collapsedNodeLength="3"
-        v-if="record[column.dataIndex] instanceof Object"
-        :show-icon="true"
-      />
-      <template v-else>{{ record[column.dataIndex] }}</template>
-    </template>
-    <template #typeFileDataColumn="{ record, column }">
+            <VueJsonPretty
+                    v-if="record[column.dataIndex] instanceof Object"
+                    :collapsedNodeLength="3"
+                    :data="record[column.dataIndex]"
+                    :show-icon="true"
+                    class="output-json"
+            />
+            <template v-else>{{ record[column.dataIndex] }}</template>
+        </template>
+        <template #typeFileDataColumn="{ record, column }">
       <FileDataViewer :data="record[column.dataIndex]" />
     </template>
   </ATable>

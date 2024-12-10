@@ -20,7 +20,7 @@ import json from './defaultFlow.json'
 import {computed} from 'vue'
 import {downloadByData} from '@/utils/download'
 import {getContainerClientXY} from '@/utils/util-func'
-import {executeNode, stopExecution} from '@/api/execution'
+import {executeNode, getExecutableFlowInst, stopExecution, type WorkflowInst} from '@/api/execution'
 import {useServiceStore} from '@/stores/service'
 import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
@@ -312,115 +312,116 @@ function searchModalInput(event: InputEvent) {
 
 //---------------------------- 工作流执行 ----------------------------
 const running = ref<boolean>(false)
-const executeFlowId = ref<string>()
+const executeFlowInst = ref<WorkflowInst | undefined>()
 
 
-function runFlow() {
+async function runFlow() {
     running.value = true
     const flow = elementsToFlow(elements.value)
-    executeFlowId.value = flow.id
+    executeFlowInst.value = await getExecutableFlowInst(flow)
     flow.nodes?.forEach(node => {
         updateNodeData(node.id, {executionResult: null})
     })
-    executeFlowSSE({id: flow.id, flowStr: JSON.stringify(flow)},
+    executeFlowSSE(
+        executeFlowInst.value,
         findNode,
         updateNodeData,
         {
             onClose: () => {
-                executeFlowId.value = ''
+                executeFlowInst.value = undefined
                 running.value = false
             }
         })
 }
 
 async function stopFlow() {
-  if (executeFlowId.value) {
-    await stopExecution({ id: executeFlowId.value, type: 'FLOW' })
-    executeFlowId.value = ''
-  }
+    if (executeFlowInst.value) {
+        await stopExecution({id: executeFlowInst.value.id})
+        executeFlowInst.value = undefined
+    }
 
-  running.value = false
+    running.value = false
 }
 </script>
 
 <template>
-  <VueFlow
-          ref="vueFlow"
-          v-model="elements"
-          :class="{ theme }"
-          :connection-mode="ConnectionMode.Strict"
-          :edge-types="edgeTypes"
-          :node-types="nodeTypes"
-          class="vue-flow-basic"
-          @edge-mouse-move="edgeMouseMove"
-          @edge-mouse-leave="edgeMouseMove"
-  >
-      <!-- 背景 -->
-      <Background :gap="8" :pattern-color="theme ? '#FFFFFB' : '#aaa'"/>
-      <!-- 面板控制器 -->
-      <Controls/>
-      <!-- 左上角的操作按钮 -->
-      <Panel
-              class="flow-designer-panel"
-              position="top-right"
-              style="display: flex; align-items: center"
-      >
-          <SearchModal
-                  v-model:visible="searchModalVisible"
-                  :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
-                  @input="(event) => searchModalInput(event as InputEvent)"
-          >
-              <AList>
-                  <AListItem
-                          v-for="serviceItem in matchServices"
-                          :key="serviceItem.name"
-                          @click="() => addNode(serviceItem)"
-                  >
-                      <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
-                          <template #avatar>
-                              <AImage
-                                      v-if="serviceItem.avatar"
-                                      :height="68"
-                                      :preview="false"
-                                      :src="serviceItem.avatar"
-                                      :width="68"
-                              />
-                              <AAvatar v-else :size="68" shape="square">
-                                  {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
-                              </AAvatar>
-                          </template>
-                      </AListItemMeta>
-                  </AListItem>
-              </AList>
-          </SearchModal>
-          <ADivider direction="vertical" margin="5px"/>
-          <AButton class="panel-item" type="text" @click="saveWorkflow">
-              <template #icon>
-                  <IconSave size="22px"/>
-              </template>
-          </AButton>
-          <ADivider direction="vertical" margin="5px"/>
-          <AButton class="panel-item" type="text" @click="exportJson">
-              <template #icon>
-                  <IconCloudDownload size="22px"/>
-              </template>
-          </AButton>
-          <ADivider direction="vertical" margin="5px"/>
-          <AUpload :auto-upload="false" :show-file-list="false" class="panel-item" @change="importJson">
-              <template #upload-button>
-                  <AButton class="panel-item" type="text">
-                      <template #icon>
-                          <IconUpload size="22px"/>
-            </template>
-          </AButton>
-        </template>
-      </AUpload>
-    </Panel>
+    <VueFlow
+            ref="vueFlow"
+            v-model="elements"
+            :class="{ theme }"
+            :connection-mode="ConnectionMode.Strict"
+            :edge-types="edgeTypes"
+            :node-types="nodeTypes"
+            class="vue-flow-basic"
+            @edge-mouse-move="edgeMouseMove"
+            @edge-mouse-leave="edgeMouseMove"
+    >
+        <!-- 背景 -->
+        <Background :gap="8" :pattern-color="theme ? '#FFFFFB' : '#aaa'"/>
+        <!-- 面板控制器 -->
+        <Controls/>
+        <!-- 左上角的操作按钮 -->
+        <Panel
+                class="flow-designer-panel"
+                position="top-right"
+                style="display: flex; align-items: center"
+        >
+            <SearchModal
+                    v-model:visible="searchModalVisible"
+                    :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
+                    @input="(event) => searchModalInput(event as InputEvent)"
+            >
+                <AList>
+                    <AListItem
+                            v-for="serviceItem in matchServices"
+                            :key="serviceItem.name"
+                            @click="() => addNode(serviceItem)"
+                    >
+                        <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
+                            <template #avatar>
+                                <AImage
+                                        v-if="serviceItem.avatar"
+                                        :height="68"
+                                        :preview="false"
+                                        :src="serviceItem.avatar"
+                                        :width="68"
+                                />
+                                <AAvatar v-else :size="68" shape="square">
+                                    {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
+                                </AAvatar>
+                            </template>
+                        </AListItemMeta>
+                    </AListItem>
+                </AList>
+            </SearchModal>
+            <ADivider direction="vertical" margin="5px"/>
+            <AButton class="panel-item" type="text" @click="saveWorkflow">
+                <template #icon>
+                    <IconSave size="22px"/>
+                </template>
+            </AButton>
+            <ADivider direction="vertical" margin="5px"/>
+            <AButton class="panel-item" type="text" @click="exportJson">
+                <template #icon>
+                    <IconCloudDownload size="22px"/>
+                </template>
+            </AButton>
+            <ADivider direction="vertical" margin="5px"/>
+            <AUpload :auto-upload="false" :show-file-list="false" class="panel-item" @change="importJson">
+                <template #upload-button>
+                    <AButton class="panel-item" type="text">
+                        <template #icon>
+                            <IconUpload size="22px"/>
+                        </template>
+                    </AButton>
+                </template>
+            </AUpload>
+        </Panel>
 
-    <!-- 执行按钮 -->
-    <div class="execute-flow-btn" @click="running ? stopFlow() : runFlow()">
-      <AButton type="primary">
-        <template #icon>
+        <!-- 执行按钮 -->
+        <div class="execute-flow-btn" @click="running ? stopFlow() : runFlow()">
+            <AButton type="primary">
+                <template #icon>
           <IconPauseCircleFill v-if="running" />
           <IconPlayCircleFill v-else />
         </template>

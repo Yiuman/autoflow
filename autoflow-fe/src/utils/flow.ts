@@ -6,7 +6,7 @@ import type {ExecutionResult} from '@/types/flow'
  * @param handle 连接处理器的ID
  */
 function getHandleDirection(handle: string | null | undefined): string {
-  return handle?.substring(handle?.lastIndexOf('-') + 1) ?? ''
+    return handle?.substring(handle?.lastIndexOf('-') + 1) ?? ''
 }
 
 /**

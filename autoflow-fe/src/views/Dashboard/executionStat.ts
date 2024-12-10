@@ -3,14 +3,14 @@ import {getOrDefault} from '@/locales/i18n'
 import {darkTheme} from '@/hooks/theme'
 
 export function useExecutionStat() {
-  const chartData = ref<ChartData>({
-    dimension: ['service_id'],
-    indicator: ['total', 'success', 'fail'],
-    data: []
-  })
+    const chartData = ref<ChartData>({
+        dimension: ['service_id'],
+        indicator: ['total', 'success', 'fail'],
+        data: []
+    })
 
-  const legendFontColor = ref(getComputedStyle(document.body).getPropertyValue('--color-text-1'))
-  watch(darkTheme, () => {
+    const legendFontColor = ref(getComputedStyle(document.body).getPropertyValue('--color-text-1'))
+    watch(darkTheme, () => {
     legendFontColor.value = getComputedStyle(document.body).getPropertyValue('--color-text-1')
   })
 
