@@ -27,4 +27,5 @@ public interface WorkflowInstService extends CrudService<WorkflowInst> {
         workflowInst.setFlow(flow);
         return workflowInst;
     }
+
 }

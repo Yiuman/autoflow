@@ -8,6 +8,7 @@ import io.autoflow.core.events.Event;
 import io.autoflow.core.events.EventListener;
 import io.autoflow.core.events.FlowEndEvent;
 import io.autoflow.core.events.FlowStartEvent;
+import io.autoflow.spi.context.FlowContextHolder;
 import io.autoflow.spi.model.FlowExecutionResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,7 @@ public class WorkflowStateListener implements EventListener {
             workflowInst.setDurationMs(flowExecutionResult.getDurationMs());
             workflowInst.setFlowState(FlowState.END);
             workflowInstService.save(workflowInst);
+            FlowContextHolder.remove();
         }
     }
 

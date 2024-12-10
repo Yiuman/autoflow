@@ -6,10 +6,7 @@ import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.provider.ExecutionContextValueProvider;
 import lombok.Data;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -20,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Data
 public class FlowExecutionContextImpl implements FlowExecutionContext {
+    private String requestId;
+    private boolean interrupt = false;
     private final List<ExecutionResult<Object>> executionResults = Collections.synchronizedList(CollUtil.newArrayList());
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
@@ -30,7 +29,10 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
 
     public static FlowExecutionContextImpl create(Map<String, Object> parameters) {
         FlowExecutionContextImpl flowExecutionContext = new FlowExecutionContextImpl();
-        flowExecutionContext.getParameters().putAll(parameters);
+        if (Objects.nonNull(parameters)) {
+            flowExecutionContext.getParameters().putAll(parameters);
+        }
+
         return flowExecutionContext;
     }
 
@@ -76,5 +78,15 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     @Override
     public Map<String, ExecutionContext> getLoopContextMap() {
         return loopContextMap;
+    }
+
+    @Override
+    public void interrupt() {
+        this.interrupt = true;
+    }
+
+    @Override
+    public Boolean isInterrupted() {
+        return interrupt;
     }
 }

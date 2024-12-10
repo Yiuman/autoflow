@@ -15,9 +15,15 @@ public interface ExecutionService {
 
     WorkflowInst execute(Workflow workflow);
 
-    WorkflowInst executeAsync(String workflowId);
+    WorkflowInst executeAsyncByWorkflowId(String workflowId);
+
+    WorkflowInst executeAsyncByWorkflowInstId(String workflowInstId);
 
     WorkflowInst executeAsync(Workflow workflow);
+
+    WorkflowInst getExecutableFlowInst(Workflow workflow);
+
+    void stop(String workflowId);
 
     Executor getExecutor();
 

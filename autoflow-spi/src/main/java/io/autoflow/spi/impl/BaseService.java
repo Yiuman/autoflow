@@ -23,41 +23,31 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * @param <INPUT>  输入类型
- * @param <OUTPUT> 输出类型
- * @author yiuman
- * @date 2023/7/27
- */
-@SuppressWarnings("unchecked")
+
 public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT>, I18n {
 
-    private final transient Class<INPUT> inputClass = (Class<INPUT>) TypeUtil.getTypeArgument(getClass(), 0);
-    private final transient Type outputClass = TypeUtil.getReturnType(
-            ReflectUtil.getMethod(getClass(), "execute", inputClass, ExecutionContext.class)
-    );
-
-
+    private final transient Type inputType = TypeUtil.getTypeArgument(getClass(), 0);
+    private final transient Type outputType = TypeUtil.getTypeArgument(getClass(), 1);
     private static final CopyOptions DEFAULT_COPY_OPTION = CopyOptions.create();
     private List<Property> properties;
-    private List<Property> outputType;
+    private List<Property> outputProperties;
     private String description;
 
     @Override
     public List<Property> getProperties() {
         if (Objects.isNull(properties)) {
-            properties = PropertyUtils.buildProperties(getClass(), inputClass);
+            properties = PropertyUtils.buildProperties(getClass(), inputType);
         }
 
         return properties;
     }
 
     @Override
-    public List<Property> getOutputType() {
-        if (Objects.isNull(outputType)) {
-            outputType = PropertyUtils.buildProperties(getClass(), outputClass);
+    public List<Property> getOutputProperties() {
+        if (Objects.isNull(outputProperties)) {
+            outputProperties = PropertyUtils.buildProperties(getClass(), outputType);
         }
-        return outputType;
+        return outputProperties;
     }
 
     @Override
@@ -80,8 +70,9 @@ public abstract class BaseService<INPUT, OUTPUT> implements Service<OUTPUT>, I18
         return execute(input, executionContext);
     }
 
+    @SuppressWarnings("unchecked")
     protected INPUT buildInput(ExecutionContext executionContext) {
-        INPUT input = ReflectUtil.newInstanceIfPossible(inputClass);
+        INPUT input = (INPUT) ReflectUtil.newInstanceIfPossible(TypeUtil.getClass(inputType));
         BeanUtil.fillBean(
                 input,
                 new ExecutionContextValueProvider(executionContext),

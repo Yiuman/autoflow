@@ -31,7 +31,7 @@ public class ServiceEntity extends BaseEntity<String> {
     @Column(typeHandler = JsonbTypeHandler.class)
     private List<Property> properties;
     @Column(typeHandler = JsonbTypeHandler.class)
-    private List<Property> outputType;
+    private List<Property> outputProperties;
     private Boolean uninstall;
     @Transient
     private Map<String, Properties> i18n;

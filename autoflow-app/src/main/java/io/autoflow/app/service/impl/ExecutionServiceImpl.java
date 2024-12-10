@@ -7,6 +7,7 @@ import io.autoflow.app.service.ExecutionService;
 import io.autoflow.app.service.WorkflowInstService;
 import io.autoflow.app.service.WorkflowService;
 import io.autoflow.core.runtime.Executor;
+import io.autoflow.spi.context.FlowContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.dromara.dynamictp.core.DtpRegistry;
 import org.dromara.dynamictp.core.executor.DtpExecutor;
@@ -31,8 +32,24 @@ public class ExecutionServiceImpl implements ExecutionService {
 
     @Override
     public WorkflowInst execute(Workflow workflow) {
-        WorkflowInst workflowInst = workflowInstService.newWorkflowInstance(workflow);
+        WorkflowInst workflowInst = getExecutableFlowInst(workflow);
         executor.execute(workflowInst.getFlow());
+        return workflowInst;
+    }
+
+    @Override
+    public WorkflowInst executeAsyncByWorkflowId(String workflowId) {
+        Workflow workflow = getWorkflowDefinition(workflowId);
+        return executeAsync(workflow);
+    }
+
+    @Override
+    public WorkflowInst executeAsyncByWorkflowInstId(String workflowInstId) {
+        WorkflowInst workflowInst = workflowInstService.get(workflowInstId);
+        DtpExecutor dtpExecutor = DtpRegistry.getDtpExecutor(THREAD_POOL_NAME);
+        dtpExecutor.submit(() -> {
+            executor.execute(workflowInst.getFlow());
+        });
         return workflowInst;
     }
 
@@ -44,20 +61,25 @@ public class ExecutionServiceImpl implements ExecutionService {
         return workflow;
     }
 
-    @Override
-    public WorkflowInst executeAsync(String workflowId) {
-        Workflow workflow = getWorkflowDefinition(workflowId);
-        return executeAsync(workflow);
-    }
 
     @Override
     public WorkflowInst executeAsync(Workflow workflow) {
-        WorkflowInst workflowInst = workflowInstService.newWorkflowInstance(workflow);
+        WorkflowInst workflowInst = getExecutableFlowInst(workflow);
         DtpExecutor dtpExecutor = DtpRegistry.getDtpExecutor(THREAD_POOL_NAME);
         dtpExecutor.submit(() -> {
             executor.execute(workflowInst.getFlow());
         });
         return workflowInst;
+    }
+
+    @Override
+    public WorkflowInst getExecutableFlowInst(Workflow workflow) {
+        return workflowInstService.newWorkflowInstance(workflow);
+    }
+
+    @Override
+    public void stop(String workflowId) {
+        FlowContextHolder.interrupt(workflowId);
     }
 
     @Override

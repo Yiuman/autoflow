@@ -39,4 +39,8 @@ public interface FlowExecutionContext extends ExecutionContext {
      * @return 遍历上下文的Map
      */
     Map<String, ExecutionContext> getLoopContextMap();
+
+    void interrupt();
+
+    Boolean isInterrupted();
 }

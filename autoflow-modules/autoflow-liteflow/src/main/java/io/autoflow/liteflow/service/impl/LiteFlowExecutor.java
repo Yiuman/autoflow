@@ -1,7 +1,6 @@
 package io.autoflow.liteflow.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.yomahub.liteflow.core.FlowExecutor;
 import com.yomahub.liteflow.flow.LiteflowResponse;
@@ -12,6 +11,8 @@ import io.autoflow.core.model.Node;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.liteflow.utils.LiteFlows;
 import io.autoflow.spi.context.Constants;
+import io.autoflow.spi.context.ExecutionContext;
+import io.autoflow.spi.context.FlowContextHolder;
 import io.autoflow.spi.context.FlowExecutionContextImpl;
 import io.autoflow.spi.model.ExecutionResult;
 import io.autoflow.spi.model.FlowExecutionResult;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author yiuman
@@ -50,9 +50,7 @@ public class LiteFlowExecutor implements Executor {
         executionResult.setFlowId(flow.getId());
         String chainId = getExecutableId(flow);
         executionResult.setStartTime(LocalDateTime.now());
-        FlowExecutionContextImpl flowExecutionContext = FlowExecutionContextImpl.create(
-                Optional.ofNullable(flow.getData()).orElse(MapUtil.empty())
-        );
+        ExecutionContext flowExecutionContext = FlowContextHolder.get(flow.getRequestId(), flow.getData());
         getEventDispatcher().dispatch(EventHelper.createFlowStartEvent(flow, flowExecutionContext));
         LiteflowResponse liteflowResponse = flowExecutor.execute2RespWithRid(chainId, this, flow.getRequestId(), flowExecutionContext);
         executionResult.setEndTime(LocalDateTime.now());
@@ -86,9 +84,7 @@ public class LiteFlowExecutor implements Executor {
     @Override
     public void startByExecutableId(String executableId) {
         ThreadUtil.execute(
-                () -> {
-                    flowExecutor.execute2Resp(executableId, this, FlowExecutionContextImpl.class);
-                }
+                () -> flowExecutor.execute2Resp(executableId, this, FlowExecutionContextImpl.class)
         );
     }
 

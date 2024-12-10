@@ -16,18 +16,18 @@ CREATE TABLE IF NOT EXISTS af_workflow
 -- 服务插件
 CREATE TABLE IF NOT EXISTS af_service
 (
-    id            VARCHAR(255) PRIMARY KEY,            -- 主键，UUID 类型，默认值自动生成
-    name          VARCHAR(255) NOT NULL,               -- 插件名称
-    system        BOOLEAN   DEFAULT TRUE,              -- 是否为系统插件
-    jar_file_id   VARCHAR(32),                         -- jar包文件ID
-    description   TEXT,                                -- 描述字段
-    properties    JSONB,                               --  参数属性
-    output_type   JSONB,                               -- 输出类型
-    uninstall     BOOLEAN   DEFAULT FALSE,             -- 是否已卸载
-    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id                VARCHAR(255) PRIMARY KEY,            -- 主键，UUID 类型，默认值自动生成
+    name              VARCHAR(255) NOT NULL,               -- 插件名称
+    system            BOOLEAN   DEFAULT TRUE,              -- 是否为系统插件
+    jar_file_id       VARCHAR(32),                         -- jar包文件ID
+    description       TEXT,                                -- 描述字段
+    properties        JSONB,                               --  参数属性
+    output_properties JSONB,                               -- 输出类型
+    uninstall         BOOLEAN   DEFAULT FALSE,             -- 是否已卸载
+    creator           VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
+    last_modifier     VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
+    create_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
+    update_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
 );
 -- 标签
 CREATE TABLE IF NOT EXISTS af_tag

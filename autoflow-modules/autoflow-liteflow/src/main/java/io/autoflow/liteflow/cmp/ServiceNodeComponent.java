@@ -45,6 +45,9 @@ public class ServiceNodeComponent extends NodeComponent {
         // 获取全局上下文并将当前节点的ID作为key放到环境变量中
         FlowExecutionContextImpl flowExecutionContext = getContextBean(FlowExecutionContextImpl.class);
         flowExecutionContext.getVariables().put(getNodeId(), serviceData.getParameters());
+        if (flowExecutionContext.isInterrupted()) {
+            setIsEnd(true);
+        }
         // 构建执行上下文
         ExecutionContext executionContext = buildExecutionContext(flowExecutionContext, serviceData);
         // 执行并处理结果

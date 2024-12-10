@@ -40,7 +40,7 @@ public interface Service<OUTPUT> {
      *
      * @return 字段描述信息集合
      */
-    List<Property> getOutputType();
+    List<Property> getOutputProperties();
 
     /**
      * 节点的功能描述
@@ -52,7 +52,7 @@ public interface Service<OUTPUT> {
     /**
      * 传入上下文执行返回结果
      *
-     * @param ctx 上下会
+     * @param ctx 上下文
      * @return 节点执行的结果
      */
     OUTPUT execute(ExecutionContext ctx);

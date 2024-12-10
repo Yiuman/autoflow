@@ -63,7 +63,7 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
         serviceEntity.setId(service.getId());
         serviceEntity.setName(service.getName());
         serviceEntity.setProperties(service.getProperties());
-        serviceEntity.setOutputType(service.getOutputType());
+        serviceEntity.setOutputProperties(service.getOutputProperties());
         if (service instanceof I18n i18n) {
             serviceEntity.setI18n(i18n.getI18n());
         }
