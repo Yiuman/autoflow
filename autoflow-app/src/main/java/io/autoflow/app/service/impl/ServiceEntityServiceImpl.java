@@ -68,7 +68,6 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
             serviceEntity.setI18n(i18n.getI18n());
         }
 
-        serviceEntity.setDescription(service.getDescription());
         serviceEntity.setSystem(true);
         return serviceEntity;
     }

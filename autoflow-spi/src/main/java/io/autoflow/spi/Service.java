@@ -43,13 +43,6 @@ public interface Service<OUTPUT> {
     List<Property> getOutputProperties();
 
     /**
-     * 节点的功能描述
-     *
-     * @return 描述字符串或markdown
-     */
-    String getDescription();
-
-    /**
      * 传入上下文执行返回结果
      *
      * @param ctx 上下文

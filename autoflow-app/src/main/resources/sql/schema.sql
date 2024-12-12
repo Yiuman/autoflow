@@ -71,8 +71,6 @@ CREATE TABLE IF NOT EXISTS af_execution_inst
     end_time         TIMESTAMP   DEFAULT CURRENT_TIMESTAMP, -- 结束时间
     duration_ms      INTEGER,                               -- 耗时（毫秒）
     error_message    TEXT,                                  --错误信息
-    flow_state       VARCHAR(32) DEFAULT CURRENT_TIMESTAMP, -- 耗时（毫秒）
-    flow_str         TEXT,                                  -- 存储 JSON 数据，推荐使用 JSONB 类型
     creator          VARCHAR(32),                           -- 创建者 ID，使用 UUID 类型
     last_modifier    VARCHAR(32),                           -- 最后修改者 ID，使用 UUID 类型
     create_time      TIMESTAMP   DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间

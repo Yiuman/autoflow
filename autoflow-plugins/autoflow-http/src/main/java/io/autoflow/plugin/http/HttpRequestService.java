@@ -58,6 +58,10 @@ public class HttpRequestService extends BaseService<HttpRequestParameter, HttpRe
             }
         }
 
+        if (StrUtil.isNotBlank(httpRequestParameter.getBody())) {
+            request.body(httpRequestParameter.getBody());
+        }
+
         try (HttpResponse response = request.execute()) {
             HttpResult httpResult = toHttpResult(response);
             String contentType = response.header(Header.CONTENT_TYPE);

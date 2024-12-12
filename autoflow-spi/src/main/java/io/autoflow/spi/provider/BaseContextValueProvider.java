@@ -181,7 +181,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         }
         expressMatcher.appendTail(result);
 
-        return result.toString();
+        return result.toString().trim();
     }
 
     public Object extractByJsonPath(String strValue) {
