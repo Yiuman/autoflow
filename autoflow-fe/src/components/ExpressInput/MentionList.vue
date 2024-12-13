@@ -62,11 +62,15 @@ const onKeyDown = (event: KeyboardEvent) => {
 defineExpose({ onKeyDown })
 
 const upHandler = () => {
-  selectedIndex.value = (selectedIndex.value + props.items.length - 1) % props.items.length
+    const indexValue = selectedIndex.value + props.items.length - 1
+    selectedIndex.value = indexValue < 0
+        ? props.items.length - 1
+        : indexValue
 }
 
 const downHandler = () => {
-  selectedIndex.value = (selectedIndex.value + 1) % props.items.length
+    const indexValue = (selectedIndex.value || 0) + 1
+    selectedIndex.value = indexValue > (props.items.length - 1) ? 0 : indexValue
 }
 
 const enterHandler = () => {

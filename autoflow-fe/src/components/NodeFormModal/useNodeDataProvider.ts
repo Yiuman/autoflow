@@ -34,7 +34,6 @@ export function useNodeDataProvider(node: Ref<VueFlowNode>) {
               nodeExecutionDataFlatData = flattenProperties(incomer.data?.service?.outputProperties)
           }
 
-          console.warn("incomer", incomer)
           nodeFlatDataArray.push({
               node: incomer,
               variables: variableFlatData,

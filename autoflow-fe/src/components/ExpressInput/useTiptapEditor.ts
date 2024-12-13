@@ -29,7 +29,7 @@ function jsonToString(jsonData: JSONContent | undefined) {
             }
             return contentItem && contentItem.type === 'mention' ? contentItem?.attrs?.id.key : contentItem.text
         }
-    ).filter(str => str).join(' ')
+    ).filter(str => str).join('')
   }).join('\n')
 }
 

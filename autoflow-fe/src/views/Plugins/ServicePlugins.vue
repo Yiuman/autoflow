@@ -6,6 +6,7 @@ import serviceApi from '@/api/service'
 import type {Service} from '@/types/flow'
 import {MdPreview} from 'md-editor-v3'
 import {getOrDefault} from '@/locales/i18n'
+import PluginDescription from '@/views/Plugins/PluginDescription.vue'
 
 const serviceStore = useServiceStore()
 
@@ -49,10 +50,11 @@ function selectPlugin(serviceItem: Service) {
           <div class="plugins-title">{{ selectedPlugin.name }}</div>
         </ACard>
       </div>
-      <div class="plugin-doc">
-        <MdPreview v-if="selectedPlugin.description" :modelValue="selectedPlugin.description" />
-        <AResult v-else subtitle="你寻找的页面宛如海市蜃楼，从未存在，只留下一片空白。" />
-      </div>
+        <div class="plugin-doc">
+            <MdPreview v-if="selectedPlugin.description" :modelValue="selectedPlugin.description"/>
+            <!--        <AResult v-else subtitle="你寻找的页面宛如海市蜃楼，从未存在，只留下一片空白。" />-->
+            <PluginDescription v-else :plugin="selectedPlugin"/>
+        </div>
     </div>
     <div class="plugins-box" v-else>
       <ACard class="plugin-card">

@@ -132,7 +132,8 @@ interface Property {
 interface Service {
     id: string
     name: string
-    properties: Property[]
+    properties?: Property[],
+    outputProperties?: Property[],
     description?: string
     avatar?: string | null
     i18n?: Record<string, Record<string, string>>
