@@ -49,11 +49,7 @@ public class LoopNodeComponent extends NodeIteratorComponent {
         loopItem.setNrOfInstances(loop.getLoopCardinality());
         loopItem.setSequential(loop.getSequential());
         loopItem.setLoopCounter(index);
-//        try {
-//            loopItem.setPreLoop(getPreLoopObj());
-//        } catch (Throwable ignore) {
-//        }
-
+        loopItem.setCompletionCondition(loop.getCompletionCondition());
         loopItem.put(loop.getElementVariable(), object);
         return loopItem;
     }

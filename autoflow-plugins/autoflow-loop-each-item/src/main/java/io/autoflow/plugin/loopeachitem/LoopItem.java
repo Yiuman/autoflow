@@ -31,6 +31,7 @@ public class LoopItem extends HashMap<String, Object> {
     private Boolean sequential = false;
     private Integer nrOfInstances;
     private LoopItem preLoop;
+    private String completionCondition;
 
     public String getLoopKey() {
         return StrUtil.format("{}_{}", id, getLoopCounter());

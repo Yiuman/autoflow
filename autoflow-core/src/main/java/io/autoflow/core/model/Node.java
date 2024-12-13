@@ -41,12 +41,23 @@ public class Node {
     private Loop loop;
 
     public boolean loopIsValid() {
+        return isLoop() || isWhile();
+    }
+
+    public boolean isLoop() {
         if (Objects.isNull(loop)) {
             return false;
         }
-
         return StrUtil.isNotBlank(loop.getCollectionString())
-                || (Objects.nonNull(loop.getLoopCardinality())
-                && loop.getLoopCardinality() > 0);
+                || (Objects.nonNull(loop.getLoopCardinality()) && loop.getLoopCardinality() > 0);
+    }
+
+    public boolean isWhile() {
+        if (Objects.isNull(loop)) {
+            return false;
+        }
+        return StrUtil.isBlank(loop.getCollectionString())
+                && (Objects.isNull(loop.getLoopCardinality()) || loop.getLoopCardinality() <= 0)
+                && StrUtil.isNotBlank(loop.getCompletionCondition());
     }
 }

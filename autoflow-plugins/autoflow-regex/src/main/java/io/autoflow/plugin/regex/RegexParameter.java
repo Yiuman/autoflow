@@ -11,5 +11,9 @@ public class RegexParameter {
     private String content;
     @NotNull
     private RegexMethod method;
+    /**
+     * 分组
+     */
+    private Integer group = 0;
     private String replace;
 }

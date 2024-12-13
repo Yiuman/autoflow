@@ -6,9 +6,11 @@ import io.autoflow.app.model.WorkflowInst;
 import io.autoflow.app.service.ExecutionService;
 import io.autoflow.app.service.WorkflowInstService;
 import io.autoflow.app.service.WorkflowService;
+import io.autoflow.core.events.FlowErrorEvent;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.spi.context.FlowContextHolder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.dynamictp.core.DtpRegistry;
 import org.dromara.dynamictp.core.executor.DtpExecutor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ExecutionServiceImpl implements ExecutionService {
     private final WorkflowService workflowService;
     private final Executor executor;
@@ -48,7 +51,16 @@ public class ExecutionServiceImpl implements ExecutionService {
         WorkflowInst workflowInst = workflowInstService.get(workflowInstId);
         DtpExecutor dtpExecutor = DtpRegistry.getDtpExecutor(THREAD_POOL_NAME);
         dtpExecutor.submit(() -> {
-            executor.execute(workflowInst.getFlow());
+            try {
+                executor.execute(workflowInst.getFlow());
+            } catch (Throwable throwable) {
+                log.error("Execute workflow happen error", throwable);
+                FlowErrorEvent flowErrorEvent = new FlowErrorEvent();
+                flowErrorEvent.setFlowId(workflowInst.getWorkflowId());
+                flowErrorEvent.setFlowInstId(workflowInstId);
+                executor.getEventDispatcher().dispatch(flowErrorEvent);
+            }
+
         });
         return workflowInst;
     }

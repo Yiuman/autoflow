@@ -153,6 +153,30 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
     public String getExpressStringValue(String input) {
         // 先替换 JSONPath 部分
         Matcher jsonPathMatcher = JSON_PATH_PATTERN.matcher(input);
+        int jsonPathStart = Integer.MIN_VALUE;
+        if (jsonPathMatcher.find()) {
+            jsonPathStart = jsonPathMatcher.start();
+        }
+
+        Matcher expressMatcher = EXPRESS_PATTERN.matcher(input);
+        int expressStart = Integer.MIN_VALUE;
+        if (expressMatcher.find()) {
+            expressStart = expressMatcher.start();
+        }
+        String result = input;
+        if (expressStart > jsonPathStart) {
+            result = replaceExpressValue(result);
+            result = replaceJsonPathValue(result);
+        } else {
+            result = replaceJsonPathValue(result);
+            result = replaceExpressValue(result);
+        }
+
+        return result;
+    }
+
+    private String replaceJsonPathValue(String input) {
+        Matcher jsonPathMatcher = JSON_PATH_PATTERN.matcher(input);
         StringBuilder result = new StringBuilder();
         while (jsonPathMatcher.find()) {
             String jsonPathKey = jsonPathMatcher.group();
@@ -160,27 +184,29 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
             // 使用 quoteReplacement 处理 jsonPathValue 或 jsonPathKey，防止特殊字符导致错误
             String replacement = jsonPathValue != null
                     ? Matcher.quoteReplacement(jsonPathValue.toString())
-                    : Matcher.quoteReplacement(jsonPathKey);
+                    : Matcher.quoteReplacement("");
 
             jsonPathMatcher.appendReplacement(result, replacement);
         }
         jsonPathMatcher.appendTail(result);
+        return result.toString();
+    }
 
+    private String replaceExpressValue(String input) {
+        Matcher expressMatcher = EXPRESS_PATTERN.matcher(input);
         // 再替换表达式部分
-        Matcher expressMatcher = EXPRESS_PATTERN.matcher(result.toString());
-        result.setLength(0);  // 清空结果用于第二轮替换
+        StringBuilder result = new StringBuilder();
         while (expressMatcher.find()) {
             String expressKey = expressMatcher.group();
             // 去掉 ${ 和 }
             Object expressValue = extractByExpress(expressKey);
             String replacement = expressValue != null
                     ? Matcher.quoteReplacement(expressValue.toString())
-                    : Matcher.quoteReplacement(expressKey);
+                    : Matcher.quoteReplacement("");
 
             expressMatcher.appendReplacement(result, replacement);
         }
         expressMatcher.appendTail(result);
-
         return result.toString().trim();
     }
 
@@ -205,7 +231,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
             }
 
         } catch (Throwable throwable) {
-            LOGGER.debug("execute express happen error ", throwable);
+            LOGGER.debug(StrUtil.format("execute express happen error, express string '{}' ", strValue), throwable);
         }
         return null;
     }

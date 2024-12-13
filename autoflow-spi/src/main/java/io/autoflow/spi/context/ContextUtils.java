@@ -3,12 +3,15 @@ package io.autoflow.spi.context;
 import io.autoflow.spi.model.ExecutionResult;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author yiuman
  * @date 2024/10/28
  */
 public final class ContextUtils {
+
+    public static final String GLOBAL_VARIABLE_NAME = "global";
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <DATA> void addResult(ExecutionContext executionContext, ExecutionResult<DATA> executionResult) {
@@ -29,6 +32,19 @@ public final class ContextUtils {
         } else {
             inputData.put(executionResult.getNodeId(), executionResult.getData());
         }
+
+        Map<String, Object> variables = executionContext.getVariables();
+        Map<String, Object> globalMap = (Map<String, Object>) variables.get(GLOBAL_VARIABLE_NAME);
+        if (Objects.isNull(globalMap)) {
+            synchronized (executionContext) {
+                globalMap = new ConcurrentHashMap<>();
+                executionContext.getVariables().put(GLOBAL_VARIABLE_NAME, globalMap);
+            }
+        }
+        if (executionResult.getData() instanceof Map mapData) {
+            globalMap.putAll(mapData);
+        }
+
 
     }
 }

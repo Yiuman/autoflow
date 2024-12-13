@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component;
  * @date 2024/4/12
  */
 @Component
-public class LoopBreakComponent extends IFNodeComponent {
+public class LoopBreakComponent {
 }

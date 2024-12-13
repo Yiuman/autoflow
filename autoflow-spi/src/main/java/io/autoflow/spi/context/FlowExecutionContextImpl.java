@@ -58,7 +58,6 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     public void addExecutionResult(ExecutionResult<Object> executionResult) {
         executionResults.add(executionResult);
         ContextUtils.addResult(this, executionResult);
-
         // 结果集处理
         List<ExecutionResult<Object>> nodeExecutionResults = getNodeExecutionResultMap()
                 .computeIfAbsent(executionResult.getNodeId(), k -> Collections.synchronizedList(CollUtil.newArrayList()));

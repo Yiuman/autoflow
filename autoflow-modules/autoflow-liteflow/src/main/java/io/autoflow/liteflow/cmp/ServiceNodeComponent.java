@@ -9,6 +9,7 @@ import io.autoflow.core.events.EventDispatcher;
 import io.autoflow.core.events.EventHelper;
 import io.autoflow.core.runtime.Executor;
 import io.autoflow.core.runtime.ServiceExecutor;
+import io.autoflow.liteflow.utils.LiteFlows;
 import io.autoflow.plugin.loopeachitem.LoopItem;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.context.*;
@@ -70,16 +71,15 @@ public class ServiceNodeComponent extends NodeComponent {
     private ExecutionContext buildExecutionContext(FlowExecutionContextImpl flowExecutionContext,
                                                    ServiceData serviceData) {
         ExecutionContext onceExecutionContext;
-        LoopItem currLoopObj = getCurrLoopObj();
-
+        LoopItem currLoopObj = LiteFlows.getLoopObj(this);
         if (Objects.nonNull(currLoopObj)) {
             onceExecutionContext = getLoopExecutionContext(flowExecutionContext, currLoopObj);
         } else {
             onceExecutionContext = new OnceExecutionContext(flowExecutionContext, serviceData.getParameters());
         }
-
         return onceExecutionContext;
     }
+
 
     private ExecutionContext getLoopExecutionContext(FlowExecutionContextImpl flowExecutionContext, LoopItem currLoopObj) {
         Map<String, ExecutionContext> loopContextMap = flowExecutionContext.getLoopContextMap();
@@ -89,6 +89,10 @@ public class ServiceNodeComponent extends NodeComponent {
         OnceExecutionContext onceExecutionContext = new OnceExecutionContext(loopExecutionContext);
         onceExecutionContext.getParameters().putAll(getCmpData(ServiceData.class).getParameters());
         onceExecutionContext.getVariables().putAll(BeanUtil.beanToMap(currLoopObj));
+        onceExecutionContext.getVariables().put(
+                ContextUtils.GLOBAL_VARIABLE_NAME,
+                flowExecutionContext.getVariables().get(ContextUtils.GLOBAL_VARIABLE_NAME)
+        );
 
         return onceExecutionContext;
     }
@@ -117,7 +121,7 @@ public class ServiceNodeComponent extends NodeComponent {
 
     private void finalizeExecution(FlowExecutionContextImpl flowExecutionContext, ExecutionResult<Object> executionResult) {
         // 清理和更新循环上下文
-        LoopItem currLoopObj = getCurrLoopObj();
+        LoopItem currLoopObj = LiteFlows.getLoopObj(this);
         if (Objects.nonNull(currLoopObj)) {
             ExecutionContext loopExecutionContext = flowExecutionContext.getLoopContextMap().get(currLoopObj.getLoopKey());
             if (Objects.nonNull(loopExecutionContext)) {
