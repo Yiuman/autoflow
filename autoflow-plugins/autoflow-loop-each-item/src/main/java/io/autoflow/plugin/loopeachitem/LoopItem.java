@@ -20,7 +20,7 @@ import java.util.Objects;
 @Data
 public class LoopItem extends HashMap<String, Object> {
     private String id;
-    private Integer loopCounter;
+    private Integer loopIndex;
     /**
      * 循环项的变量（当是loopCardinality时此值为loopCounter）
      */
@@ -34,7 +34,7 @@ public class LoopItem extends HashMap<String, Object> {
     private String completionCondition;
 
     public String getLoopKey() {
-        return StrUtil.format("{}_{}", id, getLoopCounter());
+        return StrUtil.format("{}_{}", id, getLoopIndex());
     }
 
 
@@ -58,9 +58,9 @@ public class LoopItem extends HashMap<String, Object> {
         put(LambdaUtil.getFieldName(LoopItem::getId), id);
     }
 
-    public void setLoopCounter(Integer loopCounter) {
-        this.loopCounter = loopCounter;
-        put(LambdaUtil.getFieldName(LoopItem::getLoopCounter), loopCounter);
+    public void setLoopIndex(Integer loopIndex) {
+        this.loopIndex = loopIndex;
+        put(LambdaUtil.getFieldName(LoopItem::getLoopIndex), loopIndex);
     }
 
     public void setElementVariable(Object elementVariable) {

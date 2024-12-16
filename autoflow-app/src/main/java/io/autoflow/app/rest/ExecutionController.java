@@ -50,7 +50,7 @@ public class ExecutionController {
     }
 
     @PostMapping("/node")
-    public R<List<ExecutionResult<Object>>> executeNode(@RequestBody Node node) {
+    public R<List<ExecutionResult<?>>> executeNode(@RequestBody Node node) {
         Executor executor = executionService.getExecutor();
         return R.ok(executor.executeNode(node));
     }

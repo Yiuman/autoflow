@@ -58,23 +58,23 @@ CREATE TABLE IF NOT EXISTS af_workflow_inst
 -- 执行实例
 CREATE TABLE IF NOT EXISTS af_execution_inst
 (
-    id               VARCHAR(32) PRIMARY KEY,               -- 主键，UUID 类型，默认值自动生成
-    workflow_id      VARCHAR(32)  NOT NULL,                 -- 工作流定义主键
-    workflow_inst_id VARCHAR(32)  NOT NULL,                 -- 工作流实例主键
-    node_id          VARCHAR(32)  NOT NULL,                 -- 节点ID
-    service_id       VARCHAR(255) NOT NULL,                 -- 服务节点ID
-    loop_id          VARCHAR(32),                           -- 循环ID
-    loop_counter     INTEGER,                               -- 循环次数
-    nr_of_instances  INTEGER,                               -- 循环实例总数
-    data             TEXT,                                  -- 数据
-    start_time       TIMESTAMP   DEFAULT CURRENT_TIMESTAMP, -- 开始时间
-    end_time         TIMESTAMP   DEFAULT CURRENT_TIMESTAMP, -- 结束时间
-    duration_ms      INTEGER,                               -- 耗时（毫秒）
-    error_message    TEXT,                                  --错误信息
-    creator          VARCHAR(32),                           -- 创建者 ID，使用 UUID 类型
-    last_modifier    VARCHAR(32),                           -- 最后修改者 ID，使用 UUID 类型
-    create_time      TIMESTAMP   DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time      TIMESTAMP   DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id               VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    workflow_id      VARCHAR(32)  NOT NULL,               -- 工作流定义主键
+    workflow_inst_id VARCHAR(32)  NOT NULL,               -- 工作流实例主键
+    node_id          VARCHAR(32)  NOT NULL,               -- 节点ID
+    service_id       VARCHAR(255) NOT NULL,               -- 服务节点ID
+    loop_id          VARCHAR(32),                         -- 循环ID
+    loop_index       INTEGER,                             -- 循环次数
+    nr_of_instances  INTEGER,                             -- 循环实例总数
+    data             TEXT,                                -- 数据
+    start_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 开始时间
+    end_time         TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 结束时间
+    duration_ms      INTEGER,                             -- 耗时（毫秒）
+    error_message    TEXT,                                --错误信息
+    creator          VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
+    last_modifier    VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
+    create_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
+    update_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
 );
 
 -- 全局变量

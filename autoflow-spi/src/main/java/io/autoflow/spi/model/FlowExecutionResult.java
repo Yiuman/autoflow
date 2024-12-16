@@ -11,5 +11,5 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class FlowExecutionResult extends ExecutionResult<List<ExecutionResult<Object>>> {
+public class FlowExecutionResult extends ExecutionResult<List<ExecutionResult<?>>> {
 }

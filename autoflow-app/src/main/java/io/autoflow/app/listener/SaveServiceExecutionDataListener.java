@@ -39,7 +39,7 @@ public class SaveServiceExecutionDataListener implements EventListener {
         executionInst.setNodeId(executionResult.getNodeId());
         executionInst.setServiceId(executionResult.getServiceId());
         executionInst.setLoopId(executionResult.getLoopId());
-        executionInst.setLoopCounter(executionResult.getLoopCounter());
+        executionInst.setLoopIndex(executionResult.getLoopIndex());
         executionInst.setNrOfInstances(executionResult.getNrOfInstances());
         executionInst.setData(JSONUtil.toJsonStr(executionResult.getData()));
         executionInst.setStartTime(executionResult.getStartTime());

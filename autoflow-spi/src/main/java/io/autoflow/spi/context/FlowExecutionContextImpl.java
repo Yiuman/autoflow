@@ -19,12 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FlowExecutionContextImpl implements FlowExecutionContext {
     private String requestId;
     private boolean interrupt = false;
-    private final List<ExecutionResult<Object>> executionResults = Collections.synchronizedList(CollUtil.newArrayList());
+    private final List<ExecutionResult<?>> executionResults = Collections.synchronizedList(CollUtil.newArrayList());
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private final Map<String, Object> inputData = new HashMap<>();
     private final Map<String, ExecutionContext> loopContextMap = new HashMap<>();
-    private final Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = new ConcurrentHashMap<>();
+    private final Map<String, List<ExecutionResult<?>>> nodeExecutionResultMap = new ConcurrentHashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider = new ExecutionContextValueProvider(this);
 
     public static FlowExecutionContextImpl create(Map<String, Object> parameters) {
@@ -55,11 +55,11 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     }
 
     @Override
-    public void addExecutionResult(ExecutionResult<Object> executionResult) {
+    public void addExecutionResult(ExecutionResult<?> executionResult) {
         executionResults.add(executionResult);
         ContextUtils.addResult(this, executionResult);
         // 结果集处理
-        List<ExecutionResult<Object>> nodeExecutionResults = getNodeExecutionResultMap()
+        List<ExecutionResult<?>> nodeExecutionResults = getNodeExecutionResultMap()
                 .computeIfAbsent(executionResult.getNodeId(), k -> Collections.synchronizedList(CollUtil.newArrayList()));
         nodeExecutionResults.add(executionResult);
     }

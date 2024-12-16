@@ -3,11 +3,14 @@ package io.autoflow.liteflow.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.yomahub.liteflow.builder.LiteFlowNodeBuilder;
 import com.yomahub.liteflow.builder.el.*;
 import com.yomahub.liteflow.core.NodeComponent;
+import com.yomahub.liteflow.util.TupleOf2;
 import io.autoflow.core.enums.PointType;
 import io.autoflow.core.model.Connection;
 import io.autoflow.core.model.Flow;
@@ -17,8 +20,7 @@ import io.autoflow.liteflow.cmp.IFNodeComponent;
 import io.autoflow.liteflow.cmp.LoopNodeComponent;
 import io.autoflow.liteflow.cmp.ServiceNodeComponent;
 import io.autoflow.plugin.loopeachitem.LoopItem;
-import io.autoflow.spi.context.ExecutionContext;
-import io.autoflow.spi.context.FlowExecutionContextImpl;
+import io.autoflow.spi.context.*;
 import io.autoflow.spi.model.ServiceData;
 import lombok.extern.slf4j.Slf4j;
 
@@ -274,7 +276,7 @@ public final class LiteFlows {
             String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
             String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
             CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition);
-            loopWrapper = ELBus.whileOpt(breakWrapper).doOpt(elWrapper);
+            loopWrapper = ELBus.whileOpt(breakWrapper).id(node.getId()).doOpt(elWrapper);
         } else {
             loopWrapper = createIteratorEL(node).doOpt(elWrapper);
             String completionCondition = node.getLoop().getCompletionCondition();
@@ -282,7 +284,8 @@ public final class LiteFlows {
             if (StrUtil.isNotBlank(completionCondition)) {
                 String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
                 String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
-                CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition);
+                CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId)
+                        .data(completionConditionDataId, completionCondition);
                 loopWrapper.breakOpt(breakWrapper);
             }
         }
@@ -348,6 +351,15 @@ public final class LiteFlows {
         }
     }
 
+    private static ServiceData createNormalServiceData(Flow flow, Node node) {
+        ServiceData serviceData = new ServiceData();
+        serviceData.setFlowId(flow.getId());
+        serviceData.setNodeId(node.getId());
+        serviceData.setServiceId(node.getServiceId());
+        serviceData.setParameters(node.getData());
+        return serviceData;
+    }
+
     private static IfELWrapper createIfNodeEl(Node node, Flow flow) {
         List<Connection> linkNextConnections = flow.getConnections().stream()
                 .filter(connection -> Objects.equals(connection.getSource(), node.getId()))
@@ -368,7 +380,7 @@ public final class LiteFlows {
         List<Node> falseOutgoers = flow.getOutgoers(node.getId(), falseConnections::contains);
         String ifNodeId = StrUtil.format("IF_{}", node.getId());
         String ifNodeDataId = StrUtil.format("{}IfData", node.getId());
-        String express = String.format("$.inputData.%s.result", node.getId());
+        String express = StrUtil.format("$.inputData.{}.result", node.getId());
         if (CollUtil.isEmpty(falseConnections)) {
             return ELBus.ifOpt(
                     ELBus.node(ifNodeId)
@@ -392,14 +404,12 @@ public final class LiteFlows {
 
     }
 
+
     private static ELWrapper createServiceNodeEL(Flow flow, Node node) {
-        ServiceData serviceData = new ServiceData();
-        serviceData.setFlowId(flow.getId());
-        serviceData.setNodeId(node.getId());
-        serviceData.setServiceId(node.getServiceId());
-        serviceData.setParameters(node.getData());
+        ServiceData serviceData = createNormalServiceData(flow, node);
         String dataId = StrUtil.format("{}Data", node.getId());
-        NodeELWrapper elWrapper = (NodeELWrapper) ELBus.node(node.getId()).data(StrUtil.format(dataId), JSONUtil.quote(JSONUtil.toJsonStr(serviceData), true));
+        NodeELWrapper elWrapper = (NodeELWrapper) ELBus.node(node.getId())
+                .data(StrUtil.format(dataId), JSONUtil.quote(JSONUtil.toJsonStr(serviceData), false));
         if (!node.loopIsValid()) {
             return elWrapper;
         }
@@ -408,7 +418,8 @@ public final class LiteFlows {
         if (node.isWhile()) {
             String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
             String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
-            CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition);
+            CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId)
+                    .data(completionConditionDataId, completionCondition);
             loopWrapper = ELBus.whileOpt(breakWrapper).doOpt(elWrapper);
         } else {
             loopWrapper = createIteratorEL(node).doOpt(elWrapper);
@@ -416,7 +427,8 @@ public final class LiteFlows {
             if (StrUtil.isNotBlank(completionCondition)) {
                 String completionConditionId = StrUtil.format("{}CompletionCondition", node.getId());
                 String completionConditionDataId = StrUtil.format("{}CompletionConditionData", node.getId());
-                CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId).data(completionConditionDataId, completionCondition);
+                CommonNodeELWrapper breakWrapper = ELBus.node(completionConditionId)
+                        .data(completionConditionDataId, completionCondition);
                 loopWrapper.breakOpt(breakWrapper);
             }
         }
@@ -480,12 +492,19 @@ public final class LiteFlows {
     }
 
     public static <T extends NodeComponent> boolean getBooleanValue(T node) {
-        String express = node.getCmpData(String.class);
+        String express;
+        try {
+            ServiceData serviceData = node.getCmpData(ServiceData.class);
+            express = (String) serviceData.getParameters().get("express");
+        } catch (Throwable throwable) {
+            express = node.getCmpData(String.class);
+        }
+
         FlowExecutionContextImpl contextBean = node.getContextBean(FlowExecutionContextImpl.class);
         LoopItem currLoopObj = getLoopObj(node);
         ExecutionContext executionContext = contextBean;
         if (Objects.nonNull(currLoopObj)) {
-            executionContext = contextBean.getLoopContextMap().get(currLoopObj.getLoopKey());
+            executionContext = getLoopExecutionContext(node, contextBean, currLoopObj);
         }
         Object value = executionContext.parseValue(express);
         return BooleanUtil.isTrue(BooleanUtil.toBooleanObject(Optional.ofNullable(value).orElse("").toString()));
@@ -496,17 +515,80 @@ public final class LiteFlows {
         if (Objects.nonNull(currLoopObj)) {
             return currLoopObj;
         }
+
         Integer loopIndex = node.getLoopIndex();
         if (Objects.isNull(loopIndex)) {
             return null;
         }
 
         LoopItem loopItem = new LoopItem();
-        loopItem.setLoopCounter(loopIndex);
-        ServiceData serviceData = node.getCmpData(ServiceData.class);
-        if (Objects.nonNull(serviceData)) {
-            loopItem.setId(serviceData.getFlowId());
-        }
+        loopItem.setId(getWhileLoopId(node));
+        loopItem.setLoopIndex(loopIndex);
         return loopItem;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends NodeComponent> String getWhileLoopId(T node) {
+        com.yomahub.liteflow.flow.element.Node refNode = node.getRefNode();
+        TransmittableThreadLocal<Stack<TupleOf2<Integer, Integer>>> loopIndexTL
+                = (TransmittableThreadLocal<Stack<TupleOf2<Integer, Integer>>>) ReflectUtil.getFieldValue(refNode, "loopIndexTL");
+        Stack<TupleOf2<Integer, Integer>> tupleOf2s = loopIndexTL.get();
+        return StrUtil.toString(tupleOf2s.peek().getA());
+    }
+
+    public static <T extends NodeComponent> ExecutionContext buildExecutionContext(
+            T node,
+            FlowExecutionContextImpl flowExecutionContext,
+            ServiceData serviceData) {
+        ExecutionContext onceExecutionContext;
+        LoopItem currLoopObj = LiteFlows.getLoopObj(node);
+        if (Objects.nonNull(currLoopObj)) {
+            onceExecutionContext = getLoopExecutionContext(node, flowExecutionContext, currLoopObj);
+        } else {
+            onceExecutionContext = new OnceExecutionContext(flowExecutionContext, serviceData.getParameters());
+        }
+        return onceExecutionContext;
+    }
+
+
+    public static <T extends NodeComponent> ExecutionContext getLoopExecutionContext(
+            T node,
+            FlowExecutionContextImpl flowExecutionContext,
+            LoopItem currLoopObj) {
+        Map<String, ExecutionContext> loopContextMap = flowExecutionContext.getLoopContextMap();
+        ExecutionContext loopExecutionContext = Optional.ofNullable(loopContextMap.get(currLoopObj.getLoopKey()))
+                .orElseGet(() -> createNewLoopContext(node, loopContextMap, currLoopObj));
+
+        OnceExecutionContext onceExecutionContext = new OnceExecutionContext(loopExecutionContext);
+        try {
+            ServiceData serviceData = node.getCmpData(ServiceData.class);
+            onceExecutionContext.getParameters().putAll(serviceData.getParameters());
+        } catch (Throwable ignore) {
+        }
+
+        onceExecutionContext.getVariables().putAll(BeanUtil.beanToMap(currLoopObj));
+        onceExecutionContext.getVariables().put(
+                ContextUtils.GLOBAL_VARIABLE_NAME,
+                flowExecutionContext.getVariables().get(ContextUtils.GLOBAL_VARIABLE_NAME)
+        );
+
+        return onceExecutionContext;
+    }
+
+    public static <T extends NodeComponent> ExecutionContext createNewLoopContext(T node, Map<String, ExecutionContext> loopContextMap, LoopItem currLoopObj) {
+        ExecutionContext loopContext;
+        LoopItem preLoop = currLoopObj.getPreLoop();
+        if (Objects.isNull(preLoop)) {
+            ExecutionContext snapshoot = loopContextMap.get(currLoopObj.getId());
+            if (Objects.isNull(snapshoot)) {
+                snapshoot = new LoopExecutionContext(node.getContextBean(FlowExecutionContextImpl.class));
+                loopContextMap.put(currLoopObj.getId(), snapshoot);
+            }
+            loopContext = new LoopExecutionContext(snapshoot);
+        } else {
+            loopContext = new LoopExecutionContext(loopContextMap.get(preLoop.getLoopKey()));
+        }
+        loopContextMap.put(currLoopObj.getLoopKey(), loopContext);
+        return loopContext;
     }
 }

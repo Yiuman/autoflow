@@ -52,10 +52,10 @@ public class ExecuteServiceListener implements FlowableEventListener {
         try {
             String sseData = "";
             FlowExecutionContext flowExecutionContext = (FlowExecutionContext) FlowContextHolder.get();
-            Map<String, List<ExecutionResult<Object>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
+            Map<String, List<ExecutionResult<?>>> nodeExecutionResultMap = flowExecutionContext.getNodeExecutionResultMap();
             String activityId = execution.getActivityId();
             if (Objects.nonNull(nodeExecutionResultMap)) {
-                List<ExecutionResult<Object>> executionDataList = nodeExecutionResultMap.get(activityId);
+                List<ExecutionResult<?>> executionDataList = nodeExecutionResultMap.get(activityId);
                 sseData = CollUtil.isEmpty(executionDataList) ? "" : JSONUtil.toJsonStr(executionDataList);
             }
 

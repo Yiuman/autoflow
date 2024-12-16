@@ -41,7 +41,7 @@ class LiteFlowExecutorTest {
             put("method", "GET");
         }});
         node.setLabel("http");
-        List<ExecutionResult<Object>> executionResults = liteFlowExecutor.executeNode(node);
+        List<ExecutionResult<?>> executionResults = liteFlowExecutor.executeNode(node);
         log.info(JSONUtil.toJsonStr(executionResults));
     }
 

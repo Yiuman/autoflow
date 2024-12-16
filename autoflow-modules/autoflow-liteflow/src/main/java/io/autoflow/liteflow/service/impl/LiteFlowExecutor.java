@@ -55,7 +55,7 @@ public class LiteFlowExecutor implements Executor {
         LiteflowResponse liteflowResponse = flowExecutor.execute2RespWithRid(chainId, this, flow.getRequestId(), flowExecutionContext);
         executionResult.setEndTime(LocalDateTime.now());
         executionResult.setFlowInstId(liteflowResponse.getRequestId());
-        List<ExecutionResult<Object>> executionResults = liteflowResponse
+        List<ExecutionResult<?>> executionResults = liteflowResponse
                 .getContextBean(FlowExecutionContextImpl.class)
                 .getExecutionResults();
         executionResult.setData(executionResults);
@@ -70,7 +70,7 @@ public class LiteFlowExecutor implements Executor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ExecutionResult<Object>> executeNode(Node node) {
+    public List<ExecutionResult<?>> executeNode(Node node) {
         FlowExecutionContextImpl flowExecutionContext = new FlowExecutionContextImpl();
         flowExecutionContext.getInputData().putAll((Map<String, Object>) node.getData().get(Constants.INPUT_DATA_ATTR_NAME));
         flowExecutionContext.getVariables().putAll((Map<String, Object>) node.getData().get(Constants.VARIABLES_ATTR_NAME));

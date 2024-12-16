@@ -45,7 +45,7 @@ public class ExecutionInst extends BaseEntity<String> {
     /**
      * 当前执行在本次循环中的下标
      */
-    private Integer loopCounter;
+    private Integer loopIndex;
     /**
      * 当前循环的数量
      */

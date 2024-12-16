@@ -16,21 +16,21 @@ public interface FlowExecutionContext extends ExecutionContext {
      *
      * @return 执行的结果
      */
-    List<ExecutionResult<Object>> getExecutionResults();
+    List<ExecutionResult<?>> getExecutionResults();
 
     /**
      * 获取节点与节点的执行结果集映射
      *
      * @return 节点与节点的执行结果集映射
      */
-    Map<String, List<ExecutionResult<Object>>> getNodeExecutionResultMap();
+    Map<String, List<ExecutionResult<?>>> getNodeExecutionResultMap();
 
     /**
      * 添加执行结果
      *
      * @param executionResult 执行结果
      */
-    void addExecutionResult(ExecutionResult<Object> executionResult);
+    void addExecutionResult(ExecutionResult<?> executionResult);
 
     /**
      * 获取遍历上下文的Map

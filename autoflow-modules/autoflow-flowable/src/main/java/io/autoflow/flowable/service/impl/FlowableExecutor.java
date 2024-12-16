@@ -72,10 +72,10 @@ public class FlowableExecutor implements Executor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ExecutionResult<Object>> executeNode(Node node) {
+    public List<ExecutionResult<?>> executeNode(Node node) {
         io.autoflow.spi.Service<Object> service = Services.getService(node.getServiceId());
         Assert.notNull(service, () -> new ExecuteException(String.format("cannot found Service named '%s'", node.getServiceId()), node.getServiceId()));
-        List<ExecutionResult<Object>> executionResults;
+        List<ExecutionResult<?>> executionResults;
         Map<String, Object> runOnceData = Optional.of(node.getData()).orElse(MapUtil.newHashMap());
         ServiceData serviceData = new ServiceData();
         serviceData.setNodeId(node.getId());

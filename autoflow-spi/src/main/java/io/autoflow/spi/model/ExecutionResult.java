@@ -20,7 +20,7 @@ public class ExecutionResult<DATA> {
     private String nodeId;
     private String serviceId;
     private String loopId;
-    private Integer loopCounter;
+    private Integer loopIndex;
     private Integer nrOfInstances;
     private DATA data;
     private LocalDateTime startTime;

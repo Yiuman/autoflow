@@ -48,7 +48,7 @@ public class LoopNodeComponent extends NodeIteratorComponent {
         loopItem.setElementVariable(object);
         loopItem.setNrOfInstances(loop.getLoopCardinality());
         loopItem.setSequential(loop.getSequential());
-        loopItem.setLoopCounter(index);
+        loopItem.setLoopIndex(index);
         loopItem.setCompletionCondition(loop.getCompletionCondition());
         loopItem.put(loop.getElementVariable(), object);
         return loopItem;
