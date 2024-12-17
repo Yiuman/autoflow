@@ -6,6 +6,10 @@ import {objectKeysToColumn, propertyToColumn} from '@/utils/converter'
 import DataItemTable from '@/components/NodeFormModal/DataItemTable.vue'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
+import {MdPreview} from 'md-editor-v3'
+import useTheme from '@/hooks/theme'
+
+const [darkTheme] = useTheme()
 
 interface ResultDataViewerProps {
     node?: VueFlowNode
@@ -13,7 +17,7 @@ interface ResultDataViewerProps {
 
 const props = defineProps<ResultDataViewerProps>()
 const data = computed(() => {
-  return getResultData(props?.node?.data?.executionResult)
+    return getResultData(props?.node?.data?.executionResult)
 })
 
 const result = computed(() => {
@@ -31,21 +35,36 @@ const dataColumns = computed(() => {
     }
     return objectKeysToColumn(firstData)
 })
+
+const isStringValue = computed(() => {
+    const outputProperties = props?.node?.data?.service?.outputProperties as Property[]
+    return outputProperties.length === 1
+        && !outputProperties[0].properties
+        && outputProperties[0].type === 'String'
+})
+
+const stringData = computed(() => {
+    const outputProperties = props?.node?.data?.service?.outputProperties as Property[]
+    return isStringValue.value ? (data?.value as any)[outputProperties[0].name] : ''
+})
 </script>
 
 <template>
   <div class="result-data-viewer">
-    <div class="result-box" v-if="result">
-      <template v-if="data instanceof Array">
-        <DataItemTable :data="data" :columns="dataColumns" />
-      </template>
-      <template v-else-if="result.error">
-        <VueJsonPretty :virtual="true" :data="result.error as JSONDataType" :show-icon="true" />
-      </template>
-      <template v-else>
-        <VueJsonPretty :virtual="true" :data="data as JSONDataType" :show-icon="true" />
-      </template>
-    </div>
+      <div v-if="result" class="result-box">
+          <template v-if="data instanceof Array">
+              <DataItemTable :columns="dataColumns" :data="data"/>
+          </template>
+          <template v-else-if="result.error">
+              <VueJsonPretty :data="result.error as JSONDataType" :show-icon="true" :virtual="true"/>
+          </template>
+          <template v-else-if="isStringValue">
+              <MdPreview :model-value="stringData" :theme="darkTheme?'dark':'light'"/>
+          </template>
+          <template v-else>
+              <VueJsonPretty :data="data as JSONDataType" :show-icon="true" :virtual="true"/>
+          </template>
+      </div>
     <div class="result-data-empty" v-else>
       <AEmpty />
     </div>

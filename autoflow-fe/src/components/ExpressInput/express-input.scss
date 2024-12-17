@@ -79,6 +79,9 @@
     }
 
     .mention {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
       padding-right: 3px;
       border-radius: 3px;
       display: inline-flex;
@@ -86,7 +89,6 @@
       margin-right: 4px;
       color: rgb(var(--primary-6));
       font-size: 12px;
-      white-space: pre-wrap;
       word-break: break-word;
       background-color: var(--color-bg-2);
       border: 0.5px solid var(--color-border-3);

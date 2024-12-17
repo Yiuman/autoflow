@@ -12,35 +12,38 @@ interface ExpressInputProps {
 }
 
 const props = withDefaults(defineProps<ExpressInputProps>(), {
-    allowClear: true,
-  type: 'input'
+    allowClear: true
 })
 const emits = defineEmits<{
   (e: 'update:modelValue', item: string): void
 }>()
 
-const inputType = computed(() => {
-  return props.type || 'input'
+const data = computed({
+    get() {
+        return props.modelValue
+    },
+    set(value) {
+        emits('update:modelValue', value as string)
+    }
 })
 
-const data = computed({
-  get() {
-    return props.modelValue
-  },
-  set(value) {
-    emits('update:modelValue', value as string)
-  }
+const inputType = computed(() => {
+    if (!props.type) {
+        return (data.value?.length || 0) > 50 ? 'textarea' : 'input'
+    }
+    return props.type || 'input'
 })
+
 
 //----------------------- 处理提及  --------------------------------
 const expressRegexStr = /^\$\{(.*)}$/
 const jsonPathRegexStr = /^\$((\.\w+)|(\['[^']+'])|(\[\d+])|(\[\*]))*$/
 
-const { selectOptions } = useSelectOptions()
+const {selectOptions} = useSelectOptions()
 
 //处理样式
 const expressClassName = computed<string>(() => {
-  const dataValue = (data.value || '').trimEnd()
+    const dataValue = (data.value || '').trimEnd()
   if (dataValue.match(jsonPathRegexStr)) {
     return 'jsonpath'
   } else if (dataValue.match(expressRegexStr)) {

@@ -71,5 +71,15 @@
   "loop.collectionString": "循环表达式取值",
   "loop.elementVariable": "循环项变量名",
   "loop.sequential": "是否串行",
-  "loop.completionCondition": "完成条件表达式"
+  "loop.completionCondition": "完成条件表达式",
+  "pluginDescription.abstract": "简介",
+  "pluginDescription.inputs": "输入",
+  "pluginDescription.outputs": "输出",
+  "pluginInputColumn.name": "参数名",
+  "pluginInputColumn.description": "描述",
+  "pluginInputColumn.type": "类型",
+  "pluginInputColumn.defaultValue": "默认值",
+  "pluginOutputColumn.name": "参数名",
+  "pluginOutputColumn.description": "描述",
+  "pluginOutputColumn.type": "类型"
 }

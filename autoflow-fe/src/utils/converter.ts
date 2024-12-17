@@ -59,9 +59,9 @@ export function toNode(graphNode: VueFlowNode): Node {
 
 export function toGraphNode(node: Node): VueFlowNode {
   const nodeData: Record<string, any> = {}
-  nodeData.serviceId = node.serviceId
-  nodeData.label = getOrDefault(`${node.serviceId}.name`, node.label)
-  nodeData.parameters = node.data
+    nodeData.serviceId = node.serviceId
+    nodeData.label = node.label || getOrDefault(`${node.serviceId}.name`, node.label);
+    nodeData.parameters = node.data
   nodeData.service = nodeData.loop =
     node.loop && Object.keys(node.loop).length
       ? node.loop

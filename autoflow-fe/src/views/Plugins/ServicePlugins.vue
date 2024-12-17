@@ -47,7 +47,7 @@ function selectPlugin(serviceItem: Service) {
               <AAvatar v-else shape="square" :size="120">{{ selectedPlugin.name }}</AAvatar>
             </div>
           </div>
-          <div class="plugins-title">{{ selectedPlugin.name }}</div>
+          <div class="plugins-title">{{ getOrDefault(`${selectedPlugin.id}.name`, selectedPlugin.name) }}</div>
         </ACard>
       </div>
         <div class="plugin-doc">
@@ -107,6 +107,12 @@ function selectPlugin(serviceItem: Service) {
 
   :deep(.arco-card-body) {
     padding: 8px;
+  }
+
+  .plugins-title {
+    font-weight: bold;
+    text-align: center;
+    padding-top: 10px;
   }
 }
 

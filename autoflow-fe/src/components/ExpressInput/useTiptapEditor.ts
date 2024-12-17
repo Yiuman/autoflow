@@ -8,6 +8,7 @@ import {type Option} from '@/components/ExpressInput/MentionList.vue'
 import {createVNode, type Ref, render} from 'vue'
 import createMentionSuggestion from './suggestion'
 import MentionTag from '@/components/ExpressInput/MentionTag.vue'
+import {useVueFlow} from '@vue-flow/core'
 
 interface TipTapEditorOptions {
     selectOptions: Ref<Option[]>
@@ -33,40 +34,92 @@ function jsonToString(jsonData: JSONContent | undefined) {
   }).join('\n')
 }
 
+function splitTextByRegex(text: string, regex: RegExp): string[] {
+    const result: string[] = [];
+    let lastIndex = 0;
+    let match;
+
+    // 使用正则表达式逐个匹配 JSONPath 路径
+    while ((match = regex.exec(text)) !== null) {
+        // 将非匹配部分添加到 result 数组
+        if (match.index > lastIndex) {
+            result.push(text.slice(lastIndex, match.index));  // 添加非 JSONPath 部分
+        }
+
+        // 将匹配到的 JSONPath 路径添加到 result 数组
+        result.push(match[0]);
+
+        // 更新 lastIndex
+        lastIndex = match.index + match[0].length;
+    }
+
+    // 如果还有剩余的文本（非匹配部分），将其添加到 result 数组
+    if (lastIndex < text.length) {
+        result.push(text.slice(lastIndex));
+    }
+
+    return result;
+}
+
+// const JSONPATH_REGEX = /\$\.(\w+|\[\*\]|\[\d+\]|\['[^']+'\]|\["[^"]+"\]|\.\w+|\*\.)+/g;
+// eslint-disable-next-line
+const JSONPATH_REGEX = /\$\.[a-zA-Z0-9_\-.$\[\]()'"]+(\.[a-zA-Z0-9_\-.$\[\]()'"]+)*(\.\*)?(\.[a-zA-Z0-9_\-.$\[\]()'"]+)+/g;
+
 export function useTipTapEditor(options: TipTapEditorOptions) {
-  function convertToJSONContent() {
-    const docJSONContent: JSONContent[] = (options?.data?.value || '')
-        .split('\n')
-        .filter((paragraph) => paragraph)
-        .map((paragraph) => {
-            return {
-                type: 'paragraph',
-                content: paragraph.split(' ')
-                    .filter(item => item)
-                    .map(item => {
-                        const findOption = options.selectOptions.value?.find((option) => option.key === item)
-                        if (findOption) {
-                            return {
-                                type: 'mention',
-                                attrs: {
-                                    id: {
-                                        type: `${findOption.type}`,
-                                        key: `${findOption.key}`,
-                                        label: `${findOption.label}`,
-                                        value: null,
-                                        nodeId: findOption.nodeId,
-                                        iconFontCode: findOption.iconFontCode
+    const {findNode} = useVueFlow()
+
+    function convertToJSONContent() {
+        const docJSONContent: JSONContent[] = (options?.data?.value || '')
+            .split('\n')
+            .filter((paragraph) => paragraph)
+            .map((paragraph) => {
+                return {
+                    type: 'paragraph',
+                    content: paragraph.split(' ')
+                        .filter(item => item)
+                        .map(item => {
+                            const segments = splitTextByRegex(item, JSONPATH_REGEX)
+                            return segments.map(segment => {
+                                if (JSONPATH_REGEX.test(segment)) {
+                                    let findOption = options.selectOptions.value?.find((option) => option.key === item)
+                                    if (!findOption) {
+                                        const spilts = segment.split('.')
+                                        const labelType = spilts[1]
+                                        const nodeId = spilts[2]
+                                        const iconFontCode = labelType === 'inputData' ? 'icon-Input' : 'icon-variable'
+                                        const node = findNode(nodeId)
+                                        findOption = {
+                                            key: segment,
+                                            nodeId: nodeId,
+                                            iconFontCode,
+                                            type: node?.data.label,
+                                            label: segment.substring(nodeId.length + labelType.length + 4, segment.length)
+                                        }
                                     }
+                                    return {
+                                        type: 'mention',
+                                        attrs: {
+                                            id: {
+                                                type: `${findOption?.type}`,
+                                                key: segment,
+                                                label: `${findOption?.label}`,
+                                                value: null,
+                                                nodeId: findOption?.nodeId,
+                                                iconFontCode: findOption?.iconFontCode
+                                            }
+                                        }
+                                    }
+
                                 }
-                            }
-                        }
-                        return {
-                            type: 'text',
-                            text: item
-                        }
-                    })
-            }
-        })
+
+                                return {
+                                    type: 'text',
+                                    text: segment
+                                }
+                            })
+                        }).flatMap(v => v)
+                }
+            })
     return {
       type: 'doc',
       content: docJSONContent
