@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 
 
-import type {Property, Service} from '@/types/flow'
+import type {GenericType, Property, Service} from '@/types/flow'
 import {getOrDefault} from '@/locales/i18n'
 import {extractGenericTypes, isArrayType} from '@/utils/converter'
 
@@ -20,8 +20,11 @@ function collectFlatProperties(type: string, properties: Property[]): TypeProper
     const collectProperties: TypeProperties[] = [{type: type, properties}]
     properties.forEach((prop) => {
         if (prop.properties && prop.properties.length) {
-            const genericType = extractGenericTypes(prop.type);
-            const type = isArrayType(genericType) ? genericType.genericTypes[0] as string : genericType.mainType
+            const genericType = extractGenericTypes(prop.type)
+            const firstGenericType = genericType.genericTypes[0]
+            const type = isArrayType(genericType) ?
+                (typeof firstGenericType === 'string' ? (firstGenericType as string) : (firstGenericType as GenericType).mainType)
+                : genericType.mainType
             collectProperties.push(...collectFlatProperties(type, prop.properties))
         }
     })
