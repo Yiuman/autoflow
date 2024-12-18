@@ -63,7 +63,7 @@ function splitTextByRegex(text: string, regex: RegExp): string[] {
 
 // const JSONPATH_REGEX = /\$\.(\w+|\[\*\]|\[\d+\]|\['[^']+'\]|\["[^"]+"\]|\.\w+|\*\.)+/g;
 // eslint-disable-next-line
-const JSONPATH_REGEX = /\$\.[a-zA-Z0-9_\-.$\[\]()'"]+(\.[a-zA-Z0-9_\-.$\[\]()'"]+)*(\.\*)?(\.[a-zA-Z0-9_\-.$\[\]()'"]+)+/g;
+const JSONPATH_REGEX = /\$\.[a-zA-Z0-9_\-.$\[\]()]+(\.[a-zA-Z0-9_\-.$\[\]()]+)*(\.\*)?(\.[a-zA-Z0-9_\-.$\[\]()]+)+/g;
 
 export function useTipTapEditor(options: TipTapEditorOptions) {
     const {findNode} = useVueFlow()
