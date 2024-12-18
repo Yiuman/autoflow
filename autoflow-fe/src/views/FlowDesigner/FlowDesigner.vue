@@ -30,7 +30,7 @@ import useTheme from '@/hooks/theme'
 import workflowApi from '@/api/workflow'
 import {useRoute} from 'vue-router'
 import {getResultData} from '@/utils/flow'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 import {executeFlowSSE} from '@/views/FlowDesigner/flowsse'
 
 const [theme] = useTheme()
@@ -368,7 +368,7 @@ async function stopFlow() {
         >
             <SearchModal
                     v-model:visible="searchModalVisible"
-                    :placeholder="getOrDefault('flowDesigner.searchAddNode','search and add node')"
+                    :placeholder="I18N('flowDesigner.searchAddNode','search and add node')"
                     @input="(event) => searchModalInput(event as InputEvent)"
             >
                 <AList>
@@ -377,7 +377,7 @@ async function stopFlow() {
                             :key="serviceItem.name"
                             @click="() => addNode(serviceItem)"
                     >
-                        <AListItemMeta :title="getOrDefault(`${serviceItem.id}.name`,serviceItem.name)">
+                        <AListItemMeta :title="I18N(`${serviceItem.id}.name`,serviceItem.name)">
                             <template #avatar>
                                 <AImage
                                         v-if="serviceItem.avatar"
@@ -387,7 +387,7 @@ async function stopFlow() {
                                         :width="68"
                                 />
                                 <AAvatar v-else :size="68" shape="square">
-                                    {{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}
+                                    {{ I18N(`${serviceItem.id}.name`, serviceItem.name) }}
                                 </AAvatar>
                             </template>
                         </AListItemMeta>

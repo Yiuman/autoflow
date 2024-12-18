@@ -39,7 +39,7 @@ export function addLocaleMessage(local: string, addMessage: Record<string, strin
   i18n.global.setLocaleMessage(local, { ...messages, ...addMessage })
 }
 
-export function getOrDefault(messageKey: string, defaultValue?: string): string {
+export function I18N(messageKey: string, defaultValue?: string): string {
     const message = i18n.global.t(messageKey)
     if (message === messageKey && defaultValue) {
         return defaultValue

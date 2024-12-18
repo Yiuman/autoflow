@@ -2,7 +2,7 @@
 import {IconPlus, IconTags} from '@arco-design/web-vue/es/icon'
 import type {SelectOptionData, SelectProps} from '@arco-design/web-vue'
 import tagApi, {type Tag, type TagQuery} from '@/api/tag'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 const options = ref<SelectOptionData[]>()
 const [loading, toggleLoading] = useToggle(false)
@@ -116,10 +116,10 @@ function fallbackOption(value: string): SelectOptionData {
                     <template #icon>
                         <IconPlus/>
                     </template>
-                    {{ getOrDefault('create') }}"
+                    {{ I18N('create') }}"
                     <span class="tag-add-value">{{ tagQuery.name }}</span>
-          "
-        </AButton>
+                    "
+                </AButton>
       </div>
     </template>
   </ASelect>

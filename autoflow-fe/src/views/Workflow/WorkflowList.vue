@@ -11,7 +11,7 @@ import {useRouter} from 'vue-router'
 import {downloadByData} from '@/utils/download'
 import {debounce} from 'lodash'
 import useDelayedLoading from '@/hooks/delayLoading'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
 const router = useRouter()
@@ -45,7 +45,7 @@ async function saveWorkflow() {
 
 function modifyWorkflow(workflow: Workflow) {
     workflowInstance.value = workflow
-    formTitle.value = getOrDefault('edit')
+    formTitle.value = I18N('edit')
     toggleCreateBlankFormVisible()
 }
 
@@ -58,8 +58,8 @@ function exportWorkflow(workflow: Workflow) {
 // Delete Workflow
 function deleteWorkflow(workflow: Workflow) {
   Modal.error({
-      title: getOrDefault('workflow.list.deleteConfirm.title', 'Are you sure to delete it?'),
-      content: getOrDefault('workflow.list.deleteConfirm.content', 'After the deletion is confirmed, the data cannot be retrieved'),
+      title: I18N('workflow.list.deleteConfirm.title', 'Are you sure to delete it?'),
+      content: I18N('workflow.list.deleteConfirm.content', 'After the deletion is confirmed, the data cannot be retrieved'),
       // cancelText: '取消',
       hideCancel: false,
       bodyStyle: {'text-align': 'center'},
@@ -133,31 +133,31 @@ const delayLoading = useDelayedLoading(loading)
 <template>
   <div class="workflow-container">
       <div class="workflow-list-top-box">
-          <AInput v-model="queryObj.name" :placeholder="getOrDefault('search')" allow-clear>
+          <AInput v-model="queryObj.name" :placeholder="I18N('search')" allow-clear>
               <template #prefix>
                   <IconSearch/>
               </template>
           </AInput>
 
           <TagSelector v-model="queryObj.tagIds"
-                       :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"/>
+                       :placeholder="I18N('workflow.list.form.label.placeholder','select tag')"/>
       </div>
     <ASpin dot :loading="delayLoading">
         <div class="workflow-list">
-            <ACard :bordered="false" :title="getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow')"
+            <ACard :bordered="false" :title="I18N('workflow.list.createNewWorkflow', 'Create a new workflow')"
                    class="workflow-add-card"
                    hoverable>
                 <div class="workflow-add-btn" @click="() => toggleCreateBlankFormVisible()">
                     <IconFont type="icon-chuangjian"/>
-                    {{ getOrDefault('workflow.list.createEmpty', 'Create an empty workflow') }}
+                    {{ I18N('workflow.list.createEmpty', 'Create an empty workflow') }}
                 </div>
                 <div class="workflow-add-btn">
                     <IconFont type="icon-template-success-fill"/>
-                    {{ getOrDefault('workflow.list.createByTemplate', 'Create from template') }}
+                    {{ I18N('workflow.list.createByTemplate', 'Create from template') }}
                 </div>
                 <div class="workflow-add-btn" @click="() => toggleUploadFormVisible()">
                     <IconFont type="icon-w_daoru"/>
-                    {{ getOrDefault('workflow.list.createByImport', 'Create from an imported workflow file') }}
+                    {{ I18N('workflow.list.createByImport', 'Create from an imported workflow file') }}
                 </div>
             </ACard>
             <ACard
@@ -172,31 +172,31 @@ const delayLoading = useDelayedLoading(loading)
               <template #content>
                 <div class="workflow-card-operator-box">
                   <div class="workflow-card-operator-item" @click="modifyWorkflow(workflow)">
-                      {{ getOrDefault('workflow.list.edit', 'edit') }}
+                      {{ I18N('workflow.list.edit', 'edit') }}
                   </div>
                   <div
                     class="workflow-card-operator-item"
                     @click="router.push(`/flowdesign?flowId=${workflow.id}`)"
                   >
-                      {{ getOrDefault('workflow.list.choreographing', 'choreographing') }}
+                      {{ I18N('workflow.list.choreographing', 'choreographing') }}
                   </div>
                   <div class="workflow-card-operator-item" @click="exportWorkflow(workflow)">
-                      {{ getOrDefault('workflow.list.export', 'export') }}
+                      {{ I18N('workflow.list.export', 'export') }}
                   </div>
                   <div
                     class="workflow-card-operator-item card-delete-btn"
                     @click="deleteWorkflow(workflow)"
                   >
-                      {{ getOrDefault('workflow.list.delete', 'delete') }}
+                      {{ I18N('workflow.list.delete', 'delete') }}
                   </div>
                 </div>
               </template>
             </ADropdown>
                     <ADescriptions :column="1" :title="workflow.name">
-                        <ADescriptionsItem :label="getOrDefault('workflow.list.workFlowAuthor','author')">
+                        <ADescriptionsItem :label="I18N('workflow.list.workFlowAuthor','author')">
                             <span>{{ workflow.creator || 'system' }}</span>
                         </ADescriptionsItem>
-                        <ADescriptionsItem :label="getOrDefault('workflow.list.usePlugins','plugins')">
+                        <ADescriptionsItem :label="I18N('workflow.list.usePlugins','plugins')">
                             <AOverflowList>
                                 <template v-for="service in getWorkflowServices(workflow)" :key="service.id">
                                     <AImage
@@ -213,11 +213,11 @@ const delayLoading = useDelayedLoading(loading)
                                 </template>
                             </AOverflowList>
                         </ADescriptionsItem>
-                        <ADescriptionsItem :label="getOrDefault('workflow.list.updateTime','update')">
+                        <ADescriptionsItem :label="I18N('workflow.list.updateTime','update')">
                 <span style="font-size: 13px">{{
                     format(workflow.updateTime || 0, 'yyyy-MM-dd HH:mm:ss')
-                  }}</span>
-              </ADescriptionsItem>
+                    }}</span>
+                        </ADescriptionsItem>
             </ADescriptions>
 
             <div class="workflow-card-item-tags" v-if="workflow.tags && workflow.tags.length">
@@ -236,24 +236,24 @@ const delayLoading = useDelayedLoading(loading)
                     @ok="saveWorkflow"
             >
                 <template #title>
-                    {{ formTitle || getOrDefault('workflow.list.createNewWorkflow', 'Create a new workflow') }}
+                    {{ formTitle || I18N('workflow.list.createNewWorkflow', 'Create a new workflow') }}
                 </template>
                 <AForm :model="workflowInstance" layout="vertical">
-                    <AFormItem :label="getOrDefault('workflow.list.form.name','name')" field="name" required
+                    <AFormItem :label="I18N('workflow.list.form.name','name')" field="name" required
                                validate-trigger="input">
                         <AInput v-model="workflowInstance.name"
-                                :placeholder="getOrDefault('workflow.list.form.name.placeholder','Give your workflow a name')"/>
+                                :placeholder="I18N('workflow.list.form.name.placeholder','Give your workflow a name')"/>
                     </AFormItem>
-                    <AFormItem :label="getOrDefault('workflow.list.form.description','description')" field="desc"
+                    <AFormItem :label="I18N('workflow.list.form.description','description')" field="desc"
                                validate-trigger="input">
                         <ATextarea v-model="workflowInstance.desc"
-                                   :placeholder="getOrDefault('workflow.list.form.description.placeholder','Describe what this workflow does')"/>
+                                   :placeholder="I18N('workflow.list.form.description.placeholder','Describe what this workflow does')"/>
                     </AFormItem>
 
-                    <AFormItem :label="getOrDefault('workflow.list.form.label','label')" field="tags"
+                    <AFormItem :label="I18N('workflow.list.form.label','label')" field="tags"
                                validate-trigger="input">
                         <TagSelector v-model="workflowInstance.tagIds"
-                                     :placeholder="getOrDefault('workflow.list.form.label.placeholder','select tag')"
+                                     :placeholder="I18N('workflow.list.form.label.placeholder','select tag')"
                                      allow-create/>
                     </AFormItem>
                 </AForm>
@@ -282,7 +282,7 @@ const delayLoading = useDelayedLoading(loading)
                     <div v-else class="arco-upload-picture-card-text">
                         <IconPlus/>
                         <div style="margin-top: 10px; font-weight: 600">
-                            {{ getOrDefault('workflow.list.form.upload', 'Click or drag the file here to upload') }}
+                            {{ I18N('workflow.list.form.upload', 'Click or drag the file here to upload') }}
                         </div>
                     </div>
                 </div>
@@ -292,20 +292,20 @@ const delayLoading = useDelayedLoading(loading)
               <div class="upload-repeat-alert">
 
                   {{
-                  getOrDefault('workflow.list.form.uploadExists', 'The imported workflow already exists. Choose to')
+                  I18N('workflow.list.form.uploadExists', 'The imported workflow already exists. Choose to')
                   }}
                   <AButton
                           size="mini"
                           status="warning"
                           type="outline"
                           @click="() => saveUploadWorkflow(true)"
-                  >{{ getOrDefault('overwrite', 'overwrite') }}
+                  >{{ I18N('overwrite', 'overwrite') }}
                   </AButton>
-                  {{ getOrDefault('or') }}
+                  {{ I18N('or') }}
                   <AButton size="mini" type="primary" @click="() => saveUploadWorkflow(false)"
-                  >{{ getOrDefault('create') }}
+                  >{{ I18N('create') }}
                   </AButton>
-                  {{ getOrDefault('workflow.list.form.uploadExists.newWorkflow', 'a new Workflow') }}
+                  {{ I18N('workflow.list.form.uploadExists.newWorkflow', 'a new Workflow') }}
               </div>
           </template>
         </AModal>

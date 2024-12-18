@@ -4,9 +4,8 @@ import {IconLeftCircle} from '@arco-design/web-vue/es/icon'
 import {type FileItem} from '@arco-design/web-vue'
 import serviceApi from '@/api/service'
 import type {Service} from '@/types/flow'
-import {MdPreview} from 'md-editor-v3'
-import {getOrDefault} from '@/locales/i18n'
 import PluginDescription from '@/views/Plugins/PluginDescription.vue'
+import {I18N} from '../../locales/i18n'
 
 const serviceStore = useServiceStore()
 
@@ -26,36 +25,15 @@ function selectPlugin(serviceItem: Service) {
 
 <template>
   <div class="plugins-container" id="pluginsContainer">
-    <div class="plugin-description" v-if="descriptionVisible">
-      <div class="plugin-info">
-        <AButton class="back-btn" @click="() => toggleDescriptionVisible()">
-          <template #icon>
-            <IconLeftCircle />
-          </template>
-            {{ getOrDefault('back') }}
-        </AButton>
-        <ACard class="plugin-card">
-          <div class="cover-box">
-            <div class="cover">
-              <AImage
-                v-if="selectedPlugin.avatar"
-                :preview="false"
-                :width="120"
-                :height="120"
-                :src="selectedPlugin.avatar"
-              />
-              <AAvatar v-else shape="square" :size="120">{{ selectedPlugin.name }}</AAvatar>
-            </div>
-          </div>
-          <div class="plugins-title">{{ getOrDefault(`${selectedPlugin.id}.name`, selectedPlugin.name) }}</div>
-        </ACard>
+      <div v-if="descriptionVisible" class="plugin-description">
+          <AButton class="back-btn" @click="() => toggleDescriptionVisible()">
+              <template #icon>
+                  <IconLeftCircle/>
+              </template>
+              {{ I18N('back') }}
+          </AButton>
+          <PluginDescription :plugin="selectedPlugin" class="plugin-doc"/>
       </div>
-        <div class="plugin-doc">
-            <MdPreview v-if="selectedPlugin.description" :modelValue="selectedPlugin.description"/>
-            <!--        <AResult v-else subtitle="你寻找的页面宛如海市蜃楼，从未存在，只留下一片空白。" />-->
-            <PluginDescription v-else :plugin="selectedPlugin"/>
-        </div>
-    </div>
     <div class="plugins-box" v-else>
       <ACard class="plugin-card">
         <AUpload draggable @change="uploadJar" />
@@ -78,7 +56,7 @@ function selectPlugin(serviceItem: Service) {
             <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }}</AAvatar>
           </div>
         </div>
-          <div class="plugins-title">{{ getOrDefault(`${serviceItem.id}.name`, serviceItem.name) }}</div>
+          <div class="plugins-title">{{ I18N(`${serviceItem.id}.name`, serviceItem.name) }}</div>
       </ACard>
     </div>
   </div>
@@ -147,6 +125,7 @@ function selectPlugin(serviceItem: Service) {
 .plugin-description {
   display: flex;
   height: 100%;
+  position: relative;
 }
 
 .plugin-info {
@@ -156,11 +135,14 @@ function selectPlugin(serviceItem: Service) {
 }
 
 .back-btn {
-  margin-bottom: 10px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
 }
 
 .plugin-doc {
-  flex: 1.5;
+  width: 100%;
   height: 100%;
   background-color: var(--color-bg-2);
   border-radius: 5px;

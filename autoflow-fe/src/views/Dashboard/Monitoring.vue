@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import 'echarts'
 import VChart from 'vue-echarts'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 import ThreadPool from '@/views/Dashboard/ThreadPool.vue'
 import {useMonitorChart} from '@/views/Dashboard/monitoring'
 import {metrics} from '@/api/statistics'
@@ -18,11 +18,11 @@ async function refresh() {
     threadPoolData.value = reactive([
         {
             ...metricData.workflowThreadPool,
-            name: getOrDefault('stat.workflowPool', 'Workflow pool')
+            name: I18N('stat.workflowPool', 'Workflow pool')
         },
         {
             ...metricData.asyncTaskThreadPool,
-            name: getOrDefault('stat.taskPool', 'Task pool')
+            name: I18N('stat.taskPool', 'Task pool')
         }
     ])
 }
@@ -45,7 +45,7 @@ onUnmounted(() => {
 <template>
   <div class="dashboard-monitoring">
     <div class="title">
-      <span>{{ getOrDefault('stat.monitoring', 'Monitoring View') }}</span>
+        <span>{{ I18N('stat.monitoring', 'Monitoring View') }}</span>
     </div>
     <div class="monitoring-container">
       <div class="monitoring-charts">

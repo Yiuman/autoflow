@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import 'echarts'
 import VChart from 'vue-echarts'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 import {useExecutionStat} from '@/views/Dashboard/executionStat'
 import {executionInstStat} from '@/api/statistics'
 
@@ -12,7 +12,7 @@ async function refresh() {
     chartData.value.data = executionStat.data.map(data => {
         return {
             ...data,
-            service_id: getOrDefault(`${data.service_id}.name`, data.service_id)
+            service_id: I18N(`${data.service_id}.name`, data.service_id)
         }
     })
 }
@@ -25,7 +25,7 @@ onMounted(() => {
 <template>
   <div class="dashboard-execution-stat">
     <div class="title">
-      <span>{{ getOrDefault('stat.executionStat', 'Execution Statistics') }}</span>
+        <span>{{ I18N('stat.executionStat', 'Execution Statistics') }}</span>
     </div>
     <div class="execution-chart-container">
       <div class="execution-charts">

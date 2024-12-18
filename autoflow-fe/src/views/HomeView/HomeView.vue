@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { useRoute, useRouter } from 'vue-router'
-import { IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon'
+import {useRoute, useRouter} from 'vue-router'
+import {IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill} from '@arco-design/web-vue/es/icon'
 import useTheme from '@/hooks/theme'
-import { IconFont } from '@/hooks/iconfont'
-import { getOrDefault } from '@/locales/i18n'
+import {IconFont} from '@/hooks/iconfont'
+import {I18N} from '@/locales/i18n'
 import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
 
 const [collapsed, toggleCollapsed] = useToggle(false)
@@ -39,19 +39,19 @@ function handleMenuClick(key: string) {
       <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['dashboard']">
         <AMenuItem key="dashboard">
           <IconFont type="icon-workflow_" />
-          {{ getOrDefault('menu.dashboard', 'Dashboard') }}
+            {{ I18N('menu.dashboard', 'Dashboard') }}
         </AMenuItem>
         <AMenuItem key="workflows">
           <IconFont type="icon-workflow_" />
-          {{ getOrDefault('menu.workflow', 'Workflows') }}
+            {{ I18N('menu.workflow', 'Workflows') }}
         </AMenuItem>
         <AMenuItem key="plugins">
           <IconFont type="icon-plugins" />
-          {{ getOrDefault('menu.plugins', 'Plugins') }}
+            {{ I18N('menu.plugins', 'Plugins') }}
         </AMenuItem>
         <AMenuItem key="variables">
           <IconFont type="icon-variables" />
-          {{ getOrDefault('menu.variables', 'Variables') }}
+            {{ I18N('menu.variables', 'Variables') }}
         </AMenuItem>
       </AMenu>
 

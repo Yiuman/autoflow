@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 import {overview} from '@/api/statistics'
 
@@ -39,34 +39,34 @@ onBeforeUnmount(() => {
 <template>
   <div class="workflow-overview">
     <div class="title">
-      <span>{{ getOrDefault('stat.workflowOverview', 'Workflow Overview') }}</span>
+        <span>{{ I18N('stat.workflowOverview', 'Workflow Overview') }}</span>
     </div>
     <div class="workflow-stat">
-      <AStatistic class="workflow-stat-item" :title="getOrDefault('stat.totalWorkflow','Workflow')"
-                  :value="countWorkflow"
-                  :animation="true"
-                  :show-group-separator="true" />
+        <AStatistic :animation="true" :show-group-separator="true"
+                    :title="I18N('stat.totalWorkflow','Workflow')"
+                    :value="countWorkflow"
+                    class="workflow-stat-item"/>
 
-      <AStatistic class="workflow-stat-item" :title="getOrDefault('stat.totalWorkflowTask','Workflow Task')"
-                  :value="countWorkflowInst"
-                  :animation="true"
-                  :show-group-separator="true" />
+        <AStatistic :animation="true" :show-group-separator="true"
+                    :title="I18N('stat.totalWorkflowTask','Workflow Task')"
+                    :value="countWorkflowInst"
+                    class="workflow-stat-item"/>
 
       <AStatistic class="workflow-stat-item"
-                  :title="getOrDefault('stat.completedWorkflow','Completed Workflow Task')"
+                  :title="I18N('stat.completedWorkflow','Completed Workflow Task')"
                   :value="countWorkflowEnd"
                   :animation="true"
                   :show-group-separator="true" />
 
-      <AStatistic class="workflow-stat-item" :title="getOrDefault('stat.runningWorkflow','Running Workflow Task')"
-                  :value="countWorkflowRunning"
-                  :animation="true"
-                  :show-group-separator="true" />
+        <AStatistic :animation="true" :show-group-separator="true"
+                    :title="I18N('stat.runningWorkflow','Running Workflow Task')"
+                    :value="countWorkflowRunning"
+                    class="workflow-stat-item"/>
 
-      <AStatistic class="workflow-stat-item" :title="getOrDefault('stat.pendingWorkflow','Pending Workflow Task')"
-                  :value="countWorkflowPending"
-                  :animation="true"
-                  :show-group-separator="true" />
+        <AStatistic :animation="true" :show-group-separator="true"
+                    :title="I18N('stat.pendingWorkflow','Pending Workflow Task')"
+                    :value="countWorkflowPending"
+                    class="workflow-stat-item"/>
     </div>
   </div>
 </template>

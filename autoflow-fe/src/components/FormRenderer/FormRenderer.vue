@@ -4,7 +4,7 @@ import type {FieldRule} from '@arco-design/web-vue/es/form/interface'
 
 import type {ComponentAttr, Property} from '@/types/flow'
 import {extractGenericTypes, toComponentAttrs} from '@/utils/converter'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 export interface FormProps {
     modelValue?: Record<string, any>
@@ -119,12 +119,12 @@ const componentAttrs = computed<ComponentAttr[]>(() => {
 })
 
 function getFieldItemLabel(cmpAttr: ComponentAttr) {
-    return cmpAttr.property.displayName || getOrDefault(cmpAttr.property.id, cmpAttr.property.name)
+    return cmpAttr.property.displayName || I18N(cmpAttr.property.id, cmpAttr.property.name)
 }
 
 function getToolTip(cmpAttr: ComponentAttr): string {
     const i18nDescription = `${cmpAttr.property.id}.description`
-    const result = getOrDefault(i18nDescription)
+    const result = I18N(i18nDescription)
     if (i18nDescription === result) {
         return cmpAttr.property.description as string
     }

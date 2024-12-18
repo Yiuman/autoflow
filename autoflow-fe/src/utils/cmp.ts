@@ -7,7 +7,7 @@ import LinkageForm from '@/components/LinkageForm/LinkageForm.vue'
 import ChatMessage from '@/components/ChatMessage/ChatMessage.vue'
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import type {TableColumnData} from '@arco-design/web-vue'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 import BasicTypeListEditor from '@/components/BasicTypeListEditor/BasicTypeListEditor.vue'
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 import type {Component} from 'vue'
@@ -150,7 +150,7 @@ const ArrayAdapter: CmpAdapter = {
         if (property.properties?.length || 0 > 1) {
             property.properties?.forEach((child) => {
                 columns.push({
-                    title: child.displayName || getOrDefault(`${property.id}.${child.name}`, child.name),
+                    title: child.displayName || I18N(`${property.id}.${child.name}`, child.name),
                     dataIndex: child.name
                 })
 

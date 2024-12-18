@@ -1,4 +1,4 @@
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 
 /**
@@ -84,15 +84,15 @@ export function useMonitorChart() {
               show: false
             },
             detail: {
-              valueAnimation: true,
-              width: '60%',
-              lineHeight: 40,
-              borderRadius: 8,
-              offsetCenter: [0, '-15%'],
-              fontSize: 15,
-              fontWeight: 'bolder',
-              formatter: `${getOrDefault('stat.cpuUsage', 'CPU Usage')} {value} %`,
-              color: 'inherit'
+                valueAnimation: true,
+                width: '60%',
+                lineHeight: 40,
+                borderRadius: 8,
+                offsetCenter: [0, '-15%'],
+                fontSize: 15,
+                fontWeight: 'bolder',
+                formatter: `${I18N('stat.cpuUsage', 'CPU Usage')} {value} %`,
+                color: 'inherit'
             },
             data: [
               {
@@ -139,7 +139,7 @@ export function useMonitorChart() {
                 fontSize: 15,
                 fontWeight: 'bolder',
                 formatter: function () {
-                    return `Max ${formatSize(memoryMax.value)}\n${getOrDefault('stat.memoryUsage', 'Memory Usage')} ${memoryUsage.value} %`
+                    return `Max ${formatSize(memoryMax.value)}\n${I18N('stat.memoryUsage', 'Memory Usage')} ${memoryUsage.value} %`
                 },
                 color: 'inherit'
             },

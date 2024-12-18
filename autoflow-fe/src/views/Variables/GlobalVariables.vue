@@ -3,15 +3,15 @@ import RestCrud from '@/components/Crud/RestCrud.vue'
 import {IconSearch} from '@arco-design/web-vue/es/icon'
 import type {TableColumnData} from '@arco-design/web-vue'
 import type {Variable} from '@/types/flow'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
-    {dataIndex: 'key', title: getOrDefault('globalVariable.key', 'Key'), width: 300},
-    {dataIndex: 'value', title: getOrDefault('globalVariable.value', 'Value'), width: 300},
-    {dataIndex: 'description', title: getOrDefault('globalVariable.description', 'Description')},
+    {dataIndex: 'key', title: I18N('globalVariable.key', 'Key'), width: 300},
+    {dataIndex: 'value', title: I18N('globalVariable.value', 'Value'), width: 300},
+    {dataIndex: 'description', title: I18N('globalVariable.description', 'Description')},
     {
-        title: getOrDefault('globalVariable.optional', 'Optional'),
+        title: I18N('globalVariable.optional', 'Optional'),
         slotName: 'optional',
         width: 80,
         align: 'center'
@@ -51,7 +51,7 @@ async function deleteVariable(record: Variable) {
   <div class="variables-table">
     <div class="variables-table-top-box">
         <div class="top-box-left">
-            <AInput v-model="queryObj.keyword" :placeholder="getOrDefault('search')" allow-clear>
+            <AInput v-model="queryObj.keyword" :placeholder="I18N('search')" allow-clear>
                 <template #prefix>
                     <IconSearch/>
                 </template>
@@ -59,7 +59,7 @@ async function deleteVariable(record: Variable) {
         </div>
 
       <div class="top-box-right">
-          <AButton type="primary" @click="() => toggleFormVisible()">{{ getOrDefault('create') }}</AButton>
+          <AButton type="primary" @click="() => toggleFormVisible()">{{ I18N('create') }}</AButton>
       </div>
     </div>
     <div class="variables-list">
@@ -67,10 +67,10 @@ async function deleteVariable(record: Variable) {
           <template #optional="{ record }">
               <div class="optional-column">
                   <AButton size="small" type="text" @click="() => editVariable(record)">{{
-                      getOrDefault('edit')
+                      I18N('edit')
                       }}
                   </AButton>
-                  <AButton size="small" type="text" @click="() => deleteVariable(record)">{{ getOrDefault('delete') }}
+                  <AButton size="small" type="text" @click="() => deleteVariable(record)">{{ I18N('delete') }}
                   </AButton>
               </div>
           </template>
@@ -78,17 +78,17 @@ async function deleteVariable(record: Variable) {
     </div>
 
       <AModal v-model:visible="formVisible" draggable @cancel="resetInstance" @ok="saveVariable">
-          <template #title> {{ getOrDefault('variable.form.title', 'Create a new variable') }}</template>
+          <template #title> {{ I18N('variable.form.title', 'Create a new variable') }}</template>
           <AForm :model="variableInstance" layout="vertical">
-              <AFormItem :label="getOrDefault('variable.form.field.key','variable name')" field="key"
+              <AFormItem :label="I18N('variable.form.field.key','variable name')" field="key"
                          required validate-trigger="input">
                   <AInput v-model="variableInstance.key"/>
               </AFormItem>
-              <AFormItem :label="getOrDefault('variable.form.field.value','variable value')" field="value"
+              <AFormItem :label="I18N('variable.form.field.value','variable value')" field="value"
                          validate-trigger="input">
                   <AInput v-model="variableInstance.value"/>
               </AFormItem>
-              <AFormItem :label="getOrDefault('variable.form.field.desc','description')" field="desc"
+              <AFormItem :label="I18N('variable.form.field.desc','description')" field="desc"
                          validate-trigger="input">
                   <ATextarea v-model="variableInstance.desc"/>
               </AFormItem>

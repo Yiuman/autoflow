@@ -13,7 +13,7 @@ import type {ComponentAttr, Connection, Flow, GenericType, Node, NodeElementData
 import {uuid} from '@/utils/util-func'
 import {uniq} from 'lodash'
 import type {Position} from '@vueuse/core' //需要使用的组件
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 import {toComponentAttr} from '@/utils/cmp'
 
 //获取当前节点所有的前置节点
@@ -60,7 +60,7 @@ export function toNode(graphNode: VueFlowNode): Node {
 export function toGraphNode(node: Node): VueFlowNode {
   const nodeData: Record<string, any> = {}
     nodeData.serviceId = node.serviceId
-    nodeData.label = node.label || getOrDefault(`${node.serviceId}.name`, node.label);
+    nodeData.label = node.label || I18N(`${node.serviceId}.name`, node.label);
     nodeData.parameters = node.data
   nodeData.service = nodeData.loop =
     node.loop && Object.keys(node.loop).length
@@ -87,7 +87,7 @@ export function serviceToGraphNode(service: Service, position?: Position): VueFl
     const nodeData: Record<string, any> = {}
     nodeData.serviceId = service.id
     nodeData.service = service
-    nodeData.label = getOrDefault(`${service.id}.name`, service.name)
+    nodeData.label = I18N(`${service.id}.name`, service.name)
     nodeData.parameters = {}
     nodeData.loop = {}
     nodeData.avatar = service.avatar

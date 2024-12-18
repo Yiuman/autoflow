@@ -1,5 +1,5 @@
 import type {ChartData} from '@/types/crud'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 import {darkTheme} from '@/hooks/theme'
 
 export function useExecutionStat() {
@@ -16,18 +16,18 @@ export function useExecutionStat() {
 
   const option = computed(() => {
     const dimension = chartData.value.dimension[0]
-    const data = chartData.value.data
-    const yData = data.map(item => getOrDefault(item[dimension]))
-    const series = chartData.value.indicator.map(indicator => {
-      const indicatorData = data.map(item => item[indicator])
-      return {
-        name: indicator,
-        type: 'bar',
-        stack: 'total',
-        label: {
-          show: true
-        },
-        emphasis: {
+      const data = chartData.value.data
+      const yData = data.map(item => I18N(item[dimension]))
+      const series = chartData.value.indicator.map(indicator => {
+          const indicatorData = data.map(item => item[indicator])
+          return {
+              name: indicator,
+              type: 'bar',
+              stack: 'total',
+              label: {
+                  show: true
+              },
+              emphasis: {
           focus: 'series'
         },
         data: indicatorData

@@ -20,7 +20,7 @@ import {darkTheme} from '@/hooks/theme'
 import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
 import {useNodeDataProvider} from '@/components/NodeFormModal/useNodeDataProvider'
 import {getExecutionDurationSeconds} from '@/utils/flow'
-import {getOrDefault} from '@/locales/i18n'
+import {I18N} from '@/locales/i18n'
 
 interface Props {
     modelValue: VueFlowNode
@@ -149,7 +149,7 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
       <Splitpanes>
         <Pane v-if="inputPaneVisible && incomers && incomers.length">
           <div class="node-form-modal-pane node-form-modal-input">
-              <div class="node-form-title">{{ getOrDefault('input', 'Inputs') }}</div>
+              <div class="node-form-title">{{ I18N('input', 'Inputs') }}</div>
             <ASelect v-model="selectedIncomerNodeId">
               <template #label="{ data }">
                 <span class="selected-input-node">
@@ -203,14 +203,14 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                   <ATabPane
                           v-if="props.properties && props.properties.length"
                           key="parameters"
-                          :title="getOrDefault('nodeForm.parameters','Parameters')"
+                          :title="I18N('nodeForm.parameters','Parameters')"
                   >
                       <FromRenderer v-model="nodeData.parameters" :properties="props.properties"/>
                   </ATabPane>
-                  <ATabPane v-if="props.description" key="doc" :title="getOrDefault('nodeForm.doc','Doc')">
+                  <ATabPane v-if="props.description" key="doc" :title="I18N('nodeForm.doc','Doc')">
                       <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'"/>
                   </ATabPane>
-                  <ATabPane v-if="showLoopSetting" key="settings" :title="getOrDefault('nodeForm.settings','Settings')">
+                  <ATabPane v-if="showLoopSetting" key="settings" :title="I18N('nodeForm.settings','Settings')">
                       <LoopSetting v-model="nodeData.loop"/>
                   </ATabPane>
               </ATabs>
@@ -224,7 +224,7 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
         <Pane v-if="outputPaneVisible">
             <div class="node-form-modal-pane node-form-modal-output">
                 <div class="node-form-title">
-                    {{ getOrDefault('output', 'Outputs') }}
+                    {{ I18N('output', 'Outputs') }}
                     <ATag v-if="durationSeconds">
                         <template #icon>
                             <IconClockCircle/>

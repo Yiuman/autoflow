@@ -47,22 +47,26 @@ const stringData = computed(() => {
     const outputProperties = props?.node?.data?.service?.outputProperties as Property[]
     return isStringValue.value ? (data?.value as any)[outputProperties[0].name] : ''
 })
+
+const resultView = ref(null);
+const {height} = useElementSize(resultView)
+
 </script>
 
 <template>
-  <div class="result-data-viewer">
-      <div v-if="result" class="result-box">
-          <template v-if="data instanceof Array">
-              <DataItemTable :columns="dataColumns" :data="data"/>
-          </template>
-          <template v-else-if="result.error">
-              <VueJsonPretty :data="result.error as JSONDataType" :show-icon="true" :virtual="true"/>
-          </template>
-          <template v-else-if="isStringValue">
-              <MdPreview :model-value="stringData" :theme="darkTheme?'dark':'light'"/>
-          </template>
+    <div ref="resultView" class="result-data-viewer">
+        <div v-if="result" class="result-box">
+            <template v-if="data instanceof Array">
+                <DataItemTable :columns="dataColumns" :data="data"/>
+            </template>
+            <template v-else-if="result.error">
+                <VueJsonPretty :data="result.error as JSONDataType" :show-icon="true" :virtual="true"/>
+            </template>
+            <template v-else-if="isStringValue">
+                <MdPreview :model-value="stringData" :theme="darkTheme?'dark':'light'"/>
+            </template>
           <template v-else>
-              <VueJsonPretty :data="data as JSONDataType" :show-icon="true" :virtual="true"/>
+              <VueJsonPretty :data="data as JSONDataType" :height="height" :show-icon="true" :virtual="true"/>
           </template>
       </div>
     <div class="result-data-empty" v-else>
