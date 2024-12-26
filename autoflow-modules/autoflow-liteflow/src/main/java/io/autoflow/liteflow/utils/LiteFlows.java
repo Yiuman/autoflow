@@ -492,12 +492,14 @@ public final class LiteFlows {
     }
 
     public static <T extends NodeComponent> boolean getBooleanValue(T node) {
-        String express;
+        String express = "";
         try {
-            ServiceData serviceData = node.getCmpData(ServiceData.class);
-            express = (String) serviceData.getParameters().get("express");
-        } catch (Throwable throwable) {
             express = node.getCmpData(String.class);
+            if (JSONUtil.isTypeJSON(express)) {
+                ServiceData serviceData = JSONUtil.toBean(express, ServiceData.class);
+                express = (String) serviceData.getParameters().get("express");
+            }
+        } catch (Throwable ignore) {
         }
 
         FlowExecutionContextImpl contextBean = node.getContextBean(FlowExecutionContextImpl.class);
@@ -561,8 +563,11 @@ public final class LiteFlows {
 
         OnceExecutionContext onceExecutionContext = new OnceExecutionContext(loopExecutionContext);
         try {
-            ServiceData serviceData = node.getCmpData(ServiceData.class);
-            onceExecutionContext.getParameters().putAll(serviceData.getParameters());
+            String cmpData = node.getCmpData(String.class);
+            if (JSONUtil.isTypeJSON(cmpData)) {
+                ServiceData serviceData = JSONUtil.toBean(cmpData, ServiceData.class);
+                onceExecutionContext.getParameters().putAll(serviceData.getParameters());
+            }
         } catch (Throwable ignore) {
         }
 
