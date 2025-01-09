@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { Option } from '@/components/ExpressInput/MentionList.vue'
 import { IconFont } from '@/hooks/iconfont'
 
@@ -14,20 +14,20 @@ const data = [
 ]
 </script>
 <template>
-  <ATrigger position="top" auto-fit-position :popup-translate="[0, -5]">
+  <ATrigger :popup-translate="[0, -5]" auto-fit-position position="top">
     <div class="node-mention-trigger">
       <span class="node-mention-type">
         <IconFont
-          class="mention-type-icon"
           v-if="props.iconFontCode"
           :type="props.iconFontCode"
+          class="mention-type-icon"
         />{{ props.type }}
       </span>
       <span class="node-mention-label">{{ props.label }}</span>
     </div>
     <template #content>
       <div class="node-mention-desc">
-        <ADescriptions :data="data" :column="1" />
+        <ADescriptions :column="1" :data="data" />
         <em class="arrow"></em>
       </div>
     </template>

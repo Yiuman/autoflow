@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { ChatMessage, MessageType } from '@/types/flow'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import { IconDelete, IconDown, IconPlus } from '@arco-design/web-vue/es/icon'
@@ -39,7 +39,7 @@ function addRecord() {
 <template>
   <div class="chat-message">
     <template v-for="(item, index) in data" v-bind:key="index">
-      <ExpressInput class="chat-input" type="textarea" v-model="item.content">
+      <ExpressInput v-model="item.content" class="chat-input" type="textarea">
         <template #top>
           <div class="chat-message-toolbar">
             <div class="type-switch">

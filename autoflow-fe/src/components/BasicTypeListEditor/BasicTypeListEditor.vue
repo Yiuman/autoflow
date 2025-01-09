@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 
 interface BasicListEditorProps {
@@ -23,20 +23,19 @@ const data = computed({
     return props?.modelValue?.map((value) => ({ value: value }))
   },
   set(value) {
-      if (value) {
-          emits(
-              'update:modelValue',
-              value.map((item) => item['value'])
-          )
-      }
-
+    if (value) {
+      emits(
+        'update:modelValue',
+        value.map((item) => item['value'])
+      )
+    }
   }
 })
 </script>
 
 <template>
   <div class="map-editor">
-    <ListEditor :showHeader="false" v-model="data" :columns="columns" />
+    <ListEditor v-model="data" :columns="columns" :showHeader="false" />
   </div>
 </template>
 

@@ -1,37 +1,37 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type {Property, VueFlowNode} from '@/types/flow'
-import {useVueFlow} from '@vue-flow/core'
+import type { Property, VueFlowNode } from '@/types/flow'
+import { useVueFlow } from '@vue-flow/core'
 import {
-    IconClockCircle,
-    IconCloseCircleFill,
-    IconDoubleLeft,
-    IconDoubleRight,
-    IconPauseCircleFill,
-    IconPlayCircleFill
+  IconClockCircle,
+  IconCloseCircleFill,
+  IconDoubleLeft,
+  IconDoubleRight,
+  IconPauseCircleFill,
+  IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
-import {MdPreview} from 'md-editor-v3'
+import { MdPreview } from 'md-editor-v3'
 import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 import 'md-editor-v3/lib/style.css'
-import {Pane, Splitpanes} from 'splitpanes'
+import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-import {groupBy} from 'lodash'
-import {darkTheme} from '@/hooks/theme'
+import { groupBy } from 'lodash'
+import { darkTheme } from '@/hooks/theme'
 import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
-import {useNodeDataProvider} from '@/components/NodeFormModal/useNodeDataProvider'
-import {getExecutionDurationSeconds} from '@/utils/flow'
-import {I18N} from '@/locales/i18n'
+import { useNodeDataProvider } from '@/components/NodeFormModal/useNodeDataProvider'
+import { getExecutionDurationSeconds } from '@/utils/flow'
+import { I18N } from '@/locales/i18n'
 
 interface Props {
-    modelValue: VueFlowNode
-    description?: string
-    visible?: boolean
-    properties?: Property[]
+  modelValue: VueFlowNode
+  description?: string
+  visible?: boolean
+  properties?: Property[]
 }
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', item: Record<string, any>): void
-    (e: 'update:visible', item: boolean): void
+  (e: 'update:modelValue', item: Record<string, any>): void
+  (e: 'update:visible', item: boolean): void
 }>()
 
 const props = defineProps<Props>()
@@ -77,7 +77,7 @@ const selectedNode = computed(() => {
 })
 
 const durationSeconds = computed(() => {
-    return getExecutionDurationSeconds(props.modelValue.data?.executionResult)
+  return getExecutionDurationSeconds(props.modelValue.data?.executionResult)
 })
 
 function doClose() {
@@ -115,18 +115,18 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
 <template>
   <!--    节点的表单-->
   <AModal
-    class="node-form-modal"
-    bodyClass="node-form-modal_body"
     v-model:visible="modalVisible"
     :align-center="false"
-    :width="'90%'"
-    :hide-title="true"
     :footer="false"
+    :hide-title="true"
+    :width="'90%'"
+    bodyClass="node-form-modal_body"
+    class="node-form-modal"
   >
     <div class="node-form-modal-body">
       <div class="node-form-modal-btn">
         <!-- 按钮 -->
-        <AButtonGroup type="primary" status="danger">
+        <AButtonGroup status="danger" type="primary">
           <AButton @click="() => doClose()">
             <template #icon>
               <IconCloseCircleFill />
@@ -138,27 +138,27 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
       <div class="node-form-service">
         <AImage
           v-if="nodeData?.service?.avatar"
-          :preview="false"
-          :width="28"
           :height="28"
+          :preview="false"
           :src="nodeData?.service.avatar"
+          :width="28"
         />
-        <AInput size="small" v-model="nodeData.label" />
+        <AInput v-model="nodeData.label" size="small" />
       </div>
 
       <Splitpanes>
         <Pane v-if="inputPaneVisible && incomers && incomers.length">
           <div class="node-form-modal-pane node-form-modal-input">
-              <div class="node-form-title">{{ I18N('input', 'Inputs') }}</div>
+            <div class="node-form-title">{{ I18N('input', 'Inputs') }}</div>
             <ASelect v-model="selectedIncomerNodeId">
               <template #label="{ data }">
                 <span class="selected-input-node">
                   <ATag class="selected-input-node-label" color="orangered">{{
-                      selectedNode?.data?.service?.name
-                      }}</ATag>
+                    selectedNode?.data?.service?.name
+                  }}</ATag>
                   <ATag class="selected-input-node-id">{{
-                      selectedNode?.data?.label || data?.value
-                      }}</ATag>
+                    selectedNode?.data?.label || data?.value
+                  }}</ATag>
                 </span>
               </template>
               <AOptgroup
@@ -169,8 +169,8 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 <AOption
                   v-for="incomer in incomerGroups[groupKey]"
                   :key="incomer.id"
-                  :value="incomer.id"
                   :label="`${incomer.data?.label || incomer.id}`"
+                  :value="incomer.id"
                 />
               </AOptgroup>
             </ASelect>
@@ -191,29 +191,33 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
             <IconDoubleRight v-else class="show-toggle-icon" />
           </div>
           <div class="node-form-modal-pane node-form-model-desc">
-            <div class="node-form-model-action-btn" :class="action ? 'node-action' : ''">
-              <AButton size="small" type="primary" shape="circle" @click="() => toggleAction()">
+            <div :class="action ? 'node-action' : ''" class="node-form-model-action-btn">
+              <AButton shape="circle" size="small" type="primary" @click="() => toggleAction()">
                 <template #icon>
                   <IconPauseCircleFill v-if="action" />
                   <IconPlayCircleFill v-else />
                 </template>
               </AButton>
             </div>
-              <ATabs v-model:active-key="activeTab">
-                  <ATabPane
-                          v-if="props.properties && props.properties.length"
-                          key="parameters"
-                          :title="I18N('nodeForm.parameters','Parameters')"
-                  >
-                      <FromRenderer v-model="nodeData.parameters" :properties="props.properties"/>
-                  </ATabPane>
-                  <ATabPane v-if="props.description" key="doc" :title="I18N('nodeForm.doc','Doc')">
-                      <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'"/>
-                  </ATabPane>
-                  <ATabPane v-if="showLoopSetting" key="settings" :title="I18N('nodeForm.settings','Settings')">
-                      <LoopSetting v-model="nodeData.loop"/>
-                  </ATabPane>
-              </ATabs>
+            <ATabs v-model:active-key="activeTab">
+              <ATabPane
+                v-if="props.properties && props.properties.length"
+                key="parameters"
+                :title="I18N('nodeForm.parameters', 'Parameters')"
+              >
+                <FromRenderer v-model="nodeData.parameters" :properties="props.properties" />
+              </ATabPane>
+              <ATabPane v-if="props.description" key="doc" :title="I18N('nodeForm.doc', 'Doc')">
+                <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'" />
+              </ATabPane>
+              <ATabPane
+                v-if="showLoopSetting"
+                key="settings"
+                :title="I18N('nodeForm.settings', 'Settings')"
+              >
+                <LoopSetting v-model="nodeData.loop" />
+              </ATabPane>
+            </ATabs>
           </div>
 
           <div class="show-toggle show-toggle-right" @click="() => toggleOutputPane()">
@@ -222,26 +226,26 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
           </div>
         </Pane>
         <Pane v-if="outputPaneVisible">
-            <div class="node-form-modal-pane node-form-modal-output">
-                <div class="node-form-title">
-                    {{ I18N('output', 'Outputs') }}
-                    <ATag v-if="durationSeconds">
-                        <template #icon>
-                            <IconClockCircle/>
-                        </template>
-                        {{ `${durationSeconds}s` }}
-                    </ATag>
-                </div>
-                <div class="output-result-box">
-                    <ResultDataViewer :node="modelValue"/>
-                </div>
+          <div class="node-form-modal-pane node-form-modal-output">
+            <div class="node-form-title">
+              {{ I18N('output', 'Outputs') }}
+              <ATag v-if="durationSeconds">
+                <template #icon>
+                  <IconClockCircle />
+                </template>
+                {{ `${durationSeconds}s` }}
+              </ATag>
             </div>
+            <div class="output-result-box">
+              <ResultDataViewer :node="modelValue" />
+            </div>
+          </div>
         </Pane>
       </Splitpanes>
     </div>
   </AModal>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use 'node-form-modal';
 </style>

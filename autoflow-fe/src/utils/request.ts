@@ -1,6 +1,6 @@
-import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import type {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig} from 'axios'
 import axios from 'axios'
-import { useEnv } from '@/hooks/env'
+import {useEnv} from '@/hooks/env'
 
 /**
  * @description:  contentType

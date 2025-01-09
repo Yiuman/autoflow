@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import {CalcType, Clause, type Condition} from './condition-filter'
+<script lang="ts" setup>
+import { CalcType, Clause, type Condition } from './condition-filter'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 
 interface PropType {
@@ -38,33 +38,33 @@ const dataCalcType = computed({
 <template>
   <div class="condition-item">
     <template v-if="dataValue.calcType === 'Express'">
-      <ASelect size="mini" v-model="dataCalcType" :options="options">
+      <ASelect v-model="dataCalcType" :options="options" size="mini">
         <template #label="{ data }">
           <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
         </template>
       </ASelect>
-      <ExpressInput placeholder="expressValue" v-model="dataValue.value" />
+      <ExpressInput v-model="dataValue.value" placeholder="expressValue" />
     </template>
     <template v-else-if="dataValue.calcType === 'NotEmpty' || dataValue.calcType === 'Empty'">
-      <ExpressInput placeholder="value" v-model="dataValue.value" />
-      <ASelect size="mini" v-model="dataCalcType" :options="options">
+      <ExpressInput v-model="dataValue.value" placeholder="value" />
+      <ASelect v-model="dataCalcType" :options="options" size="mini">
         <template #label="{ data }">
           <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
         </template>
       </ASelect>
     </template>
     <template v-else>
-      <ExpressInput placeholder="value1" v-model="dataValue.dataKey" />
-      <ASelect size="mini" v-model="dataCalcType" :options="options">
+      <ExpressInput v-model="dataValue.dataKey" placeholder="value1" />
+      <ASelect v-model="dataCalcType" :options="options" size="mini">
         <template #label="{ data }">
           <ATag color="rgba(var(--primary-6))">{{ data?.label }}</ATag>
         </template>
       </ASelect>
-      <ExpressInput placeholder="value2" v-model="dataValue.value" />
+      <ExpressInput v-model="dataValue.value" placeholder="value2" />
     </template>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use 'condition-item';
 </style>

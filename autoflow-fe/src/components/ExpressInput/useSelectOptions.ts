@@ -1,25 +1,24 @@
-import {computed, inject, type Ref} from 'vue'
-import {flatten} from 'lodash'
-import {INCOMER_DATA} from '@/symbols'
-import type {Option} from '@/components/ExpressInput/MentionList.vue'
-import type {NodeFlatData} from '@/types/flow'
+import { computed, inject, type Ref } from 'vue'
+import { flatten } from 'lodash'
+import { INCOMER_DATA } from '@/symbols'
+import type { Option } from '@/components/ExpressInput/MentionList.vue'
+import type { NodeFlatData, VueFlowNode } from '@/types/flow'
 
 function createOptions(
-  nodeId: string,
+  node: VueFlowNode,
   data: Record<string, any>,
   prefix: string,
-  type: string,
   iconFontCode: string
 ): Option[] {
   return Object.keys(data)
     .map((key) => {
       if (!key) return undefined
       return {
-        type,
+        type: node.data?.label,
         key: `${prefix}.${key}`,
         label: key,
-        value: data[key],
-        nodeId,
+        value: data[key] || node.data?.executionResult?.data[key],
+        nodeId: node.id,
         iconFontCode
       }
     })
@@ -33,19 +32,16 @@ export function useSelectOptions() {
     if (!nodeFlatDataArray?.value) return []
     return flatten(
       nodeFlatDataArray.value.map((nodeFlatData) => {
-
-          const varOptions = createOptions(
-          nodeFlatData.node.id,
+        const varOptions = createOptions(
+          nodeFlatData.node,
           nodeFlatData.variables || {},
           `$.variables.${nodeFlatData.node.id}`,
-          nodeFlatData.node.data?.label,
           'icon-variable'
         )
         const inputOptions = createOptions(
-          nodeFlatData.node.id,
+          nodeFlatData.node,
           nodeFlatData.inputData || {},
           `$.inputData.${nodeFlatData.node.id}`,
-          nodeFlatData.node.data?.label,
           'icon-Input'
         )
         return [...varOptions, ...inputOptions]

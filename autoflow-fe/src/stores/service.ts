@@ -27,7 +27,7 @@ export const useServiceStore = defineStore('service', {
         this.services = serviceList.map((service) => {
           // 使用 defineProperty 定义 avatar 的 getter
           return Object.defineProperty(service, 'avatar', {
-            get: function() {
+            get: function () {
               if (this._avatar === undefined) {
                 // 发起请求获取头像，并缓存结果
                 serviceApi
@@ -61,13 +61,11 @@ function setupI18n(serviceList: Service[]) {
   for (const service of serviceList) {
     const serviceI18n = service.i18n || {}
     const localList = Object.keys(serviceI18n)
-    localList.forEach(localKey => {
+    localList.forEach((localKey) => {
       i18nMap[localKey] = { ...i18nMap[localKey], ...serviceI18n[localKey] }
     })
-
   }
   for (const i18nMapKey in i18nMap) {
     addLocaleMessage(i18nMapKey, i18nMap[i18nMapKey])
   }
-
 }

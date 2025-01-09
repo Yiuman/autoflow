@@ -1,12 +1,12 @@
-import type {Node as VueFlowCordNode} from '@vue-flow/core'
-import type {Component} from 'vue'
+import type { Node as VueFlowCordNode } from '@vue-flow/core'
+import type { Component } from 'vue'
 
 interface Flow {
-    id: string
-    name: string
-    nodes?: Node[]
-    connections?: Connection[]
-    description?: string
+  id: string
+  name: string
+  nodes?: Node[]
+  connections?: Connection[]
+  description?: string
 }
 
 interface Node {
@@ -91,52 +91,51 @@ interface Variable {
   desc?: string
 }
 
-interface FlowExecutionResult extends ExecutionResult<List<any>> {
-}
+interface FlowExecutionResult extends ExecutionResult<List<any>> {}
 
 interface Option {
-    name: string
-    value: any
-    description?: string
-    displayTemplate?: string
+  name: string
+  value: any
+  description?: string
+  displayTemplate?: string
 }
 
 type ComponentType =
-    'Input'
-    | 'Textarea'
-    | 'Code'
-    | 'Select'
-    | 'Switch'
-    | 'Slider'
-    | 'TimePicker'
-    | 'DatePicker'
-    | 'Upload';
+  | 'Input'
+  | 'Textarea'
+  | 'Code'
+  | 'Select'
+  | 'Switch'
+  | 'Slider'
+  | 'TimePicker'
+  | 'DatePicker'
+  | 'Upload'
 
 interface IComponent {
-    type: ComponentType,
-    props?: Record<string, any>
+  type: ComponentType
+  props?: Record<string, any>
 }
 
 interface Property {
-    id: string
-    type: string
-    name: string
-    displayName?: string | null
-    description?: string | null
-    defaultValue?: any | null
-    component?: IComponent
-    properties?: Property[] | null
-    validateRules?: ValidateRule[] | null
+  id: string
+  type: string
+  name: string
+  displayName?: string | null
+  description?: string | null
+  defaultValue?: any | null
+  component?: IComponent
+  properties?: Property[] | null
+  validateRules?: ValidateRule[] | null
 }
 
 interface Service {
-    id: string
-    name: string
-    properties?: Property[],
-    outputProperties?: Property[],
-    description?: string
-    avatar?: string | null
-    i18n?: Record<string, Record<string, string>>
+  id: string
+  name: string
+  properties?: Property[]
+  outputProperties?: Property[]
+  description?: string
+  avatar?: string | null
+  i18n?: Record<string, Record<string, string>>
 }
 
 interface ValidateRule {
@@ -167,57 +166,57 @@ interface NodeFlatData {
 export type MessageType = 'SYSTEM' | 'USER' | 'ASSISTANT'
 
 interface ChatMessage {
-    type: MessageType
-    content?: string
+  type: MessageType
+  content?: string
 }
 
 interface GenericType {
-    mainType: string
-    genericTypes: Array<GenericType | string>
+  mainType: string
+  genericTypes: Array<GenericType | string>
 }
 
 interface ThreadPoolData {
-    name: string,
-    corePoolSize: number,
-    activeCount: number,
-    maximumPoolSize: number,
-    completedTaskCount: number,
-    queueSize: number,
-    idleThreadRate: number,
+  name: string
+  corePoolSize: number
+  activeCount: number
+  maximumPoolSize: number
+  completedTaskCount: number
+  queueSize: number
+  idleThreadRate: number
 }
 
 interface MetricData {
-    cpuUsage: number,
-    memoryMax: number,
-    memoryUsed: number,
-    workflowThreadPool: ThreadPoolData,
-    asyncTaskThreadPool: ThreadPoolData
+  cpuUsage: number
+  memoryMax: number
+  memoryUsed: number
+  workflowThreadPool: ThreadPoolData
+  asyncTaskThreadPool: ThreadPoolData
 }
 
 export {
-    Flow,
-    Node,
-    Connection,
-    Position,
-    BoundingBox,
-    Bounding,
-    FileData,
-    Linkage,
-    ExecutionError,
-    IComponent,
-    ComponentType,
-    Property,
-    Option,
-    Service,
-    Loop,
-    ValidateRule,
-    ComponentAttr,
-    NodeFlatData,
-    ExecutionResult,
-    FlowExecutionResult,
-    Variable,
-    ChatMessage,
-    GenericType,
-    ThreadPoolData,
-    MetricData
+  Flow,
+  Node,
+  Connection,
+  Position,
+  BoundingBox,
+  Bounding,
+  FileData,
+  Linkage,
+  ExecutionError,
+  IComponent,
+  ComponentType,
+  Property,
+  Option,
+  Service,
+  Loop,
+  ValidateRule,
+  ComponentAttr,
+  NodeFlatData,
+  ExecutionResult,
+  FlowExecutionResult,
+  Variable,
+  ChatMessage,
+  GenericType,
+  ThreadPoolData,
+  MetricData
 }

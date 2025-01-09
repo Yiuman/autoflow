@@ -1,17 +1,17 @@
-<script setup lang="ts">
-import {useServiceStore} from '@/stores/service'
-import {IconLeftCircle} from '@arco-design/web-vue/es/icon'
-import {type FileItem} from '@arco-design/web-vue'
+<script lang="ts" setup>
+import { useServiceStore } from '@/stores/service'
+import { IconLeftCircle } from '@arco-design/web-vue/es/icon'
+import { type FileItem } from '@arco-design/web-vue'
 import serviceApi from '@/api/service'
-import type {Service} from '@/types/flow'
+import type { Service } from '@/types/flow'
 import PluginDescription from '@/views/Plugins/PluginDescription.vue'
-import {I18N} from '../../locales/i18n'
+import { I18N } from '../../locales/i18n'
 
 const serviceStore = useServiceStore()
 
 async function uploadJar(fileList: FileItem[]): Promise<void> {
-    await serviceApi.upload({file: fileList[0].file as File})
-    await serviceStore.initData()
+  await serviceApi.upload({ file: fileList[0].file as File })
+  await serviceStore.initData()
 }
 
 const selectedPlugin = ref()
@@ -24,39 +24,39 @@ function selectPlugin(serviceItem: Service) {
 </script>
 
 <template>
-  <div class="plugins-container" id="pluginsContainer">
-      <div v-if="descriptionVisible" class="plugin-description">
-          <AButton class="back-btn" @click="() => toggleDescriptionVisible()">
-              <template #icon>
-                  <IconLeftCircle/>
-              </template>
-              {{ I18N('back') }}
-          </AButton>
-          <PluginDescription :plugin="selectedPlugin" class="plugin-doc"/>
-      </div>
-    <div class="plugins-box" v-else>
+  <div id="pluginsContainer" class="plugins-container">
+    <div v-if="descriptionVisible" class="plugin-description">
+      <AButton class="back-btn" @click="() => toggleDescriptionVisible()">
+        <template #icon>
+          <IconLeftCircle />
+        </template>
+        {{ I18N('back') }}
+      </AButton>
+      <PluginDescription :plugin="selectedPlugin" class="plugin-doc" />
+    </div>
+    <div v-else class="plugins-box">
       <ACard class="plugin-card">
         <AUpload draggable @change="uploadJar" />
       </ACard>
       <ACard
-        class="plugin-card"
-        hoverable
         v-for="serviceItem in serviceStore.services"
         :key="serviceItem.id"
+        class="plugin-card"
+        hoverable
       >
         <div class="cover-box" @click="() => selectPlugin(serviceItem)">
           <div class="cover">
             <AImage
               v-if="serviceItem.avatar"
-              :preview="false"
-              :width="120"
               :height="120"
+              :preview="false"
               :src="serviceItem.avatar"
+              :width="120"
             />
-            <AAvatar v-else shape="square" :size="120">{{ serviceItem.name }}</AAvatar>
+            <AAvatar v-else :size="120" shape="square">{{ serviceItem.name }}</AAvatar>
           </div>
         </div>
-          <div class="plugins-title">{{ I18N(`${serviceItem.id}.name`, serviceItem.name) }}</div>
+        <div class="plugins-title">{{ I18N(`${serviceItem.id}.name`, serviceItem.name) }}</div>
       </ACard>
     </div>
   </div>
@@ -68,18 +68,20 @@ function selectPlugin(serviceItem: Service) {
   padding: 20px;
 
   :deep(.arco-upload-drag-text) {
-    max-height: 20px
+    max-height: 20px;
   }
 
   :deep(.arco-card) {
     border-radius: 5px;
     border: none;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 2px -1px rgb(0 0 0 / 0.1);
 
     &:hover {
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
+      box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
   }
 

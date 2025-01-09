@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import FormRenderer from '@/components/FormRenderer/FormRenderer.vue'
-import type {Linkage, Option, Property} from '@/types/flow'
+import type { Linkage, Option, Property } from '@/types/flow'
 import ServiceAPI from '@/api/service'
 
 interface Props {
@@ -39,7 +39,7 @@ watchEffect(
   <div class="linkage-form">
     <ASelect v-model="data.value" :options="options" allow-search />
     <div class="linkage-parameter-form">
-      <FormRenderer layout="horizontal" v-model="data.parameter" :properties="properties" />
+      <FormRenderer v-model="data.parameter" :properties="properties" layout="horizontal" />
     </div>
   </div>
 </template>

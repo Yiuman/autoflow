@@ -1,19 +1,19 @@
-<script setup lang="ts">
-import {IconPlus, IconTags} from '@arco-design/web-vue/es/icon'
-import type {SelectOptionData, SelectProps} from '@arco-design/web-vue'
-import tagApi, {type Tag, type TagQuery} from '@/api/tag'
-import {I18N} from '@/locales/i18n'
+<script lang="ts" setup>
+import { IconPlus, IconTags } from '@arco-design/web-vue/es/icon'
+import type { SelectOptionData, SelectProps } from '@arco-design/web-vue'
+import tagApi, { type Tag, type TagQuery } from '@/api/tag'
+import { I18N } from '@/locales/i18n'
 
 const options = ref<SelectOptionData[]>()
 const [loading, toggleLoading] = useToggle(false)
 const tagQuery = ref<TagQuery>({
-    pageNumber: 1,
-    pageSize: 20
+  pageNumber: 1,
+  pageSize: 20
 })
 
 interface TagSelectorProps extends SelectProps {
-    allowCreate?: boolean,
-    placeholder?: string
+  allowCreate?: boolean
+  placeholder?: string
 }
 
 const props = withDefaults(defineProps<TagSelectorProps>(), {
@@ -93,39 +93,39 @@ function fallbackOption(value: string): SelectOptionData {
 </script>
 
 <template>
-    <ASelect
-            v-model="data"
-            :allow-clear="props.allowClear"
-            :fallback-option="(value) => fallbackOption(value as string)"
-            :filter-option="false"
-            :loading="loading"
-            :max-tag-count="2"
-            :options="options"
-            :placeholder="props.placeholder"
-            :show-extra-options="false"
-            class="tag-selector"
-            multiple
-            @search="handleSearch"
-    >
-        <template #prefix>
-            <IconTags/>
-        </template>
-        <template #empty>
-            <div v-if="props.allowCreate && tagQuery.name" class="tag-add-btn" @click="createTag()">
-                <AButton long>
-                    <template #icon>
-                        <IconPlus/>
-                    </template>
-                    {{ I18N('create') }}"
-                    <span class="tag-add-value">{{ tagQuery.name }}</span>
-                    "
-                </AButton>
+  <ASelect
+    v-model="data"
+    :allow-clear="props.allowClear"
+    :fallback-option="(value) => fallbackOption(value as string)"
+    :filter-option="false"
+    :loading="loading"
+    :max-tag-count="2"
+    :options="options"
+    :placeholder="props.placeholder"
+    :show-extra-options="false"
+    class="tag-selector"
+    multiple
+    @search="handleSearch"
+  >
+    <template #prefix>
+      <IconTags />
+    </template>
+    <template #empty>
+      <div v-if="props.allowCreate && tagQuery.name" class="tag-add-btn" @click="createTag()">
+        <AButton long>
+          <template #icon>
+            <IconPlus />
+          </template>
+          {{ I18N('create') }}"
+          <span class="tag-add-value">{{ tagQuery.name }}</span>
+          "
+        </AButton>
       </div>
     </template>
   </ASelect>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .tag-add-btn {
   padding: 0 5px;
 }

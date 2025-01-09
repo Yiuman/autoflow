@@ -1,17 +1,17 @@
-<script setup lang="ts">
-import {getOS} from '@/utils/util-func'
-import {IconSearch} from '@arco-design/web-vue/es/icon'
-import {I18N} from '@/locales/i18n'
+<script lang="ts" setup>
+import { getOS } from '@/utils/util-func'
+import { IconSearch } from '@arco-design/web-vue/es/icon'
+import { I18N } from '@/locales/i18n'
 
 const searchInput = ref()
-const {focused} = useFocus(searchInput)
+const { focused } = useFocus(searchInput)
 const keys = useMagicKeys()
 const os = getOS()
 const commandK = os === 'Mac' ? keys['Command+K'] : keys['Ctrl+K']
 const hotkeyDesc = os === 'Mac' ? '⌘ K' : 'Ctrl K'
 
 interface Props {
-    visible?: boolean
+  visible?: boolean
   placeholder?: string
   width?: number | string
 }
@@ -54,7 +54,7 @@ window.addEventListener('keydown', (e) => {
 </script>
 
 <template>
-  <div class="search-modal" :style="{ width: '200px' }" @click="() => toggleSearchModal()">
+  <div :style="{ width: '200px' }" class="search-modal" @click="() => toggleSearchModal()">
     <AInput :placeholder="placeholder" @focus.stop="">
       <template #prefix>
         <IconSearch />
@@ -67,12 +67,12 @@ window.addEventListener('keydown', (e) => {
     </AInput>
 
     <AModal
-      modalClass="_search-modal"
       v-model:visible="showSearchModal"
-      bodyClass="search-modal-body"
-      :hide-title="true"
-      :footer="false"
       :closable="true"
+      :footer="false"
+      :hide-title="true"
+      bodyClass="search-modal-body"
+      modalClass="_search-modal"
       @open="() => (focused = true)"
     >
       <div class="search-modal-body">
@@ -80,15 +80,15 @@ window.addEventListener('keydown', (e) => {
           <div class="search-modal-input-left">
             <IconSearch size="24" />
             <input
-              @input="(event) => emitInput(event as InputEvent)"
-              autofocus
               ref="searchInput"
+              autofocus
               type="text"
+              @input="(event) => emitInput(event as InputEvent)"
             />
           </div>
 
           <div class="search-modal-input-right">
-              <div class="input-key-desc">{{ I18N('exit', 'Exit') }}</div>
+            <div class="input-key-desc">{{ I18N('exit', 'Exit') }}</div>
             <div class="hot-key">
               <div class="input-key">ESC</div>
             </div>
@@ -102,6 +102,6 @@ window.addEventListener('keydown', (e) => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use 'search-modal';
 </style>

@@ -1,47 +1,44 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import 'echarts'
 import VChart from 'vue-echarts'
-import {I18N} from '@/locales/i18n'
-import {useExecutionStat} from '@/views/Dashboard/executionStat'
-import {executionInstStat} from '@/api/statistics'
+import { I18N } from '@/locales/i18n'
+import { useExecutionStat } from '@/views/Dashboard/executionStat'
+import { executionInstStat } from '@/api/statistics'
 
-const {chartData, option} = useExecutionStat()
+const { chartData, option } = useExecutionStat()
 
 async function refresh() {
-    const executionStat = await executionInstStat()
-    chartData.value.data = executionStat.data.map(data => {
-        return {
-            ...data,
-            service_id: I18N(`${data.service_id}.name`, data.service_id)
-        }
-    })
+  const executionStat = await executionInstStat()
+  chartData.value.data = executionStat.data.map((data) => {
+    return {
+      ...data,
+      service_id: I18N(`${data.service_id}.name`, data.service_id)
+    }
+  })
 }
 
 onMounted(() => {
-    refresh()
+  refresh()
 })
 </script>
 
 <template>
   <div class="dashboard-execution-stat">
     <div class="title">
-        <span>{{ I18N('stat.executionStat', 'Execution Statistics') }}</span>
+      <span>{{ I18N('stat.executionStat', 'Execution Statistics') }}</span>
     </div>
     <div class="execution-chart-container">
       <div class="execution-charts">
         <VChart :option="option" autoresize />
       </div>
-
     </div>
-
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .dashboard-execution-stat {
   background-color: var(--color-bg-2);
   padding: 10px;
-
 
   .execution-chart-container {
     display: flex;

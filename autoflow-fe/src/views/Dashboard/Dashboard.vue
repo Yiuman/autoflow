@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import WorkflowOverview from '@/views/Dashboard/WorkflowOverview.vue'
 import Monitoring from '@/views/Dashboard/Monitoring.vue'
 import ExecutionStat from '@/views/Dashboard/ExecutionStat.vue'
@@ -12,7 +12,7 @@ import ExecutionStat from '@/views/Dashboard/ExecutionStat.vue'
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .autoflow-dashboard {
   padding: 20px;
 
@@ -31,6 +31,4 @@ import ExecutionStat from '@/views/Dashboard/ExecutionStat.vue'
     margin-bottom: 20px;
   }
 }
-
-
 </style>

@@ -1,23 +1,22 @@
 <script lang="ts" setup>
-import {Codemirror} from 'vue-codemirror'
-import {javascript} from '@codemirror/lang-javascript'
-import {sql} from '@codemirror/lang-sql'
-import {python} from '@codemirror/lang-python'
-import {java} from '@codemirror/lang-java'
-import {html} from '@codemirror/lang-html'
-import {xml} from '@codemirror/lang-xml'
-import {dracula, noctisLilac} from 'thememirror'
-import {darkTheme} from '@/hooks/theme'
-import {LanguageSupport} from '@codemirror/language'
+import { Codemirror } from 'vue-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
+import { sql } from '@codemirror/lang-sql'
+import { python } from '@codemirror/lang-python'
+import { java } from '@codemirror/lang-java'
+import { html } from '@codemirror/lang-html'
+import { xml } from '@codemirror/lang-xml'
+import { dracula, noctisLilac } from 'thememirror'
+import { darkTheme } from '@/hooks/theme'
+import { LanguageSupport } from '@codemirror/language'
 
 interface Props {
-    modelValue: string,
-    lang?: string
+  modelValue: string
+  lang?: string
 }
 
-
 const props = withDefaults(defineProps<Props>(), {
-    modelValue: () => ('')
+  modelValue: () => ''
 })
 const emits = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -32,26 +31,22 @@ const data = computed({
 })
 
 const langMap: Record<string, LanguageSupport> = {
-    'sql': sql(),
-    'javascript': javascript(),
-    'java': java(),
-    'python': python(),
-    'html': html(),
-    'xml': xml()
+  sql: sql(),
+  javascript: javascript(),
+  java: java(),
+  python: python(),
+  html: html(),
+  xml: xml()
 }
 
 const extensions = computed(() => {
   const theme = darkTheme.value ? dracula : noctisLilac
   if (props.lang) {
-      const lang = langMap[props.lang] || langMap['xml']
-      return [lang, theme]
+    const lang = langMap[props.lang] || langMap['xml']
+    return [lang, theme]
   }
-  return [
-    theme
-  ]
-
+  return [theme]
 })
-
 </script>
 
 <template>
@@ -70,5 +65,4 @@ const extensions = computed(() => {
     outline: 1px solid rgb(var(--primary-6));
   }
 }
-
 </style>

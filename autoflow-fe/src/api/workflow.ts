@@ -1,6 +1,6 @@
 import createCrudRequest from '@/api/crud'
-import {type Tag} from '@/api/tag'
-import type {PageParameter} from '@/types/crud'
+import { type Tag } from '@/api/tag'
+import type { PageParameter } from '@/types/crud'
 
 export interface Workflow {
   id?: string
@@ -13,7 +13,6 @@ export interface Workflow {
   updateTime?: number
   tags?: Tag[]
 }
-
 
 export interface WorkflowQuery extends PageParameter {
   name?: string

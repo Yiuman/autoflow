@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { FileData } from '@/types/flow'
 import { downloadByData } from '@/utils/download'
 
@@ -20,4 +20,4 @@ function download() {
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style lang="scss" scoped></style>

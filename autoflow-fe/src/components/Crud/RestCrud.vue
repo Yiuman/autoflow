@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import useCRUD, { type CrudProps } from '@/hooks/crud'
 import { computed } from 'vue'
 import useDelayedLoading from '@/hooks/delayLoading'
@@ -35,16 +35,16 @@ const spinLoading = useDelayedLoading(loading)
 </script>
 <template>
   <div class="crud">
-    <ASpin class="curd-table-spin" :loading="spinLoading" dot>
+    <ASpin :loading="spinLoading" class="curd-table-spin" dot>
       <ATable
-        size="large"
-        column-resizable
-        :scrollbar="true"
         :bordered="true"
-        :row-key="rowKey as string"
-        :pagination="pagination"
         :columns="columns as []"
         :data="pageRecord.records"
+        :pagination="pagination"
+        :row-key="rowKey as string"
+        :scrollbar="true"
+        column-resizable
+        size="large"
         @page-change="pageChange"
       >
         <template v-for="slotColumn in slotColumns" :key="slotColumn" #[slotColumn]="{ record }">

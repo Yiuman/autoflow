@@ -1,21 +1,21 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import RestCrud from '@/components/Crud/RestCrud.vue'
-import {IconSearch} from '@arco-design/web-vue/es/icon'
-import type {TableColumnData} from '@arco-design/web-vue'
-import type {Variable} from '@/types/flow'
-import {I18N} from '@/locales/i18n'
+import { IconSearch } from '@arco-design/web-vue/es/icon'
+import type { TableColumnData } from '@arco-design/web-vue'
+import type { Variable } from '@/types/flow'
+import { I18N } from '@/locales/i18n'
 
 const queryObj = ref<Record<string, any>>({})
 const columns: TableColumnData[] = [
-    {dataIndex: 'key', title: I18N('globalVariable.key', 'Key'), width: 300},
-    {dataIndex: 'value', title: I18N('globalVariable.value', 'Value'), width: 300},
-    {dataIndex: 'description', title: I18N('globalVariable.description', 'Description')},
-    {
-        title: I18N('globalVariable.optional', 'Optional'),
-        slotName: 'optional',
-        width: 80,
-        align: 'center'
-    }
+  { dataIndex: 'key', title: I18N('globalVariable.key', 'Key'), width: 300 },
+  { dataIndex: 'value', title: I18N('globalVariable.value', 'Value'), width: 300 },
+  { dataIndex: 'description', title: I18N('globalVariable.description', 'Description') },
+  {
+    title: I18N('globalVariable.optional', 'Optional'),
+    slotName: 'optional',
+    width: 80,
+    align: 'center'
+  }
 ]
 
 const DEFAULT_INSTANCE = {
@@ -50,50 +50,60 @@ async function deleteVariable(record: Variable) {
 <template>
   <div class="variables-table">
     <div class="variables-table-top-box">
-        <div class="top-box-left">
-            <AInput v-model="queryObj.keyword" :placeholder="I18N('search')" allow-clear>
-                <template #prefix>
-                    <IconSearch/>
-                </template>
-            </AInput>
-        </div>
+      <div class="top-box-left">
+        <AInput v-model="queryObj.keyword" :placeholder="I18N('search')" allow-clear>
+          <template #prefix>
+            <IconSearch />
+          </template>
+        </AInput>
+      </div>
 
       <div class="top-box-right">
-          <AButton type="primary" @click="() => toggleFormVisible()">{{ I18N('create') }}</AButton>
+        <AButton type="primary" @click="() => toggleFormVisible()">{{ I18N('create') }}</AButton>
       </div>
     </div>
     <div class="variables-list">
-      <RestCrud ref="variableCrud" :uri="'/variables'" :query-object="queryObj" :columns="columns">
-          <template #optional="{ record }">
-              <div class="optional-column">
-                  <AButton size="small" type="text" @click="() => editVariable(record)">{{
-                      I18N('edit')
-                      }}
-                  </AButton>
-                  <AButton size="small" type="text" @click="() => deleteVariable(record)">{{ I18N('delete') }}
-                  </AButton>
-              </div>
-          </template>
+      <RestCrud ref="variableCrud" :columns="columns" :query-object="queryObj" :uri="'/variables'">
+        <template #optional="{ record }">
+          <div class="optional-column">
+            <AButton size="small" type="text" @click="() => editVariable(record)"
+              >{{ I18N('edit') }}
+            </AButton>
+            <AButton size="small" type="text" @click="() => deleteVariable(record)"
+              >{{ I18N('delete') }}
+            </AButton>
+          </div>
+        </template>
       </RestCrud>
     </div>
 
-      <AModal v-model:visible="formVisible" draggable @cancel="resetInstance" @ok="saveVariable">
-          <template #title> {{ I18N('variable.form.title', 'Create a new variable') }}</template>
-          <AForm :model="variableInstance" layout="vertical">
-              <AFormItem :label="I18N('variable.form.field.key','variable name')" field="key"
-                         required validate-trigger="input">
-                  <AInput v-model="variableInstance.key"/>
-              </AFormItem>
-              <AFormItem :label="I18N('variable.form.field.value','variable value')" field="value"
-                         validate-trigger="input">
-                  <AInput v-model="variableInstance.value"/>
-              </AFormItem>
-              <AFormItem :label="I18N('variable.form.field.desc','description')" field="desc"
-                         validate-trigger="input">
-                  <ATextarea v-model="variableInstance.desc"/>
-              </AFormItem>
-          </AForm>
-      </AModal>
+    <AModal v-model:visible="formVisible" draggable @cancel="resetInstance" @ok="saveVariable">
+      <template #title> {{ I18N('variable.form.title', 'Create a new variable') }}</template>
+      <AForm :model="variableInstance" layout="vertical">
+        <AFormItem
+          :label="I18N('variable.form.field.key', 'variable name')"
+          field="key"
+          required
+          validate-trigger="input"
+        >
+          <AInput v-model="variableInstance.key" />
+        </AFormItem>
+        <AFormItem
+          :label="I18N('variable.form.field.value', 'variable value')"
+          field="value"
+          validate-trigger="input"
+        >
+          <AInput v-model="variableInstance.value" />
+        </AFormItem>
+        <AFormItem
+          :label="I18N('variable.form.field.desc', 'description')"
+          field="desc"
+          validate-trigger="input"
+        >
+          <ATextarea v-model="variableInstance.desc" />
+        </AFormItem>
+      </AForm>
+    </AModal>
   </div>
 </template>
 

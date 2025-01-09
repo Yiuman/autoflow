@@ -21,10 +21,10 @@ interface Order {
 }
 
 interface ChartData {
-  dimension: string[];
-  indicator: string[];
-  total?: number;
-  data: Record<string, any>[];
+  dimension: string[]
+  indicator: string[]
+  total?: number
+  data: Record<string, any>[]
 }
 
 export { PageParameter, PageRecord, Direction, Order, ChartData }

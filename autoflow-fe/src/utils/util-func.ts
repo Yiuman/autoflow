@@ -1,4 +1,4 @@
-import type {Position} from '@/types/flow'
+import type { Position } from '@/types/flow'
 
 function uuid(len: number, nonnumericBeginning: boolean = false, radix: number = 62): string {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -56,81 +56,78 @@ ${diaphaneity}
 
 function getOS() {
   if (navigator.userAgent.indexOf('Window') > 0) {
-      return 'Windows'
+    return 'Windows'
   } else if (navigator.userAgent.indexOf('Mac OS X') > 0) {
-      return 'Mac'
+    return 'Mac'
   } else if (navigator.userAgent.indexOf('Linux') > 0) {
-      return 'Linux'
+    return 'Linux'
   } else {
-      return 'NUll'
+    return 'NUll'
   }
 }
 
 function objectKeyArray(array: any[]) {
-    if (!array.every(item => typeof item === 'object' && item !== null)) {
-        return {}
+  if (!array.every((item) => typeof item === 'object' && item !== null)) {
+    return {}
+  }
+  const keyListMap: Record<string, any[]> = {}
+  for (let i = 0; i < array.length; i++) {
+    const arrayItem = array[i]
+    if (Array.isArray(arrayItem)) {
+      continue
     }
-    const keyListMap: Record<string, any[]> = {}
-    for (let i = 0; i < array.length; i++) {
-        const arrayItem = array[i]
-        if (Array.isArray(arrayItem)) {
-            continue
-        }
-        Object.keys(arrayItem).forEach(itemKey => {
-            const valueArray = keyListMap[itemKey] || []
-            const arrayItemValue = arrayItem[itemKey]
-            valueArray.push(arrayItemValue)
-            keyListMap[itemKey] = valueArray
-
-        })
-    }
-    Object.keys(keyListMap).forEach((key) => {
-        const objectValueArray = keyListMap[key]
-        if (objectValueArray.every(item => typeof item === 'object' && item !== null)) {
-            const childKeyListMap = objectKeyArray(objectValueArray)
-            Object.keys(childKeyListMap).forEach((childKey) => {
-                keyListMap[`${key}.${childKey}`] = childKeyListMap[childKey]
-            })
-        }
-
+    Object.keys(arrayItem).forEach((itemKey) => {
+      const valueArray = keyListMap[itemKey] || []
+      const arrayItemValue = arrayItem[itemKey]
+      valueArray.push(arrayItemValue)
+      keyListMap[itemKey] = valueArray
     })
+  }
+  Object.keys(keyListMap).forEach((key) => {
+    const objectValueArray = keyListMap[key]
+    if (objectValueArray.every((item) => typeof item === 'object' && item !== null)) {
+      const childKeyListMap = objectKeyArray(objectValueArray)
+      Object.keys(childKeyListMap).forEach((childKey) => {
+        keyListMap[`${key}.${childKey}`] = childKeyListMap[childKey]
+      })
+    }
+  })
 
-    return keyListMap
+  return keyListMap
 }
 
 /**
  * 扁平化对象
  */
 function flatten(data: Object): Record<string, any> {
-    const result: Record<string, any> = {}
-    const isEmpty = (x: Record<string, any>) => Object.keys(x).length === 0
-    const recurse = (cur: Record<string, any>, prop: string) => {
-        if (Object(cur) !== cur) {
-            result[prop] = cur
-        } else if (Array.isArray(cur)) {
-            const length = cur.length
-            if (length === 0) {
-                result[prop] = []
-            }
+  const result: Record<string, any> = {}
+  const isEmpty = (x: Record<string, any>) => Object.keys(x).length === 0
+  const recurse = (cur: Record<string, any>, prop: string) => {
+    if (Object(cur) !== cur) {
+      result[prop] = cur
+    } else if (Array.isArray(cur)) {
+      const length = cur.length
+      if (length === 0) {
+        result[prop] = []
+      }
 
-            result[prop] = cur
+      result[prop] = cur
 
-            for (let i = 0; i < length; i++) {
-                const arrayItem = cur[i]
-                recurse(arrayItem, `${prop}[${i}]`)
-            }
+      for (let i = 0; i < length; i++) {
+        const arrayItem = cur[i]
+        recurse(arrayItem, `${prop}[${i}]`)
+      }
 
-            const keyListMap = objectKeyArray(cur)
-            Object.keys(keyListMap).forEach(itemKey => {
-                result[prop ? `${prop}.*.${itemKey}` : `*.${itemKey}`] = keyListMap[itemKey]
-            })
-
-        } else {
-            result[prop] = {...cur}
-            if (!isEmpty(cur)) {
-                Object.keys(cur).forEach((key) => recurse(cur[key], prop ? `${prop}.${key}` : key))
-            }
-        }
+      const keyListMap = objectKeyArray(cur)
+      Object.keys(keyListMap).forEach((itemKey) => {
+        result[prop ? `${prop}.*.${itemKey}` : `*.${itemKey}`] = keyListMap[itemKey]
+      })
+    } else {
+      result[prop] = { ...cur }
+      if (!isEmpty(cur)) {
+        Object.keys(cur).forEach((key) => recurse(cur[key], prop ? `${prop}.${key}` : key))
+      }
+    }
   }
   recurse(data, '')
   return result

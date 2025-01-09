@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 
 interface MapEditorProps {

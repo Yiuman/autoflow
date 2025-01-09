@@ -1,18 +1,18 @@
-<script setup lang="ts">
-import type {ComponentAttr} from '@/types/flow'
-import type {TableColumnData} from '@arco-design/web-vue'
-import {IconDelete, IconPlus} from '@arco-design/web-vue/es/icon'
-import type {Component} from 'vue'
+<script lang="ts" setup>
+import type { ComponentAttr } from '@/types/flow'
+import type { TableColumnData } from '@arco-design/web-vue'
+import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
+import type { Component } from 'vue'
 
 export interface ListEditorProps {
-    columns: TableColumnData[]
-    columnCmp?: Record<string, ComponentAttr>
-    modelValue: Record<string, any>[]
-    showHeader?: boolean
+  columns: TableColumnData[]
+  columnCmp?: Record<string, ComponentAttr>
+  modelValue: Record<string, any>[]
+  showHeader?: boolean
 }
 
 function newRecord(): Record<string, any> {
-    const newObj: Record<string, any> = {}
+  const newObj: Record<string, any> = {}
   props.columns.forEach((column) => {
     newObj[column.dataIndex as string] = ''
   })
@@ -41,31 +41,31 @@ function doEmitModelValue(values: Record<string, any>[]): void {
 const data = computed(() => props.modelValue)
 const [stopWatchData, toggleStopWatchData] = useToggle(false)
 watch(
-    () => data.value,
-    (newVal) => {
-        if (!stopWatchData.value) {
-            doEmitModelValue(newVal)
-        }
-    },
-    {deep: true}
+  () => data.value,
+  (newVal) => {
+    if (!stopWatchData.value) {
+      doEmitModelValue(newVal)
+    }
+  },
+  { deep: true }
 )
 watch(
   () => props.modelValue,
   async () => {
-      toggleStopWatchData()
-      data.value.splice(0, data.value.length, ...props.modelValue)
-      await nextTick()
+    toggleStopWatchData()
+    data.value.splice(0, data.value.length, ...props.modelValue)
+    await nextTick()
     toggleStopWatchData()
   },
   { deep: true }
 )
 
 function deleteRecord(record: Record<string, any>) {
-    data.value.splice(data.value.indexOf(record), 1)
+  data.value.splice(data.value.indexOf(record), 1)
 }
 
 function addRecord() {
-    data.value.push(newRecord())
+  data.value.push(newRecord())
 }
 
 function getColumnDataIndex(column: TableColumnData): string {
@@ -100,38 +100,38 @@ function getBindAttr(dataIndex: string): Record<string, any> | undefined {
     <ATable
       v-if="data && data.length"
       :data="data"
-      size="mini"
       :pagination="false"
       :show-header="showHeader"
       :stripe="true"
+      size="mini"
     >
       <template #columns>
         <ATableColumn
           v-for="column in columns"
           :key="column.dataIndex"
-          align="center"
           :title="getColumnTitle(column)"
+          align="center"
           cellClass="list-editor-cell "
         >
           <template #cell="{ record }">
             <Component
               :is="getColumnComponent(column.dataIndex as string)"
+              v-model="record[getColumnDataIndex(column)]"
               v-bind="getBindAttr(column.dataIndex as string)"
               @change="(val: any) => doEmitChange(record, val)"
-              v-model="record[getColumnDataIndex(column)]"
             />
           </template>
         </ATableColumn>
         <ATableColumn
           :width="30"
           align="center"
-          title=""
           cellClass="list-editor-cell map-editor-opt-cell"
+          title=""
         >
           <template #cell="{ record }">
             <IconDelete
-              class="list-editor-del-btn"
               :size="15"
+              class="list-editor-del-btn"
               @click="() => deleteRecord(record)"
             />
           </template>

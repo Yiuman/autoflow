@@ -1,9 +1,15 @@
 <script lang="ts" setup>
-import {useRoute, useRouter} from 'vue-router'
-import {IconHome, IconMenuFold, IconMenuUnfold, IconMoonFill, IconSunFill} from '@arco-design/web-vue/es/icon'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  IconHome,
+  IconMenuFold,
+  IconMenuUnfold,
+  IconMoonFill,
+  IconSunFill
+} from '@arco-design/web-vue/es/icon'
 import useTheme from '@/hooks/theme'
-import {IconFont} from '@/hooks/iconfont'
-import {I18N} from '@/locales/i18n'
+import { IconFont } from '@/hooks/iconfont'
+import { I18N } from '@/locales/i18n'
 import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
 
 const [collapsed, toggleCollapsed] = useToggle(false)
@@ -29,29 +35,29 @@ function handleMenuClick(key: string) {
 
 <template>
   <ALayout style="height: 100%">
-    <ALayoutSider ref="menuRef" hide-trigger collapsible :collapsed="collapsed">
+    <ALayoutSider ref="menuRef" :collapsed="collapsed" collapsible hide-trigger>
       <div class="logo-wrap">
         <div class="logo">
           <IconFont type="icon-autoflow" />
           <span v-show="!collapsed">autoflow</span>
         </div>
       </div>
-      <AMenu @menu-item-click="handleMenuClick" :default-selected-keys="['dashboard']">
+      <AMenu :default-selected-keys="['dashboard']" @menu-item-click="handleMenuClick">
         <AMenuItem key="dashboard">
           <IconFont type="icon-workflow_" />
-            {{ I18N('menu.dashboard', 'Dashboard') }}
+          {{ I18N('menu.dashboard', 'Dashboard') }}
         </AMenuItem>
         <AMenuItem key="workflows">
           <IconFont type="icon-workflow_" />
-            {{ I18N('menu.workflow', 'Workflows') }}
+          {{ I18N('menu.workflow', 'Workflows') }}
         </AMenuItem>
         <AMenuItem key="plugins">
           <IconFont type="icon-plugins" />
-            {{ I18N('menu.plugins', 'Plugins') }}
+          {{ I18N('menu.plugins', 'Plugins') }}
         </AMenuItem>
         <AMenuItem key="variables">
           <IconFont type="icon-variables" />
-            {{ I18N('menu.variables', 'Variables') }}
+          {{ I18N('menu.variables', 'Variables') }}
         </AMenuItem>
       </AMenu>
 
@@ -84,9 +90,9 @@ function handleMenuClick(key: string) {
             <ASwitch
               :default-checked="darkTheme"
               class="panel-item"
+              size="medium"
               type="line"
               @change="() => toggleTheme()"
-              size="medium"
             >
               <template #checked-icon>
                 <IconMoonFill style="color: orange" />
@@ -100,7 +106,7 @@ function handleMenuClick(key: string) {
 
           <ADropdown>
             <div class="layout-header-right-item">
-              <AAvatar shape="square" :size="40">Admin</AAvatar>
+              <AAvatar :size="40" shape="square">Admin</AAvatar>
             </div>
 
             <template #content>
@@ -118,6 +124,6 @@ function handleMenuClick(key: string) {
   </ALayout>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use 'home-view';
 </style>

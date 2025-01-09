@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import ServiceNode, {type Props} from '@/components/ServiceNode/ServiceNode.vue'
-import {Handle, Position} from '@vue-flow/core'
-import {validateConnection} from '@/utils/flow'
+<script lang="ts" setup>
+import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
+import { Handle, Position } from '@vue-flow/core'
+import { validateConnection } from '@/utils/flow'
 
 const props = defineProps<Props>()
 </script>
@@ -10,30 +10,30 @@ const props = defineProps<Props>()
   <ServiceNode v-bind="props">
     <Handle
       id="INPUT"
-      type="target"
-      :position="Position.Left"
       :is-valid-connection="validateConnection"
+      :position="Position.Left"
+      type="target"
     />
     <Handle
       id="LOOP_EACH"
-      type="source"
-      :position="Position.Right"
       :is-valid-connection="validateConnection"
+      :position="Position.Right"
+      type="source"
     >
       <div class="loop-label">loop</div>
     </Handle>
     <Handle
       id="LOOP_DONE"
-      type="source"
-      :position="Position.Bottom"
       :is-valid-connection="validateConnection"
+      :position="Position.Bottom"
+      type="source"
     >
       <div class="done-label">done</div>
     </Handle>
   </ServiceNode>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use 'loop-each-item';
 @use '../../assets/action.scss';
 </style>
