@@ -18,6 +18,11 @@ public class InputValidateException extends RuntimeException {
 
     private final List<InputValidateError> inputValidateErrors;
 
+    public InputValidateException(String message) {
+        super(message);
+        this.inputValidateErrors = null;
+    }
+
     public <INPUT> InputValidateException(Set<ConstraintViolation<INPUT>> validated) {
         this.inputValidateErrors = validated.stream()
                 .map(item -> new InputValidateError(item.getPropertyPath().toString(), item.getMessage()))

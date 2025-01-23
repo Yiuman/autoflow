@@ -26,6 +26,7 @@
         <module>autoflow-llm</module>
         <module>autoflow-textextractor</module>
         <module>autoflow-template</module>
+        <module>autoflow-shell</module>
     </modules>
 
     <properties>

@@ -89,7 +89,13 @@
         <dependency>
             <groupId>io.autoflow</groupId>
             <artifactId>autoflow-template</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-shell</artifactId>
+            <version>${revision}</version>
         </dependency>
     </dependencies>
 </project>

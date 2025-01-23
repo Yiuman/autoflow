@@ -38,8 +38,7 @@ public class TemplateRender extends BaseService<TemplateParameter, TemplateResul
         BeanUtil.fillBean(
                 templateParameter,
                 new ExecutionContextValueProvider(executionContext),
-                CopyOptions.create()
-                        .setIgnoreProperties("template")
+                CopyOptions.create().setIgnoreProperties("template")
         );
         templateParameter.setTemplate((String) executionContext.getParameters().get("template"));
         return templateParameter;
