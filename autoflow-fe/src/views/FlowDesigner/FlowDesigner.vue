@@ -106,7 +106,9 @@ onMounted(async () => {
 //---------------------------- 节点表单操作 ----------------------------
 const selectedNodeId = ref<string>()
 const [formVisible, toggleForm] = useToggle(false)
-const selectedNode = computed(() => findNode<NodeElementData>(selectedNodeId.value))
+const selectedNode = computed(() => {
+  return findNode<NodeElementData>(selectedNodeId.value)
+})
 const properties = computed<Property[]>(() => {
   if (!selectedNode.value) {
     return []
@@ -244,7 +246,6 @@ function addNode(node: Service) {
     ...serviceToGraphNode(node, defaultXy),
     events: defaultEvents
   }
-
   // 添加新的节点到流程图中
   addNodes(newNode)
 

@@ -65,6 +65,7 @@ declare module 'vue' {
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
     I18nSwitch: typeof import('./src/components/I18nSwitch/I18nSwitch.vue')['default']
     IfNode: typeof import('./src/components/IfNode/IfNode.vue')['default']
+    Index: typeof import('./src/components/ListEditor/Index.vue')['default']
     LinkageForm: typeof import('./src/components/LinkageForm/LinkageForm.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']
     LoopEachItemNode: typeof import('./src/components/LoopEachItemNode/LoopEachItemNode.vue')['default']

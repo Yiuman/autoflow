@@ -2,11 +2,13 @@
 import ListEditor from '@/components/ListEditor/ListEditor.vue'
 
 interface BasicListEditorProps {
-  modelValue: Array<any>[] | null
+  modelValue: Array<any> | null
 }
 
 const props = withDefaults(defineProps<BasicListEditorProps>(), {
-  modelValue: () => []
+  modelValue: () => {
+    return [{'value':''}];
+  }
 })
 const emits = defineEmits<{
   (e: 'update:modelValue', item: Array<any>[]): void

@@ -38,10 +38,10 @@ function doEmitModelValue(values: Record<string, any>[]): void {
   emits('update:modelValue', values)
 }
 
-const data = computed(() => props.modelValue)
+const data = reactive(props.modelValue)
 const [stopWatchData, toggleStopWatchData] = useToggle(false)
 watch(
-  () => data.value,
+  () => data,
   (newVal) => {
     if (!stopWatchData.value) {
       doEmitModelValue(newVal)
@@ -51,21 +51,20 @@ watch(
 )
 watch(
   () => props.modelValue,
-  async () => {
+   () => {
     toggleStopWatchData()
-    data.value.splice(0, data.value.length, ...props.modelValue)
-    await nextTick()
+    data.splice(0, data.length, ...props.modelValue)
     toggleStopWatchData()
   },
   { deep: true }
 )
 
 function deleteRecord(record: Record<string, any>) {
-  data.value.splice(data.value.indexOf(record), 1)
+  data.splice(data.indexOf(record), 1)
 }
 
 function addRecord() {
-  data.value.push(newRecord())
+  data.push(newRecord())
 }
 
 function getColumnDataIndex(column: TableColumnData): string {

@@ -17,7 +17,7 @@ function createOptions(
         type: node.data?.label,
         key: `${prefix}.${key}`,
         label: key,
-        value: data[key] || node.data?.executionResult?.data[key],
+        value: data[key] || node.data?.executionResult?.data?.[key],
         nodeId: node.id,
         iconFontCode
       }

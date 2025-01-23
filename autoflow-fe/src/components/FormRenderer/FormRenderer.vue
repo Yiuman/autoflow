@@ -3,8 +3,9 @@ import { ScriptHelper } from '@/utils/util-func'
 import type { FieldRule } from '@arco-design/web-vue/es/form/interface'
 
 import type { ComponentAttr, Property } from '@/types/flow'
-import { extractGenericTypes, toComponentAttrs } from '@/utils/converter'
+import { extractGenericTypes, isArrayType, toComponentAttrs } from '@/utils/converter'
 import { I18N } from '@/locales/i18n'
+import { cloneDeep } from 'lodash'
 
 export interface FormProps {
   modelValue?: Record<string, any>
@@ -69,11 +70,12 @@ watchEffect(() => {
 
 function getDefaultList(property: Property) {
   if (property.defaultValue) {
-    return property.defaultValue
+    return cloneDeep(property.defaultValue)
   }
   if (property.properties?.length == 1) {
     return null
   }
+
   const newObj: Record<string, any> = {}
   property.properties?.forEach((child) => {
     newObj[child.name as string] = child.defaultValue || ''
@@ -95,11 +97,11 @@ function buildDefaultValue(property: Property) {
     return undefined
   }
   if (property.defaultValue) {
-    return property.defaultValue
+    return cloneDeep(property.defaultValue)
   }
 
   const genericType = extractGenericTypes(property.type)
-  if (genericType.mainType === 'List') {
+  if (isArrayType(genericType)) {
     return getDefaultList(property)
   }
 
