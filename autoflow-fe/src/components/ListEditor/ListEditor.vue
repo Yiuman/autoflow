@@ -51,9 +51,10 @@ watch(
 )
 watch(
   () => props.modelValue,
-   () => {
+  async () => {
     toggleStopWatchData()
     data.splice(0, data.length, ...props.modelValue)
+    await nextTick()
     toggleStopWatchData()
   },
   { deep: true }

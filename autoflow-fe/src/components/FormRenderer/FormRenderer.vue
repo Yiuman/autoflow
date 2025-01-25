@@ -73,7 +73,7 @@ function getDefaultList(property: Property) {
     return cloneDeep(property.defaultValue)
   }
   if (property.properties?.length == 1) {
-    return null
+    return ['']
   }
 
   const newObj: Record<string, any> = {}
