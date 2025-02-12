@@ -97,5 +97,11 @@
             <artifactId>autoflow-shell</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-uncompress</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

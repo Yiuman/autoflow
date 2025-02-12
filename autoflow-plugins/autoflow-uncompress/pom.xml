@@ -15,6 +15,33 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <commons-compress.version>1.26.1</commons-compress.version>
+        <sevenzipjbinding.version>16.02-2.01</sevenzipjbinding.version>
+        <junrar.version>7.5.0</junrar.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding</artifactId>
+            <version>${sevenzipjbinding.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding-all-platforms</artifactId>
+            <version>${sevenzipjbinding.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.junrar</groupId>
+            <artifactId>junrar</artifactId>
+            <version>${junrar.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
