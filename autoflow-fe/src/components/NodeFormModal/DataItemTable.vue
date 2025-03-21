@@ -3,17 +3,25 @@ import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import FileDataViewer from '@/components/FileDataViewer/FileDataViewer.vue'
 import type { TableColumnData, TableData } from '@arco-design/web-vue/es/table/interface'
+import type { FileData } from '@/types/flow'
 
 interface Props {
   columns: TableColumnData[]
   data: TableData[]
+  isFileList?: boolean
 }
 
 const props = defineProps<Props>()
 </script>
 
 <template>
+  <AList v-if="isFileList">
+    <AListItem v-for="(item, index) in props.data" :key="index">
+      <FileDataViewer :data="item as FileData" />
+    </AListItem>
+  </AList>
   <ATable
+    v-else
     :bordered="{ cell: true }"
     :columns="props.columns"
     :data="props.data"

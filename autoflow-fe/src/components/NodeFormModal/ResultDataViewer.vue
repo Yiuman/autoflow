@@ -2,7 +2,7 @@
 import type { JSONDataType } from 'vue-json-pretty/types/utils'
 import type { Property, VueFlowNode } from '@/types/flow'
 import { getResultData, getResultFirst, getResultFirstData } from '@/utils/flow'
-import { objectKeysToColumn, propertyToColumn } from '@/utils/converter'
+import { isFileDataList, objectKeysToColumn, propertyToColumn } from '@/utils/converter'
 import DataItemTable from '@/components/NodeFormModal/DataItemTable.vue'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
@@ -48,6 +48,14 @@ const isStringValue = computed(() => {
   )
 })
 
+const isFileList = computed(() => {
+  const outputProperties = props?.node?.data?.service?.outputProperties as Property[]
+  if (outputProperties.length !== 1) {
+    return false
+  }
+  return isFileDataList(outputProperties[0])
+})
+
 const stringData = computed(() => {
   const outputProperties = props?.node?.data?.service?.outputProperties as Property[]
   return isStringValue.value ? (data?.value as any)[outputProperties[0].name] : ''
@@ -61,7 +69,7 @@ const { height } = useElementSize(resultView)
   <div ref="resultView" class="result-data-viewer">
     <div v-if="result" class="result-box">
       <template v-if="data instanceof Array">
-        <DataItemTable :columns="dataColumns" :data="data" />
+        <DataItemTable :columns="dataColumns" :data="data" :is-file-list="isFileList" />
       </template>
       <template v-else-if="result.error">
         <VueJsonPretty :data="result.error as JSONDataType" :show-icon="true" :virtual="true" />

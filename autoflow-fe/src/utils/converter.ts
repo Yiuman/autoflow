@@ -1,11 +1,11 @@
 import {
-  type Elements,
-  type GraphEdge,
-  type GraphNode,
-  isEdge,
-  isNode,
-  MarkerType,
-  type Node as VueFlowNode
+    type Elements,
+    type GraphEdge,
+    type GraphNode,
+    isEdge,
+    isNode,
+    MarkerType,
+    type Node as VueFlowNode
 } from '@vue-flow/core'
 import type {TableColumnData} from '@arco-design/web-vue'
 
@@ -66,12 +66,12 @@ export function toGraphNode(node: Node): VueFlowNode {
     node.loop && Object.keys(node.loop).length
       ? node.loop
       : {
-          loopCardinality: null,
-          collectionString: null,
-          elementVariable: null,
-          sequential: false,
-          completionCondition: null
-        }
+        loopCardinality: null,
+        collectionString: null,
+        elementVariable: null,
+        sequential: false,
+        completionCondition: null
+      }
   return {
     ...node,
     data: nodeData
@@ -318,6 +318,12 @@ export function isSpecialType(genericType: GenericType) {
     genericType.mainType === 'ChatMessage'
   )
 }
+
+export function isFileDataList(property: Property) {
+  const genericType = extractGenericTypes(property.type)
+  return (isArrayType(genericType) && (genericType.genericTypes[0] as string) === 'FileData')
+}
+
 
 export function isNumberType(genericType: GenericType) {
   return ['Integer', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(genericType.mainType) > -1
