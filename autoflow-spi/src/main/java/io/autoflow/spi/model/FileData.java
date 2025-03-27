@@ -1,9 +1,11 @@
 package io.autoflow.spi.model;
 
 import cn.hutool.core.codec.Base64Decoder;
+import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,12 +23,15 @@ import java.util.Objects;
 public class FileData {
     private String filename;
     private String base64;
+    @JsonIgnore
     private byte[] content;
     private String fileType;
 
     public FileData(String filename, byte[] content) {
         this.filename = filename;
         this.content = content;
+        this.fileType = FileUtil.getSuffix(filename);
+        this.base64 = Base64Encoder.encode(content);
     }
 
     public static FileData fromPath(String path) {

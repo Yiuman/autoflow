@@ -1,5 +1,6 @@
 package io.autoflow.plugin.llm.provider.openai;
 
+import cn.hutool.core.collection.CollUtil;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -34,7 +35,7 @@ public class OpenAiParameter {
     @DecimalMax("1")
     private Double topP;
     private Integer maxTokens = 4096;
-    private List<String> stop;
+    private List<String> stop = CollUtil.newArrayList();
     private String user;
     private String responseFormat;
 }

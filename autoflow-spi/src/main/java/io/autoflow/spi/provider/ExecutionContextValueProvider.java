@@ -1,7 +1,6 @@
 package io.autoflow.spi.provider;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.Constants;
@@ -44,7 +43,6 @@ public class ExecutionContextValueProvider extends BaseContextValueProvider {
             return expressValue;
         }
 
-
         Object value = executionContext.getParameters()
                 .getOrDefault(
                         (String) key,
@@ -62,14 +60,14 @@ public class ExecutionContextValueProvider extends BaseContextValueProvider {
 
     @Override
     public String toJsonStr() {
-        if (StrUtil.isBlank(jsonStr)) {
-            JSONObject obj = JSONUtil.createObj();
-            obj.putAll(executionContext.getParameters());
-            obj.set(Constants.VARIABLES, executionContext.getVariables());
-            obj.set(Constants.INPUT_DATA, executionContext.getInputData());
-            jsonStr = JSONUtil.toJsonStr(obj);
-        }
-        return jsonStr;
+//        if (StrUtil.isBlank(jsonStr) || ) {
+        JSONObject obj = JSONUtil.createObj();
+        obj.putAll(executionContext.getParameters());
+        obj.set(Constants.VARIABLES, executionContext.getVariables());
+        obj.set(Constants.INPUT_DATA, executionContext.getInputData());
+        return JSONUtil.toJsonStr(obj);
+//        }
+//        return jsonStr;
 
     }
 }
