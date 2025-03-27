@@ -64,13 +64,16 @@ function getExecutionDurationSeconds<T>(result: ExecutionResult<T> | ExecutionRe
   }
 
   if (result instanceof Array) {
-    const maxEndTime = result
-      .filter((r) => !r.error)
-      .reduce((max, obj) => {
+    const notErrorResult = result
+      .filter((r) => !r.error);
+    if(!notErrorResult || !notErrorResult.length) {
+      return undefined;
+    }
+    const maxEndTime =
+      notErrorResult.reduce((max, obj) => {
         return max.endTime > obj.endTime ? max : obj
       })
-    const minStartTime = result
-      .filter((r) => !r.error)
+    const minStartTime =notErrorResult
       .reduce((min, obj) => {
         return min.startTime < obj.startTime ? min : obj
       })

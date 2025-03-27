@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { FileData } from '@/types/flow'
-import { downloadByData } from '@/utils/download'
+import { downloadByBase64 } from '@/utils/download'
 
 interface Props {
   data?: FileData
@@ -9,7 +9,7 @@ interface Props {
 const props = defineProps<Props>()
 
 function download() {
-  downloadByData(props.data?.content as string, props.data?.filename as string)
+  downloadByBase64(props.data?.base64 as string, props.data?.filename as string)
 }
 </script>
 

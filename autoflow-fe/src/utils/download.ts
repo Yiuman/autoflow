@@ -17,16 +17,26 @@ export function openWindow(
 /**
  * @description: base64 to blob
  */
-export function base64ToBlob(base64Buf: string): Blob {
-  const arr = base64Buf.split(',')
-  const typeItem = arr[0]
-  const mime = typeItem.match(/:(.*?);/)![1]
-  const bstr = window.atob(arr[1])
+export function base64ToBlob(base64Buf: string, defaultMime = 'application/octet-stream'): Blob {
+  let mime = defaultMime
+  let base64Data = base64Buf
+
+  // 如果是 Data URL 格式，则提取 MIME 类型和 Base64 数据
+  if (base64Buf.includes(',')) {
+    const arr = base64Buf.split(',')
+    const typeItem = arr[0]
+    mime = typeItem.match(/:(.*?);/)?.[1] || defaultMime
+    base64Data = arr[1]
+  }
+
+  // Base64 解码
+  const bstr = window.atob(base64Data)
   let n = bstr.length
   const u8arr = new Uint8Array(n)
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n)
   }
+
   return new Blob([u8arr], { type: mime })
 }
 
@@ -55,7 +65,7 @@ export function urlToBase64(url: string, mineType?: string): Promise<string> {
 
     const img = new Image()
     img.crossOrigin = ''
-    img.onload = function () {
+    img.onload = function() {
       if (!canvas || !ctx) {
         return reject()
       }
@@ -66,7 +76,7 @@ export function urlToBase64(url: string, mineType?: string): Promise<string> {
       canvas = null
       resolve(dataURL)
     }
-    img.onerror = function () {
+    img.onerror = function() {
       reject()
     }
     img.src = url
@@ -128,10 +138,10 @@ export function downloadByData(data: BlobPart, filename: string, mime?: string, 
  * @param {*} sUrl
  */
 export function downloadByUrl({
-  url,
-  target = '_blank',
-  fileName
-}: {
+                                url,
+                                target = '_blank',
+                                fileName
+                              }: {
   url: string
   target?: TargetContext
   fileName?: string

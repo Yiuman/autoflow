@@ -81,5 +81,7 @@ declare module 'vue' {
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
     ServiceNode: typeof import('./src/components/ServiceNode/ServiceNode.vue')['default']
     TagSelector: typeof import('./src/components/TagSelector/TagSelector.vue')['default']
+    VariableSelector: typeof import('./src/components/VariableSelector/VariableSelector.vue')['default']
+    VariableTag: typeof import('./src/components/ExpressInput/VariableTag.vue')['default']
   }
 }

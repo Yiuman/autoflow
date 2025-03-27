@@ -1,28 +1,21 @@
 <script lang="ts" setup>
 import type { Option } from '@/components/ExpressInput/MentionList.vue'
-import VariableTag from '@/components/ExpressInput/VariableTag.vue'
+import { IconFont } from '@/hooks/iconfont'
 
 const props = defineProps<Option>()
 defineOptions({
-  name: 'MentionTag'
+  name: 'VariableTag'
 })
-
-const data = [
-  { label: 'node', value: props.type },
-  { label: 'nodeId', value: props.nodeId },
-  { label: 'value', value: props.value }
-]
 </script>
 <template>
-  <ATrigger :popup-translate="[0, -5]" auto-fit-position position="top">
-    <VariableTag v-bind="props" />
-    <template #content>
-      <div class="node-mention-desc">
-        <ADescriptions :column="1" :data="data" />
-        <em class="arrow"></em>
-      </div>
-    </template>
-  </ATrigger>
+  <div class="node-mention-trigger">
+    <span class="node-mention-type">
+      <IconFont v-if="props.iconFontCode" :type="props.iconFontCode" class="mention-type-icon" />{{
+        props.type
+      }}
+    </span>
+    <span class="node-mention-label">{{ props.label }}</span>
+  </div>
 </template>
 
 <style lang="scss" scoped>

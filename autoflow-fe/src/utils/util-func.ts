@@ -111,7 +111,7 @@ function flatten(data: Object): Record<string, any> {
         result[prop] = []
       }
 
-      result[prop] = cur
+      result[prop === '' ? '*' : prop] = cur
 
       for (let i = 0; i < length; i++) {
         const arrayItem = cur[i]
