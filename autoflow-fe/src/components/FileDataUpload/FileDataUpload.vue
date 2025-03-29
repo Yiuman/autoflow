@@ -109,7 +109,7 @@ function uploadFileChange(fileList: FileItem[]) {
       </template>
     </AUpload>
 
-    <ASwitch v-model="expressInput" class="switch-input"  type="round">
+    <ASwitch v-model="expressInput" class="switch-input"  type="line">
       <template #checked-icon>
         <IconFont type="icon-variable" />
       </template>
@@ -128,7 +128,7 @@ function uploadFileChange(fileList: FileItem[]) {
   .switch-input {
     position: absolute;
     right: 2px;
-    top: 2px;
+    top: -27px;
   }
 }
 </style>
