@@ -27,15 +27,15 @@ public static ELWrapper convertEl(Flow flow){
         //5.构建出他们的自己的子流程实例			
         List<Flow> subFlows=createSubFlows(startNodes);
         List<ELWrapper> whenElList=subFlows.map(flow->convertEl(flow)).toList();
-        elWrappers.add(toWhenEl(whenElList))
+        elWrappers.add(toWhenEl(whenElList));
         //6.将startNodes定义为null 结束构建
-        startNodes=null
+        startNodes=null;
         }
 
         }else{
         //单个节点的处理
         Node cuurentNode=startNodes.get(0);
-        elWrappers.add(处理单个节点的EL(cuurentNode))
+        elWrappers.add(处理单个节点的EL(cuurentNode));
         //将起始节点指向当前节点的下一批节点  如上图的A节点，则下批节点为B、D、F
         startNodes=cuurentNode.getNextNodes();
         }

@@ -1,10 +1,15 @@
 .autoflow-node {
   //height: 80px;
-  max-width: 200px;
+  //max-width: 270px;
+  min-width: 300px;
   border-radius: 10px;
   background-color: var(--color-bg-3);
   border: 2px solid var(--color-border-2);
   color: var(--color-text-1);
+
+  .node-wrapper {
+
+  }
 
   &:hover {
     .node-toolbar {
@@ -32,10 +37,12 @@
 }
 
 .node-avatar {
+  //background: linear-gradient(rgb(242, 242, 255) 0%, rgba(0, 0, 0, 0.02) 100%);
   padding: 6px;
   display: flex;
   position: relative;
   align-items: center;
+  border-radius: 10px;
 
   .node-status-icon {
     position: absolute;
@@ -54,6 +61,7 @@
   }
 
   .node-label {
+    flex: 1;
     font-size: 12px;
     font-weight: bold;
     margin: auto;
@@ -65,9 +73,15 @@
   }
 }
 
+.service-node-form {
+  padding: 10px 10px 0 10px;
+  background-color: rgba(var(--color-bg-3), 0.02);
+}
+
 .selected {
   .autoflow-node {
-    box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    //box-shadow: 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border: 2px solid rgba(var(--primary-6), 0.5) !important;
   }
 
   .node-toolbar {

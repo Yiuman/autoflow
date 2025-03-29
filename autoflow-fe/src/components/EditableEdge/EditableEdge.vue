@@ -18,7 +18,7 @@ const toolBarStyle = computed(() => {
 </script>
 
 <template>
-  <BezierEdge v-bind="props" />
+  <BezierEdge  v-bind="props"/>
   <EdgeLabelRenderer>
     <div :id="`edge-toolbar-${id}`" :style="toolBarStyle" class="edge-toolbar">
       <IconClose class="edge-delete-btn" @click="removeEdges(id)" />

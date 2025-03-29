@@ -1,8 +1,8 @@
-import { computed, inject, type Ref } from 'vue'
+import { computed } from 'vue'
 import { flatten } from 'lodash'
-import { INCOMER_DATA } from '@/symbols'
 import type { Option } from '@/components/ExpressInput/MentionList.vue'
-import type { NodeFlatData, VueFlowNode } from '@/types/flow'
+import type { VueFlowNode } from '@/types/flow'
+import { useNodeDataStore } from '@/hooks/useNodeDataStore'
 
 function createOptions(
   node: VueFlowNode,
@@ -26,12 +26,11 @@ function createOptions(
 }
 
 export function useSelectOptions() {
-  const nodeFlatDataArray = inject<Ref<NodeFlatData[]>>(INCOMER_DATA)
-
+  const { inputDataFlat } = useNodeDataStore()!
   const selectOptions = computed(() => {
-    if (!nodeFlatDataArray?.value) return []
+    if (!inputDataFlat?.value) return []
     return flatten(
-      nodeFlatDataArray.value.map((nodeFlatData) => {
+      inputDataFlat.value.map((nodeFlatData) => {
         const varOptions = createOptions(
           nodeFlatData.node,
           nodeFlatData.variables || {},

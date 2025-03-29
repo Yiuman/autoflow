@@ -1,18 +1,16 @@
-import type { NodeFlatData, VueFlowNode } from '@/types/flow'
-import { computed, provide, type Ref } from 'vue'
-import { CURRENT_NODE, INCOMER, INCOMER_DATA } from '@/symbols'
+// useCounterStore.ts
+import { computed, ref } from 'vue'
+import { createInjectionState } from '@vueuse/core'
 import { flattenProperties, getAllIncomers } from '@/utils/converter'
+import type { NodeFlatData, VueFlowNode } from '@/types/flow'
 import { flatten } from '@/utils/util-func'
 import { getResultData } from '@/utils/flow'
 import { useVueFlow } from '@vue-flow/core'
 
-export function useNodeDataProvider(node: Ref<VueFlowNode>) {
+const selectedNode = ref<VueFlowNode>()
+const [useProvideNodeDataStore, useNodeDataStore] = createInjectionState(() => {
   const { getIncomers } = useVueFlow()
-  // 提供当前的有用变量
-  provide(CURRENT_NODE, node.value)
-  const incomers = computed(() => getAllIncomers(node.value.id, getIncomers))
-  provide(INCOMER, incomers)
-
+  const incomers = computed(() => getAllIncomers(selectedNode.value?.id, getIncomers))
   const inputDataFlat = computed<NodeFlatData[]>(() => {
     const nodeFlatDataArray: NodeFlatData[] = []
     if (incomers.value) {
@@ -47,11 +45,7 @@ export function useNodeDataProvider(node: Ref<VueFlowNode>) {
 
     return nodeFlatDataArray as NodeFlatData[]
   })
-  provide(INCOMER_DATA, inputDataFlat)
+  return { selectedNode, incomers, inputDataFlat }
+})
 
-  return {
-    node,
-    incomers,
-    inputDataFlat
-  }
-}
+export { useProvideNodeDataStore, useNodeDataStore }

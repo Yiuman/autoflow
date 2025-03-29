@@ -18,9 +18,9 @@ import 'splitpanes/dist/splitpanes.css'
 import { groupBy } from 'lodash'
 import { darkTheme } from '@/hooks/theme'
 import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
-import { useNodeDataProvider } from '@/components/NodeFormModal/useNodeDataProvider'
 import { getExecutionDurationSeconds } from '@/utils/flow'
 import { I18N } from '@/locales/i18n'
+import { useNodeDataStore } from '@/hooks/useNodeDataStore'
 
 interface Props {
   modelValue: VueFlowNode
@@ -58,8 +58,7 @@ const modalVisible = computed({
   }
 })
 
-const modelValueRef = computed(() => props.modelValue)
-const { incomers } = useNodeDataProvider(modelValueRef)
+const { incomers } = useNodeDataStore()
 
 const selectedIncomerNodeId = ref<string>()
 
@@ -205,7 +204,7 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 key="parameters"
                 :title="I18N('nodeForm.parameters', 'Parameters')"
               >
-                <FromRenderer v-model="nodeData.parameters" :properties="props.properties" />
+                <FromRenderer key-prefix="form_modal" v-model="nodeData.parameters" :properties="props.properties" />
               </ATabPane>
               <ATabPane v-if="props.description" key="doc" :title="I18N('nodeForm.doc', 'Doc')">
                 <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'" />

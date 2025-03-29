@@ -18,19 +18,26 @@ function createMentionSuggestion(
     render: () => {
       let vueRenderer: VueRenderer | null = null
       let popup: Instance | null = null
-
       return {
         onStart: (props: SuggestionProps) => {
+          if (popup) {
+            popup.destroy()
+            popup = null
+          }
+          if (vueRenderer) {
+            vueRenderer.destroy()
+            vueRenderer = null
+          }
+          if(!props.editor.isFocused){
+            return
+          }
+
           vueRenderer = new VueRenderer(MentionList, {
             props,
             editor: props.editor
           })
-
-          if (!props.clientRect) {
-            return
-          }
-
-          popup = tippy(document.body, {
+          const editorElement = props.editor.view.dom
+          popup = tippy(editorElement || document.body, {
             appendTo: () => document.body,
             getReferenceClientRect: props.clientRect as GetReferenceClientRect,
             content: vueRenderer.element,

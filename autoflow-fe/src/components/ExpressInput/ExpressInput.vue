@@ -57,6 +57,7 @@ const { editor, isFocused } = useTipTapEditor({
   data,
   placeholder: ''
 })
+
 </script>
 <template>
   <div

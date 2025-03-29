@@ -39,7 +39,6 @@ declare module 'vue' {
     AOption: typeof import('@arco-design/web-vue')['Option']
     AOverflowList: typeof import('@arco-design/web-vue')['OverflowList']
     APagination: typeof import('@arco-design/web-vue')['Pagination']
-    AResult: typeof import('@arco-design/web-vue')['Result']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASpin: typeof import('@arco-design/web-vue')['Spin']
     AStatistic: typeof import('@arco-design/web-vue')['Statistic']
@@ -65,7 +64,6 @@ declare module 'vue' {
     FormRenderer: typeof import('./src/components/FormRenderer/FormRenderer.vue')['default']
     I18nSwitch: typeof import('./src/components/I18nSwitch/I18nSwitch.vue')['default']
     IfNode: typeof import('./src/components/IfNode/IfNode.vue')['default']
-    Index: typeof import('./src/components/ListEditor/Index.vue')['default']
     LinkageForm: typeof import('./src/components/LinkageForm/LinkageForm.vue')['default']
     ListEditor: typeof import('./src/components/ListEditor/ListEditor.vue')['default']
     LoopEachItemNode: typeof import('./src/components/LoopEachItemNode/LoopEachItemNode.vue')['default']
@@ -81,7 +79,6 @@ declare module 'vue' {
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
     ServiceNode: typeof import('./src/components/ServiceNode/ServiceNode.vue')['default']
     TagSelector: typeof import('./src/components/TagSelector/TagSelector.vue')['default']
-    VariableSelector: typeof import('./src/components/VariableSelector/VariableSelector.vue')['default']
     VariableTag: typeof import('./src/components/ExpressInput/VariableTag.vue')['default']
   }
 }

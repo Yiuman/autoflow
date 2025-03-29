@@ -1,21 +1,19 @@
 <script lang="ts" setup>
-import type {
-  Connection,
-  EdgeMouseEvent,
-  Elements,
-  GraphEdge,
-  ViewportTransform,
-  XYPosition
-} from '@vue-flow/core'
-import { ConnectionMode, MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import type { NodeMouseEvent } from '@vue-flow/core'
 import {
-  elementsToFlow,
-  getAllIncomers,
-  serviceToGraphNode,
-  toGraphEdge,
-  toGraphNode,
-  toNode
-} from '@/utils/converter'
+  type Connection,
+  ConnectionMode,
+  type EdgeMouseEvent,
+  type Elements,
+  type GraphEdge,
+  MarkerType,
+  Panel,
+  useVueFlow,
+  type ViewportTransform,
+  VueFlow,
+  type XYPosition
+} from '@vue-flow/core'
+import { elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode } from '@/utils/converter'
 import {
   IconCloudDownload,
   IconPauseCircleFill,
@@ -28,26 +26,13 @@ import { Controls } from '@vue-flow/controls'
 
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem, Notification } from '@arco-design/web-vue'
-import type {
-  BoundingBox,
-  Flow,
-  NodeElementData,
-  Position,
-  Property,
-  Service,
-  VueFlowNode
-} from '@/types/flow'
+import type { BoundingBox, Flow, NodeElementData, Position, Property, Service, VueFlowNode } from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByData } from '@/utils/download'
 import { getContainerClientXY } from '@/utils/util-func'
-import {
-  executeNode,
-  getExecutableFlowInst,
-  stopExecution,
-  type WorkflowInst
-} from '@/api/execution'
+import { executeNode, getExecutableFlowInst, stopExecution, type WorkflowInst } from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
 import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
@@ -59,6 +44,7 @@ import { useRoute } from 'vue-router'
 import { getResultData } from '@/utils/flow'
 import { I18N } from '@/locales/i18n'
 import { executeFlowSSE } from '@/views/FlowDesigner/flowsse'
+import { useProvideNodeDataStore } from '@/hooks/useNodeDataStore'
 
 const [theme] = useTheme()
 
@@ -106,9 +92,16 @@ onMounted(async () => {
 //---------------------------- 节点表单操作 ----------------------------
 const selectedNodeId = ref<string>()
 const [formVisible, toggleForm] = useToggle(false)
-const selectedNode = computed(() => {
-  return findNode<NodeElementData>(selectedNodeId.value)
-})
+const { selectedNode } = useProvideNodeDataStore()
+
+function onNodeClick(nodeMouseEvent: NodeMouseEvent) {
+  selectedNodeId.value = nodeMouseEvent.node.id
+  selectedNode.value = findNode<NodeElementData>(selectedNodeId.value)
+}
+
+
+
+
 const properties = computed<Property[]>(() => {
   if (!selectedNode.value) {
     return []
@@ -156,15 +149,24 @@ const defaultEvents = {
 
 //---------------------------- 处理连线逻辑/添加节点逻辑 ----------------------------
 const isConnect = ref<boolean>(false)
-
+const basicEdgeProps = {
+  data: {},
+  type: 'edge',
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    // color: 'rgba(var(--primary-4))'
+  },
+  style: {
+    // stroke: 'rgba(var(--primary-4))',
+    'stroke-width':1.3
+  }
+}
 function doConnect(connection: Connection) {
   isConnect.value = true
   const sourceNode = findNode<NodeElementData>(connection.source)
   const addEdge: GraphEdge = {
     ...connection,
-    markerEnd: MarkerType.ArrowClosed,
-    type: 'edge',
-    data: {}
+    ...basicEdgeProps
   } as GraphEdge
   addEdge.data.sourcePointType = connection.sourceHandle
   addEdge.data.targetPointType = connection.targetHandle
@@ -316,7 +318,7 @@ function doParseJson(json: string) {
     return graphNode
   }) as VueFlowNode[]
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({
-    ...toGraphEdge(connection)
+    ...toGraphEdge(connection), markerEnd: basicEdgeProps.markerEnd, style: basicEdgeProps.style
   })) as GraphEdge[]
   elements.value = [...nodes, ...edges]
 }
@@ -376,8 +378,10 @@ async function stopFlow() {
     :edge-types="edgeTypes"
     :node-types="nodeTypes"
     class="vue-flow-basic"
+    :no-drag-class-name="'no-drag'"
     @edge-mouse-move="edgeMouseMove"
     @edge-mouse-leave="edgeMouseMove"
+    @node-click="onNodeClick"
   >
     <!-- 背景 -->
     <Background :gap="8" :pattern-color="theme ? '#FFFFFB' : '#aaa'" />

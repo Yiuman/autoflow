@@ -24,7 +24,6 @@ export function getAllIncomers(
   if (!nodeId) {
     return []
   }
-
   let nodeIncomers = getIncomers(nodeId)
   if (!nodeIncomers || nodeIncomers.length === 0) {
     return []

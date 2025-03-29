@@ -16,6 +16,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
 import { getAllIncomers } from '@/utils/converter'
+import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
 
 const { removeNodes, updateNodeData, getIncomers } = useVueFlow()
 const avatarSize = 32
@@ -122,7 +123,7 @@ watch(
       </AButtonGroup>
     </div>
 
-    <div v-if="executionResult && isSuccess" class="node-duration">
+    <div class="node-duration" v-if="executionResult && isSuccess">
       <ATag>
         <template #icon>
           <IconClockCircle />
@@ -153,6 +154,9 @@ watch(
       </slot>
     </div>
 
+    <div class="service-node-form">
+      <FromRenderer :layout="'vertical'" v-model="data.parameters" :properties="data.service.properties" />
+    </div>
     <div class="node_handle">
       <slot>
         <Handle

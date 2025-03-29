@@ -10,11 +10,13 @@ import { cloneDeep } from 'lodash'
 export interface FormProps {
   modelValue?: Record<string, any>
   layout?: 'inline' | 'horizontal' | 'vertical'
-  properties?: Property[]
+  properties?: Property[],
+  keyPrefix?: string
 }
 
 const props = withDefaults(defineProps<FormProps>(), {
-  layout: 'vertical'
+  layout: 'vertical',
+  keyPrefix: ''
 })
 
 const emits = defineEmits<{
@@ -31,6 +33,8 @@ const form = computed<any>({
 })
 
 // ------------------- 表单校验规则处理 -------------------
+const formRef = ref()
+
 const rules = computed(() => {
   if (!props.properties) {
     return {}
@@ -60,11 +64,22 @@ const rules = computed(() => {
   })
   return validateRules
 })
-
+let unwatchList: (() => void)[] = []
+function cleanupWatchers() {
+  unwatchList.forEach(unwatch => unwatch())
+  unwatchList = []
+}
 //------------------- 默认值处理  -------------------
 watchEffect(() => {
+  cleanupWatchers()
   props.properties?.forEach((property) => {
     setDefaultValue(props.modelValue, property)
+    if (property.validateRules) {
+      const unwatch = watch(() => form.value[property.name], () => {
+        formRef.value?.validate(property.name)
+      })
+      unwatchList.push(unwatch)
+    }
   })
 })
 
@@ -109,7 +124,7 @@ function buildDefaultValue(property: Property) {
     return undefined
   }
 
-  return {}
+  return undefined
 }
 
 function isBasicType(type: string) {
@@ -132,25 +147,32 @@ function getToolTip(cmpAttr: ComponentAttr): string {
   }
   return result
 }
+
+onBeforeUnmount(cleanupWatchers)
+
+
 </script>
 <template>
-  <div class="from-renderer">
-    <AForm :auto-label-width="true" :layout="props.layout" :model="form" :rules="rules">
-      <KeepAlive>
+  <div class="form-renderer">
+    <AForm ref="formRef" :auto-label-width="true" :layout="props.layout" :model="form" :rules="rules">
         <AFormItem
-          v-for="cmpAttr in componentAttrs"
-          :key="cmpAttr.property.name"
+
+          v-for="(cmpAttr) in componentAttrs"
+          :key="`${keyPrefix}_${cmpAttr.property.id}`"
           :field="cmpAttr.property.name"
           :label="getFieldItemLabel(cmpAttr)"
           :tooltip="getToolTip(cmpAttr)"
+          :validate-trigger="['change', 'blur']"
         >
           <Component
+            class="no-drag"
+            :class="`${keyPrefix}_form-item-cmp_${cmpAttr.property.name}`"
             :is="cmpAttr.cmp"
+            :key="`${keyPrefix}_${cmpAttr.property.id}`"
             v-model="form[cmpAttr.property.name]"
             v-bind="cmpAttr.attrs"
           />
         </AFormItem>
-      </KeepAlive>
     </AForm>
   </div>
 </template>

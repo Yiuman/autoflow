@@ -15,25 +15,44 @@ const emits = defineEmits<{
   (e: 'update:modelValue', item: FileData | string | undefined): void
 }>()
 
+// 两个独立的缓存值
+const fileCache = ref<FileData | undefined>(undefined)
+const exprCache = ref<string>('')
+
 // 根据初始值确定输入模式
 const expressInput = ref(typeof props.modelValue === 'string')
-// 监听props变化自动切换模式
+
+// 初始化缓存值
 watch(
   () => props.modelValue,
   (newVal) => {
-    expressInput.value = typeof newVal === 'string'
+    if (typeof newVal === 'string') {
+      exprCache.value = newVal
+    } else if (newVal !== undefined) {
+      fileCache.value = newVal
+    }
+    expressInput.value = expressInput.value || typeof newVal === 'string'
   },
   { immediate: true }
 )
 
-// 处理主动切换时的数据清洗
+// 处理主动切换时的数据同步
 watch(expressInput, (newMode) => {
-  if (newMode && typeof props.modelValue !== 'string') {
-    emits('update:modelValue', '')
-  } else if (!newMode && typeof props.modelValue === 'string') {
-    emits('update:modelValue', undefined)
+  if (newMode) {
+    // 切换到表达式模式，将文件值缓存
+    if (typeof props.modelValue !== 'string') {
+      fileCache.value = props.modelValue as FileData
+      emits('update:modelValue', exprCache.value)
+    }
+  } else {
+    // 切换到文件模式，将表达式值缓存
+    if (typeof props.modelValue === 'string') {
+      exprCache.value = props.modelValue
+      emits('update:modelValue', fileCache.value)
+    }
   }
 })
+
 const currentData = computed({
   get() {
     return props.modelValue
@@ -48,17 +67,20 @@ function uploadFileChange(fileList: FileItem[]) {
   const fileItem = fileList[0]
   reader.readAsDataURL(fileItem.file as Blob)
 
-  reader.onload = async function () {
+  reader.onload = function () {
     const base64Url = reader.result as string
     const base64String = base64Url.split(',')[1]
     const filename = fileItem.file?.name as string
     const fileType = filename.split('.').pop()
 
-    emits('update:modelValue', {
+    const fileData = {
       filename,
       base64: base64String,
       fileType
-    } as FileData)
+    } as FileData
+
+    fileCache.value = fileData
+    emits('update:modelValue', fileData)
   }
 }
 </script>
@@ -66,7 +88,7 @@ function uploadFileChange(fileList: FileItem[]) {
 <template>
   <div class="file-data-upload">
     <!-- 直接使用expressInput状态判断渲染模式 -->
-    <ExpressInput v-if="expressInput" v-model="currentData as string" />
+    <ExpressInput v-if="expressInput" v-model="exprCache" @update:modelValue="currentData = $event" />
     <AUpload
       v-else
       :auto-upload="false"
@@ -87,7 +109,7 @@ function uploadFileChange(fileList: FileItem[]) {
       </template>
     </AUpload>
 
-    <ASwitch v-model="expressInput" class="switch-input" size="small" type="round">
+    <ASwitch v-model="expressInput" class="switch-input"  type="round">
       <template #checked-icon>
         <IconFont type="icon-variable" />
       </template>
