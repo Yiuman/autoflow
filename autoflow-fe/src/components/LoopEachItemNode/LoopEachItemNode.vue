@@ -2,12 +2,16 @@
 import ServiceNode, { type Props } from '@/components/ServiceNode/ServiceNode.vue'
 import { Handle, Position } from '@vue-flow/core'
 import { validateConnection } from '@/utils/flow'
+import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 
 const props = defineProps<Props>()
 </script>
 
 <template>
   <ServiceNode v-bind="props">
+    <template #form>
+      <LoopSetting v-model="data.loop" />
+    </template>
     <Handle
       id="INPUT"
       :is-valid-connection="validateConnection"

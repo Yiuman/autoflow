@@ -155,7 +155,10 @@ watch(
     </div>
 
     <div class="service-node-form">
-      <FromRenderer :layout="'vertical'" v-model="data.parameters" :properties="data.service.properties" />
+      <slot name="form" v-bind="data">
+        <FromRenderer :layout="'vertical'" v-model="data.parameters" :properties="data.service.properties" />
+      </slot>
+
     </div>
     <div class="node_handle">
       <slot>
