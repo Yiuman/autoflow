@@ -34,6 +34,10 @@
     }
   }
 
+  :deep(.arco-form-item) {
+    margin-bottom: 7px;
+  }
+
 }
 
 .node-avatar {
@@ -77,6 +81,7 @@
   padding: 10px 10px 0 10px;
   background-color: rgba(var(--color-bg-3), 0.02);
 }
+
 
 .selected {
   .autoflow-node {

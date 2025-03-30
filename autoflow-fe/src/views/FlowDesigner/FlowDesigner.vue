@@ -384,7 +384,7 @@ async function stopFlow() {
     @node-click="onNodeClick"
   >
     <!-- 背景 -->
-    <Background :gap="8" :pattern-color="theme ? '#FFFFFB' : '#aaa'" />
+    <Background :gap="8" :pattern-color="theme ? '#343435' : '#aaa'" />
     <!-- 面板控制器 -->
     <Controls />
     <!-- 左上角的操作按钮 -->

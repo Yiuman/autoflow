@@ -102,7 +102,7 @@ function setDefaultValue(form: Record<string, any> | undefined, property: Proper
   if (!form) {
     return
   }
-  if (!form[property.name]) {
+  if (form[property.name] === undefined) {
     form[property.name] = buildDefaultValue(property)
   }
 }
