@@ -81,5 +81,9 @@
   "pluginInputColumn.defaultValue": "默认值",
   "pluginOutputColumn.name": "参数名",
   "pluginOutputColumn.description": "描述",
-  "pluginOutputColumn.type": "类型"
+  "pluginOutputColumn.type": "类型",
+  "service.run": "运行",
+  "service.stop": "停止",
+  "service.copy": "复制",
+  "service.remove": "移除"
 }

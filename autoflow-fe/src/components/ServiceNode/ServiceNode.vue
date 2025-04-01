@@ -5,9 +5,10 @@ import { getExecutionDurationSeconds, getResultFirst, validateConnection } from 
 import {
   IconCheckCircle,
   IconClockCircle,
+  IconCopy,
   IconDelete,
-  IconEdit,
   IconExclamationCircle,
+  IconMore,
   IconPauseCircleFill,
   IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
@@ -17,6 +18,7 @@ import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
 import { getAllIncomers } from '@/utils/converter'
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
+import { I18N } from '@/locales/i18n'
 
 const { removeNodes, updateNodeData, getIncomers } = useVueFlow()
 const avatarSize = 32
@@ -30,6 +32,7 @@ export interface NodeAction extends Record<string, CustomEvent> {
   edit: (node: Props) => void
   run: (node: Props) => void
   stop: (node: Props) => void
+  copy: (node: Props) => void
 }
 
 type Data = ElementData & ToolBarData & Record<string, ElementData>
@@ -90,7 +93,7 @@ watch(
     if (!animationTimeout) {
       setRunning(newValue)
     }
-    clearTimeout(animationTimeout)
+    animationTimeout && clearTimeout(animationTimeout)
     animationTimeout = setTimeout(() => {
       setRunning(newValue)
       animationTimeout = undefined
@@ -103,26 +106,38 @@ watch(
 <template>
   <div :class="running ? actionClass || 'node-action' : ''" class="autoflow-node">
     <div class="node-toolbar">
-      <AButtonGroup size="mini">
-        <AButton class="toolbar-btn" @click="data.running ? stopNode() : runNode()">
-          <template #icon>
-            <IconPauseCircleFill v-if="data.running" class="toolbar-stop-btn" />
-            <IconPlayCircleFill v-else class="toolbar-action-btn" />
-          </template>
-        </AButton>
-        <AButton class="toolbar-btn" @click="props.events.edit(props)">
-          <template #icon>
-            <IconEdit />
-          </template>
-        </AButton>
-        <AButton class="toolbar-btn toolbar-delete-btn" @click="removeNodes(id)">
-          <template #icon>
-            <IconDelete />
-          </template>
-        </AButton>
-      </AButtonGroup>
-    </div>
+      <slot name="toolbar">
+        <ADropdown trigger="hover">
+          <AButton type="text" size="mini">
+            <template #icon>
+              <IconMore class="toolbar-menu-more" />
+            </template>
+          </AButton>
+          <template #content>
+            <div class="dropdown-box">
+              <div
+                class="dropdown-box-operator-item"
+                @click="data.running ? stopNode() : runNode()"
+              >
+                <IconPauseCircleFill v-if="data.running" class="toolbar-stop-btn" />
+                <IconPlayCircleFill v-else class="toolbar-action-btn" />
+                {{ data.running ? I18N('service.stop', 'stop') : I18N('service.run', 'run') }}
+              </div>
 
+              <div class="dropdown-box-operator-item" @click="props.events.copy(props)">
+                <IconCopy />
+                {{ I18N('service.copy', 'copy') }}
+              </div>
+
+              <div class="dropdown-box-operator-item remove-btn" @click="removeNodes(id)">
+                <IconDelete />
+                {{ I18N('service.remove', 'remove') }}
+              </div>
+            </div>
+          </template>
+        </ADropdown>
+      </slot>
+    </div>
     <div class="node-duration" v-if="executionResult && isSuccess">
       <ATag>
         <template #icon>
@@ -130,6 +145,10 @@ watch(
         </template>
         {{ `${durationSeconds}s` }}
       </ATag>
+    </div>
+    <div class="node-status-icon" v-if="executionResult">
+      <IconCheckCircle v-if="isSuccess" class="node-status-success" />
+      <IconExclamationCircle v-else class="node-status-error" />
     </div>
 
     <div class="node-avatar">
@@ -146,19 +165,17 @@ watch(
         </AAvatar>
 
         <div class="node-label">{{ data.label }}</div>
-
-        <div v-if="executionResult" class="node-status-icon">
-          <IconCheckCircle v-if="isSuccess" class="node-status-success" />
-          <IconExclamationCircle v-else class="node-status-error" />
-        </div>
       </slot>
     </div>
 
     <div class="service-node-form">
       <slot name="form" v-bind="data">
-        <FromRenderer :layout="'vertical'" v-model="data.parameters" :properties="data.service.properties" />
+        <FromRenderer
+          :layout="'vertical'"
+          v-model="data.parameters"
+          :properties="data.service.properties"
+        />
       </slot>
-
     </div>
     <div class="node_handle">
       <slot>

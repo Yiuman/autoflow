@@ -13,7 +13,14 @@ import {
   VueFlow,
   type XYPosition
 } from '@vue-flow/core'
-import { elementsToFlow, getAllIncomers, serviceToGraphNode, toGraphEdge, toGraphNode, toNode } from '@/utils/converter'
+import {
+  elementsToFlow,
+  getAllIncomers,
+  serviceToGraphNode,
+  toGraphEdge,
+  toGraphNode,
+  toNode
+} from '@/utils/converter'
 import {
   IconCloudDownload,
   IconPauseCircleFill,
@@ -26,13 +33,26 @@ import { Controls } from '@vue-flow/controls'
 
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
 import { type FileItem, Notification } from '@arco-design/web-vue'
-import type { BoundingBox, Flow, NodeElementData, Position, Property, Service, VueFlowNode } from '@/types/flow'
+import type {
+  BoundingBox,
+  Flow,
+  NodeElementData,
+  Position,
+  Property,
+  Service,
+  VueFlowNode
+} from '@/types/flow'
 import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByData } from '@/utils/download'
-import { getContainerClientXY } from '@/utils/util-func'
-import { executeNode, getExecutableFlowInst, stopExecution, type WorkflowInst } from '@/api/execution'
+import { getContainerClientXY, uuid } from '@/utils/util-func'
+import {
+  executeNode,
+  getExecutableFlowInst,
+  stopExecution,
+  type WorkflowInst
+} from '@/api/execution'
 import { useServiceStore } from '@/stores/service'
 import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
@@ -99,9 +119,6 @@ function onNodeClick(nodeMouseEvent: NodeMouseEvent) {
   selectedNode.value = findNode<NodeElementData>(selectedNodeId.value)
 }
 
-
-
-
 const properties = computed<Property[]>(() => {
   if (!selectedNode.value) {
     return []
@@ -114,9 +131,22 @@ const description = computed<string | undefined>(
 )
 
 //---------------------------- 节点事件 ----------------------------
-const defaultEditFunc = (node: VueFlowNode) => {
+function defaultEditFunc(node: VueFlowNode) {
   selectedNodeId.value = node.id
   toggleForm()
+}
+
+function defaultCopy(node: VueFlowNode) {
+  const copyNode = {
+    id: uuid(8, true),
+    position: {
+      x: node.position.x - 100,
+      y: node.position.y + 100
+    },
+    type: node.type,
+    data: toRaw(node.data)
+  }
+  addNodes(copyNode)
 }
 
 async function defaultRun(node: VueFlowNode) {
@@ -144,7 +174,8 @@ async function defaultRun(node: VueFlowNode) {
 
 const defaultEvents = {
   edit: defaultEditFunc,
-  run: defaultRun
+  run: defaultRun,
+  copy: defaultCopy
 }
 
 //---------------------------- 处理连线逻辑/添加节点逻辑 ----------------------------
@@ -153,14 +184,15 @@ const basicEdgeProps = {
   data: {},
   type: 'edge',
   markerEnd: {
-    type: MarkerType.ArrowClosed,
+    type: MarkerType.ArrowClosed
     // color: 'rgba(var(--primary-4))'
   },
   style: {
     // stroke: 'rgba(var(--primary-4))',
-    'stroke-width':1.3
+    'stroke-width': 1.3
   }
 }
+
 function doConnect(connection: Connection) {
   isConnect.value = true
   const sourceNode = findNode<NodeElementData>(connection.source)
@@ -318,7 +350,9 @@ function doParseJson(json: string) {
     return graphNode
   }) as VueFlowNode[]
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({
-    ...toGraphEdge(connection), markerEnd: basicEdgeProps.markerEnd, style: basicEdgeProps.style
+    ...toGraphEdge(connection),
+    markerEnd: basicEdgeProps.markerEnd,
+    style: basicEdgeProps.style
   })) as GraphEdge[]
   elements.value = [...nodes, ...edges]
 }

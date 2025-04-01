@@ -18,26 +18,44 @@
     }
   }
 
-  .node-duration {
-    position: absolute;
-    bottom: -20px;
-    right: -40px;
-
-
-    :deep(.arco-tag) {
-      color: rgba(var(--primary-6));
-      background-color: transparent;
-    }
-
-    :deep(.arco-tag-icon) {
-      color: rgba(var(--primary-6));
-    }
-  }
 
   :deep(.arco-form-item) {
     margin-bottom: 7px;
   }
 
+}
+
+.node-duration {
+  position: absolute;
+  bottom: -22px;
+  right: 0;
+  display: flex;
+  align-items: center;
+
+  :deep(.arco-tag) {
+    color: rgba(var(--primary-6));
+    background-color: transparent;
+  }
+
+  :deep(.arco-tag-icon) {
+    color: rgba(var(--primary-6));
+  }
+}
+
+.node-status-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 18px;
+  z-index: 9;
+
+  .node-status-success {
+    color: rgb(var(--green-8))
+  }
+
+  .node-status-error {
+    color: rgb(var(--orange-6))
+  }
 }
 
 .node-avatar {
@@ -47,22 +65,6 @@
   position: relative;
   align-items: center;
   border-radius: 10px;
-
-  .node-status-icon {
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    font-size: 18px;
-
-    .node-status-success {
-      color: rgb(var(--green-8))
-    }
-
-    .node-status-error {
-      color: rgb(var(--orange-6))
-    }
-  }
 
   .node-label {
     flex: 1;
@@ -98,13 +100,21 @@
   font-size: 14px;
 }
 
+.node-toolbar:has(.arco-dropdown-open) {
+  opacity: 1;
+}
+
 .node-toolbar {
   position: absolute;
-  top: -26px;
-  right: 1px;
+  top: 10px;
+  right: 10px;
   z-index: 99;
   transition: 0.5s;
   opacity: 0;
+
+  .toolbar-menu-more {
+    font-size: 20px;
+  }
 
   &:hover {
     cursor: pointer;
@@ -113,6 +123,31 @@
   .toolbar-delete-btn {
     &:hover {
       color: rgb(var(--danger-6));
+    }
+  }
+
+}
+
+.dropdown-box {
+  padding: 0 5px 3px 5px;
+
+  .dropdown-box-operator-item {
+    padding: 5px 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    color: var(--color-text-1);
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--color-fill-2)
+    }
+  }
+
+  .remove-btn {
+    color: rgb(var(--red-6));
+
+    &:hover {
+      background-color: rgba(var(--red-6), .1);
     }
   }
 }
