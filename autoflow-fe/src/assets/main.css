@@ -1,3 +1,13 @@
+@font-face {
+    /* 霞鹜文楷 */
+    font-family: LXGWWenKai-Bold;
+    src: url(./LXGWWenKai-Bold.ttf) ;
+}
+
+body {
+    font-family: LXGWWenKai-Bold, serif !important;;
+}
+
 html,
 body,
 #root {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { RouterView } from 'vue-router'
-import { useServiceStore } from '@/stores/service' //初始化数据
-import { arcoLocale } from '@/locales/i18n'
+import {RouterView} from 'vue-router'
+import {useServiceStore} from '@/stores/service' //初始化数据
+import {arcoLocale} from '@/locales/i18n'
 
 const [initialized, toggleInitialized] = useToggle(false)
 onBeforeMount(async () => {
@@ -17,7 +17,7 @@ onBeforeMount(async () => {
     <ALayout class="layout">
       <ASpin :loading="!initialized" class="layout-spin" dot>
         <ALayoutContent v-if="initialized">
-          <RouterView />
+          <RouterView/>
         </ALayoutContent>
       </ASpin>
     </ALayout>
@@ -25,6 +25,7 @@ onBeforeMount(async () => {
 </template>
 
 <style lang="scss" scoped>
+@import "./assets/main.css";
 .layout {
   height: 100%;
 

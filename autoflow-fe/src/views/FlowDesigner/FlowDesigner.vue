@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { NodeMouseEvent } from '@vue-flow/core'
+import type {NodeMouseEvent} from '@vue-flow/core'
 import {
   type Connection,
   ConnectionMode,
@@ -28,11 +28,11 @@ import {
   IconSave,
   IconUpload
 } from '@arco-design/web-vue/es/icon'
-import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
+import {Background} from '@vue-flow/background'
+import {Controls} from '@vue-flow/controls'
 
 import EditableEdge from '@/components/EditableEdge/EditableEdge.vue'
-import { type FileItem, Notification } from '@arco-design/web-vue'
+import {type FileItem, Notification} from '@arco-design/web-vue'
 import type {
   BoundingBox,
   Flow,
@@ -43,27 +43,29 @@ import type {
 } from '@/types/flow'
 
 import json from './defaultFlow.json'
-import { computed } from 'vue'
-import { downloadByData } from '@/utils/download'
-import { getContainerClientXY, uuid } from '@/utils/util-func'
+import {computed} from 'vue'
+import {downloadByData} from '@/utils/download'
+import {getContainerClientXY, uuid} from '@/utils/util-func'
 import {
   executeNode,
   getExecutableFlowInst,
   stopExecution,
   type WorkflowInst
 } from '@/api/execution'
-import { useServiceStore } from '@/stores/service'
+import {useServiceStore} from '@/stores/service'
+import NodeDrawer from "@/components/NodeDrawer/NodeDrawer.vue";
 import ServiceNode from '@/components/ServiceNode/ServiceNode.vue'
 import IfNode from '@/components/IfNode/IfNode.vue'
 import LoopEachItemNode from '@/components/LoopEachItemNode/LoopEachItemNode.vue'
 import SearchModal from '@/components/SearchModal/SearchModal.vue'
 import useTheme from '@/hooks/theme'
 import workflowApi from '@/api/workflow'
-import { useRoute } from 'vue-router'
-import { getResultData } from '@/utils/flow'
-import { I18N } from '@/locales/i18n'
-import { executeFlowSSE } from '@/views/FlowDesigner/flowsse'
-import { useProvideNodeDataStore } from '@/hooks/useNodeDataStore'
+import {useRoute} from 'vue-router'
+import {getResultData} from '@/utils/flow'
+import {I18N} from '@/locales/i18n'
+import {executeFlowSSE} from '@/views/FlowDesigner/flowsse'
+import {useProvideNodeDataStore} from '@/hooks/useNodeDataStore'
+
 
 const [theme] = useTheme()
 
@@ -105,18 +107,21 @@ onMounted(async () => {
     doParseJson(JSON.stringify(json))
   }
   await nextTick()
-  setTimeout(() => fitView({ maxZoom: 1 }), 0)
+  setTimeout(() => fitView({maxZoom: 1}), 0)
 })
 
 //---------------------------- 节点表单操作 ----------------------------
 const selectedNodeId = ref<string>()
 const [formVisible, toggleForm] = useToggle(false)
-const { selectedNode } = useProvideNodeDataStore()
+const {selectedNode} = useProvideNodeDataStore()
 
 function onNodeClick(nodeMouseEvent: NodeMouseEvent) {
   selectedNodeId.value = nodeMouseEvent.node.id
   selectedNode.value = findNode<NodeElementData>(selectedNodeId.value)
-  toggleForm()
+  if (!formVisible.value) {
+    toggleForm()
+  }
+
 }
 
 //---------------------------- 节点事件 ----------------------------
@@ -140,7 +145,7 @@ function defaultCopy(node: VueFlowNode) {
 
 async function defaultRun(node: VueFlowNode) {
   selectedNodeId.value = node.id
-  updateNodeData(node.id, { running: true })
+  updateNodeData(node.id, {running: true})
 
   const executeNodeData = toNode(toRaw(node))
   const nodeData = executeNodeData.data || {}
@@ -232,9 +237,9 @@ function edgeMouseMove(edgeMouseEvent: EdgeMouseEvent) {
 const vueFlow = ref()
 
 function calculateDefaultPosition(
-  viewport: ViewportTransform,
-  bounding: BoundingBox,
-  connectEndOffset?: Position
+    viewport: ViewportTransform,
+    bounding: BoundingBox,
+    connectEndOffset?: Position
 ) {
   let defaultXy
   if (connectEndOffset && connectEndOffset.x) {
@@ -244,10 +249,10 @@ function calculateDefaultPosition(
       y: connectEndOffset.y - viewport.y - bounding.top
     }
   } else if (selectedNode.value) {
-    defaultXy = { x: selectedNode.value.position.x + 200, y: selectedNode.value.position.y }
+    defaultXy = {x: selectedNode.value.position.x + 200, y: selectedNode.value.position.y}
   } else {
     // 如果没有连接结束偏移且没有现有节点，将新节点放置在 vueFlow 中心位置
-    defaultXy = { x: bounding.right / 2, y: bounding.bottom / 2 }
+    defaultXy = {x: bounding.right / 2, y: bounding.bottom / 2}
   }
 
   return defaultXy
@@ -255,7 +260,7 @@ function calculateDefaultPosition(
 
 function addNode(node: Service) {
   const viewport = getViewport()
-  const { top, bottom, left, right } = useElementBounding(vueFlow)
+  const {top, bottom, left, right} = useElementBounding(vueFlow)
   const bounding: BoundingBox = {
     top: top.value,
     bottom: bottom.value,
@@ -276,13 +281,13 @@ function addNode(node: Service) {
   if (selectHandlerId.value) {
     const isInputHandler = selectHandlerId.value === 'INPUT'
     const newConnect = isInputHandler
-      ? {
+        ? {
           source: newNode.id,
           target: selectedNodeId.value as string,
           sourceHandle: 'OUTPUT',
           targetHandle: selectHandlerId.value
         }
-      : {
+        : {
           source: selectedNodeId.value as string,
           target: newNode.id,
           sourceHandle: selectHandlerId.value,
@@ -303,17 +308,17 @@ function addNode(node: Service) {
 function exportJson() {
   const jsonStr = JSON.stringify(elementsToFlow(elements.value))
   downloadByData(
-    new Blob([jsonStr], {
-      type: 'text/plain'
-    }),
-    'config.json'
+      new Blob([jsonStr], {
+        type: 'text/plain'
+      }),
+      'config.json'
   )
 }
 
 async function saveWorkflow() {
   const flow: Flow = elementsToFlow(elements.value)
   const jsonStr = JSON.stringify(flow)
-  await workflowApi.save({ id: route.query.flowId as string, flowStr: jsonStr })
+  await workflowApi.save({id: route.query.flowId as string, flowStr: jsonStr})
   Notification.success('save success')
 }
 
@@ -372,7 +377,7 @@ async function runFlow() {
   const flow = elementsToFlow(elements.value)
   executeFlowInst.value = await getExecutableFlowInst(flow)
   flow.nodes?.forEach((node) => {
-    updateNodeData(node.id, { executionResult: null })
+    updateNodeData(node.id, {executionResult: null})
   })
   executeFlowSSE(executeFlowInst.value, findNode, updateNodeData, {
     onClose: () => {
@@ -384,57 +389,64 @@ async function runFlow() {
 
 async function stopFlow() {
   if (executeFlowInst.value) {
-    await stopExecution({ id: executeFlowInst.value.id })
+    await stopExecution({id: executeFlowInst.value.id})
     executeFlowInst.value = undefined
   }
 
   running.value = false
 }
+
+
+const vueFlowEl = computed(() => {
+  return unrefElement(vueFlow);
+})
+
+
 </script>
 
 <template>
   <VueFlow
-    ref="vueFlow"
-    v-model="elements"
-    :class="{ theme }"
-    :connection-mode="ConnectionMode.Strict"
-    :edge-types="edgeTypes"
-    :node-types="nodeTypes"
-    class="vue-flow-basic"
-    :no-drag-class-name="'no-drag'"
-    @edge-mouse-move="edgeMouseMove"
-    @edge-mouse-leave="edgeMouseMove"
-    @node-click="onNodeClick"
+      ref="vueFlow"
+      v-model="elements"
+      :class="{ theme }"
+      :connection-mode="ConnectionMode.Strict"
+      :edge-types="edgeTypes"
+      :node-types="nodeTypes"
+      class="vue-flow-basic"
+      :no-drag-class-name="'no-drag'"
+      @edge-mouse-move="edgeMouseMove"
+      @edge-mouse-leave="edgeMouseMove"
+      @node-click="onNodeClick"
   >
     <!-- 背景 -->
-    <Background :gap="8" :pattern-color="theme ? '#343435' : '#aaa'" />
+    <Background :gap="8" :pattern-color="theme ? '#343435' : '#aaa'"/>
     <!-- 面板控制器 -->
-    <Controls />
+    <Controls/>
     <!-- 左上角的操作按钮 -->
     <Panel
-      class="flow-designer-panel"
-      position="top-right"
-      style="display: flex; align-items: center"
+        class="flow-designer-panel"
+        position="top-right"
+        style="display: flex; align-items: center"
     >
       <SearchModal
-        v-model:visible="searchModalVisible"
-        :placeholder="I18N('flowDesigner.searchAddNode', 'search and add node')"
-        @input="(event) => searchModalInput(event as InputEvent)"
+          v-model:visible="searchModalVisible"
+          :placeholder="I18N('flowDesigner.searchAddNode', 'search and add node')"
+          @input="(event) => searchModalInput(event as InputEvent)"
       >
         <AList>
           <AListItem
-            v-for="serviceItem in matchServices"
-            :key="serviceItem.name"
-            @click="() => addNode(serviceItem)"
+              v-for="serviceItem in matchServices"
+              :key="serviceItem.name"
+              @click="() => addNode(serviceItem)"
           >
             <AListItemMeta :title="I18N(`${serviceItem.id}.name`, serviceItem.name)">
               <template #avatar>
                 <AImage
-                  v-if="serviceItem.avatar"
-                  :height="68"
-                  :preview="false"
-                  :src="serviceItem.avatar"
-                  :width="68"
+                    v-if="serviceItem.avatar"
+                    :height="68"
+                    :preview="false"
+                    :src="serviceItem.avatar"
+                    :width="68"
                 />
                 <AAvatar v-else :size="68" shape="square">
                   {{ I18N(`${serviceItem.id}.name`, serviceItem.name) }}
@@ -444,24 +456,24 @@ async function stopFlow() {
           </AListItem>
         </AList>
       </SearchModal>
-      <ADivider direction="vertical" margin="5px" />
+      <ADivider direction="vertical" margin="5px"/>
       <AButton class="panel-item" type="text" @click="saveWorkflow">
         <template #icon>
-          <IconSave size="22px" />
+          <IconSave size="22px"/>
         </template>
       </AButton>
-      <ADivider direction="vertical" margin="5px" />
+      <ADivider direction="vertical" margin="5px"/>
       <AButton class="panel-item" type="text" @click="exportJson">
         <template #icon>
-          <IconCloudDownload size="22px" />
+          <IconCloudDownload size="22px"/>
         </template>
       </AButton>
-      <ADivider direction="vertical" margin="5px" />
+      <ADivider direction="vertical" margin="5px"/>
       <AUpload :auto-upload="false" :show-file-list="false" class="panel-item" @change="importJson">
         <template #upload-button>
           <AButton class="panel-item" type="text">
             <template #icon>
-              <IconUpload size="22px" />
+              <IconUpload size="22px"/>
             </template>
           </AButton>
         </template>
@@ -472,28 +484,21 @@ async function stopFlow() {
     <div class="execute-flow-btn" @click="running ? stopFlow() : runFlow()">
       <AButton type="primary">
         <template #icon>
-          <IconPauseCircleFill v-if="running" />
-          <IconPlayCircleFill v-else />
+          <IconPauseCircleFill v-if="running"/>
+          <IconPlayCircleFill v-else/>
         </template>
         Execute Flow
       </AButton>
     </div>
 
-    <!--    <NodeDrawer-->
-    <!--      v-if="selectedNode"-->
-    <!--      popup-container="vue-flow"-->
-    <!--      v-model="selectedNode"-->
-    <!--      :visible="formVisible"-->
-    <!--    />-->
-
-    <!-- 节点的表单弹窗 -->
-    <!--    <NodeFormModel-->
-    <!--      v-if="selectedNode"-->
-    <!--      v-model="selectedNode"-->
-    <!--      v-model:visible="formVisible"-->
-    <!--      :description="description"-->
-    <!--      :properties="properties"-->
-    <!--    />-->
+    <NodeDrawer
+        class="no-drag"
+        v-if="selectedNode"
+        :popup-container="vueFlowEl as HTMLElement"
+        v-model="selectedNode"
+        v-model:visible="formVisible"
+        :bodyClass="'vue-flow-node-drawer'"
+    />
   </VueFlow>
 </template>
 

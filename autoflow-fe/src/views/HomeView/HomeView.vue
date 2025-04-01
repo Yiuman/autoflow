@@ -12,7 +12,7 @@ import { IconFont } from '@/hooks/iconfont'
 import { I18N } from '@/locales/i18n'
 import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
 
-const [collapsed, toggleCollapsed] = useToggle(false)
+const [collapsed, toggleCollapsed] = useToggle(true)
 
 const menuRef = ref()
 const { width } = useElementSize(menuRef)

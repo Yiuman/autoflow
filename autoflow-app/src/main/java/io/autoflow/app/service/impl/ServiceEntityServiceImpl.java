@@ -45,7 +45,7 @@ public class ServiceEntityServiceImpl extends BaseService<ServiceEntity> impleme
     private void addOrUpdateSystemServices() {
         List<io.autoflow.spi.Service> serviceList = Services.getServiceList();
         List<ServiceEntity> systemServices = serviceList.stream().map(this::convert).toList();
-        saveAll(systemServices);
+         saveAll(systemServices);
     }
 
     @SuppressWarnings("unchecked")

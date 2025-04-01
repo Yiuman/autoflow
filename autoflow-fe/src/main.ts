@@ -1,5 +1,3 @@
-import './assets/main.css'
-
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import i18n from '@/locales/i18n'
@@ -9,6 +7,7 @@ import router from './router'
 import ArcoVue from '@arco-design/web-vue'
 import Modal from '@arco-design/web-vue/es/modal/index'
 import '@arco-design/web-vue/dist/arco.css'
+import './assets/main.css'
 
 const app = createApp(App)
 Modal._context = app._context

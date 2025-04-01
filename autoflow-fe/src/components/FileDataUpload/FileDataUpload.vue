@@ -130,5 +130,9 @@ function uploadFileChange(fileList: FileItem[]) {
     right: 2px;
     top: -27px;
   }
+
+  .arco-upload-picture-card{
+    height: 60px;
+  }
 }
 </style>
