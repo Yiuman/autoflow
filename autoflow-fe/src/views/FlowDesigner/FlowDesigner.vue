@@ -38,11 +38,10 @@ import type {
   Flow,
   NodeElementData,
   Position,
-  Property,
   Service,
   VueFlowNode
 } from '@/types/flow'
-import NodeFormModel from '@/components/NodeFormModal/NodeFormModal.vue'
+
 import json from './defaultFlow.json'
 import { computed } from 'vue'
 import { downloadByData } from '@/utils/download'
@@ -117,18 +116,8 @@ const { selectedNode } = useProvideNodeDataStore()
 function onNodeClick(nodeMouseEvent: NodeMouseEvent) {
   selectedNodeId.value = nodeMouseEvent.node.id
   selectedNode.value = findNode<NodeElementData>(selectedNodeId.value)
+  toggleForm()
 }
-
-const properties = computed<Property[]>(() => {
-  if (!selectedNode.value) {
-    return []
-  }
-  return serviceStore.getServiceById(selectedNode.value?.data.serviceId).properties
-})
-
-const description = computed<string | undefined>(
-  () => serviceStore.getServiceById(selectedNode.value?.data.serviceId)?.description
-)
 
 //---------------------------- 节点事件 ----------------------------
 function defaultEditFunc(node: VueFlowNode) {
@@ -490,14 +479,21 @@ async function stopFlow() {
       </AButton>
     </div>
 
+    <!--    <NodeDrawer-->
+    <!--      v-if="selectedNode"-->
+    <!--      popup-container="vue-flow"-->
+    <!--      v-model="selectedNode"-->
+    <!--      :visible="formVisible"-->
+    <!--    />-->
+
     <!-- 节点的表单弹窗 -->
-    <NodeFormModel
-      v-if="selectedNode"
-      v-model="selectedNode"
-      v-model:visible="formVisible"
-      :description="description"
-      :properties="properties"
-    />
+    <!--    <NodeFormModel-->
+    <!--      v-if="selectedNode"-->
+    <!--      v-model="selectedNode"-->
+    <!--      v-model:visible="formVisible"-->
+    <!--      :description="description"-->
+    <!--      :properties="properties"-->
+    <!--    />-->
   </VueFlow>
 </template>
 

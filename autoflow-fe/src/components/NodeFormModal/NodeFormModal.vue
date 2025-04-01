@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
+import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
+import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
 import type { Property, VueFlowNode } from '@/types/flow'
 import { useVueFlow } from '@vue-flow/core'
 import {
@@ -11,13 +13,11 @@ import {
   IconPlayCircleFill
 } from '@arco-design/web-vue/es/icon'
 import { MdPreview } from 'md-editor-v3'
-import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
 import 'md-editor-v3/lib/style.css'
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { groupBy } from 'lodash'
 import { darkTheme } from '@/hooks/theme'
-import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
 import { getExecutionDurationSeconds } from '@/utils/flow'
 import { I18N } from '@/locales/i18n'
 import { useNodeDataStore } from '@/hooks/useNodeDataStore'
@@ -204,7 +204,11 @@ const [outputPaneVisible, toggleOutputPane] = useToggle(true)
                 key="parameters"
                 :title="I18N('nodeForm.parameters', 'Parameters')"
               >
-                <FromRenderer key-prefix="form_modal" v-model="nodeData.parameters" :properties="props.properties" />
+                <FromRenderer
+                  key-prefix="form_modal"
+                  v-model="nodeData.parameters"
+                  :properties="props.properties"
+                />
               </ATabPane>
               <ATabPane v-if="props.description" key="doc" :title="I18N('nodeForm.doc', 'Doc')">
                 <MdPreview :modelValue="props.description" :theme="darkTheme ? 'dark' : 'light'" />

@@ -18,7 +18,8 @@ const props = defineProps<Props>()
       <Handle
         id="IF_TRUE"
         :is-valid-connection="validateConnection"
-        :position="Position.Top"
+        :position="Position.Right"
+        style="top: 40px"
         type="source"
       >
         <div class="true-label">true</div>
@@ -26,7 +27,8 @@ const props = defineProps<Props>()
       <Handle
         id="IF_FALSE"
         :is-valid-connection="validateConnection"
-        :position="Position.Bottom"
+        :position="Position.Right"
+        style="bottom: 40px; top: auto"
         type="source"
       >
         <div class="false-label">false</div>

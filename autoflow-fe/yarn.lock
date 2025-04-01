@@ -1674,9 +1674,9 @@
   integrity sha512-6dtl/JnwDBNau5h3pDBdOCK6tdxiVAOL3cyruRL61gItwq5E97Hmjmj2BIIqX2p7gU1ENg3z80Z4zlu58fGlsg==
 
 "@vue-flow/core@^1.33.0":
-  version "1.41.4"
-  resolved "https://registry.npmmirror.com/@vue-flow/core/-/core-1.41.4.tgz#7fc4c2ee9e84ff2be5ab6af3d0645486b6afafcb"
-  integrity sha512-OEGI+56DSJ/00fm9SjWgGXtgKJO3Un2/tOEKlCTvL13567VBtdtvNci7f9+6upaR9Eu3oFgbEsF1NiyoQjvB9A==
+  version "1.42.5"
+  resolved "https://registry.npmmirror.com/@vue-flow/core/-/core-1.42.5.tgz#c4bd1d1b1fafd6e3c1807bbfe2124111c82b0e14"
+  integrity sha512-fNaBzt5i/JYHIzfmR4wtT1TkpfZBgB+Pe/LjCG+aXdNOpeveuegv3AmEcU3GFqf/uYrd1rsma877Lncu1uwz1w==
   dependencies:
     "@vueuse/core" "^10.5.0"
     d3-drag "^3.0.0"

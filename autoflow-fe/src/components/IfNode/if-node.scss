@@ -31,23 +31,15 @@
   .true-label {
     color: var(--color-text-1);
     position: absolute;
-    bottom: 14px;
-    left: -8px;
+    bottom: -2px;
+    left: 16px;
   }
 
   .false-label {
     color: var(--color-text-1);
     position: absolute;
-    top: 14px;
-    left: -8px;
-  }
-
-  .vue-flow__handle-IF_TRUE {
-    top: 2px !important;
-  }
-
-  .vue-flow__handle-IF_FALSE {
-    top: calc(100% - 15px) !important;
+    bottom: -2px;
+    left: 16px;
   }
 
 }
