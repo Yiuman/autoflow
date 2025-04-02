@@ -22,7 +22,7 @@ public class FlowExecutionContextImpl implements FlowExecutionContext {
     private final List<ExecutionResult<?>> executionResults = Collections.synchronizedList(CollUtil.newArrayList());
     private final Map<String, Object> parameters = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
-    private final Map<String, Object> inputData = new HashMap<>();
+    private final Map<String, Object> inputData = new ConcurrentHashMap<>();
     private final Map<String, ExecutionContext> loopContextMap = new HashMap<>();
     private final Map<String, List<ExecutionResult<?>>> nodeExecutionResultMap = new ConcurrentHashMap<>();
     private final ExecutionContextValueProvider executionContextValueProvider = new ExecutionContextValueProvider(this);

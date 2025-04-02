@@ -27,6 +27,7 @@ public final class ContextUtils {
                     objects = Collections.synchronizedList(new ArrayList<>());
                 }
                 objects.add(executionData);
+                objects.add(executionResult.getData());
                 inputData.put(executionResult.getNodeId(), objects);
             }
         } else {
