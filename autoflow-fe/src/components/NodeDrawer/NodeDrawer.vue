@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
 import LoopSetting from '@/components/LoopSetting/LoopSetting.vue'
-import type {VueFlowNode} from '@/types/flow'
-import {I18N} from '@/locales/i18n'
-import {IconClose, IconPauseCircle, IconPlayCircle} from '@arco-design/web-vue/es/icon'
-import type {CSSProperties} from "vue";
-import ResultDataViewer from "@/components/NodeFormModal/ResultDataViewer.vue";
+import type { VueFlowNode } from '@/types/flow'
+import { I18N } from '@/locales/i18n'
+import { IconClose, IconPauseCircle, IconPlayCircle } from '@arco-design/web-vue/es/icon'
+import type { CSSProperties } from 'vue'
+import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
 
 interface Props {
   modelValue?: VueFlowNode
@@ -18,7 +18,6 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-
 
 const emits = defineEmits<{
   (e: 'update:modelValue', item: Record<string, any>): void
@@ -74,60 +73,63 @@ const showLoopSetting = computed(() => {
 
 <template>
   <ADrawer
-      v-model:visible="modalVisible"
-      :popup-container="popupContainer || 'body'"
-      :width="width || 500"
-      :height="height"
-      :mask="false"
-      :closable="false"
-      :footer="false"
-      :body-class="bodyClass"
-      :drawer-style="drawerStyle"
+    v-model:visible="modalVisible"
+    :popup-container="popupContainer || 'body'"
+    :width="width || 500"
+    :height="height"
+    :mask="false"
+    :closable="false"
+    :footer="false"
+    :body-class="bodyClass"
+    :drawer-style="drawerStyle"
   >
     <template #header>
       <div class="node-drawer-header">
         <div class="node-drawer-service-label">
           <AImage
-              v-if="nodeData?.service?.avatar"
-              :height="28"
-              :preview="false"
-              :src="nodeData?.service.avatar"
-              :width="28"
+            v-if="nodeData?.service?.avatar"
+            :height="28"
+            :preview="false"
+            :src="nodeData?.service.avatar"
+            :width="28"
           />
-          <AInput v-model="nodeData['label']" size="small"/>
+          <AInput v-model="nodeData['label']" size="small" />
         </div>
-        <div :class="action ? 'node-action' : ''" class="node-drawer-action-btn"
-             @click="() => toggleAction()">
-          <IconPauseCircle v-if="action"/>
-          <IconPlayCircle v-else/>
+        <div
+          :class="action ? 'node-action' : ''"
+          class="node-drawer-action-btn"
+          @click="() => toggleAction()"
+        >
+          <IconPauseCircle v-if="action" />
+          <IconPlayCircle v-else />
         </div>
-        <ADivider direction="vertical"/>
-        <IconClose class="close-btn" @click="modalVisible=!modalVisible"/>
+        <ADivider direction="vertical" />
+        <IconClose class="close-btn" @click="modalVisible = !modalVisible" />
       </div>
     </template>
 
     <div class="node-form-modal-pane node-form-model-desc">
       <ATabs v-model:active-key="activeTab">
         <ATabPane
-            v-if="properties && properties.length"
-            key="parameters"
-            :title="I18N('nodeForm.parameters', 'Parameters')"
+          v-if="properties && properties.length"
+          key="parameters"
+          :title="I18N('nodeForm.parameters', 'Parameters')"
         >
           <FromRenderer
-              key-prefix="form_modal"
-              v-model="nodeData['parameters']"
-              :properties="properties"
+            key-prefix="form_modal"
+            v-model="nodeData['parameters']"
+            :properties="properties"
           />
         </ATabPane>
         <ATabPane
-            v-if="showLoopSetting"
-            key="settings"
-            :title="I18N('nodeForm.settings', 'Settings')"
+          v-if="showLoopSetting"
+          key="settings"
+          :title="I18N('nodeForm.settings', 'Settings')"
         >
-          <LoopSetting v-model="nodeData['loop']"/>
+          <LoopSetting v-model="nodeData['loop']" />
         </ATabPane>
-        <ATabPane key="output" :title=" I18N('output', 'Outputs')">
-          <ResultDataViewer class="drawer-result-viewer" :node="modelValue"/>
+        <ATabPane key="output" :title="I18N('output', 'Outputs')">
+          <ResultDataViewer class="drawer-result-viewer" :node="modelValue" />
         </ATabPane>
       </ATabs>
     </div>
@@ -140,7 +142,7 @@ const showLoopSetting = computed(() => {
   align-items: center;
   width: 100%;
 }
-.node-drawer-action-btn{
+.node-drawer-action-btn {
   font-size: 20px;
   cursor: pointer;
   color: rgba(var(--primary-6));
@@ -169,6 +171,10 @@ const showLoopSetting = computed(() => {
       background-color: var(--color-fill-3);
     }
   }
+}
+
+:deep(.arco-tabs-content-item) {
+  overflow: unset !important;
 }
 
 .drawer-result-viewer {

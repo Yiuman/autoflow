@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import {IconPlus, IconTags} from '@arco-design/web-vue/es/icon'
-import type {SelectOptionData, SelectProps} from '@arco-design/web-vue'
-import tagApi, {type Tag, type TagQuery} from '@/api/tag'
-import {I18N} from '@/locales/i18n'
+import { IconPlus, IconTags } from '@arco-design/web-vue/es/icon'
+import type { SelectOptionData } from '@arco-design/web-vue'
+import tagApi, { type Tag, type TagQuery } from '@/api/tag'
+import { I18N } from '@/locales/i18n'
 
 const options = ref<SelectOptionData[]>()
 const [loading, toggleLoading] = useToggle(false)
@@ -11,10 +11,22 @@ const tagQuery = ref<TagQuery>({
   pageSize: 20
 })
 
-/* @vue-ignore */
-interface TagSelectorProps extends SelectProps {
+interface TagSelectorProps {
+  allowClear?: boolean
   allowCreate?: boolean
   placeholder?: string
+  modelValue?:
+    | string
+    | number
+    | boolean
+    | Record<string, unknown>
+    | (string | number | boolean | Record<string, unknown>)[]
+  defaultValue?:
+    | string
+    | number
+    | boolean
+    | Record<string, unknown>
+    | (string | number | boolean | Record<string, unknown>)[]
 }
 
 const props = withDefaults(defineProps<TagSelectorProps>(), {
@@ -26,12 +38,12 @@ async function handleSearch(searchValue: string | undefined | null) {
   toggleLoading()
   tagQuery.value.name = searchValue
   const tagPageResult = await tagApi.page(tagQuery.value)
-  options.value = tagPageResult.records?.map((tag) => ({value: tag.id, label: tag.name}))
+  options.value = tagPageResult.records?.map((tag) => ({ value: tag.id, label: tag.name }))
   toggleLoading()
 }
 
 async function createTag() {
-  const tagEntity = await tagApi.save({name: tagQuery.value.name as string})
+  const tagEntity = await tagApi.save({ name: tagQuery.value.name as string })
   await handleSearch(tagQuery.value.name)
   emits('update:modelValue', [...(props.modelValue as []), tagEntity.id as string])
 }
@@ -42,13 +54,13 @@ onMounted(() => {
 
 const emits = defineEmits<{
   (
-      e: 'update:modelValue',
-      item:
-          | string
-          | number
-          | boolean
-          | Record<string, unknown>
-          | (string | number | boolean | Record<string, unknown>)[]
+    e: 'update:modelValue',
+    item:
+      | string
+      | number
+      | boolean
+      | Record<string, unknown>
+      | (string | number | boolean | Record<string, unknown>)[]
   ): void
 }>()
 const data = computed({
@@ -65,23 +77,23 @@ const data = computed({
 const modelValueTagMap = ref<Record<string, Tag>>({})
 
 watch(
-    () => props.modelValue,
-    async () => {
-      if (!props.modelValue) {
-        modelValueTagMap.value = {}
-      }
-
-      const page = await tagApi.page({
-        ids: props.modelValue,
-        pageNumber: 1,
-        pageSize: (props.modelValue as []).length
-      })
-      const map: Record<string, Tag> = {}
-      page.records?.forEach((element) => {
-        map[element.id as string] = element
-      })
-      modelValueTagMap.value = map
+  () => props.modelValue,
+  async () => {
+    if (!props.modelValue) {
+      modelValueTagMap.value = {}
     }
+
+    const page = await tagApi.page({
+      ids: props.modelValue,
+      pageNumber: 1,
+      pageSize: (props.modelValue as []).length
+    })
+    const map: Record<string, Tag> = {}
+    page.records?.forEach((element) => {
+      map[element.id as string] = element
+    })
+    modelValueTagMap.value = map
+  }
 )
 
 function fallbackOption(value: string): SelectOptionData {
@@ -95,27 +107,27 @@ function fallbackOption(value: string): SelectOptionData {
 
 <template>
   <ASelect
-      v-model="data"
-      :allow-clear="props.allowClear"
-      :fallback-option="(value) => fallbackOption(value as string)"
-      :filter-option="false"
-      :loading="loading"
-      :max-tag-count="2"
-      :options="options"
-      :placeholder="props.placeholder"
-      :show-extra-options="false"
-      class="tag-selector"
-      multiple
-      @search="handleSearch"
+    v-model="data"
+    :allow-clear="props.allowClear"
+    :fallback-option="(value) => fallbackOption(value as string)"
+    :filter-option="false"
+    :loading="loading"
+    :max-tag-count="2"
+    :options="options"
+    :placeholder="props.placeholder"
+    :show-extra-options="false"
+    class="tag-selector"
+    multiple
+    @search="handleSearch"
   >
     <template #prefix>
-      <IconTags/>
+      <IconTags />
     </template>
     <template #empty>
       <div v-if="props.allowCreate && tagQuery.name" class="tag-add-btn" @click="createTag()">
         <AButton long>
           <template #icon>
-            <IconPlus/>
+            <IconPlus />
           </template>
           {{ I18N('create') }}"
           <span class="tag-add-value">{{ tagQuery.name }}</span>
