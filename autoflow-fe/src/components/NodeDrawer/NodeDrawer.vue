@@ -73,6 +73,7 @@ const showLoopSetting = computed(() => {
 
 <template>
   <ADrawer
+    class="node-drawer"
     v-model:visible="modalVisible"
     :popup-container="popupContainer || 'body'"
     :width="width || 500"
@@ -136,17 +137,29 @@ const showLoopSetting = computed(() => {
   </ADrawer>
 </template>
 
+<style lang="scss">
+.node-drawer {
+  .arco-drawer {
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .node-drawer-header {
   display: flex;
   align-items: center;
   width: 100%;
 }
+
 .node-drawer-action-btn {
   font-size: 20px;
   cursor: pointer;
   color: rgba(var(--primary-6));
 }
+
 .close-btn {
   cursor: pointer;
   color: var(--color-text-1);
