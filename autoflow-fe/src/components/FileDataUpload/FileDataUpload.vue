@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { IconPlus } from '@arco-design/web-vue/es/icon'
 import type { FileItem } from '@arco-design/web-vue'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
-import { IconFont } from '@/hooks/iconfont'
+import { getFileTypeCode, IconFont } from '@/hooks/iconfont'
 
 interface Props {
   modelValue?: FileData | string | undefined
@@ -63,8 +63,9 @@ const currentData = computed({
 })
 
 function uploadFileChange(fileList: FileItem[]) {
+  console.warn('123123', fileList)
   const reader = new FileReader()
-  const fileItem = fileList[0]
+  const fileItem = fileList[fileList.length - 1]
   reader.readAsDataURL(fileItem.file as Blob)
 
   reader.onload = function () {
@@ -88,7 +89,11 @@ function uploadFileChange(fileList: FileItem[]) {
 <template>
   <div class="file-data-upload">
     <!-- 直接使用expressInput状态判断渲染模式 -->
-    <ExpressInput v-if="expressInput" v-model="exprCache" @update:modelValue="currentData = $event" />
+    <ExpressInput
+      v-if="expressInput"
+      v-model="exprCache"
+      @update:modelValue="currentData = $event"
+    />
     <AUpload
       v-else
       :auto-upload="false"
@@ -99,6 +104,10 @@ function uploadFileChange(fileList: FileItem[]) {
       <template #upload-button>
         <div class="arco-upload-picture-card">
           <div v-if="(currentData as FileData)?.filename" class="arco-upload-picture-card-text">
+            <IconFont
+              class="file-type"
+              :type="getFileTypeCode((currentData as FileData).fileType)"
+            />
             {{ (currentData as FileData).filename }}
           </div>
           <div v-else class="arco-upload-picture-card-text">
@@ -109,7 +118,7 @@ function uploadFileChange(fileList: FileItem[]) {
       </template>
     </AUpload>
 
-    <ASwitch v-model="expressInput" class="switch-input"  type="line">
+    <ASwitch v-model="expressInput" class="switch-input" type="line">
       <template #checked-icon>
         <IconFont type="icon-variable" />
       </template>
@@ -131,8 +140,20 @@ function uploadFileChange(fileList: FileItem[]) {
     top: -27px;
   }
 
-  .arco-upload-picture-card{
+  .arco-upload-picture-card {
     height: 60px;
+  }
+
+  .arco-upload-picture-card-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .file-type {
+      margin: 0 5px;
+      width: 30px;
+      height: 30px;
+    }
   }
 }
 </style>
