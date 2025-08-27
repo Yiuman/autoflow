@@ -59,6 +59,11 @@ function handleMenuClick(key: string) {
           <IconFont type="icon-variables" />
           {{ I18N('menu.variables', 'Variables') }}
         </AMenuItem>
+
+        <AMenuItem key="chat">
+          <IconFont type="icon-liaotianzhushou" />
+          {{ I18N('menu.chat', 'Chat') }}
+        </AMenuItem>
       </AMenu>
 
       <div class="sider-bottom">

@@ -5,6 +5,7 @@ import WorkflowList from '@/views/Workflow/WorkflowList.vue'
 import GlobalVariables from '@/views/Variables/GlobalVariables.vue'
 import ServicePlugins from '@/views/Plugins/ServicePlugins.vue'
 import Dashboard from '@/views/Dashboard/Dashboard.vue'
+import ChatBox from '@/views/ChatBox/ChatBox.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +41,11 @@ const router = createRouter({
           path: '/variables',
           name: 'variables',
           component: GlobalVariables
+        },
+        {
+          path: '/chat',
+          name: 'chat',
+          component: ChatBox
         }
       ]
     }

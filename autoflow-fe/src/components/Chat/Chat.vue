@@ -83,21 +83,26 @@ function sendMessage() {
     display: flex;
     border-radius: 10px;
     flex-direction: column;
+    margin: 0 10px 10px 10px;
     padding: 10px;
-    width: calc(100% - 20px);
+    //width: calc(100% - 20px);
     box-shadow:
-      0 4px 20px -1px rgb(0 0 0 / 0.1),
+      0 4px 10px -1px rgb(0 0 0 / 0.1),
       0 2px 10px -2px rgb(0 0 0 / 0.1) !important;
 
     .message-input {
       :deep(.arco-textarea-mirror) {
-        padding: 0;
+        padding: 0 !important;
       }
 
       :deep(.arco-textarea-wrapper) {
         display: block;
         background-color: transparent;
         border: none;
+
+        .arco-textarea {
+          padding: 0 !important;
+        }
       }
 
       :deep(.arco-textarea-focus) {

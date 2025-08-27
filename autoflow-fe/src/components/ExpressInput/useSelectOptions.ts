@@ -26,27 +26,31 @@ function createOptions(
 }
 
 export function useSelectOptions() {
-  const { inputDataFlat } = useNodeDataStore()!
-  const selectOptions = computed(() => {
-    if (!inputDataFlat?.value) return []
-    return flatten(
-      inputDataFlat.value.map((nodeFlatData) => {
-        const varOptions = createOptions(
-          nodeFlatData.node,
-          nodeFlatData.variables || {},
-          `$.variables.${nodeFlatData.node.id}`,
-          'icon-variable'
-        )
-        const inputOptions = createOptions(
-          nodeFlatData.node,
-          nodeFlatData.inputData || {},
-          `$.inputData.${nodeFlatData.node.id}`,
-          'icon-Input'
-        )
-        return [...varOptions, ...inputOptions]
-      })
-    )
-  })
+  try {
+    const { inputDataFlat } = useNodeDataStore()!
+    const selectOptions = computed(() => {
+      if (!inputDataFlat?.value) return []
+      return flatten(
+        inputDataFlat.value.map((nodeFlatData) => {
+          const varOptions = createOptions(
+            nodeFlatData.node,
+            nodeFlatData.variables || {},
+            `$.variables.${nodeFlatData.node.id}`,
+            'icon-variable'
+          )
+          const inputOptions = createOptions(
+            nodeFlatData.node,
+            nodeFlatData.inputData || {},
+            `$.inputData.${nodeFlatData.node.id}`,
+            'icon-Input'
+          )
+          return [...varOptions, ...inputOptions]
+        })
+      )
+    })
 
-  return { selectOptions }
+    return { selectOptions }
+  } catch (error) {
+    return { selectOptions: [] }
+  }
 }

@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.spi.context.Constants;
 import io.autoflow.spi.context.ExecutionContext;
+import io.autoflow.spi.utils.ExpressUtils;
 
 import java.util.Objects;
 
@@ -17,7 +18,6 @@ import java.util.Objects;
  */
 public class ExecutionContextValueProvider extends BaseContextValueProvider {
     private final ExecutionContext executionContext;
-    private String jsonStr;
 
     public ExecutionContextValueProvider(ExecutionContext executionContext) {
         this.executionContext = executionContext;
@@ -38,10 +38,12 @@ public class ExecutionContextValueProvider extends BaseContextValueProvider {
             return executionContext.getVariables();
         }
 
-        Object expressValue = getExpressValue(key);
-        if (Objects.nonNull(expressValue)) {
-            return expressValue;
+
+        if (ExpressUtils.isExpress((String) key)
+                || ExpressUtils.isJsonPath((String) key)) {
+            return getExpressValue(key);
         }
+
 
         Object value = executionContext.getParameters()
                 .getOrDefault(

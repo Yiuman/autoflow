@@ -10,7 +10,7 @@ import { cloneDeep } from 'lodash'
 export interface FormProps {
   modelValue?: Record<string, any>
   layout?: 'inline' | 'horizontal' | 'vertical'
-  properties?: Property[],
+  properties?: Property[]
   keyPrefix?: string
 }
 
@@ -19,6 +19,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   keyPrefix: ''
 })
 
+console.warn('props.properties', props.properties)
 const emits = defineEmits<{
   (e: 'update:modelValue', item: Object): void
 }>()
@@ -66,7 +67,7 @@ const rules = computed(() => {
 })
 let unwatchList: (() => void)[] = []
 function cleanupWatchers() {
-  unwatchList.forEach(unwatch => unwatch())
+  unwatchList.forEach((unwatch) => unwatch())
   unwatchList = []
 }
 //------------------- 默认值处理  -------------------
@@ -75,9 +76,12 @@ watchEffect(() => {
   props.properties?.forEach((property) => {
     setDefaultValue(props.modelValue, property)
     if (property.validateRules) {
-      const unwatch = watch(() => form.value[property.name], () => {
-        formRef.value?.validate(property.name)
-      })
+      const unwatch = watch(
+        () => form.value[property.name],
+        () => {
+          formRef.value?.validate(property.name)
+        }
+      )
       unwatchList.push(unwatch)
     }
   })
@@ -149,30 +153,33 @@ function getToolTip(cmpAttr: ComponentAttr): string {
 }
 
 onBeforeUnmount(cleanupWatchers)
-
-
 </script>
 <template>
   <div class="form-renderer">
-    <AForm ref="formRef" :auto-label-width="true" :layout="props.layout" :model="form" :rules="rules">
-        <AFormItem
-
-          v-for="(cmpAttr) in componentAttrs"
+    <AForm
+      ref="formRef"
+      :auto-label-width="true"
+      :layout="props.layout"
+      :model="form"
+      :rules="rules"
+    >
+      <AFormItem
+        v-for="cmpAttr in componentAttrs"
+        :key="`${keyPrefix}_${cmpAttr.property.id}`"
+        :field="cmpAttr.property.name"
+        :label="getFieldItemLabel(cmpAttr)"
+        :tooltip="getToolTip(cmpAttr)"
+        :validate-trigger="['change', 'blur']"
+      >
+        <Component
+          class="no-drag"
+          :class="`${keyPrefix}_form-item-cmp_${cmpAttr.property.name}`"
+          :is="cmpAttr.cmp"
           :key="`${keyPrefix}_${cmpAttr.property.id}`"
-          :field="cmpAttr.property.name"
-          :label="getFieldItemLabel(cmpAttr)"
-          :tooltip="getToolTip(cmpAttr)"
-          :validate-trigger="['change', 'blur']"
-        >
-          <Component
-            class="no-drag"
-            :class="`${keyPrefix}_form-item-cmp_${cmpAttr.property.name}`"
-            :is="cmpAttr.cmp"
-            :key="`${keyPrefix}_${cmpAttr.property.id}`"
-            v-model="form[cmpAttr.property.name]"
-            v-bind="cmpAttr.attrs"
-          />
-        </AFormItem>
+          v-model="form[cmpAttr.property.name]"
+          v-bind="cmpAttr.attrs"
+        />
+      </AFormItem>
     </AForm>
   </div>
 </template>

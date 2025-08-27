@@ -90,7 +90,7 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
               const segments = splitTextByRegex(item, JSONPATH_REGEX)
               return segments.map((segment) => {
                 if (JSONPATH_REGEX.test(segment)) {
-                  let findOption = options.selectOptions.value?.find(
+                  let findOption = options.selectOptions?.value?.find(
                     (option) => option.key === item
                   )
                   if (!findOption) {
@@ -173,7 +173,7 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
         suggestion: createMentionSuggestion({
           char: '$.',
           items: async ({ query }: { query: string }) => {
-            return options.selectOptions.value.filter((option) =>
+            return options.selectOptions?.value?.filter((option) =>
               option.key.includes(query.replace('$.', ''))
             )
           }
