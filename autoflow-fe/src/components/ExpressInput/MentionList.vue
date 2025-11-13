@@ -16,40 +16,32 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const dropdownMenu = ref<HTMLDivElement | null>(null)
 const selectedIndex = ref(0)
 
 watch(
   () => props.items,
   () => {
+    console.warn(' props.items,', props.items)
     selectedIndex.value = 0
   }
 )
 
-const itemList = computed(() => props.items)
-const { list, containerProps, wrapperProps, scrollTo } = useVirtualList(itemList, {
-  itemHeight: 30,
+// const itemList = computed(() => props.items)
+const { list, containerProps, wrapperProps, scrollTo } = useVirtualList(props.items, {
+  itemHeight: 28,
   overscan: 10
 })
-
-function scrollToSelected() {
-  if (dropdownMenu.value && props.items.length > 0) {
-    scrollTo(selectedIndex.value)
-  }
-}
 
 const onKeyDown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowUp') {
     upHandler()
     event.preventDefault()
-    scrollToSelected() // 滚动到选中的项
     return true
   }
 
   if (event.key === 'ArrowDown') {
     downHandler()
     event.preventDefault()
-    scrollToSelected() // 滚动到选中的项
     return true
   }
 
@@ -64,14 +56,32 @@ const onKeyDown = (event: KeyboardEvent) => {
 
 defineExpose({ onKeyDown })
 
+const scrollToIndex = (index: number) => {
+  const scrollTop = index * 28 // 28 是配置的 itemHeight
+  // 假设 containerProps 中包含 scrollTop 绑定，或直接操作 DOM
+  const container = document.querySelector('.dropdown-container')
+  if (container) {
+    container.scrollTop = scrollTop
+  }
+}
+// 选中项自动滚动到可见区域
 const upHandler = () => {
-  const indexValue = selectedIndex.value + props.items.length - 1
-  selectedIndex.value = indexValue < 0 ? props.items.length - 1 : indexValue
+  if (!props.items.length) return
+  selectedIndex.value = (selectedIndex.value - 1 + props.items.length) % props.items.length
+
+  scrollToIndex(selectedIndex.value)
 }
 
 const downHandler = () => {
-  const indexValue = (selectedIndex.value || 0) + 1
-  selectedIndex.value = indexValue > props.items.length - 1 ? 0 : indexValue
+  if (!props.items.length) return
+  selectedIndex.value = selectedIndex.value + 1
+  console.warn(
+    'selectedIndex.value',
+    selectedIndex.value,
+    list.value.length,
+    list.value[selectedIndex.value]
+  )
+  scrollToIndex(selectedIndex.value)
 }
 
 const enterHandler = () => {
@@ -93,18 +103,19 @@ const selectItem = (index: number) => {
         <div
           v-for="(item, index) in list"
           :key="index"
-          :class="{ 'is-selected': index === selectedIndex }"
+          :class="{ 'is-selected': items.indexOf(item.data) === selectedIndex }"
           class="select-item"
-          @click="() => selectItem(index)"
+          @click="() => selectItem(items.indexOf(item.data))"
         >
-          <span v-if="item.data.type" class="item-type">
+          <div class="item-type">
             <IconFont
               v-if="item.data.iconFontCode"
               :type="item.data.iconFontCode"
               class="item-type-icon"
-            />{{ item.data.type }}
-          </span>
-          <span class="item-label"> {{ item.data.label ?? item.data.key }} </span>
+            />
+            {{ item.data.type }}
+          </div>
+          <div class="item-label">{{ item.data.label ?? item.data.key }}</div>
         </div>
       </div>
     </div>
@@ -127,16 +138,17 @@ const selectItem = (index: number) => {
   position: relative;
 
   .dropdown-container {
-    max-height: 200px;
+    height: 200px;
+    overflow-y: auto;
   }
 
   .select-item {
     cursor: pointer;
-    margin-top: 2px;
     align-items: center;
     display: flex;
     text-align: left;
     padding: 4px;
+    height: 20px;
     color: var(--color-text-1);
     border-radius: var(--border-radius-medium);
 

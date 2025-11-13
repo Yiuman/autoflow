@@ -1,6 +1,6 @@
 package io.autoflow.plugin.llm.provider;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 
 import java.util.Map;
@@ -11,5 +11,5 @@ import java.util.Map;
  */
 public interface ChatLanguageModelProvider {
 
-    ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter);
+    ChatModel create(ModelConfig modelConfig, Map<String, Object> parameter);
 }

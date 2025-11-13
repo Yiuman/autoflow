@@ -5,7 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.validation.ValidationUtil;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
@@ -22,7 +22,7 @@ import java.util.Set;
 public class OpenAiChatModelProvider implements ChatLanguageModelProvider {
 
     @Override
-    public ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
+    public ChatModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
         OpenAiParameter openAiParameter = BeanUtil.toBean(parameter, OpenAiParameter.class);
         Set<ConstraintViolation<OpenAiParameter>> validated = ValidationUtil.validate(openAiParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));

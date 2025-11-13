@@ -5,7 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.validation.ValidationUtil;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
@@ -22,7 +22,7 @@ import java.util.Set;
 public class OllamaModelProvider implements ChatLanguageModelProvider {
 
     @Override
-    public ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
+    public ChatModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
         OllamaParameter ollamaParameter = BeanUtil.toBean(parameter, OllamaParameter.class);
         Set<ConstraintViolation<OllamaParameter>> validated = ValidationUtil.validate(ollamaParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
@@ -30,7 +30,6 @@ public class OllamaModelProvider implements ChatLanguageModelProvider {
         return OllamaChatModel.builder()
                 .modelName(modelName)
                 .baseUrl(ollamaParameter.getBaseUrl())
-                .format(ollamaParameter.getFormat())
                 .seed(ollamaParameter.getSeed())
                 .numCtx(ollamaParameter.getNumCtx())
                 .numPredict(ollamaParameter.getNumPredict())

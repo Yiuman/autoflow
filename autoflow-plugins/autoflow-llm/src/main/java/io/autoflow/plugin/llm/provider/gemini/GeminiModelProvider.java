@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.extra.validation.ValidationUtil;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
@@ -21,7 +21,7 @@ import java.util.Set;
 public class GeminiModelProvider implements ChatLanguageModelProvider {
 
     @Override
-    public ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
+    public ChatModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
         GeminiParameter geminiParameter = BeanUtil.toBean(parameter, GeminiParameter.class);
         Set<ConstraintViolation<GeminiParameter>> validated = ValidationUtil.validate(geminiParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
@@ -29,7 +29,6 @@ public class GeminiModelProvider implements ChatLanguageModelProvider {
         return GoogleAiGeminiChatModel.builder()
                 .modelName(modelConfig.getModelName())
                 .apiKey(geminiParameter.getApiKey())
-                .candidateCount(geminiParameter.getCandidateCount())
                 .stopSequences(geminiParameter.getStopSequences())
                 .maxOutputTokens(geminiParameter.getMaxOutputTokens())
                 .topK(geminiParameter.getTopK())

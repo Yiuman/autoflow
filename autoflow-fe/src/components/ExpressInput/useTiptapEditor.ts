@@ -99,6 +99,7 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
                     const nodeId = splits[2]
                     const iconFontCode = labelType === 'inputData' ? 'icon-Input' : 'icon-variable'
                     const node = findNode(nodeId)
+                    console.warn('nodeId', nodeId)
                     findOption = {
                       key: segment,
                       nodeId: nodeId,

@@ -4,8 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.extra.validation.ValidationUtil;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.dashscope.QwenChatModel;
+import dev.langchain4j.community.model.dashscope.QwenChatModel;
+import dev.langchain4j.model.chat.ChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
@@ -21,7 +21,7 @@ import java.util.Set;
 public class QWenModelProvider implements ChatLanguageModelProvider {
 
     @Override
-    public ChatLanguageModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
+    public ChatModel create(ModelConfig modelConfig, Map<String, Object> parameter) {
         QWenParameter qWenParameter = BeanUtil.toBean(parameter, QWenParameter.class);
         Set<ConstraintViolation<QWenParameter>> validated = ValidationUtil.validate(qWenParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));

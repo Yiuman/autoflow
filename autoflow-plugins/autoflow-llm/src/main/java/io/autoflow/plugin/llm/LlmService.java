@@ -1,9 +1,8 @@
 package io.autoflow.plugin.llm;
 
 import cn.hutool.core.date.StopWatch;
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.plugin.llm.provider.ChatModelProviders;
 import io.autoflow.spi.context.ExecutionContext;
@@ -30,7 +29,7 @@ public class LlmService extends BaseService<LlmParameter, LlmResult> {
     public LlmResult execute(LlmParameter llmParameter, ExecutionContext executionContext) {
         StopWatch stopWatch = new StopWatch("LLM execute");
         stopWatch.start("构建模型");
-        ChatLanguageModel chatLanguageModel = buildChatLanguageModel(llmParameter);
+        ChatModel chatLanguageModel = buildChatLanguageModel(llmParameter);
         stopWatch.stop();
         stopWatch.start("构建消息");
         List<dev.langchain4j.data.message.ChatMessage> chatMessages = llmParameter.getMessages().stream()
@@ -38,13 +37,13 @@ public class LlmService extends BaseService<LlmParameter, LlmResult> {
                 .toList();
         stopWatch.stop();
         stopWatch.start("GEN");
-        Response<AiMessage> response = chatLanguageModel.generate(chatMessages);
+        ChatResponse chatResponse = chatLanguageModel.chat(chatMessages);
         stopWatch.stop();
         log.debug("\n" + stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
-        return LlmResult.from(response.content().text());
+        return LlmResult.from(chatResponse.aiMessage().text());
     }
 
-    private ChatLanguageModel buildChatLanguageModel(LlmParameter llmParameter) {
+    private ChatModel buildChatLanguageModel(LlmParameter llmParameter) {
         Linkage<String> model = llmParameter.getModel();
         ModelConfig modelConfig = ModelParameterProvider.getModelConfigByModelName(model.getValue());
         ChatLanguageModelProvider chatLanguageModelProvider = ChatModelProviders.get(modelConfig.getImplClass());
