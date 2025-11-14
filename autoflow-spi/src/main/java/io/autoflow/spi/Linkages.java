@@ -1,10 +1,9 @@
-package io.autoflow.core;
+package io.autoflow.spi;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.TypeUtil;
-import io.autoflow.spi.LinkageProvider;
 import io.autoflow.spi.model.Property;
 
 import java.util.ArrayList;

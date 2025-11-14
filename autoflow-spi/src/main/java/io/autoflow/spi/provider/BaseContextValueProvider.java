@@ -3,13 +3,12 @@ package io.autoflow.spi.provider;
 import cn.hutool.core.bean.copier.ValueProvider;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.*;
-import com.jayway.jsonpath.JsonPath;
-import com.ql.util.express.ExpressRunner;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.TypeUtil;
 import com.ql.util.express.IExpressContext;
 import io.autoflow.spi.utils.ExpressUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -19,24 +18,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 
-import static io.autoflow.spi.utils.ExpressUtils.*;
+import static io.autoflow.spi.utils.ExpressUtils.EXPRESS_PATTERN;
+import static io.autoflow.spi.utils.ExpressUtils.JSON_PATH_PATTERN;
 
 /**
  * @author yiuman
  * @date 2024/4/15
  */
 public abstract class BaseContextValueProvider implements ValueProvider<String>, IExpressContext<String, Object> {
-    private static final Log LOGGER = LogFactory.getLog(BaseContextValueProvider.class);
-    private final ExpressRunner expressRunner = new ExpressRunner();
 
     public BaseContextValueProvider() {
-        try {
-            expressRunner.addFunctionOfServiceMethod(JSONPATH_EXPRESS_METHOD, this, "extractByJsonPath", new Class[]{String.class}, null);
-            expressRunner.addFunctionOfClassMethod(IS_EMPTY_METHOD, ObjectUtil.class.getName(), "isEmpty", new Class[]{Object.class}, null);
-            expressRunner.addFunctionOfClassMethod(IS_NOT_EMPTY_METHOD, ObjectUtil.class.getName(), "isNotEmpty", new Class[]{Object.class}, null);
-        } catch (Exception exception) {
-            LOGGER.debug("init expressRunner happen error ", exception);
-        }
     }
 
     @Override
@@ -142,7 +133,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
             }
 
             //Express
-            Object aviatorValue = extractByExpress(strValue);
+            Object aviatorValue = ExpressUtils.extractByExpress(this, strValue);
             if (Objects.nonNull(aviatorValue)) {
                 return aviatorValue;
             }
@@ -199,7 +190,7 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
         while (expressMatcher.find()) {
             String expressKey = expressMatcher.group();
             // 去掉 ${ 和 }
-            Object expressValue = extractByExpress(expressKey);
+            Object expressValue = ExpressUtils.extractByExpress(this, expressKey);
             String replacement = expressValue != null
                     ? Matcher.quoteReplacement(expressValue.toString())
                     : Matcher.quoteReplacement("");
@@ -211,28 +202,10 @@ public abstract class BaseContextValueProvider implements ValueProvider<String>,
     }
 
     public Object extractByJsonPath(String strValue) {
-        try {
-            if (ExpressUtils.isJsonPath(strValue)) {
-                return JsonPath.read(toJsonStr(), strValue);
-            }
-        } catch (Throwable throwable) {
-            LOGGER.debug("read json path happen error ", throwable);
-        }
-        return null;
+        return ExpressUtils.extractByJsonPath(toJsonStr(), strValue);
     }
 
     public abstract String toJsonStr();
 
-    protected Object extractByExpress(String strValue) {
-        try {
-            String express = ExpressUtils.getExpressText(strValue);
-            if (StrUtil.isNotBlank(express)) {
-                return expressRunner.execute(express, this, null, false, false);
-            }
 
-        } catch (Throwable throwable) {
-            LOGGER.debug(StrUtil.format("execute express happen error, express string '{}' ", strValue), throwable);
-        }
-        return null;
-    }
 }

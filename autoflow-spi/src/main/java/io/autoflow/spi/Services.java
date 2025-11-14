@@ -1,6 +1,4 @@
-package io.autoflow.core;
-
-import io.autoflow.spi.Service;
+package io.autoflow.spi;
 
 import java.io.IOException;
 import java.net.URL;

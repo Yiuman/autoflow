@@ -28,6 +28,7 @@
         <module>autoflow-template</module>
         <module>autoflow-shell</module>
         <module>autoflow-uncompress</module>
+        <module>autoflow-function</module>
     </modules>
 
     <properties>

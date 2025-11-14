@@ -9,9 +9,12 @@ import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
+import io.autoflow.spi.OptionValueProvider;
+import io.autoflow.spi.Options;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.annotation.Cmp;
 import io.autoflow.spi.annotation.Description;
+import io.autoflow.spi.annotation.Select;
 import io.autoflow.spi.enums.ComponentType;
 import io.autoflow.spi.model.*;
 import jakarta.validation.MessageInterpolator;
@@ -134,6 +137,7 @@ public final class PropertyUtils {
                 return option;
             }).toList();
 
+
             Component component = new Component();
             component.setType(ComponentType.Select);
             component.setProps(Map.of("options", options));
@@ -141,7 +145,39 @@ public final class PropertyUtils {
         }
 
         Annotation[] annotations = AnnotationUtil.getAnnotations(field, true);
+
         return Arrays.stream(annotations).map(annotation -> {
+                    if (annotation instanceof Select selectAnn) {
+
+                        Map<String, Object> props = new HashMap<>();
+
+                        // 1. 先尝试 provider
+                        Class<? extends OptionValueProvider> providerClass = selectAnn.provider();
+                        List<Option> options;
+
+                        if (providerClass != OptionValueProvider.class) {
+                            try {
+                                options = Options.getOptions(providerClass);
+                            } catch (Exception e) {
+                                throw new RuntimeException("无法实例化 SelectOptionsProvider: " + providerClass, e);
+                            }
+                        } else {
+                            options = Arrays.stream(selectAnn.options()).map(option -> new Option(option, option))
+                                    .collect(Collectors.toList());
+                        }
+
+                        props.put("options", options);
+                        // 3. defaultValue
+                        if (!selectAnn.defaultValue().isEmpty()) {
+                            props.put("defaultValue", selectAnn.defaultValue());
+                        }
+
+                        Component component = new Component();
+                        component.setType(ComponentType.Select);
+                        component.setProps(props);
+                        return component;
+                    }
+
                     Cmp cmp;
                     if (Cmp.class.equals(annotation.annotationType())) {
                         cmp = (Cmp) annotation;

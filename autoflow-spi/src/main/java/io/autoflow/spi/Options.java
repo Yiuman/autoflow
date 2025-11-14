@@ -1,12 +1,12 @@
-package io.autoflow.core;
+package io.autoflow.spi;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import io.autoflow.spi.OptionValueProvider;
 import io.autoflow.spi.model.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 
 /**
@@ -27,6 +27,12 @@ public final class Options {
 
     public static List<Option> getOptions(String id) {
         OptionValueProvider optionValueProvider = getOptionValueProvider(id);
+        return optionValueProvider.getOptions();
+    }
+
+
+    public static List<Option> getOptions(Class<? extends OptionValueProvider> providerClass) {
+        OptionValueProvider optionValueProvider = CollUtil.findOne(OPTION_VALUE_PROVIDERS, op -> Objects.equals(op.getClass(), providerClass));
         return optionValueProvider.getOptions();
     }
 }
