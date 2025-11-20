@@ -1,14 +1,19 @@
 package io.autoflow.spi.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import com.jayway.jsonpath.JsonPath;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -21,6 +26,7 @@ public final class ExpressUtils {
     public static final String IS_NOT_EMPTY_METHOD = "IsNotEmpty";
     public static final String IS_EMPTY_METHOD = "IsEmpty";
     public static final String JSONPATH_EXPRESS_METHOD = "JsonPath";
+    public static final String EXTRACT_JSON_METHOD = "ExtractJson";
     public static final String JSONPATH_EXPRESS_TPL = "JsonPath(\"{}\")";
 
     /**
@@ -34,7 +40,8 @@ public final class ExpressUtils {
 
     static {
         try {
-            EXPRESS_RUNNER.addFunctionOfServiceMethod(JSONPATH_EXPRESS_METHOD, ExpressUtils.class.getName(), "extractByJsonPath", new Class[]{String.class}, null);
+            EXPRESS_RUNNER.addFunctionOfClassMethod(JSONPATH_EXPRESS_METHOD, ExpressUtils.class.getName(), "extractByJsonPath", new Class[]{String.class, String.class}, null);
+            EXPRESS_RUNNER.addFunctionOfClassMethod(EXTRACT_JSON_METHOD, ExpressUtils.class.getName(), "extractJson", new Class[]{String.class}, null);
             EXPRESS_RUNNER.addFunctionOfClassMethod(IS_EMPTY_METHOD, ObjectUtil.class.getName(), "isEmpty", new Class[]{Object.class}, null);
             EXPRESS_RUNNER.addFunctionOfClassMethod(IS_NOT_EMPTY_METHOD, ObjectUtil.class.getName(), "isNotEmpty", new Class[]{Object.class}, null);
         } catch (Exception exception) {
@@ -43,7 +50,6 @@ public final class ExpressUtils {
     }
 
     private ExpressUtils() {
-
     }
 
     public static String isNotEmptyExpress(Object strValue) {
@@ -90,9 +96,73 @@ public final class ExpressUtils {
                 return JsonPath.read(jsonStr, strValue);
             }
         } catch (Throwable throwable) {
-            LOGGER.debug("read json path happen error ", throwable);
+            LOGGER.debug(StrUtil.format("read json path happen error,jsonStr={} ", jsonStr), throwable);
         }
         return null;
+    }
+
+    public static JSON extractJson(String str) {
+        List<String> strings = extractJsonStrList(str);
+        String jsonStr = CollUtil.findOne(strings, JSONUtil::isTypeJSON);
+        if (StrUtil.isBlank(jsonStr)) {
+            return null;
+        }
+        return JSONUtil.parse(jsonStr);
+    }
+
+    public static List<String> extractJsonStrList(String text) {
+        List<String> list = new ArrayList<>();
+        char[] arr = text.toCharArray();
+        int n = arr.length;
+
+        boolean inString = false;
+        boolean escape = false;
+        int brace = 0;     // {}
+        int bracket = 0;   // []
+        int start = -1;
+
+        for (int i = 0; i < n; i++) {
+            char c = arr[i];
+
+            // 处理 \" 转义
+            if (escape) {
+                escape = false;
+            } else {
+                if (c == '\\') {
+                    escape = true;
+                } else if (c == '"') {
+                    inString = !inString;
+                }
+            }
+
+            if (!inString) {
+                if (c == '{' || c == '[') {
+                    if (brace == 0 && bracket == 0) {
+                        start = i;
+                    }
+                    if (c == '{') {
+                        brace++;
+                    } else {
+                        bracket++;
+                    }
+                }
+
+                if (c == '}' || c == ']') {
+                    if (c == '}') {
+                        brace--;
+                    } else {
+                        bracket--;
+                    }
+
+                    if (brace == 0 && bracket == 0 && start != -1) {
+                        list.add(text.substring(start, i + 1));
+                        start = -1;
+                    }
+                }
+            }
+        }
+
+        return list;
     }
 
     public static Object extractByExpress(IExpressContext<String, Object> iExpressContext, String strValue) {

@@ -19,7 +19,6 @@ const props = withDefaults(defineProps<FormProps>(), {
   keyPrefix: ''
 })
 
-console.warn('props.properties', props.properties)
 const emits = defineEmits<{
   (e: 'update:modelValue', item: Object): void
 }>()
@@ -91,7 +90,7 @@ function getDefaultList(property: Property) {
   if (property.defaultValue) {
     return cloneDeep(property.defaultValue)
   }
-  if (property.properties?.length == 1) {
+  if (property.properties?.length <= 1) {
     return []
   }
 

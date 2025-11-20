@@ -6,6 +6,7 @@ import { I18N } from '@/locales/i18n'
 import { IconClose, IconPauseCircle, IconPlayCircle } from '@arco-design/web-vue/es/icon'
 import type { CSSProperties } from 'vue'
 import ResultDataViewer from '@/components/NodeFormModal/ResultDataViewer.vue'
+import { randomRgba } from '@/utils/util-func'
 
 interface Props {
   modelValue?: VueFlowNode
@@ -69,6 +70,8 @@ const excludeShowLoopSettingNode = ['IF']
 const showLoopSetting = computed(() => {
   return !(excludeShowLoopSettingNode.indexOf(props.modelValue?.type || '') > -1)
 })
+const avatarSize = 32
+const rgba = randomRgba(0.8)
 </script>
 
 <template>
@@ -94,6 +97,9 @@ const showLoopSetting = computed(() => {
             :src="nodeData?.service.avatar"
             :width="28"
           />
+          <AAvatar v-else :size="avatarSize" :style="{ 'background-color': rgba }" shape="square"
+            >{{ nodeData?.service?.name }}
+          </AAvatar>
           <AInput v-model="nodeData['label']" size="small" />
         </div>
         <div

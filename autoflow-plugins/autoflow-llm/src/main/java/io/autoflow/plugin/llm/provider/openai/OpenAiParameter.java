@@ -38,4 +38,5 @@ public class OpenAiParameter {
     private List<String> stop = CollUtil.newArrayList();
     private String user;
     private String responseFormat;
+    private Long timeout = 300L;
 }

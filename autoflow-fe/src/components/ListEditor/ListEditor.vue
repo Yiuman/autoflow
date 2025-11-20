@@ -3,6 +3,7 @@ import type { ComponentAttr } from '@/types/flow'
 import type { TableColumnData } from '@arco-design/web-vue'
 import { IconDelete, IconPlus } from '@arco-design/web-vue/es/icon'
 import type { Component } from 'vue'
+import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 
 export interface ListEditorProps {
   columns: TableColumnData[]
@@ -82,7 +83,7 @@ function doEmitChange(record: Record<string, any>, val: string) {
 
 function getColumnComponent(dataIndex: string): Component | string {
   if (!props.columnCmp || !props.columnCmp[dataIndex]) {
-    return 'AInput'
+    return ExpressInput
   }
   return props.columnCmp[dataIndex].cmp
 }

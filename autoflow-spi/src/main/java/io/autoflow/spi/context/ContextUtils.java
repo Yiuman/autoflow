@@ -30,7 +30,7 @@ public final class ContextUtils {
                 objects.add(executionResult.getData());
                 inputData.put(executionResult.getNodeId(), objects);
             }
-        } else {
+        } else if (Objects.nonNull(executionResult.getData())) {
             inputData.put(executionResult.getNodeId(), executionResult.getData());
         }
 

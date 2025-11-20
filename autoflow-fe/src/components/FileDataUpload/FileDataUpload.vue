@@ -63,7 +63,6 @@ const currentData = computed({
 })
 
 function uploadFileChange(fileList: FileItem[]) {
-  console.warn('123123', fileList)
   const reader = new FileReader()
   const fileItem = fileList[fileList.length - 1]
   reader.readAsDataURL(fileItem.file as Blob)

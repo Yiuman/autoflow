@@ -1,4 +1,10 @@
-import type { ComponentAttr, ComponentType, GenericType, Property, ValidateRule } from '@/types/flow'
+import type {
+  ComponentAttr,
+  ComponentType,
+  GenericType,
+  Property,
+  ValidateRule
+} from '@/types/flow'
 import ExpressInput from '@/components/ExpressInput/ExpressInput.vue'
 import ConditionFilter from '@/components/ConditionFilter/ConditionFilter.vue'
 import FileDataUpload from '@/components/FileDataUpload/FileDataUpload.vue'
@@ -38,7 +44,10 @@ const InputAdapter: CmpAdapter = {
  */
 const NumberInputAdapter: CmpAdapter = {
   supper: (property: Property, genericType: GenericType) => {
-    return ['Integer', 'Long', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(genericType.mainType) > -1
+    return (
+      ['Integer', 'Long', 'Float', 'Double', 'Number', 'BigDecimal'].indexOf(genericType.mainType) >
+      -1
+    )
   },
   toCmpAttr: (property: Property) => {
     if (property.validateRules) {
@@ -166,7 +175,7 @@ const ArrayAdapter: CmpAdapter = {
     }
 
     return {
-      cmp: property.properties?.length == 1 ? BasicTypeListEditor : ListEditor,
+      cmp: property.properties?.length <= 1 ? BasicTypeListEditor : ListEditor,
       attrs: { columns, columnCmp },
       property: property
     }

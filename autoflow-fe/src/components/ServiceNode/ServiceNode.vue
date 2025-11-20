@@ -17,7 +17,6 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import { randomRgba } from '@/utils/util-func'
 import { getAllIncomers } from '@/utils/converter'
-import FromRenderer from '@/components/FormRenderer/FormRenderer.vue'
 import { I18N } from '@/locales/i18n'
 
 const { removeNodes, updateNodeData, getIncomers } = useVueFlow()
@@ -86,6 +85,13 @@ const running = ref()
 function setRunning(value: boolean) {
   running.value = value
 }
+
+const nodeInputOutputDescriptions = computed(() => {
+  return [
+    { name: I18N('input'), values: props.data.service.properties },
+    { name: I18N('output'), values: props.data.service.outputProperties }
+  ]
+})
 
 watch(
   () => props.data.running,
@@ -168,15 +174,27 @@ watch(
       </slot>
     </div>
 
-    <div class="service-node-form">
-      <slot name="form" v-bind="data">
-        <FromRenderer
-          :layout="'vertical'"
-          v-model="data.parameters"
-          :properties="data.service.properties"
-        />
-      </slot>
+    <div class="service-input-output-desc">
+      <ADescriptions :column="1">
+        <ADescriptionsItem v-for="item of nodeInputOutputDescriptions" :label="item.name">
+          <div class="service-input-output-tag-container">
+            <div class="service-input-output-tag" v-for="property of item.values">
+              <span>{{ property.type }}</span>
+              <span>{{ I18N(property.id, property.name) }}</span>
+            </div>
+          </div>
+        </ADescriptionsItem>
+      </ADescriptions>
     </div>
+    <!--    <div class="service-node-form">-->
+    <!--      <slot name="form" v-bind="data">-->
+    <!--        <FromRenderer-->
+    <!--          :layout="'vertical'"-->
+    <!--          v-model="data.parameters"-->
+    <!--          :properties="data.service.properties"-->
+    <!--        />-->
+    <!--      </slot>-->
+    <!--    </div>-->
     <div class="node_handle">
       <slot>
         <Handle

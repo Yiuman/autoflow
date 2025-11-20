@@ -21,7 +21,6 @@ const selectedIndex = ref(0)
 watch(
   () => props.items,
   () => {
-    console.warn(' props.items,', props.items)
     selectedIndex.value = 0
   }
 )
@@ -66,21 +65,15 @@ const scrollToIndex = (index: number) => {
 }
 // 选中项自动滚动到可见区域
 const upHandler = () => {
-  if (!props.items.length) return
+  if (!props.items?.length) return
   selectedIndex.value = (selectedIndex.value - 1 + props.items.length) % props.items.length
 
   scrollToIndex(selectedIndex.value)
 }
 
 const downHandler = () => {
-  if (!props.items.length) return
+  if (!props.items?.length) return
   selectedIndex.value = selectedIndex.value + 1
-  console.warn(
-    'selectedIndex.value',
-    selectedIndex.value,
-    list.value.length,
-    list.value[selectedIndex.value]
-  )
   scrollToIndex(selectedIndex.value)
 }
 
@@ -98,7 +91,7 @@ const selectItem = (index: number) => {
 
 <template>
   <div ref="dropdownMenu" class="dropdown-menu">
-    <div v-if="items.length" class="dropdown-container" v-bind="containerProps">
+    <div v-if="items?.length" class="dropdown-container" v-bind="containerProps">
       <div v-bind="wrapperProps">
         <div
           v-for="(item, index) in list"

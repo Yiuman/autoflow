@@ -12,6 +12,7 @@ import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
 import jakarta.validation.ConstraintViolation;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,7 @@ public class OpenAiChatModelProvider implements ChatLanguageModelProvider {
         String modelName = StrUtil.blankToDefault(openAiParameter.getModelName(), modelConfig.getModelName());
         return OpenAiChatModel.builder()
                 .modelName(modelName)
+                .timeout(Duration.ofSeconds(openAiParameter.getTimeout()))
                 .baseUrl(openAiParameter.getBaseUrl())
                 .apiKey(openAiParameter.getApiKey())
                 .frequencyPenalty(openAiParameter.getFrequencyPenalty())
