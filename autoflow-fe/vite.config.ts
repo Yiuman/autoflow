@@ -51,6 +51,10 @@ export default defineConfig({
         // 后台地址
         target: 'http://localhost:8096/',
         changeOrigin: true
+      },
+      '/chat': {
+        target: 'http://localhost:8096/',
+        changeOrigin: true
       }
     }
   }

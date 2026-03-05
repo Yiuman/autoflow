@@ -8,4 +8,15 @@ interface Message {
   location?: Location
 }
 
-export { Message }
+interface SendMessageRequest {
+  content: string
+  provider?: string
+}
+
+interface Provider {
+  id: string
+  name: string
+  displayName: string
+}
+
+export { Message, SendMessageRequest, Provider }

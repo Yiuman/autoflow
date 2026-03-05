@@ -1,90 +1,133 @@
 --工作流定义
 CREATE TABLE IF NOT EXISTS af_workflow
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
-    name          VARCHAR(255) NOT NULL,               -- 不为空的工作流名称
-    flow_str      TEXT,                                -- 存储 JSON 数据，推荐使用 JSONB 类型
-    tag_ids       VARCHAR(32)[],                       -- UUID 数组，存储标签 ID 集合
-    plugin_ids    VARCHAR(255)[],                      -- UUID 数组，存储插件 ID 集合
-    description   TEXT,                                -- 描述字段
-    version       INTEGER   DEFAULT 1,                 -- 默认版本号为 1
-    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id            VARCHAR(32) PRIMARY KEY,
+    name          VARCHAR(255) NOT NULL,
+    flow_str      TEXT,
+    tag_ids       VARCHAR(32)[],
+    plugin_ids    VARCHAR(255)[],
+    description   TEXT,
+    version       INTEGER   DEFAULT 1,
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 -- 服务插件
 CREATE TABLE IF NOT EXISTS af_service
 (
-    id                VARCHAR(255) PRIMARY KEY,            -- 主键，UUID 类型，默认值自动生成
-    name              VARCHAR(255) NOT NULL,               -- 插件名称
-    system            BOOLEAN   DEFAULT TRUE,              -- 是否为系统插件
-    jar_file_id       VARCHAR(32),                         -- jar包文件ID
-    description       TEXT,                                -- 描述字段
-    properties        JSONB,                               --  参数属性
-    output_properties JSONB,                               -- 输出类型
-    uninstall         BOOLEAN   DEFAULT FALSE,             -- 是否已卸载
-    creator           VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier     VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id                VARCHAR(255) PRIMARY KEY,
+    name              VARCHAR(255) NOT NULL,
+    system            BOOLEAN   DEFAULT TRUE,
+    jar_file_id       VARCHAR(32),
+    description       TEXT,
+    properties        JSONB,
+    output_properties JSONB,
+    uninstall         BOOLEAN   DEFAULT FALSE,
+    creator           VARCHAR(32),
+    last_modifier     VARCHAR(32),
+    create_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 -- 标签
 CREATE TABLE IF NOT EXISTS af_tag
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
-    name          VARCHAR(255) NOT NULL,               -- 不为空的工作流名称
-    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id            VARCHAR(32) PRIMARY KEY,
+    name          VARCHAR(255) NOT NULL,
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 -- 工作流实例
 CREATE TABLE IF NOT EXISTS af_workflow_inst
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
-    workflow_id   VARCHAR(32) NOT NULL,                -- 工作流定义主键
-    submit_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 提交时间
-    start_time    TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 开始时间
-    end_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 结束时间
-    duration_ms   INTEGER,                             -- 耗时（毫秒）
-    flow_state    VARCHAR(32),                         -- 状态
-    flow_str      TEXT,                                -- 存储 JSON 数据，推荐使用 JSONB 类型
-    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id            VARCHAR(32) PRIMARY KEY,
+    workflow_id   VARCHAR(32) NOT NULL,
+    submit_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    start_time    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    duration_ms   INTEGER,
+    flow_state    VARCHAR(32),
+    flow_str      TEXT,
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 -- 执行实例
 CREATE TABLE IF NOT EXISTS af_execution_inst
 (
-    id               VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
-    workflow_id      VARCHAR(32)  NOT NULL,               -- 工作流定义主键
-    workflow_inst_id VARCHAR(32)  NOT NULL,               -- 工作流实例主键
-    node_id          VARCHAR(32)  NOT NULL,               -- 节点ID
-    service_id       VARCHAR(255) NOT NULL,               -- 服务节点ID
-    loop_id          VARCHAR(32),                         -- 循环ID
-    loop_index       INTEGER,                             -- 循环次数
-    nr_of_instances  INTEGER,                             -- 循环实例总数
-    data             TEXT,                                -- 数据
-    start_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 开始时间
-    end_time         TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 结束时间
-    duration_ms      INTEGER,                             -- 耗时（毫秒）
-    error_message    TEXT,                                --错误信息
-    creator          VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier    VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id               VARCHAR(32) PRIMARY KEY,
+    workflow_id      VARCHAR(32)  NOT NULL,
+    workflow_inst_id VARCHAR(32)  NOT NULL,
+    node_id          VARCHAR(32)  NOT NULL,
+    service_id       VARCHAR(255) NOT NULL,
+    loop_id          VARCHAR(32),
+    loop_index       INTEGER,
+    nr_of_instances  INTEGER,
+    data             TEXT,
+    start_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    duration_ms      INTEGER,
+    error_message    TEXT,
+    creator          VARCHAR(32),
+    last_modifier    VARCHAR(32),
+    create_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 全局变量
 CREATE TABLE IF NOT EXISTS af_global_var
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
-    key           VARCHAR(255) not null,               -- 变量key
-    value         TEXT,                                -- 变量值
-    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
-    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
-    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
-    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+    id            VARCHAR(32) PRIMARY KEY,
+    key           VARCHAR(255) NOT NULL,
+    value         TEXT,
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 聊天会话
+CREATE TABLE IF NOT EXISTS af_chat_session
+(
+    id            VARCHAR(32) PRIMARY KEY,
+    title         VARCHAR(255),
+    status        VARCHAR(32),
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 聊天消息
+CREATE TABLE IF NOT EXISTS af_chat_message
+(
+    id            VARCHAR(32) PRIMARY KEY,
+    session_id    VARCHAR(32) NOT NULL,
+    role          VARCHAR(32) NOT NULL,
+    content       TEXT,
+    type          VARCHAR(32),
+    metadata      TEXT,
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 工具调用记录
+CREATE TABLE IF NOT EXISTS af_tool_call
+(
+    id            VARCHAR(32) PRIMARY KEY,
+    message_id    VARCHAR(32),
+    tool_name     VARCHAR(255) NOT NULL,
+    parameters    TEXT,
+    result        TEXT,
+    status        VARCHAR(32),
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
