@@ -5,7 +5,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.extra.validation.ValidationUtil;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
@@ -25,8 +27,23 @@ public class GeminiModelProvider implements ChatLanguageModelProvider {
         GeminiParameter geminiParameter = BeanUtil.toBean(parameter, GeminiParameter.class);
         Set<ConstraintViolation<GeminiParameter>> validated = ValidationUtil.validate(geminiParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
-
         return GoogleAiGeminiChatModel.builder()
+                .modelName(modelConfig.getModelName())
+                .apiKey(geminiParameter.getApiKey())
+                .stopSequences(geminiParameter.getStopSequences())
+                .maxOutputTokens(geminiParameter.getMaxOutputTokens())
+                .topK(geminiParameter.getTopK())
+                .topP(geminiParameter.getTopP())
+                .temperature(geminiParameter.getTemperature())
+                .build();
+    }
+
+    @Override
+    public StreamingChatModel createStream(ModelConfig modelConfig, Map<String, Object> parameter) {
+        GeminiParameter geminiParameter = BeanUtil.toBean(parameter, GeminiParameter.class);
+        Set<ConstraintViolation<GeminiParameter>> validated = ValidationUtil.validate(geminiParameter);
+        Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
+        return GoogleAiGeminiStreamingChatModel.builder()
                 .modelName(modelConfig.getModelName())
                 .apiKey(geminiParameter.getApiKey())
                 .stopSequences(geminiParameter.getStopSequences())

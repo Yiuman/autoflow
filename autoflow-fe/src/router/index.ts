@@ -5,7 +5,7 @@ import WorkflowList from '@/views/Workflow/WorkflowList.vue'
 import GlobalVariables from '@/views/Variables/GlobalVariables.vue'
 import ServicePlugins from '@/views/Plugins/ServicePlugins.vue'
 import Dashboard from '@/views/Dashboard/Dashboard.vue'
-import ChatBox from '@/views/ChatBox/ChatBox.vue'
+import ChatView from '@/views/Chat/ChatView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,7 +31,6 @@ const router = createRouter({
           name: 'flowdesign',
           component: FlowDesigner
         },
-
         {
           path: '/plugins',
           name: 'plugins',
@@ -45,7 +44,7 @@ const router = createRouter({
         {
           path: '/chat',
           name: 'chat',
-          component: ChatBox
+          component: ChatView
         }
       ]
     }

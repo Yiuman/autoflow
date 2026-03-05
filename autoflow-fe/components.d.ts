@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AAvatar: typeof import('@arco-design/web-vue')['Avatar']
-    ABadge: typeof import('@arco-design/web-vue')['Badge']
     ABreadcrumb: typeof import('@arco-design/web-vue')['Breadcrumb']
     ABreadcrumbItem: typeof import('@arco-design/web-vue')['BreadcrumbItem']
     AButton: typeof import('@arco-design/web-vue')['Button']
@@ -36,6 +35,7 @@ declare module 'vue' {
     AMenu: typeof import('@arco-design/web-vue')['Menu']
     AMenuItem: typeof import('@arco-design/web-vue')['MenuItem']
     AModal: typeof import('@arco-design/web-vue')['Modal']
+    AOption: typeof import('@arco-design/web-vue')['Option']
     AOverflowList: typeof import('@arco-design/web-vue')['OverflowList']
     APagination: typeof import('@arco-design/web-vue')['Pagination']
     ASelect: typeof import('@arco-design/web-vue')['Select']
@@ -48,10 +48,12 @@ declare module 'vue' {
     ATabs: typeof import('@arco-design/web-vue')['Tabs']
     ATag: typeof import('@arco-design/web-vue')['Tag']
     ATextarea: typeof import('@arco-design/web-vue')['Textarea']
+    ATooltip: typeof import('@arco-design/web-vue')['Tooltip']
     ATrigger: typeof import('@arco-design/web-vue')['Trigger']
     AUpload: typeof import('@arco-design/web-vue')['Upload']
     BasicTypeListEditor: typeof import('./src/components/BasicTypeListEditor/BasicTypeListEditor.vue')['default']
     Chat: typeof import('./src/components/Chat/Chat.vue')['default']
+    ChatInput: typeof import('./src/components/Chat/ChatInput.vue')['default']
     ChatMessage: typeof import('./src/components/ChatMessage/ChatMessage.vue')['default']
     CodeInput: typeof import('./src/components/CodeInput/CodeInput.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']
@@ -72,6 +74,8 @@ declare module 'vue' {
     MentionList: typeof import('./src/components/ExpressInput/MentionList.vue')['default']
     MentionTag: typeof import('./src/components/ExpressInput/MentionTag.vue')['default']
     Message: typeof import('./src/components/Chat/Message.vue')['default']
+    MessageItem: typeof import('./src/components/Chat/MessageItem.vue')['default']
+    MessageList: typeof import('./src/components/Chat/MessageList.vue')['default']
     NodeDrawer: typeof import('./src/components/NodeDrawer/NodeDrawer.vue')['default']
     NodeFormModal: typeof import('./src/components/NodeFormModal/NodeFormModal.vue')['default']
     RestCrud: typeof import('./src/components/Crud/RestCrud.vue')['default']
@@ -81,6 +85,7 @@ declare module 'vue' {
     SearchModal: typeof import('./src/components/SearchModal/SearchModal.vue')['default']
     ServiceNode: typeof import('./src/components/ServiceNode/ServiceNode.vue')['default']
     TagSelector: typeof import('./src/components/TagSelector/TagSelector.vue')['default']
+    ToolCallDisplay: typeof import('./src/components/Chat/ToolCallDisplay.vue')['default']
     VariableTag: typeof import('./src/components/ExpressInput/VariableTag.vue')['default']
   }
 }

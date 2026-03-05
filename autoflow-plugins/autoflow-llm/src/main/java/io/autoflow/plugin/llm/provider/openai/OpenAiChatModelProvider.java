@@ -6,7 +6,9 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.validation.ValidationUtil;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
@@ -44,5 +46,28 @@ public class OpenAiChatModelProvider implements ChatLanguageModelProvider {
                 .responseFormat(openAiParameter.getResponseFormat())
                 .build();
 
+    }
+
+    @Override
+    public StreamingChatModel createStream(ModelConfig modelConfig, Map<String, Object> parameter) {
+        OpenAiParameter openAiParameter = BeanUtil.toBean(parameter, OpenAiParameter.class);
+        Set<ConstraintViolation<OpenAiParameter>> validated = ValidationUtil.validate(openAiParameter);
+        Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
+        String modelName = StrUtil.blankToDefault(openAiParameter.getModelName(), modelConfig.getModelName());
+        return OpenAiStreamingChatModel.builder()
+                .modelName(modelName)
+                .timeout(Duration.ofSeconds(openAiParameter.getTimeout()))
+                .baseUrl(openAiParameter.getBaseUrl())
+                .apiKey(openAiParameter.getApiKey())
+                .frequencyPenalty(openAiParameter.getFrequencyPenalty())
+                .temperature(openAiParameter.getTemperature())
+                .presencePenalty(openAiParameter.getPresencePenalty())
+                .topP(openAiParameter.getTopP())
+                .maxTokens(openAiParameter.getMaxTokens())
+                .seed(openAiParameter.getSeed())
+                .user(openAiParameter.getUser())
+                .stop(openAiParameter.getStop())
+                .responseFormat(openAiParameter.getResponseFormat())
+                .build();
     }
 }

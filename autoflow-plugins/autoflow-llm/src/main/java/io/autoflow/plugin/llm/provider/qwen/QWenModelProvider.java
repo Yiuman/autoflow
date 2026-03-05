@@ -5,7 +5,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.extra.validation.ValidationUtil;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
+import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatLanguageModelProvider;
 import io.autoflow.spi.exception.InputValidateException;
@@ -26,6 +28,25 @@ public class QWenModelProvider implements ChatLanguageModelProvider {
         Set<ConstraintViolation<QWenParameter>> validated = ValidationUtil.validate(qWenParameter);
         Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
         return QwenChatModel.builder()
+                .modelName(modelConfig.getModelName())
+                .baseUrl(qWenParameter.getBaseUrl())
+                .apiKey(qWenParameter.getApiKey())
+                .topK(qWenParameter.getTopK())
+                .topP(qWenParameter.getTopP())
+                .maxTokens(qWenParameter.getMaxTokens())
+                .seed(qWenParameter.getSeed())
+                .repetitionPenalty(qWenParameter.getRepetitionPenalty())
+                .temperature(qWenParameter.getTemperature())
+                .stops(qWenParameter.getStop())
+                .build();
+    }
+
+    @Override
+    public StreamingChatModel createStream(ModelConfig modelConfig, Map<String, Object> parameter) {
+        QWenParameter qWenParameter = BeanUtil.toBean(parameter, QWenParameter.class);
+        Set<ConstraintViolation<QWenParameter>> validated = ValidationUtil.validate(qWenParameter);
+        Assert.isTrue(CollUtil.isEmpty(validated), () -> new InputValidateException(validated));
+        return QwenStreamingChatModel.builder()
                 .modelName(modelConfig.getModelName())
                 .baseUrl(qWenParameter.getBaseUrl())
                 .apiKey(qWenParameter.getApiKey())
