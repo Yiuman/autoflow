@@ -1,6 +1,7 @@
 package io.autoflow.plugin.llm.provider;
 
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import io.autoflow.plugin.llm.ModelConfig;
 
 import java.util.Map;
@@ -12,4 +13,5 @@ import java.util.Map;
 public interface ChatLanguageModelProvider {
 
     ChatModel create(ModelConfig modelConfig, Map<String, Object> parameter);
+    StreamingChatModel createStream(ModelConfig modelConfig, Map<String, Object> parameter);
 }
