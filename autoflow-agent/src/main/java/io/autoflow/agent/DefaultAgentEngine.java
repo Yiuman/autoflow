@@ -64,13 +64,16 @@ public class DefaultAgentEngine implements AgentEngine {
 
     @Override
     public void chat(String sessionId, String input, StreamListener listener) {
+        log.info("[Agent] Session: {}, Input: {}", sessionId, input);
         AgentContext context;
         try {
             context = loadOrCreateContext(sessionId, input);
             executeReactLoop(context, listener);
             memoryStore.save(context);
             listener.onComplete();
+            log.info("[Agent] Session: {} completed", sessionId);
         } catch (Throwable e) {
+            log.error("[Agent] Session: {} error: {}", sessionId, e.getMessage());
             listener.onError(e);
         }
     }
@@ -79,6 +82,7 @@ public class DefaultAgentEngine implements AgentEngine {
         AgentContext context = memoryStore.load(sessionId);
         if (context == null) {
             context = new AgentContext(sessionId);
+            log.info("[Agent] Created new context for session: {}", sessionId);
         }
         context.addUserMessage(input);
         return context;
@@ -87,12 +91,16 @@ public class DefaultAgentEngine implements AgentEngine {
     private void executeReactLoop(AgentContext context, StreamListener listener) {
         for (int i = 0; i < maxSteps; i++) {
             context.incrementStep();
+            log.info("[Agent] Step {} started", context.getStepCount());
             String output = callReasonerWithStreaming(context, listener);
+            log.info("[Agent] LLM output: {}", output);
             AgentAction action = actionParser.parse(output);
             if (action == null || "finish".equals(action.getAction())) {
+                log.info("[Agent] Action: finish, stopping loop");
                 break;
             }
             if ("call_tool".equals(action.getAction())) {
+                log.info("[Agent] Action: call_tool, tool={}, args={}", action.getTool(), action.getArgs());
                 executeTool(context, listener, action);
             }
         }
@@ -132,8 +140,10 @@ public class DefaultAgentEngine implements AgentEngine {
     private void executeTool(AgentContext context, StreamListener listener, AgentAction action) {
         String toolName = action.getTool();
         String nodeId = toolRegistry.getNodeId(toolName);
+        log.info("[Agent] Executing tool: {} -> nodeId: {}", toolName, nodeId);
         listener.onToolStart(toolName);
         Object result = nodeExecutor.execute(nodeId, action.getArgs());
+        log.info("[Agent] Tool result: {}", result);
         listener.onToolEnd(toolName, result);
         context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
     }
