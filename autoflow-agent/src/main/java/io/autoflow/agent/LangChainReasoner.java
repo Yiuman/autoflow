@@ -1,11 +1,8 @@
-package io.autoflow.agent.engine;
+package io.autoflow.agent;
 
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
-import io.autoflow.agent.AgentContext;
-import io.autoflow.agent.Reasoner;
-import io.autoflow.agent.StreamListener;
 
 import java.util.List;
 
