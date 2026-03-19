@@ -19,9 +19,19 @@ public class LangChainReasoner implements Reasoner {
 
     @Override
     public void think(AgentContext context, StreamListener listener) {
+        think(null, context, listener);
+    }
+
+    @Override
+    public void think(String systemPrompt, AgentContext context, StreamListener listener) {
         List<ChatMessage> messages = context.getMessages().stream()
                 .map(this::toLangChainMessage)
                 .toList();
+
+        if (systemPrompt != null && !systemPrompt.isEmpty()) {
+            messages = new java.util.ArrayList<>(messages);
+            messages.add(0, dev.langchain4j.data.message.SystemMessage.from(systemPrompt));
+        }
 
         streamingChatModel.chat(messages, new StreamingChatResponseHandler() {
             @Override

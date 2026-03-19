@@ -68,14 +68,14 @@ class DefaultAgentEngineTest {
         when(memoryStore.load(sessionId)).thenReturn(null);
         // First call returns tool call, second call returns finish
         doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken(toolCallOutput);
             return null;
         }).doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken(finishOutput);
             return null;
-        }).when(reasoner).think(any(AgentContext.class), any(StreamListener.class));
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
         when(actionParser.parse(toolCallOutput)).thenReturn(toolAction);
         when(actionParser.parse(finishOutput)).thenReturn(finishAction);
         when(toolRegistry.getNodeId(toolName)).thenReturn(nodeId);
@@ -124,10 +124,10 @@ class DefaultAgentEngineTest {
 
         when(memoryStore.load(sessionId)).thenReturn(null);
         doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken(llmOutput);
             return null;
-        }).when(reasoner).think(any(AgentContext.class), any(StreamListener.class));
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
         when(actionParser.parse(llmOutput)).thenReturn(action);
         when(toolRegistry.getNodeId(toolName)).thenReturn(nodeId);
         when(nodeExecutor.execute(eq(nodeId), any())).thenReturn("result");
@@ -136,7 +136,7 @@ class DefaultAgentEngineTest {
         engine.chat(sessionId, "Hello", listener);
 
         // Assert - reasoner.think should be called exactly maxSteps times
-        verify(reasoner, times(maxSteps)).think(any(AgentContext.class), any(StreamListener.class));
+        verify(reasoner, times(maxSteps)).think(any(), any(AgentContext.class), any(StreamListener.class));
         verify(nodeExecutor, times(maxSteps)).execute(eq(nodeId), any());
         verify(listener).onComplete();
     }
@@ -152,17 +152,17 @@ class DefaultAgentEngineTest {
 
         when(memoryStore.load(sessionId)).thenReturn(null);
         doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken(llmOutput);
             return null;
-        }).when(reasoner).think(any(AgentContext.class), any(StreamListener.class));
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
         when(actionParser.parse(llmOutput)).thenReturn(finishAction);
 
         // Act
         engine.chat(sessionId, "Hello", listener);
 
         // Assert - should stop after one step without calling any tool
-        verify(reasoner, times(1)).think(any(AgentContext.class), any(StreamListener.class));
+        verify(reasoner, times(1)).think(any(), any(AgentContext.class), any(StreamListener.class));
         verify(nodeExecutor, never()).execute(any(), any());
         verify(listener).onComplete();
     }
@@ -181,10 +181,10 @@ class DefaultAgentEngineTest {
 
         when(memoryStore.load(sessionId)).thenReturn(null);
         doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken(llmOutput);
             return null;
-        }).when(reasoner).think(any(AgentContext.class), any(StreamListener.class));
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
         when(actionParser.parse(llmOutput)).thenReturn(action);
         when(toolRegistry.getNodeId(toolName)).thenReturn(null); // tool not found
         when(nodeExecutor.execute(isNull(), any())).thenThrow(new NullPointerException("nodeId is null"));
@@ -209,17 +209,17 @@ class DefaultAgentEngineTest {
 
         when(memoryStore.load(sessionId)).thenReturn(null);
         doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken(llmOutput);
             return null;
-        }).when(reasoner).think(any(AgentContext.class), any(StreamListener.class));
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
         when(actionParser.parse(llmOutput)).thenReturn(null);
 
         // Act
         engine.chat(sessionId, "Hello", listener);
 
         // Assert - should stop without tool execution
-        verify(reasoner, times(1)).think(any(AgentContext.class), any(StreamListener.class));
+        verify(reasoner, times(1)).think(any(), any(AgentContext.class), any(StreamListener.class));
         verify(nodeExecutor, never()).execute(any(), any());
         verify(listener).onComplete();
     }
@@ -233,10 +233,10 @@ class DefaultAgentEngineTest {
 
         when(memoryStore.load(sessionId)).thenReturn(existingContext);
         doAnswer(invocation -> {
-            StreamListener sl = invocation.getArgument(1);
+            StreamListener sl = invocation.getArgument(2);
             sl.onToken("{\"action\":\"finish\"}");
             return null;
-        }).when(reasoner).think(any(AgentContext.class), any(StreamListener.class));
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
         when(actionParser.parse(any())).thenReturn(new AgentAction() {{ setAction("finish"); }});
 
         // Act
@@ -246,5 +246,60 @@ class DefaultAgentEngineTest {
         verify(memoryStore).load(sessionId);
         verify(memoryStore).save(any(AgentContext.class)); // context should be saved
         verify(listener).onComplete();
+    }
+
+    @Test
+    void chat_reactWithSystemPrompt_multiStepToolCalls() {
+        // Arrange
+        String sessionId = "test-session";
+        String systemPrompt = "You are a helpful assistant. When you need to perform actions, " +
+                "respond with JSON in this format: {\"action\":\"call_tool\",\"tool\":\"tool_name\",\"args\":{}}. " +
+                "When finished, respond with: {\"action\":\"finish\"}.";
+
+        engine = new DefaultAgentEngine(memoryStore, reasoner, actionParser, nodeExecutor, toolRegistry, 5);
+
+        AgentContext ctx = new AgentContext(sessionId);
+        ctx.setSystemPrompt(systemPrompt);
+        ctx.addUserMessage("What's the weather?");
+
+        // Simulate: LLM calls weather tool -> returns result -> LLM finishes
+        String weatherCall = "{\"action\":\"call_tool\",\"tool\":\"get_weather\",\"args\":{\"city\":\"Beijing\"}}";
+        String finishCall = "{\"action\":\"finish\"}";
+
+        AgentAction weatherAction = new AgentAction();
+        weatherAction.setAction("call_tool");
+        weatherAction.setTool("get_weather");
+        weatherAction.setArgs(Map.of("city", "Beijing"));
+
+        AgentAction finishAction = new AgentAction();
+        finishAction.setAction("finish");
+
+        when(memoryStore.load(sessionId)).thenReturn(ctx);
+        // First step: weather tool, second step: finish
+        doAnswer(invocation -> {
+            StreamListener sl = invocation.getArgument(2);
+            sl.onToken(weatherCall);
+            return null;
+        }).doAnswer(invocation -> {
+            StreamListener sl = invocation.getArgument(2);
+            sl.onToken(finishCall);
+            return null;
+        }).when(reasoner).think(any(), any(AgentContext.class), any(StreamListener.class));
+
+        when(actionParser.parse(weatherCall)).thenReturn(weatherAction);
+        when(actionParser.parse(finishCall)).thenReturn(finishAction);
+        when(toolRegistry.getNodeId("get_weather")).thenReturn("weather-node");
+        when(nodeExecutor.execute(eq("weather-node"), any())).thenReturn("Sunny, 25C");
+
+        // Act
+        engine.chat(sessionId, "What's the weather?", listener);
+
+        // Assert
+        verify(memoryStore).load(sessionId);
+        verify(memoryStore).save(any(AgentContext.class));
+        verify(listener).onToolStart("get_weather");
+        verify(listener).onToolEnd(eq("get_weather"), eq("Sunny, 25C"));
+        verify(listener).onComplete();
+        verify(listener, never()).onError(any(Throwable.class));
     }
 }

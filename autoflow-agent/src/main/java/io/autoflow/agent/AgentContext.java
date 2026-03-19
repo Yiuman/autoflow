@@ -14,6 +14,7 @@ import java.util.Map;
 public class AgentContext {
 
     private String sessionId;
+    private String systemPrompt;
     private List<ChatMessage> messages = new ArrayList<>();
     private Map<String, Object> variables = new HashMap<>();
     private int stepCount = 0;
@@ -24,6 +25,14 @@ public class AgentContext {
 
     public String getSessionId() {
         return sessionId;
+    }
+
+    public String getSystemPrompt() {
+        return systemPrompt;
+    }
+
+    public void setSystemPrompt(String systemPrompt) {
+        this.systemPrompt = systemPrompt;
     }
 
     public List<ChatMessage> getMessages() {
