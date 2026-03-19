@@ -2,7 +2,9 @@ package io.autoflow.agent;
 
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.agent.tool.ToolSpecification;
 
 import java.util.List;
 
@@ -19,6 +21,12 @@ public class LangChainReasoner implements Reasoner {
 
     @Override
     public void think(AgentContext context, StreamListener listener) {
+        think(context, listener, List.of());
+    }
+
+    @Override
+    public void think(AgentContext context, StreamListener listener,
+                      List<ToolSpecification> toolSpecifications) {
         List<ChatMessage> messages = context.getMessages().stream()
                 .map(this::toLangChainMessage)
                 .toList();
@@ -28,7 +36,12 @@ public class LangChainReasoner implements Reasoner {
             messages.add(0, dev.langchain4j.data.message.SystemMessage.from(context.getSystemPrompt()));
         }
 
-        streamingChatModel.chat(messages, new StreamingChatResponseHandler() {
+        ChatRequest request = ChatRequest.builder()
+                .messages(messages)
+                .toolSpecifications(toolSpecifications)
+                .build();
+
+        streamingChatModel.chat(request, new StreamingChatResponseHandler() {
             @Override
             public void onPartialResponse(String partialResponse) {
                 listener.onToken(partialResponse);
