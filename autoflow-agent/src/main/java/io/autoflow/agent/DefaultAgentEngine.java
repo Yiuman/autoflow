@@ -1,20 +1,7 @@
 package io.autoflow.agent;
 
-import dev.langchain4j.agent.tool.ToolSpecification;
-import io.autoflow.agent.tool.ToolSpecificationConverter;
-import io.autoflow.spi.Services;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Default implementation of AgentEngine providing ReAct loop orchestration.
- * <p>
- * This is the heart of the agent system - it coordinates the reasoning loop
- * by delegating to specialized components: MemoryStore, Reasoner, ActionParser,
- * NodeExecutor, and ToolRegistry.
- */
 @Slf4j
 public class DefaultAgentEngine implements AgentEngine {
 
@@ -24,17 +11,7 @@ public class DefaultAgentEngine implements AgentEngine {
     private final NodeExecutor nodeExecutor;
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
-    private final List<ToolSpecification> toolSpecifications;
 
-    /**
-     * Creates a new DefaultAgentEngine with the specified dependencies.
-     *
-     * @param memoryStore    store for persisting agent context
-     * @param reasoner        LLM streaming inference component
-     * @param actionParser    parses LLM output into structured actions
-     * @param nodeExecutor    executes tools/nodes with given arguments
-     * @param toolRegistry    maps tool names to node IDs
-     */
     public DefaultAgentEngine(
             MemoryStore memoryStore,
             Reasoner reasoner,
@@ -44,16 +21,6 @@ public class DefaultAgentEngine implements AgentEngine {
         this(memoryStore, reasoner, actionParser, nodeExecutor, toolRegistry, 10);
     }
 
-    /**
-     * Creates a new DefaultAgentEngine with the specified dependencies and max steps.
-     *
-     * @param memoryStore    store for persisting agent context
-     * @param reasoner        LLM streaming inference component
-     * @param actionParser    parses LLM output into structured actions
-     * @param nodeExecutor    executes tools/nodes with given arguments
-     * @param toolRegistry    maps tool names to node IDs
-     * @param maxSteps        maximum number of reasoning steps before terminating
-     */
     public DefaultAgentEngine(
             MemoryStore memoryStore,
             Reasoner reasoner,
@@ -67,10 +34,6 @@ public class DefaultAgentEngine implements AgentEngine {
         this.nodeExecutor = nodeExecutor;
         this.toolRegistry = toolRegistry;
         this.maxSteps = maxSteps;
-        this.toolSpecifications = Services.getServiceList().stream()
-            .map(ToolSpecificationConverter::convert)
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
     }
 
     @Override
@@ -79,6 +42,7 @@ public class DefaultAgentEngine implements AgentEngine {
         AgentContext context;
         try {
             context = loadOrCreateContext(sessionId, input);
+            context.setToolSpecifications(toolRegistry.getToolSpecifications());
             executeReactLoop(context, listener);
             memoryStore.save(context);
             listener.onComplete();
@@ -144,7 +108,7 @@ public class DefaultAgentEngine implements AgentEngine {
             public void onError(Throwable e) {
                 listener.onError(e);
             }
-        }, toolSpecifications);
+        });
         return outputBuilder.toString();
     }
 

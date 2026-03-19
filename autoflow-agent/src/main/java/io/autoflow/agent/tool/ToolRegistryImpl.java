@@ -1,20 +1,26 @@
 package io.autoflow.agent.tool;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
 import io.autoflow.agent.ToolRegistry;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.Services;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-/**
- * Implementation of ToolRegistry that wraps the Services registry.
- * Maps human-readable tool names to node IDs (serviceIds).
- */
 public class ToolRegistryImpl implements ToolRegistry {
 
     private final Map<String, String> toolNameToNodeId = new ConcurrentHashMap<>();
+
+    @Override
+    public List<ToolSpecification> getToolSpecifications() {
+        return Services.getServiceList().stream()
+                .flatMap(service -> ToolSpecificationConverter.convert(service).stream())
+                .collect(Collectors.toList());
+    }
 
     @Override
     public String getNodeId(String toolName) {

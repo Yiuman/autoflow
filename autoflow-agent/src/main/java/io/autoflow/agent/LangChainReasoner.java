@@ -8,9 +8,6 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 
 import java.util.List;
 
-/**
- * LangChain4j-based Reasoner implementation with streaming support.
- */
 public class LangChainReasoner implements Reasoner {
 
     private final StreamingChatModel streamingChatModel;
@@ -21,12 +18,6 @@ public class LangChainReasoner implements Reasoner {
 
     @Override
     public void think(AgentContext context, StreamListener listener) {
-        think(context, listener, List.of());
-    }
-
-    @Override
-    public void think(AgentContext context, StreamListener listener,
-                      List<ToolSpecification> toolSpecifications) {
         List<ChatMessage> messages = context.getMessages().stream()
                 .map(this::toLangChainMessage)
                 .toList();
@@ -36,10 +27,12 @@ public class LangChainReasoner implements Reasoner {
             messages.add(0, dev.langchain4j.data.message.SystemMessage.from(context.getSystemPrompt()));
         }
 
-        ChatRequest request = ChatRequest.builder()
-                .messages(messages)
-                .toolSpecifications(toolSpecifications)
-                .build();
+        List<ToolSpecification> tools = context.getToolSpecifications();
+        ChatRequest.Builder requestBuilder = ChatRequest.builder().messages(messages);
+        if (tools != null && !tools.isEmpty()) {
+            requestBuilder.toolSpecifications(tools);
+        }
+        ChatRequest request = requestBuilder.build();
 
         streamingChatModel.chat(request, new StreamingChatResponseHandler() {
             @Override

@@ -1,5 +1,6 @@
 package io.autoflow.agent;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
 import io.autoflow.spi.enums.MessageType;
 import io.autoflow.spi.model.ChatMessage;
 
@@ -18,6 +19,7 @@ public class AgentContext {
     private List<ChatMessage> messages = new ArrayList<>();
     private Map<String, Object> variables = new HashMap<>();
     private int stepCount = 0;
+    private List<ToolSpecification> toolSpecifications;
 
     public AgentContext(String sessionId) {
         this.sessionId = sessionId;
@@ -73,5 +75,13 @@ public class AgentContext {
 
     public void incrementStep() {
         stepCount++;
+    }
+
+    public List<ToolSpecification> getToolSpecifications() {
+        return toolSpecifications;
+    }
+
+    public void setToolSpecifications(List<ToolSpecification> toolSpecifications) {
+        this.toolSpecifications = toolSpecifications;
     }
 }

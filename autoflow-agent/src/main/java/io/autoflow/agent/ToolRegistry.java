@@ -1,15 +1,19 @@
 package io.autoflow.agent;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
+
+import java.util.List;
+
 /**
  * Tool registry interface for mapping human-readable tool names to node IDs (serviceIds).
  */
 public interface ToolRegistry {
 
-    /**
-     * Maps a human-readable tool name to its corresponding node ID (serviceId).
-     *
-     * @param toolName the human-readable tool name
-     * @return the node ID (serviceId) associated with the tool
-     */
+    List<ToolSpecification> getToolSpecifications();
+
     String getNodeId(String toolName);
+
+    default void register(String toolName, String nodeId) {
+    }
+
 }
