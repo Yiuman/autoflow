@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 @Slf4j
@@ -29,6 +31,7 @@ public class DefaultAgentEngine implements AgentEngine {
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
     private final ObjectMapper objectMapper;
+    private final ConcurrentHashMap<String, CompletableFuture<Object>> toolFutures = new ConcurrentHashMap<>();
 
     public DefaultAgentEngine(
             MemoryStore memoryStore,
@@ -84,22 +87,14 @@ public class DefaultAgentEngine implements AgentEngine {
             context.incrementStep();
             log.info("[Agent] Step {} started", context.getStepCount());
 
+            // Tools are executed asynchronously in callLlmWithStreaming
             LlmResult result = callLlmWithStreaming(context, listener);
             log.info("[Agent] LLM output: {}", result.text);
 
-            // Check if LLM requested tool calls
+            // Only check if there are tool calls, don't execute them
             if (result.toolExecutionRequests == null || result.toolExecutionRequests.isEmpty()) {
-                // No tool calls → finish
-                log.info("[Agent] Action: finish, stopping loop");
+                log.info("[Agent] No more tool calls, stopping loop");
                 break;
-            }
-
-            // Execute each tool call
-            for (ToolExecutionRequest toolRequest : result.toolExecutionRequests) {
-                String toolName = toolRequest.name();
-                String argsJson = toolRequest.arguments();
-                log.info("[Agent] Action: call_tool, tool={}, args={}", toolName, argsJson);
-                executeTool(context, listener, toolName, argsJson);
             }
         }
     }
@@ -135,10 +130,14 @@ public class DefaultAgentEngine implements AgentEngine {
 
             @Override
             public void onCompleteToolCall(CompleteToolCall completeToolCall) {
-                listener.onToolCallComplete(
-                        completeToolCall.toolExecutionRequest().name(),
-                        completeToolCall.toolExecutionRequest().arguments()
+                ToolExecutionRequest request = completeToolCall.toolExecutionRequest();
+                String toolName = request.name();
+                String argsJson = request.arguments();
+                listener.onToolCallComplete(toolName, argsJson);
+                CompletableFuture<Object> future = CompletableFuture.supplyAsync(() ->
+                    executeToolAsync(toolName, argsJson, listener)
                 );
+                toolFutures.put(toolName, future);
             }
 
             @Override
@@ -148,6 +147,7 @@ public class DefaultAgentEngine implements AgentEngine {
                     if (aiMessage != null && aiMessage.hasToolExecutionRequests()) {
                         toolRequests.addAll(aiMessage.toolExecutionRequests());
                     }
+                    collectToolResults(toolRequests, context, error);
                 } catch (Throwable t) {
                     error[0] = t;
                 } finally {
@@ -174,6 +174,42 @@ public class DefaultAgentEngine implements AgentEngine {
         }
 
         return new LlmResult(textBuilder.toString(), toolRequests);
+    }
+
+    private Object executeToolAsync(String toolName, String argsJson, StreamListener listener) {
+        try {
+            String nodeId = toolRegistry.getNodeId(toolName);
+            Map<String, Object> args = parseArgs(argsJson);
+            listener.onToolStart(toolName);
+            Object result = nodeExecutor.execute(nodeId, args);
+            listener.onToolEnd(toolName, result);
+            return result;
+        } catch (Exception e) {
+            log.error("[Agent] Tool {} execution failed: {}", toolName, e.getMessage());
+            throw e;
+        }
+    }
+
+    private void collectToolResults(List<ToolExecutionRequest> toolRequests, AgentContext context, Throwable[] error) {
+        if (toolFutures.isEmpty()) {
+            return;
+        }
+        CompletableFuture.allOf(toolFutures.values().toArray(new CompletableFuture[0])).join();
+        for (ToolExecutionRequest request : toolRequests) {
+            String toolName = request.name();
+            Object result;
+            try {
+                result = toolFutures.get(toolName).get();
+            } catch (Exception e) {
+                Throwable cause = e.getCause() != null ? e.getCause() : e;
+                result = "Error: " + cause.getMessage();
+                log.error("[Agent] Tool {} execution failed: {}", toolName, cause.getMessage());
+                error[0] = cause;
+                return;
+            }
+            context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
+            log.info("[Agent] Tool {} result added to context: {}", toolName, result);
+        }
     }
 
     private void executeTool(AgentContext context, StreamListener listener, String toolName, String argsJson) {
