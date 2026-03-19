@@ -15,6 +15,7 @@
         <module>autoflow-core</module>
         <module>autoflow-app</module>
         <module>autoflow-modules</module>
+        <module>autoflow-agent</module>
     </modules>
 
     <properties>
