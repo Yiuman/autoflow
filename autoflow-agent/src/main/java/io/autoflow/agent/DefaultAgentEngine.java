@@ -1,6 +1,12 @@
 package io.autoflow.agent;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
+import io.autoflow.agent.tool.ToolSpecificationConverter;
+import io.autoflow.spi.Services;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of AgentEngine providing ReAct loop orchestration.
@@ -18,6 +24,7 @@ public class DefaultAgentEngine implements AgentEngine {
     private final NodeExecutor nodeExecutor;
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
+    private final List<ToolSpecification> toolSpecifications;
 
     /**
      * Creates a new DefaultAgentEngine with the specified dependencies.
@@ -60,6 +67,10 @@ public class DefaultAgentEngine implements AgentEngine {
         this.nodeExecutor = nodeExecutor;
         this.toolRegistry = toolRegistry;
         this.maxSteps = maxSteps;
+        this.toolSpecifications = Services.getServiceList().stream()
+            .map(ToolSpecificationConverter::convert)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -133,7 +144,7 @@ public class DefaultAgentEngine implements AgentEngine {
             public void onError(Throwable e) {
                 listener.onError(e);
             }
-        });
+        }, toolSpecifications);
         return outputBuilder.toString();
     }
 
