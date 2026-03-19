@@ -108,7 +108,7 @@ public class DefaultAgentEngine implements AgentEngine {
 
     private String callReasonerWithStreaming(AgentContext context, StreamListener listener) {
         StringBuilder outputBuilder = new StringBuilder();
-        reasoner.think(context.getSystemPrompt(), context, new StreamListener() {
+        reasoner.think(context, new StreamListener() {
             @Override
             public void onToken(String token) {
                 outputBuilder.append(token);
