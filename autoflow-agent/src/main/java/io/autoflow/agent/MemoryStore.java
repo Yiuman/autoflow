@@ -1,4 +1,4 @@
-package io.autoflow.agent.spi;
+package io.autoflow.agent;
 
 /**
  * Memory store for agent context persistence.

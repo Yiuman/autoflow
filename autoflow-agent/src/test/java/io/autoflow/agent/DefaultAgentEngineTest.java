@@ -1,6 +1,6 @@
 package io.autoflow.agent.engine;
 
-import io.autoflow.agent.spi.*;
+import io.autoflow.agent.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
-package io.autoflow.agent.core.context;
+package io.autoflow.agent.context;
 
-import io.autoflow.agent.spi.AgentContext;
+import io.autoflow.agent.AgentContext;
 import io.autoflow.spi.model.ChatMessage;
 
 /**

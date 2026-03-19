@@ -1,10 +1,10 @@
-package io.autoflow.agent.core.parser;
+package io.autoflow.agent.parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.autoflow.agent.spi.ActionParser;
-import io.autoflow.agent.spi.AgentAction;
+import io.autoflow.agent.ActionParser;
+import io.autoflow.agent.AgentAction;
 
 public class JsonActionParser implements ActionParser {
 

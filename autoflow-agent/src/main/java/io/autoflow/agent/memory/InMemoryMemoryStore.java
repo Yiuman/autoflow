@@ -1,7 +1,7 @@
-package io.autoflow.agent.core.memory;
+package io.autoflow.agent.memory;
 
-import io.autoflow.agent.spi.AgentContext;
-import io.autoflow.agent.spi.MemoryStore;
+import io.autoflow.agent.AgentContext;
+import io.autoflow.agent.MemoryStore;
 
 import java.util.concurrent.ConcurrentHashMap;
 

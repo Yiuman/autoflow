@@ -1,6 +1,6 @@
-package io.autoflow.agent.core.tool;
+package io.autoflow.agent.tool;
 
-import io.autoflow.agent.spi.ToolRegistry;
+import io.autoflow.agent.ToolRegistry;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.Services;
 

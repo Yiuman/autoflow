@@ -1,4 +1,4 @@
-package io.autoflow.agent.spi;
+package io.autoflow.agent;
 
 /**
  * Agent engine interface for handling chat conversations.

@@ -1,4 +1,4 @@
-package io.autoflow.agent.core.parser;
+package io.autoflow.agent.parser;
 
 /**
  * Exception thrown when JSON action parsing fails.

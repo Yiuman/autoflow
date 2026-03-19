@@ -1,4 +1,4 @@
-package io.autoflow.agent.spi;
+package io.autoflow.agent;
 
 /**
  * Parses LLM output string into structured AgentAction.

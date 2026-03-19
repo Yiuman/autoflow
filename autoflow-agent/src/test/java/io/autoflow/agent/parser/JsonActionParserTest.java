@@ -1,6 +1,6 @@
-package io.autoflow.agent.core.parser;
+package io.autoflow.agent.parser;
 
-import io.autoflow.agent.spi.AgentAction;
+import io.autoflow.agent.AgentAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package io.autoflow.agent.spi;
+package io.autoflow.agent;
 
 /**
  * Callback interface for streaming events from AgentEngine.

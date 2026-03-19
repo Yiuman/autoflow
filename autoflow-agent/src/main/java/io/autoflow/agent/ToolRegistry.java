@@ -1,4 +1,4 @@
-package io.autoflow.agent.spi;
+package io.autoflow.agent;
 
 /**
  * Tool registry interface for mapping human-readable tool names to node IDs (serviceIds).

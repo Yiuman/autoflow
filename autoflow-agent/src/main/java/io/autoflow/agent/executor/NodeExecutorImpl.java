@@ -1,6 +1,6 @@
-package io.autoflow.agent.core.executor;
+package io.autoflow.agent.executor;
 
-import io.autoflow.agent.spi.NodeExecutor;
+import io.autoflow.agent.NodeExecutor;
 import io.autoflow.spi.Service;
 import io.autoflow.spi.Services;
 import io.autoflow.spi.context.ExecutionContext;

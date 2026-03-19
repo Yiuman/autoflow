@@ -1,4 +1,4 @@
-package io.autoflow.agent.spi;
+package io.autoflow.agent;
 
 import io.autoflow.spi.enums.MessageType;
 import io.autoflow.spi.model.ChatMessage;
