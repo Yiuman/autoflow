@@ -2,8 +2,8 @@ package io.autoflow.agent;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import io.autoflow.agent.memory.InMemoryMemoryStore;
-import io.autoflow.agent.parser.JsonActionParser;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatModelProviders;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,20 +24,19 @@ class ReActIntegrationTest {
 
     private DefaultAgentEngine engine;
     private InMemoryMemoryStore memoryStore;
-    private JsonActionParser actionParser;
-    private ToolRegistry toolRegistry;
-    private LangChainReasoner reasoner;
 
     @BeforeEach
     void setUp() {
         memoryStore = new InMemoryMemoryStore();
-        actionParser = new JsonActionParser();
-        toolRegistry = new ToolRegistry() {
+        ToolRegistry toolRegistry = new ToolRegistry() {
             @Override
             public List<ToolSpecification> getToolSpecifications() {
                 return List.of(ToolSpecification.builder()
                         .name("calculate")
                         .description("calculate")
+                                .parameters(JsonObjectSchema.builder()
+                                        .addIntegerProperty("a")
+                                        .addIntegerProperty("b").build())
                         .build());
             }
 
@@ -48,12 +47,10 @@ class ReActIntegrationTest {
         };
 
         StreamingChatModel streamingChatModel = createStreamingChatModel();
-        reasoner = new LangChainReasoner(streamingChatModel);
 
         engine = new DefaultAgentEngine(
                 memoryStore,
-                reasoner,
-                actionParser,
+                streamingChatModel,
                 new TestNodeExecutor(),
                 toolRegistry,
                 5
@@ -101,7 +98,7 @@ class ReActIntegrationTest {
         StreamListener listener = new StreamListener() {
             @Override
             public void onToken(String token) {
-                System.out.print(token);
+                System.out.print("[ON TOKEN] "+token);
                 if (token != null) {
                     tokens.append(token);
                 }
@@ -123,6 +120,14 @@ class ReActIntegrationTest {
             public void onComplete() {
                 System.out.println("\n[COMPLETE]");
                 completed[0] = true;
+            }
+
+            @Override
+            public void onComplete(String fullOutput) {
+            }
+
+            @Override
+            public void onToolCallComplete(String toolName, String arguments) {
             }
 
             @Override

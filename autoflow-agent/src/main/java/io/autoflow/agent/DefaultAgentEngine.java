@@ -1,39 +1,55 @@
 package io.autoflow.agent;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.response.CompleteToolCall;
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 public class DefaultAgentEngine implements AgentEngine {
 
     private final MemoryStore memoryStore;
-    private final Reasoner reasoner;
-    private final ActionParser actionParser;
+    private final StreamingChatModel streamingChatModel;
     private final NodeExecutor nodeExecutor;
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
+    private final ObjectMapper objectMapper;
 
     public DefaultAgentEngine(
             MemoryStore memoryStore,
-            Reasoner reasoner,
-            ActionParser actionParser,
+            StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry) {
-        this(memoryStore, reasoner, actionParser, nodeExecutor, toolRegistry, 10);
+        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, 10);
     }
 
     public DefaultAgentEngine(
             MemoryStore memoryStore,
-            Reasoner reasoner,
-            ActionParser actionParser,
+            StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry,
             int maxSteps) {
         this.memoryStore = memoryStore;
-        this.reasoner = reasoner;
-        this.actionParser = actionParser;
+        this.streamingChatModel = streamingChatModel;
         this.nodeExecutor = nodeExecutor;
         this.toolRegistry = toolRegistry;
         this.maxSteps = maxSteps;
+        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -67,59 +83,137 @@ public class DefaultAgentEngine implements AgentEngine {
         for (int i = 0; i < maxSteps; i++) {
             context.incrementStep();
             log.info("[Agent] Step {} started", context.getStepCount());
-            String output = callReasonerWithStreaming(context, listener);
-            log.info("[Agent] LLM output: {}", output);
-            AgentAction action = actionParser.parse(output);
-            if (action == null || "finish".equals(action.getAction())) {
+
+            LlmResult result = callLlmWithStreaming(context, listener);
+            log.info("[Agent] LLM output: {}", result.text);
+
+            // Check if LLM requested tool calls
+            if (result.toolExecutionRequests == null || result.toolExecutionRequests.isEmpty()) {
+                // No tool calls → finish
                 log.info("[Agent] Action: finish, stopping loop");
                 break;
             }
-            if ("call_tool".equals(action.getAction())) {
-                log.info("[Agent] Action: call_tool, tool={}, args={}", action.getTool(), action.getArgs());
-                executeTool(context, listener, action);
+
+            // Execute each tool call
+            for (ToolExecutionRequest toolRequest : result.toolExecutionRequests) {
+                String toolName = toolRequest.name();
+                String argsJson = toolRequest.arguments();
+                log.info("[Agent] Action: call_tool, tool={}, args={}", toolName, argsJson);
+                executeTool(context, listener, toolName, argsJson);
             }
         }
     }
 
-    private String callReasonerWithStreaming(AgentContext context, StreamListener listener) {
-        StringBuilder outputBuilder = new StringBuilder();
-        reasoner.think(context, new StreamListener() {
+    private LlmResult callLlmWithStreaming(AgentContext context, StreamListener listener) {
+        List<ChatMessage> messages = context.getMessages().stream()
+                .map(this::toLangChainMessage)
+                .toList();
+
+        if (context.getSystemPrompt() != null && !context.getSystemPrompt().isEmpty()) {
+            messages = new ArrayList<>(messages);
+            messages.add(0, SystemMessage.from(context.getSystemPrompt()));
+        }
+
+        List<ToolSpecification> tools = context.getToolSpecifications();
+        ChatRequest.Builder requestBuilder = ChatRequest.builder().messages(messages);
+        if (tools != null && !tools.isEmpty()) {
+            requestBuilder.toolSpecifications(tools);
+        }
+        ChatRequest request = requestBuilder.build();
+
+        StringBuilder textBuilder = new StringBuilder();
+        List<ToolExecutionRequest> toolRequests = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(1);
+        Throwable[] error = new Throwable[1];
+
+        streamingChatModel.chat(request, new StreamingChatResponseHandler() {
             @Override
-            public void onToken(String token) {
-                outputBuilder.append(token);
-                listener.onToken(token);
+            public void onPartialResponse(String partialResponse) {
+                textBuilder.append(partialResponse);
+                listener.onToken(partialResponse);
             }
 
             @Override
-            public void onToolStart(String toolName) {
-                listener.onToolStart(toolName);
+            public void onCompleteToolCall(CompleteToolCall completeToolCall) {
+                listener.onToolCallComplete(
+                        completeToolCall.toolExecutionRequest().name(),
+                        completeToolCall.toolExecutionRequest().arguments()
+                );
             }
 
             @Override
-            public void onToolEnd(String toolName, Object result) {
-                listener.onToolEnd(toolName, result);
-            }
-
-            @Override
-            public void onComplete() {
+            public void onCompleteResponse(ChatResponse completeResponse) {
+                try {
+                    AiMessage aiMessage = completeResponse.aiMessage();
+                    if (aiMessage != null && aiMessage.hasToolExecutionRequests()) {
+                        toolRequests.addAll(aiMessage.toolExecutionRequests());
+                    }
+                } catch (Throwable t) {
+                    error[0] = t;
+                } finally {
+                    latch.countDown();
+                }
             }
 
             @Override
             public void onError(Throwable e) {
-                listener.onError(e);
+                error[0] = e;
+                latch.countDown();
             }
         });
-        return outputBuilder.toString();
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("LLM call interrupted", e);
+        }
+
+        if (error[0] != null) {
+            throw new RuntimeException("LLM call failed", error[0]);
+        }
+
+        return new LlmResult(textBuilder.toString(), toolRequests);
     }
 
-    private void executeTool(AgentContext context, StreamListener listener, AgentAction action) {
-        String toolName = action.getTool();
+    private void executeTool(AgentContext context, StreamListener listener, String toolName, String argsJson) {
         String nodeId = toolRegistry.getNodeId(toolName);
         log.info("[Agent] Executing tool: {} -> nodeId: {}", toolName, nodeId);
+        Map<String, Object> args = parseArgs(argsJson);
         listener.onToolStart(toolName);
-        Object result = nodeExecutor.execute(nodeId, action.getArgs());
+        Object result = nodeExecutor.execute(nodeId, args);
         log.info("[Agent] Tool result: {}", result);
         listener.onToolEnd(toolName, result);
         context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
+    }
+
+    private Map<String, Object> parseArgs(String argsJson) {
+        if (argsJson == null || argsJson.isBlank()) {
+            return Map.of();
+        }
+        try {
+            return objectMapper.readValue(argsJson, Map.class);
+        } catch (JsonProcessingException e) {
+            log.warn("[Agent] Failed to parse tool args as JSON: {}", argsJson);
+            return Map.of();
+        }
+    }
+
+    private ChatMessage toLangChainMessage(io.autoflow.spi.model.ChatMessage chatMessage) {
+        return switch (chatMessage.getType()) {
+            case USER -> UserMessage.from(chatMessage.getContent());
+            case ASSISTANT -> AiMessage.from(chatMessage.getContent());
+            default -> SystemMessage.from(chatMessage.getContent());
+        };
+    }
+
+    private static class LlmResult {
+        final String text;
+        final List<dev.langchain4j.agent.tool.ToolExecutionRequest> toolExecutionRequests;
+
+        LlmResult(String text, List<dev.langchain4j.agent.tool.ToolExecutionRequest> toolExecutionRequests) {
+            this.text = text;
+            this.toolExecutionRequests = toolExecutionRequests;
+        }
     }
 }

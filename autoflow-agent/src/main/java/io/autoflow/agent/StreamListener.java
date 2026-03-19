@@ -13,5 +13,9 @@ public interface StreamListener {
 
     void onComplete();
 
+    void onComplete(String fullOutput);
+
+    void onToolCallComplete(String toolName, String arguments);
+
     void onError(Throwable e);
 }
