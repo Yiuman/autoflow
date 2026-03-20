@@ -4,6 +4,8 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import io.autoflow.agent.memory.InMemoryMemoryStore;
+import io.autoflow.agent.prompt.DefaultPromptTemplateProvider;
+import io.autoflow.agent.prompt.PromptTemplateProvider;
 import io.autoflow.plugin.llm.ModelConfig;
 import io.autoflow.plugin.llm.provider.ChatModelProviders;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,15 +80,10 @@ class ReActIntegrationTest {
     @Test
     void react_withRealModel_singleTurn() {
         String sessionId = "test-real-" + System.currentTimeMillis();
-        String systemPrompt = """
-                You are a helpful assistant. When you need to perform actions, respond with JSON in this format:
-                {"action":"call_tool","tool":"tool_name","args":{"arg1":"value1"}}
-                When finished, respond with:
-                {"action":"finish"}
-                """;
+        DefaultPromptTemplateProvider promptProvider = new DefaultPromptTemplateProvider(5);
 
         AgentContext context = new AgentContext(sessionId);
-        context.setSystemPrompt(systemPrompt);
+        context.setSystemPrompt(promptProvider.formatSystemPrompt(1));
         memoryStore.save(context);
 
         StringBuilder tokens = new StringBuilder();
