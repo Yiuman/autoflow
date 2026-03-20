@@ -13,6 +13,8 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.CompleteToolCall;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import io.autoflow.agent.prompt.DefaultPromptTemplateProvider;
+import io.autoflow.agent.prompt.PromptTemplateProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class DefaultAgentEngine implements AgentEngine {
     private final NodeExecutor nodeExecutor;
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
+    private final PromptTemplateProvider promptTemplateProvider;
     private final ObjectMapper objectMapper;
     private final ConcurrentHashMap<String, CompletableFuture<Object>> toolFutures = new ConcurrentHashMap<>();
 
@@ -38,7 +41,7 @@ public class DefaultAgentEngine implements AgentEngine {
             StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry) {
-        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, 10);
+        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, new DefaultPromptTemplateProvider());
     }
 
     public DefaultAgentEngine(
@@ -47,10 +50,32 @@ public class DefaultAgentEngine implements AgentEngine {
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry,
             int maxSteps) {
+        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, 
+             new DefaultPromptTemplateProvider(maxSteps), maxSteps);
+    }
+
+    public DefaultAgentEngine(
+            MemoryStore memoryStore,
+            StreamingChatModel streamingChatModel,
+            NodeExecutor nodeExecutor,
+            ToolRegistry toolRegistry,
+            PromptTemplateProvider promptTemplateProvider) {
+        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, 
+             promptTemplateProvider, 10);
+    }
+
+    public DefaultAgentEngine(
+            MemoryStore memoryStore,
+            StreamingChatModel streamingChatModel,
+            NodeExecutor nodeExecutor,
+            ToolRegistry toolRegistry,
+            PromptTemplateProvider promptTemplateProvider,
+            int maxSteps) {
         this.memoryStore = memoryStore;
         this.streamingChatModel = streamingChatModel;
         this.nodeExecutor = nodeExecutor;
         this.toolRegistry = toolRegistry;
+        this.promptTemplateProvider = promptTemplateProvider;
         this.maxSteps = maxSteps;
         this.objectMapper = new ObjectMapper();
     }
@@ -85,7 +110,15 @@ public class DefaultAgentEngine implements AgentEngine {
     private void executeReactLoop(AgentContext context, StreamListener listener) {
         for (int i = 0; i < maxSteps; i++) {
             context.incrementStep();
-            log.info("[Agent] Step {} started", context.getStepCount());
+            int currentStep = context.getStepCount();
+            log.info("[Agent] Step {} started", currentStep);
+
+            // Set formatted system prompt with step count
+            if (promptTemplateProvider != null) {
+                String formattedPrompt = ((DefaultPromptTemplateProvider) promptTemplateProvider)
+                    .formatSystemPrompt(currentStep);
+                context.setSystemPrompt(formattedPrompt);
+            }
 
             // Tools are executed asynchronously in callLlmWithStreaming
             LlmResult result = callLlmWithStreaming(context, listener);
