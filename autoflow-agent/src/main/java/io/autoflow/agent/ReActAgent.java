@@ -21,11 +21,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
-public class ReActAgent implements AgentEngine {
-
-    private static final int MAX_TOOL_RETRIES = 3;
+public final class ReActAgent implements AgentEngine {
 
     private final MemoryStore memoryStore;
     private final StreamingChatModel chatModel;
@@ -34,56 +33,87 @@ public class ReActAgent implements AgentEngine {
     private final int maxSteps;
     private final PromptTemplateProvider promptProvider;
     private final ObjectMapper objectMapper;
+    private final ToolRetryHandler retryHandler;
     
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingTools = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Integer> toolFailureCounts = new ConcurrentHashMap<>();
 
-    public ReActAgent(
-            MemoryStore memoryStore,
-            StreamingChatModel chatModel,
-            NodeExecutor nodeExecutor,
-            ToolRegistry toolRegistry) {
-        this(memoryStore, chatModel, nodeExecutor, toolRegistry, 10);
-    }
-
-    public ReActAgent(
-            MemoryStore memoryStore,
-            StreamingChatModel chatModel,
-            NodeExecutor nodeExecutor,
-            ToolRegistry toolRegistry,
-            int maxSteps) {
-        this(memoryStore, chatModel, nodeExecutor, toolRegistry, 
-             new io.autoflow.agent.prompt.DefaultPromptTemplateProvider(), maxSteps);
-    }
-
-    public ReActAgent(
-            MemoryStore memoryStore,
-            StreamingChatModel chatModel,
-            NodeExecutor nodeExecutor,
-            ToolRegistry toolRegistry,
-            PromptTemplateProvider promptProvider,
-            int maxSteps) {
-        this.memoryStore = memoryStore;
-        this.chatModel = chatModel;
-        this.nodeExecutor = nodeExecutor;
-        this.toolRegistry = toolRegistry;
-        this.promptProvider = promptProvider;
-        this.maxSteps = maxSteps;
+    private ReActAgent(Builder builder) {
+        this.memoryStore = builder.memoryStore;
+        this.chatModel = builder.chatModel;
+        this.nodeExecutor = builder.nodeExecutor;
+        this.toolRegistry = builder.toolRegistry;
+        this.promptProvider = builder.promptProvider;
+        this.maxSteps = builder.maxSteps;
         this.objectMapper = new ObjectMapper();
+        this.retryHandler = new ToolRetryHandler(builder.maxToolRetries);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private MemoryStore memoryStore;
+        private StreamingChatModel chatModel;
+        private NodeExecutor nodeExecutor;
+        private ToolRegistry toolRegistry;
+        private PromptTemplateProvider promptProvider = new io.autoflow.agent.prompt.DefaultPromptTemplateProvider();
+        private int maxSteps = 10;
+        private int maxToolRetries = 3;
+
+        public Builder memoryStore(MemoryStore memoryStore) {
+            this.memoryStore = memoryStore;
+            return this;
+        }
+
+        public Builder chatModel(StreamingChatModel chatModel) {
+            this.chatModel = chatModel;
+            return this;
+        }
+
+        public Builder nodeExecutor(NodeExecutor nodeExecutor) {
+            this.nodeExecutor = nodeExecutor;
+            return this;
+        }
+
+        public Builder toolRegistry(ToolRegistry toolRegistry) {
+            this.toolRegistry = toolRegistry;
+            return this;
+        }
+
+        public Builder promptProvider(PromptTemplateProvider promptProvider) {
+            this.promptProvider = promptProvider;
+            return this;
+        }
+
+        public Builder maxSteps(int maxSteps) {
+            this.maxSteps = maxSteps;
+            return this;
+        }
+
+        public Builder maxToolRetries(int maxToolRetries) {
+            this.maxToolRetries = maxToolRetries;
+            return this;
+        }
+
+        public ReActAgent build() {
+            return new ReActAgent(this);
+        }
     }
 
     @Override
     public void chat(String sessionId, String input, StreamListener listener) {
         log.info("[Agent] chat session={} input={}", sessionId, input);
+        StringBuilder fullOutput = new StringBuilder();
         try {
             AgentContext context = loadOrCreateContext(sessionId, input);
             context.setToolSpecifications(toolRegistry.getToolSpecifications());
-            toolFailureCounts.clear();
+            retryHandler.clear();
             
-            runReactLoop(context, listener);
+            runReactLoop(context, listener, fullOutput);
             
             memoryStore.save(context);
-            listener.onComplete();
+            listener.onComplete(fullOutput.toString());
             log.info("[Agent] chat session={} completed", sessionId);
         } catch (Throwable e) {
             log.error("[Agent] chat session={} error={}", sessionId, e.getMessage());
@@ -101,14 +131,14 @@ public class ReActAgent implements AgentEngine {
         return context;
     }
 
-    private void runReactLoop(AgentContext context, StreamListener listener) {
+    private void runReactLoop(AgentContext context, StreamListener listener, StringBuilder fullOutput) {
         for (int step = 0; step < maxSteps; step++) {
             context.incrementStep();
             log.info("[Agent] step={} started", context.getStepCount());
 
             context.setSystemPrompt(promptProvider.getSystemPromptTemplate());
 
-            LlmResult result = callLlm(context, listener);
+            LlmResult result = callLlm(context, listener, fullOutput);
             log.info("[Agent] step={} llm_output={}", context.getStepCount(), result.text);
 
             if (result.toolExecutionRequests().isEmpty()) {
@@ -118,7 +148,7 @@ public class ReActAgent implements AgentEngine {
         }
     }
 
-    private LlmResult callLlm(AgentContext context, StreamListener listener) {
+    private LlmResult callLlm(AgentContext context, StreamListener listener, StringBuilder fullOutput) {
         List<ChatMessage> messages = buildMessages(context);
         
         ChatRequest request = ChatRequest.builder()
@@ -129,19 +159,27 @@ public class ReActAgent implements AgentEngine {
         StringBuilder output = new StringBuilder();
         List<ToolExecutionRequest> toolCalls = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
-        Throwable[] error = new Throwable[1];
+        AtomicReference<Throwable> error = new AtomicReference<>();
 
         chatModel.chat(request, new StreamingChatResponseHandler() {
             @Override
             public void onPartialResponse(String text) {
                 output.append(text);
+                fullOutput.append(text);
                 listener.onToken(text);
+            }
+
+            @Override
+            public void onPartialThinking(dev.langchain4j.model.chat.response.PartialThinking partialThinking) {
+                if (partialThinking != null && partialThinking.text() != null) {
+                    listener.onThinking(partialThinking.text());
+                }
             }
 
             @Override
             public void onCompleteToolCall(CompleteToolCall completeToolCall) {
                 ToolExecutionRequest req = completeToolCall.toolExecutionRequest();
-                listener.onToolCallComplete(req.name(), req.arguments());
+                listener.onToolCallStart(req.name(), req.arguments());
                 
                 CompletableFuture<Object> future = CompletableFuture.supplyAsync(() ->
                         executeTool(req.name(), req.arguments())
@@ -156,9 +194,9 @@ public class ReActAgent implements AgentEngine {
                     if (ai != null && ai.hasToolExecutionRequests()) {
                         toolCalls.addAll(ai.toolExecutionRequests());
                     }
-                    processToolResults(toolCalls, context);
+                    processToolResults(toolCalls, context, listener);
                 } catch (Throwable t) {
-                    error[0] = t;
+                    error.set(t);
                 } finally {
                     latch.countDown();
                 }
@@ -166,15 +204,15 @@ public class ReActAgent implements AgentEngine {
 
             @Override
             public void onError(Throwable e) {
-                error[0] = e;
+                error.set(e);
                 latch.countDown();
             }
         });
 
         awaitQuietly(latch);
         
-        if (error[0] != null) {
-            throw new RuntimeException("LLM call failed", error[0]);
+        if (error.get() != null) {
+            throw new RuntimeException("LLM call failed", error.get());
         }
 
         return new LlmResult(output.toString(), toolCalls);
@@ -195,7 +233,7 @@ public class ReActAgent implements AgentEngine {
         return messages;
     }
 
-    private void processToolResults(List<ToolExecutionRequest> toolCalls, AgentContext context) {
+    private void processToolResults(List<ToolExecutionRequest> toolCalls, AgentContext context, StreamListener listener) {
         if (pendingTools.isEmpty()) {
             return;
         }
@@ -205,20 +243,33 @@ public class ReActAgent implements AgentEngine {
 
         for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
-            String failureKey = toolName + ":" + request.arguments();
+            String args = request.arguments();
+            String failureKey = toolName + ":" + args;
             
-            Object result = getToolResult(toolName, failureKey);
+            Object result = getToolResult(toolName);
+            listener.onToolCallEnd(toolName, result);
 
             if (isError(result)) {
-                handleToolError(toolName, failureKey, result.toString(), context, retryList, request);
+                String errorMsg = result.toString();
+                if (retryHandler.shouldRetry(toolName, args, errorMsg)) {
+                    retryHandler.recordFailure(toolName, args);
+                    int remaining = retryHandler.getRemainingRetries(toolName, args);
+                    String reflection = retryHandler.buildReflectionMessage(toolName, errorMsg, remaining);
+                    context.addAssistantMessage(reflection);
+                    retryList.add(request);
+                    log.info("[Agent] tool={} failed, will retry", toolName);
+                } else {
+                    context.addAssistantMessage(retryHandler.buildFinalErrorMessage(toolName, errorMsg));
+                    log.warn("[Agent] tool={} failed after max retries, giving up", toolName);
+                }
             } else {
-                toolFailureCounts.remove(failureKey);
+                retryHandler.recordSuccess(toolName, args);
                 context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
                 log.info("[Agent] tool={} result={}", toolName, result);
             }
+            
+            pendingTools.remove(toolName);
         }
-
-        pendingTools.clear();
 
         if (!retryList.isEmpty()) {
             log.info("[Agent] scheduling {} tool retries", retryList.size());
@@ -228,7 +279,7 @@ public class ReActAgent implements AgentEngine {
         }
     }
 
-    private Object getToolResult(String toolName, String failureKey) {
+    private Object getToolResult(String toolName) {
         try {
             return pendingTools.get(toolName).get();
         } catch (Exception e) {
@@ -239,48 +290,6 @@ public class ReActAgent implements AgentEngine {
 
     private boolean isError(Object result) {
         return result.toString().startsWith("Error:");
-    }
-
-    private void handleToolError(String toolName, String failureKey, String errorMsg, 
-                                  AgentContext context, List<ToolExecutionRequest> retryList,
-                                  ToolExecutionRequest request) {
-        int failures = toolFailureCounts.getOrDefault(failureKey, 0);
-        int remaining = MAX_TOOL_RETRIES - failures;
-
-        if (remaining > 0) {
-            toolFailureCounts.put(failureKey, failures + 1);
-            String reflection = buildReflectionMessage(toolName, errorMsg, remaining);
-            context.addAssistantMessage(reflection);
-            retryList.add(request);
-            log.info("[Agent] tool={} failed, will retry (remaining={})", toolName, remaining);
-        } else {
-            context.addAssistantMessage(buildFinalErrorMessage(toolName, errorMsg));
-            log.warn("[Agent] tool={} failed after {} retries, giving up", toolName, MAX_TOOL_RETRIES);
-        }
-    }
-
-    private String buildReflectionMessage(String toolName, String error, int remaining) {
-        return """
-            Tool Execution Failed: %s
-            Error: %s
-
-            Reflection: Analyze what went wrong and plan your next action.
-            - Was the tool called with correct arguments?
-            - Is there a different tool that could achieve the same goal?
-            - Should you try different parameters?
-
-            You have %d retry(s) remaining.
-            """.formatted(toolName, error, remaining);
-    }
-
-    private String buildFinalErrorMessage(String toolName, String error) {
-        return """
-            Tool Execution Failed: %s
-            Error: %s
-
-            This tool has failed after maximum retries.
-            Please provide your best effort answer or explain that the task could not be completed.
-            """.formatted(toolName, error);
     }
 
     private Object executeTool(String toolName, String argsJson) {

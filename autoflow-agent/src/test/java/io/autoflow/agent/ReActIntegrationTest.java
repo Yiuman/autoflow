@@ -34,13 +34,13 @@ class ReActIntegrationTest {
 
         StreamingChatModel streamingChatModel = createStreamingChatModel();
 
-        engine = new ReActAgent(
-                memoryStore,
-                streamingChatModel,
-                new TestNodeExecutor(),
-                toolRegistry,
-                10
-        );
+        engine = ReActAgent.builder()
+                .memoryStore(memoryStore)
+                .chatModel(streamingChatModel)
+                .nodeExecutor(new TestNodeExecutor())
+                .toolRegistry(toolRegistry)
+                .maxSteps(10)
+                .build();
     }
 
     private ToolRegistry createToolRegistry() {
@@ -274,6 +274,10 @@ class ReActIntegrationTest {
 
         StreamListener listener = new StreamListener() {
             @Override
+            public void onThinking(String thinking) {
+            }
+
+            @Override
             public void onToken(String token) {
                 System.out.print("[TOKEN] " + token);
                 if (token != null) {
@@ -282,29 +286,21 @@ class ReActIntegrationTest {
             }
 
             @Override
-            public void onToolStart(String toolName) {
+            public void onToolCallStart(String toolName, String arguments) {
                 System.out.println("\n[TOOL START] " + toolName);
                 toolCalls.append(toolName).append(",");
             }
 
             @Override
-            public void onToolEnd(String toolName, Object result) {
+            public void onToolCallEnd(String toolName, Object result) {
                 System.out.println("\n[TOOL END] " + toolName + " -> " + result);
                 results.append(result).append(",");
             }
 
             @Override
-            public void onComplete() {
+            public void onComplete(String fullOutput) {
                 System.out.println("\n[COMPLETE]");
                 completed = true;
-            }
-
-            @Override
-            public void onComplete(String fullOutput) {
-            }
-
-            @Override
-            public void onToolCallComplete(String toolName, String arguments) {
             }
 
             @Override

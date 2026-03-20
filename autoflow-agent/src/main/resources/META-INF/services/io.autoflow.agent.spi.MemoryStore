@@ -1,1 +1,1 @@
-io.autoflow.agent.core.memory.InMemoryMemoryStore
+io.autoflow.agent.memory.InMemoryMemoryStore

@@ -22,13 +22,4 @@ public class InMemoryMemoryStore implements MemoryStore {
         store.put(context.getSessionId(), context);
     }
 
-    /**
-     * Factory method to create a new AgentContext.
-     *
-     * @param sessionId the session identifier
-     * @return a new AgentContext instance
-     */
-    public static AgentContext createContext(String sessionId) {
-        return new AgentContext(sessionId);
-    }
 }

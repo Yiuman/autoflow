@@ -20,7 +20,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/autoflow
     username: postgres
-    password: 123456
+    password: postgres
   sql:
     init:
       schema-locations: classpath:sql/schema.sql
