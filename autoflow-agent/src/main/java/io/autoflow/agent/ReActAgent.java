@@ -27,6 +27,8 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ReActAgent implements AgentEngine {
 
+    private static final int MAX_TOOL_RETRIES = 3;
+
     private final MemoryStore memoryStore;
     private final StreamingChatModel streamingChatModel;
     private final NodeExecutor nodeExecutor;
@@ -35,6 +37,7 @@ public class ReActAgent implements AgentEngine {
     private final PromptTemplateProvider promptTemplateProvider;
     private final ObjectMapper objectMapper;
     private final ConcurrentHashMap<String, CompletableFuture<Object>> toolFutures = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> toolFailureCounts = new ConcurrentHashMap<>();
 
     public ReActAgent(
             MemoryStore memoryStore,
@@ -87,6 +90,7 @@ public class ReActAgent implements AgentEngine {
         try {
             context = loadOrCreateContext(sessionId, input);
             context.setToolSpecifications(toolRegistry.getToolSpecifications());
+            toolFailureCounts.clear();
             executeReactLoop(context, listener);
             memoryStore.save(context);
             listener.onComplete();
@@ -113,17 +117,13 @@ public class ReActAgent implements AgentEngine {
             int currentStep = context.getStepCount();
             log.info("[Agent] Step {} started", currentStep);
 
-            // Set system prompt from provider
             if (promptTemplateProvider != null) {
                 context.setSystemPrompt(promptTemplateProvider.getSystemPromptTemplate());
             }
 
-
-            // Tools are executed asynchronously in callLlmWithStreaming
             LlmResult result = callLlmWithStreaming(context, listener);
             log.info("[Agent] LLM output: {}", result.text);
 
-            // Only check if there are tool calls, don't execute them
             if (result.toolExecutionRequests == null || result.toolExecutionRequests.isEmpty()) {
                 log.info("[Agent] No more tool calls, stopping loop");
                 break;
@@ -227,21 +227,94 @@ public class ReActAgent implements AgentEngine {
             return;
         }
         CompletableFuture.allOf(toolFutures.values().toArray(new CompletableFuture[0])).join();
+
+        List<ToolExecutionRequest> retryRequests = new ArrayList<>();
+
         for (ToolExecutionRequest request : toolRequests) {
             String toolName = request.name();
+            String failureKey = toolName + ":" + request.arguments();
             Object result;
+
             try {
                 result = toolFutures.get(toolName).get();
             } catch (Exception e) {
                 Throwable cause = e.getCause() != null ? e.getCause() : e;
                 result = "Error: " + cause.getMessage();
                 log.error("[Agent] Tool {} execution failed: {}", toolName, cause.getMessage());
-                error[0] = cause;
-                return;
+
+                int failureCount = toolFailureCounts.getOrDefault(failureKey, 0);
+                int remainingRetries = MAX_TOOL_RETRIES - failureCount;
+
+                if (remainingRetries > 0) {
+                    toolFailureCounts.put(failureKey, failureCount + 1);
+                    String reflectionMessage = buildReflectionMessage(toolName, cause.getMessage(), remainingRetries);
+                    context.addAssistantMessage(reflectionMessage);
+                    retryRequests.add(request);
+                    log.info("[Agent] Tool {} failed, but will retry. Remaining retries: {}", toolName, remainingRetries);
+                } else {
+                    String errorMessage = buildFinalErrorMessage(toolName, cause.getMessage());
+                    context.addAssistantMessage(errorMessage);
+                    log.warn("[Agent] Tool {} failed after {} retries, giving up", toolName, MAX_TOOL_RETRIES);
+                }
+                continue;
             }
+
+            String resultStr = result.toString();
+            if (resultStr.startsWith("Error:")) {
+                int failureCount = toolFailureCounts.getOrDefault(failureKey, 0);
+                int remainingRetries = MAX_TOOL_RETRIES - failureCount;
+
+                if (remainingRetries > 0) {
+                    toolFailureCounts.put(failureKey, failureCount + 1);
+                    String reflectionMessage = buildReflectionMessage(toolName, resultStr, remainingRetries);
+                    context.addAssistantMessage(reflectionMessage);
+                    retryRequests.add(request);
+                    log.info("[Agent] Tool {} returned error, will retry. Remaining retries: {}", toolName, remainingRetries);
+                } else {
+                    context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
+                    log.warn("[Agent] Tool {} returned error after {} retries, giving up", toolName, MAX_TOOL_RETRIES);
+                }
+                continue;
+            }
+
+            toolFailureCounts.remove(failureKey);
             context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
             log.info("[Agent] Tool {} result added to context: {}", toolName, result);
         }
+
+        toolFutures.clear();
+
+        if (!retryRequests.isEmpty()) {
+            log.info("[Agent] Retrying {} tool calls with reflection", retryRequests.size());
+            retryRequests.forEach(req -> {
+                context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments());
+            });
+        }
+    }
+
+    private String buildReflectionMessage(String toolName, String errorMessage, int remainingRetries) {
+        return """
+            Tool Execution Failed: %s
+            Error: %s
+
+            Reflection: Analyze what went wrong and plan your next action.
+            - Was the tool called with correct arguments?
+            - Is there a different tool that could achieve the same goal?
+            - Should you try different parameters?
+
+            You have %d retry(s) remaining. Use the information above to make an informed decision.
+            """.formatted(toolName, errorMessage, remainingRetries);
+    }
+
+    private String buildFinalErrorMessage(String toolName, String errorMessage) {
+        return """
+            Tool Execution Failed: %s
+            Error: %s
+
+            This tool has failed after maximum retries.
+            Please provide your best effort answer based on the available information,
+            or clearly explain that the task could not be completed due to tool failures.
+            """.formatted(toolName, errorMessage);
     }
 
     private void executeTool(AgentContext context, StreamListener listener, String toolName, String argsJson) {
