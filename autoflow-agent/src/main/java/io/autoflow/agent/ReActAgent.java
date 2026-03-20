@@ -2,7 +2,6 @@ package io.autoflow.agent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -13,7 +12,6 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.CompleteToolCall;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import io.autoflow.agent.prompt.DefaultPromptTemplateProvider;
 import io.autoflow.agent.prompt.PromptTemplateProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,73 +28,65 @@ public class ReActAgent implements AgentEngine {
     private static final int MAX_TOOL_RETRIES = 3;
 
     private final MemoryStore memoryStore;
-    private final StreamingChatModel streamingChatModel;
+    private final StreamingChatModel chatModel;
     private final NodeExecutor nodeExecutor;
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
-    private final PromptTemplateProvider promptTemplateProvider;
+    private final PromptTemplateProvider promptProvider;
     private final ObjectMapper objectMapper;
-    private final ConcurrentHashMap<String, CompletableFuture<Object>> toolFutures = new ConcurrentHashMap<>();
+    
+    private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingTools = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Integer> toolFailureCounts = new ConcurrentHashMap<>();
 
     public ReActAgent(
             MemoryStore memoryStore,
-            StreamingChatModel streamingChatModel,
+            StreamingChatModel chatModel,
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry) {
-        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, new DefaultPromptTemplateProvider());
+        this(memoryStore, chatModel, nodeExecutor, toolRegistry, 10);
     }
 
     public ReActAgent(
             MemoryStore memoryStore,
-            StreamingChatModel streamingChatModel,
+            StreamingChatModel chatModel,
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry,
             int maxSteps) {
-        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry,
-             new DefaultPromptTemplateProvider(), maxSteps);
+        this(memoryStore, chatModel, nodeExecutor, toolRegistry, 
+             new io.autoflow.agent.prompt.DefaultPromptTemplateProvider(), maxSteps);
     }
 
     public ReActAgent(
             MemoryStore memoryStore,
-            StreamingChatModel streamingChatModel,
+            StreamingChatModel chatModel,
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry,
-            PromptTemplateProvider promptTemplateProvider) {
-        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, 
-             promptTemplateProvider, 10);
-    }
-
-    public ReActAgent(
-            MemoryStore memoryStore,
-            StreamingChatModel streamingChatModel,
-            NodeExecutor nodeExecutor,
-            ToolRegistry toolRegistry,
-            PromptTemplateProvider promptTemplateProvider,
+            PromptTemplateProvider promptProvider,
             int maxSteps) {
         this.memoryStore = memoryStore;
-        this.streamingChatModel = streamingChatModel;
+        this.chatModel = chatModel;
         this.nodeExecutor = nodeExecutor;
         this.toolRegistry = toolRegistry;
-        this.promptTemplateProvider = promptTemplateProvider;
+        this.promptProvider = promptProvider;
         this.maxSteps = maxSteps;
         this.objectMapper = new ObjectMapper();
     }
 
     @Override
     public void chat(String sessionId, String input, StreamListener listener) {
-        log.info("[Agent] Session: {}, Input: {}", sessionId, input);
-        AgentContext context;
+        log.info("[Agent] chat session={} input={}", sessionId, input);
         try {
-            context = loadOrCreateContext(sessionId, input);
+            AgentContext context = loadOrCreateContext(sessionId, input);
             context.setToolSpecifications(toolRegistry.getToolSpecifications());
             toolFailureCounts.clear();
-            executeReactLoop(context, listener);
+            
+            runReactLoop(context, listener);
+            
             memoryStore.save(context);
             listener.onComplete();
-            log.info("[Agent] Session: {} completed", sessionId);
+            log.info("[Agent] chat session={} completed", sessionId);
         } catch (Throwable e) {
-            log.error("[Agent] Session: {} error: {}", sessionId, e.getMessage());
+            log.error("[Agent] chat session={} error={}", sessionId, e.getMessage());
             listener.onError(e);
         }
     }
@@ -105,81 +95,68 @@ public class ReActAgent implements AgentEngine {
         AgentContext context = memoryStore.load(sessionId);
         if (context == null) {
             context = new AgentContext(sessionId);
-            log.info("[Agent] Created new context for session: {}", sessionId);
+            log.info("[Agent] created new context session={}", sessionId);
         }
         context.addUserMessage(input);
         return context;
     }
 
-    private void executeReactLoop(AgentContext context, StreamListener listener) {
-        for (int i = 0; i < maxSteps; i++) {
+    private void runReactLoop(AgentContext context, StreamListener listener) {
+        for (int step = 0; step < maxSteps; step++) {
             context.incrementStep();
-            int currentStep = context.getStepCount();
-            log.info("[Agent] Step {} started", currentStep);
+            log.info("[Agent] step={} started", context.getStepCount());
 
-            if (promptTemplateProvider != null) {
-                context.setSystemPrompt(promptTemplateProvider.getSystemPromptTemplate());
-            }
+            context.setSystemPrompt(promptProvider.getSystemPromptTemplate());
 
-            LlmResult result = callLlmWithStreaming(context, listener);
-            log.info("[Agent] LLM output: {}", result.text);
+            LlmResult result = callLlm(context, listener);
+            log.info("[Agent] step={} llm_output={}", context.getStepCount(), result.text);
 
-            if (result.toolExecutionRequests == null || result.toolExecutionRequests.isEmpty()) {
-                log.info("[Agent] No more tool calls, stopping loop");
+            if (result.toolExecutionRequests().isEmpty()) {
+                log.info("[Agent] step={} no tool calls, stopping", context.getStepCount());
                 break;
             }
         }
     }
 
-    private LlmResult callLlmWithStreaming(AgentContext context, StreamListener listener) {
-        List<ChatMessage> messages = context.getMessages().stream()
-                .map(this::toLangChainMessage)
-                .toList();
+    private LlmResult callLlm(AgentContext context, StreamListener listener) {
+        List<ChatMessage> messages = buildMessages(context);
+        
+        ChatRequest request = ChatRequest.builder()
+                .messages(messages)
+                .toolSpecifications(context.getToolSpecifications())
+                .build();
 
-        if (context.getSystemPrompt() != null && !context.getSystemPrompt().isEmpty()) {
-            messages = new ArrayList<>(messages);
-            messages.add(0, SystemMessage.from(context.getSystemPrompt()));
-        }
-
-        List<ToolSpecification> tools = context.getToolSpecifications();
-        ChatRequest.Builder requestBuilder = ChatRequest.builder().messages(messages);
-        if (tools != null && !tools.isEmpty()) {
-            requestBuilder.toolSpecifications(tools);
-        }
-        ChatRequest request = requestBuilder.build();
-
-        StringBuilder textBuilder = new StringBuilder();
-        List<ToolExecutionRequest> toolRequests = new ArrayList<>();
+        StringBuilder output = new StringBuilder();
+        List<ToolExecutionRequest> toolCalls = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
         Throwable[] error = new Throwable[1];
 
-        streamingChatModel.chat(request, new StreamingChatResponseHandler() {
+        chatModel.chat(request, new StreamingChatResponseHandler() {
             @Override
-            public void onPartialResponse(String partialResponse) {
-                textBuilder.append(partialResponse);
-                listener.onToken(partialResponse);
+            public void onPartialResponse(String text) {
+                output.append(text);
+                listener.onToken(text);
             }
 
             @Override
             public void onCompleteToolCall(CompleteToolCall completeToolCall) {
-                ToolExecutionRequest request = completeToolCall.toolExecutionRequest();
-                String toolName = request.name();
-                String argsJson = request.arguments();
-                listener.onToolCallComplete(toolName, argsJson);
+                ToolExecutionRequest req = completeToolCall.toolExecutionRequest();
+                listener.onToolCallComplete(req.name(), req.arguments());
+                
                 CompletableFuture<Object> future = CompletableFuture.supplyAsync(() ->
-                    executeToolAsync(toolName, argsJson, listener)
+                        executeTool(req.name(), req.arguments())
                 );
-                toolFutures.put(toolName, future);
+                pendingTools.put(req.name(), future);
             }
 
             @Override
-            public void onCompleteResponse(ChatResponse completeResponse) {
+            public void onCompleteResponse(ChatResponse response) {
                 try {
-                    AiMessage aiMessage = completeResponse.aiMessage();
-                    if (aiMessage != null && aiMessage.hasToolExecutionRequests()) {
-                        toolRequests.addAll(aiMessage.toolExecutionRequests());
+                    AiMessage ai = response.aiMessage();
+                    if (ai != null && ai.hasToolExecutionRequests()) {
+                        toolCalls.addAll(ai.toolExecutionRequests());
                     }
-                    collectToolResults(toolRequests, context, error);
+                    processToolResults(toolCalls, context);
                 } catch (Throwable t) {
                     error[0] = t;
                 } finally {
@@ -194,105 +171,95 @@ public class ReActAgent implements AgentEngine {
             }
         });
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("LLM call interrupted", e);
-        }
-
+        awaitQuietly(latch);
+        
         if (error[0] != null) {
             throw new RuntimeException("LLM call failed", error[0]);
         }
 
-        return new LlmResult(textBuilder.toString(), toolRequests);
+        return new LlmResult(output.toString(), toolCalls);
     }
 
-    private Object executeToolAsync(String toolName, String argsJson, StreamListener listener) {
-        try {
-            String nodeId = toolRegistry.getNodeId(toolName);
-            Map<String, Object> args = parseArgs(argsJson);
-            listener.onToolStart(toolName);
-            Object result = nodeExecutor.execute(nodeId, args);
-            listener.onToolEnd(toolName, result);
-            return result;
-        } catch (Exception e) {
-            log.error("[Agent] Tool {} execution failed: {}", toolName, e.getMessage());
-            throw e;
+    private List<ChatMessage> buildMessages(AgentContext context) {
+        List<ChatMessage> messages = context.getMessages().stream()
+                .map(this::toLangChainMessage)
+                .toList();
+
+        String systemPrompt = context.getSystemPrompt();
+        if (systemPrompt != null && !systemPrompt.isBlank()) {
+            List<ChatMessage> withSystem = new ArrayList<>();
+            withSystem.add(SystemMessage.from(systemPrompt));
+            withSystem.addAll(messages);
+            return withSystem;
         }
+        return messages;
     }
 
-    private void collectToolResults(List<ToolExecutionRequest> toolRequests, AgentContext context, Throwable[] error) {
-        if (toolFutures.isEmpty()) {
+    private void processToolResults(List<ToolExecutionRequest> toolCalls, AgentContext context) {
+        if (pendingTools.isEmpty()) {
             return;
         }
-        CompletableFuture.allOf(toolFutures.values().toArray(new CompletableFuture[0])).join();
 
-        List<ToolExecutionRequest> retryRequests = new ArrayList<>();
+        CompletableFuture.allOf(pendingTools.values().toArray(new CompletableFuture[0])).join();
+        List<ToolExecutionRequest> retryList = new ArrayList<>();
 
-        for (ToolExecutionRequest request : toolRequests) {
+        for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
             String failureKey = toolName + ":" + request.arguments();
-            Object result;
+            
+            Object result = getToolResult(toolName, failureKey);
 
-            try {
-                result = toolFutures.get(toolName).get();
-            } catch (Exception e) {
-                Throwable cause = e.getCause() != null ? e.getCause() : e;
-                result = "Error: " + cause.getMessage();
-                log.error("[Agent] Tool {} execution failed: {}", toolName, cause.getMessage());
-
-                int failureCount = toolFailureCounts.getOrDefault(failureKey, 0);
-                int remainingRetries = MAX_TOOL_RETRIES - failureCount;
-
-                if (remainingRetries > 0) {
-                    toolFailureCounts.put(failureKey, failureCount + 1);
-                    String reflectionMessage = buildReflectionMessage(toolName, cause.getMessage(), remainingRetries);
-                    context.addAssistantMessage(reflectionMessage);
-                    retryRequests.add(request);
-                    log.info("[Agent] Tool {} failed, but will retry. Remaining retries: {}", toolName, remainingRetries);
-                } else {
-                    String errorMessage = buildFinalErrorMessage(toolName, cause.getMessage());
-                    context.addAssistantMessage(errorMessage);
-                    log.warn("[Agent] Tool {} failed after {} retries, giving up", toolName, MAX_TOOL_RETRIES);
-                }
-                continue;
+            if (isError(result)) {
+                handleToolError(toolName, failureKey, result.toString(), context, retryList, request);
+            } else {
+                toolFailureCounts.remove(failureKey);
+                context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
+                log.info("[Agent] tool={} result={}", toolName, result);
             }
-
-            String resultStr = result.toString();
-            if (resultStr.startsWith("Error:")) {
-                int failureCount = toolFailureCounts.getOrDefault(failureKey, 0);
-                int remainingRetries = MAX_TOOL_RETRIES - failureCount;
-
-                if (remainingRetries > 0) {
-                    toolFailureCounts.put(failureKey, failureCount + 1);
-                    String reflectionMessage = buildReflectionMessage(toolName, resultStr, remainingRetries);
-                    context.addAssistantMessage(reflectionMessage);
-                    retryRequests.add(request);
-                    log.info("[Agent] Tool {} returned error, will retry. Remaining retries: {}", toolName, remainingRetries);
-                } else {
-                    context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
-                    log.warn("[Agent] Tool {} returned error after {} retries, giving up", toolName, MAX_TOOL_RETRIES);
-                }
-                continue;
-            }
-
-            toolFailureCounts.remove(failureKey);
-            context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
-            log.info("[Agent] Tool {} result added to context: {}", toolName, result);
         }
 
-        toolFutures.clear();
+        pendingTools.clear();
 
-        if (!retryRequests.isEmpty()) {
-            log.info("[Agent] Retrying {} tool calls with reflection", retryRequests.size());
-            retryRequests.forEach(req -> {
-                context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments());
-            });
+        if (!retryList.isEmpty()) {
+            log.info("[Agent] scheduling {} tool retries", retryList.size());
+            retryList.forEach(req -> 
+                    context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments())
+            );
         }
     }
 
-    private String buildReflectionMessage(String toolName, String errorMessage, int remainingRetries) {
+    private Object getToolResult(String toolName, String failureKey) {
+        try {
+            return pendingTools.get(toolName).get();
+        } catch (Exception e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            return "Error: " + cause.getMessage();
+        }
+    }
+
+    private boolean isError(Object result) {
+        return result.toString().startsWith("Error:");
+    }
+
+    private void handleToolError(String toolName, String failureKey, String errorMsg, 
+                                  AgentContext context, List<ToolExecutionRequest> retryList,
+                                  ToolExecutionRequest request) {
+        int failures = toolFailureCounts.getOrDefault(failureKey, 0);
+        int remaining = MAX_TOOL_RETRIES - failures;
+
+        if (remaining > 0) {
+            toolFailureCounts.put(failureKey, failures + 1);
+            String reflection = buildReflectionMessage(toolName, errorMsg, remaining);
+            context.addAssistantMessage(reflection);
+            retryList.add(request);
+            log.info("[Agent] tool={} failed, will retry (remaining={})", toolName, remaining);
+        } else {
+            context.addAssistantMessage(buildFinalErrorMessage(toolName, errorMsg));
+            log.warn("[Agent] tool={} failed after {} retries, giving up", toolName, MAX_TOOL_RETRIES);
+        }
+    }
+
+    private String buildReflectionMessage(String toolName, String error, int remaining) {
         return """
             Tool Execution Failed: %s
             Error: %s
@@ -302,30 +269,29 @@ public class ReActAgent implements AgentEngine {
             - Is there a different tool that could achieve the same goal?
             - Should you try different parameters?
 
-            You have %d retry(s) remaining. Use the information above to make an informed decision.
-            """.formatted(toolName, errorMessage, remainingRetries);
+            You have %d retry(s) remaining.
+            """.formatted(toolName, error, remaining);
     }
 
-    private String buildFinalErrorMessage(String toolName, String errorMessage) {
+    private String buildFinalErrorMessage(String toolName, String error) {
         return """
             Tool Execution Failed: %s
             Error: %s
 
             This tool has failed after maximum retries.
-            Please provide your best effort answer based on the available information,
-            or clearly explain that the task could not be completed due to tool failures.
-            """.formatted(toolName, errorMessage);
+            Please provide your best effort answer or explain that the task could not be completed.
+            """.formatted(toolName, error);
     }
 
-    private void executeTool(AgentContext context, StreamListener listener, String toolName, String argsJson) {
-        String nodeId = toolRegistry.getNodeId(toolName);
-        log.info("[Agent] Executing tool: {} -> nodeId: {}", toolName, nodeId);
-        Map<String, Object> args = parseArgs(argsJson);
-        listener.onToolStart(toolName);
-        Object result = nodeExecutor.execute(nodeId, args);
-        log.info("[Agent] Tool result: {}", result);
-        listener.onToolEnd(toolName, result);
-        context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
+    private Object executeTool(String toolName, String argsJson) {
+        try {
+            String nodeId = toolRegistry.getNodeId(toolName);
+            Map<String, Object> args = parseArgs(argsJson);
+            return nodeExecutor.execute(nodeId, args);
+        } catch (Exception e) {
+            log.error("[Agent] tool={} execution error={}", toolName, e.getMessage());
+            throw e;
+        }
     }
 
     private Map<String, Object> parseArgs(String argsJson) {
@@ -335,26 +301,28 @@ public class ReActAgent implements AgentEngine {
         try {
             return objectMapper.readValue(argsJson, Map.class);
         } catch (JsonProcessingException e) {
-            log.warn("[Agent] Failed to parse tool args as JSON: {}", argsJson);
+            log.warn("[Agent] failed to parse args JSON={}", argsJson);
             return Map.of();
         }
     }
 
-    private ChatMessage toLangChainMessage(io.autoflow.spi.model.ChatMessage chatMessage) {
-        return switch (chatMessage.getType()) {
-            case USER -> UserMessage.from(chatMessage.getContent());
-            case ASSISTANT -> AiMessage.from(chatMessage.getContent());
-            default -> SystemMessage.from(chatMessage.getContent());
+    private void awaitQuietly(CountDownLatch latch) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
+        }
+    }
+
+    private ChatMessage toLangChainMessage(io.autoflow.spi.model.ChatMessage msg) {
+        return switch (msg.getType()) {
+            case USER -> UserMessage.from(msg.getContent());
+            case ASSISTANT -> AiMessage.from(msg.getContent());
+            default -> SystemMessage.from(msg.getContent());
         };
     }
 
-    private static class LlmResult {
-        final String text;
-        final List<dev.langchain4j.agent.tool.ToolExecutionRequest> toolExecutionRequests;
-
-        LlmResult(String text, List<dev.langchain4j.agent.tool.ToolExecutionRequest> toolExecutionRequests) {
-            this.text = text;
-            this.toolExecutionRequests = toolExecutionRequests;
-        }
+    public record LlmResult(String text, List<ToolExecutionRequest> toolExecutionRequests) {
     }
 }
