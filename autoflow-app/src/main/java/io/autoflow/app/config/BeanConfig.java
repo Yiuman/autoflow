@@ -6,6 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import io.autoflow.agent.ReActAgent;
+import io.autoflow.agent.executor.NodeExecutor;
+import io.autoflow.agent.executor.NodeExecutorImpl;
+import io.autoflow.agent.memory.InMemoryMemoryStore;
+import io.autoflow.agent.tool.ToolRegistry;
+import io.autoflow.agent.tool.ToolRegistryImpl;
 import io.autoflow.app.service.PropertyDeserializer;
 import io.autoflow.spi.model.Property;
 import io.ola.crud.serializer.EpochToLocalDateTimeDeserializer;
@@ -18,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -52,5 +60,37 @@ public class BeanConfig {
         objectMapper.registerModule(module);
         JsonbTypeHandler.setObjectMapper(objectMapper);
         return objectMapper;
+    }
+
+    @Bean
+    public OpenAiStreamingChatModel streamingChatModel() {
+        return OpenAiStreamingChatModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY") != null ? System.getenv("OPENAI_API_KEY") : "dummy")
+                .baseUrl(System.getenv("OPENAI_BASE_URL") != null ? System.getenv("OPENAI_BASE_URL") : "https://api.openai.com/v1")
+                .modelName(System.getenv("OPENAI_MODEL_NAME") != null ? System.getenv("OPENAI_MODEL_NAME") : "gpt-4o-mini")
+                .timeout(Duration.ofSeconds(60))
+                .build();
+    }
+
+    @Bean
+    public ReActAgent reActAgent(OpenAiStreamingChatModel chatModel, ToolRegistry toolRegistry, NodeExecutor nodeExecutor) {
+        return ReActAgent.builder()
+                .chatModel(chatModel)
+                .memoryStore(new InMemoryMemoryStore())
+                .toolRegistry(toolRegistry)
+                .nodeExecutor(nodeExecutor)
+                .maxSteps(10)
+                .maxToolRetries(3)
+                .build();
+    }
+
+    @Bean
+    public ToolRegistry toolRegistry() {
+        return new ToolRegistryImpl();
+    }
+
+    @Bean
+    public NodeExecutor nodeExecutor() {
+        return new NodeExecutorImpl();
     }
 }
