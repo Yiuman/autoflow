@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 @Slf4j
-public class DefaultAgentEngine implements AgentEngine {
+public class ReActAgent implements AgentEngine {
 
     private final MemoryStore memoryStore;
     private final StreamingChatModel streamingChatModel;
@@ -36,7 +36,7 @@ public class DefaultAgentEngine implements AgentEngine {
     private final ObjectMapper objectMapper;
     private final ConcurrentHashMap<String, CompletableFuture<Object>> toolFutures = new ConcurrentHashMap<>();
 
-    public DefaultAgentEngine(
+    public ReActAgent(
             MemoryStore memoryStore,
             StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,
@@ -44,7 +44,7 @@ public class DefaultAgentEngine implements AgentEngine {
         this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, new DefaultPromptTemplateProvider());
     }
 
-    public DefaultAgentEngine(
+    public ReActAgent(
             MemoryStore memoryStore,
             StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,
@@ -54,7 +54,7 @@ public class DefaultAgentEngine implements AgentEngine {
              new DefaultPromptTemplateProvider(maxSteps), maxSteps);
     }
 
-    public DefaultAgentEngine(
+    public ReActAgent(
             MemoryStore memoryStore,
             StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,
@@ -64,7 +64,7 @@ public class DefaultAgentEngine implements AgentEngine {
              promptTemplateProvider, 10);
     }
 
-    public DefaultAgentEngine(
+    public ReActAgent(
             MemoryStore memoryStore,
             StreamingChatModel streamingChatModel,
             NodeExecutor nodeExecutor,

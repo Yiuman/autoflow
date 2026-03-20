@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class ReActIntegrationTest {
 
-    private DefaultAgentEngine engine;
+    private ReActAgent engine;
     private InMemoryMemoryStore memoryStore;
 
     @BeforeEach
@@ -50,7 +50,7 @@ class ReActIntegrationTest {
 
         StreamingChatModel streamingChatModel = createStreamingChatModel();
 
-        engine = new DefaultAgentEngine(
+        engine = new ReActAgent(
                 memoryStore,
                 streamingChatModel,
                 new TestNodeExecutor(),

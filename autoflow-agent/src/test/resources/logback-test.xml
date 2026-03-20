@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- langchain4j 相关日志 -->
+    <logger name="dev.langchain4j" level="DEBUG"/>
+    <logger name="dev.langchain4j.model.chat" level="DEBUG"/>
+    <logger name="dev.langchain4j.model.openai" level="DEBUG"/>
+
+    <!-- okhttp/okio 日志 -->
+    <logger name="okhttp3" level="DEBUG"/>
+    <logger name="okio" level="DEBUG"/>
+
+    <!-- 应用日志 -->
+    <logger name="io.autoflow" level="DEBUG"/>
+</configuration>
