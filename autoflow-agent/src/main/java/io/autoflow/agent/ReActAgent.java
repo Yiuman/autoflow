@@ -50,8 +50,8 @@ public class ReActAgent implements AgentEngine {
             NodeExecutor nodeExecutor,
             ToolRegistry toolRegistry,
             int maxSteps) {
-        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry, 
-             new DefaultPromptTemplateProvider(maxSteps), maxSteps);
+        this(memoryStore, streamingChatModel, nodeExecutor, toolRegistry,
+             new DefaultPromptTemplateProvider(), maxSteps);
     }
 
     public ReActAgent(
@@ -113,12 +113,11 @@ public class ReActAgent implements AgentEngine {
             int currentStep = context.getStepCount();
             log.info("[Agent] Step {} started", currentStep);
 
-            // Set formatted system prompt with step count
+            // Set system prompt from provider
             if (promptTemplateProvider != null) {
-                String formattedPrompt = ((DefaultPromptTemplateProvider) promptTemplateProvider)
-                    .formatSystemPrompt(currentStep);
-                context.setSystemPrompt(formattedPrompt);
+                context.setSystemPrompt(promptTemplateProvider.getSystemPromptTemplate());
             }
+
 
             // Tools are executed asynchronously in callLlmWithStreaming
             LlmResult result = callLlmWithStreaming(context, listener);

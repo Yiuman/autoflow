@@ -80,10 +80,10 @@ class ReActIntegrationTest {
     @Test
     void react_withRealModel_singleTurn() {
         String sessionId = "test-real-" + System.currentTimeMillis();
-        DefaultPromptTemplateProvider promptProvider = new DefaultPromptTemplateProvider(5);
+        DefaultPromptTemplateProvider promptProvider = new DefaultPromptTemplateProvider();
 
         AgentContext context = new AgentContext(sessionId);
-        context.setSystemPrompt(promptProvider.formatSystemPrompt(1));
+        context.setSystemPrompt(promptProvider.getSystemPromptTemplate());
         memoryStore.save(context);
 
         StringBuilder tokens = new StringBuilder();

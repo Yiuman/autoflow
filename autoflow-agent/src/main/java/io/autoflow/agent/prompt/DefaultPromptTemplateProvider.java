@@ -7,7 +7,6 @@ package io.autoflow.agent.prompt;
  * - 显式 Thought 推理步骤
  * - 工具使用策略 ("仅在必要时使用")
  * - Final Answer 终止条件
- * - 步骤计数
  */
 public class DefaultPromptTemplateProvider implements PromptTemplateProvider {
 
@@ -35,20 +34,7 @@ public class DefaultPromptTemplateProvider implements PromptTemplateProvider {
 
         ## Important
         - When you have completed the task, provide your Final Answer
-        - If you cannot complete the task after {max_steps} steps, provide whatever answer you have
-
-        Current step: {step_count} of {max_steps}
         """;
-
-    private final int maxSteps;
-
-    public DefaultPromptTemplateProvider() {
-        this(10);
-    }
-
-    public DefaultPromptTemplateProvider(int maxSteps) {
-        this.maxSteps = maxSteps;
-    }
 
     @Override
     public String getSystemPromptTemplate() {
@@ -63,17 +49,5 @@ public class DefaultPromptTemplateProvider implements PromptTemplateProvider {
     @Override
     public String getName() {
         return "react-default";
-    }
-
-    /**
-     * 格式化系统提示词，填充占位符.
-     *
-     * @param stepCount 当前步骤 (1-based)
-     * @return 格式化后的提示词
-     */
-    public String formatSystemPrompt(int stepCount) {
-        return SYSTEM_PROMPT_TEMPLATE
-            .replace("{max_steps}", String.valueOf(maxSteps))
-            .replace("{step_count}", String.valueOf(stepCount));
     }
 }
