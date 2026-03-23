@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { IconSend, IconDelete, IconFaceSmileFill, IconSettings, IconImage, IconFile } from '@arco-design/web-vue/es/icon'
 import { MessageBlockType, MessageBlockStatus } from '@/types/chat'
@@ -8,6 +8,7 @@ import AttachmentPreview from './components/AttachmentPreview.vue'
 import SendMessageButton from './components/SendMessageButton.vue'
 import InputbarTools from './components/InputbarTools.vue'
 import { uuid } from '@/utils/util-func'
+import { chatSSE } from '@/api/chat'
 
 const chatStore = useChatStore()
 
@@ -22,6 +23,7 @@ const startHeight = ref(0)
 const isLoading = computed(() => chatStore.isStreaming)
 const hasContent = computed(() => inputText.value.trim().length > 0 || chatStore.files.length > 0)
 const canSend = computed(() => hasContent.value && !isLoading.value)
+const chatController = ref<AbortController | null>(null)
 
 // File handling
 const supportedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.pdf', '.txt', '.md', '.json', '.doc', '.docx', '.xls', '.xlsx']
@@ -222,98 +224,62 @@ async function sendMessage() {
   chatStore.clearFiles()
   textareaHeight.value = undefined
   nextTick(() => resizeTextarea())
-  
-  simulateStreaming(assistantMsg.id)
-}
 
-function simulateStreaming(messageId: string) {
-  // Step 1: Thinking block - PENDING → SUCCESS (content hidden until expanded)
-  setTimeout(() => {
-    chatStore.addBlock(messageId, {
-      type: MessageBlockType.THINKING,
-      content: '我需要分析用户的问题。让我思考一下可能的解决方案。首先，我应该查看当前的系统状态。根据分析，我决定调用一个工具来获取更多信息。',
-      status: MessageBlockStatus.SUCCESS,
-      thinking_millsec: 1000
-    } as any)
-    // Move to tool call
-    setTimeout(simulateToolCall1, 500)
-  }, 300)
-  
-  function simulateToolCall1() {
-    // Tool block - PENDING → SUCCESS (result hidden until expanded)
-    chatStore.addBlock(messageId, {
-      type: MessageBlockType.TOOL,
-      toolId: uuid(8, true),
-      toolName: 'get_weather',
-      arguments: { city: '北京' },
-      content: '{"temperature": 25, "weather": "晴天", "humidity": 60}',
-      status: MessageBlockStatus.SUCCESS,
-      metadata: {
-        rawMcpToolResponse: {
-          id: uuid(8, true),
-          tool: { name: 'get_weather', type: 'builtin' },
-          status: 'done',
-          arguments: { city: '北京' },
-          response: '{"temperature": 25, "weather": "晴天", "humidity": 60}'
-        }
+  chatController.value = chatSSE(text, {
+    onThinking: (text) => {
+      chatStore.addBlock(assistantMsg.id, {
+        type: MessageBlockType.THINKING,
+        content: text,
+        status: MessageBlockStatus.SUCCESS,
+        thinking_millsec: 0
+      } as any)
+    },
+    onToken: (text) => {
+      chatStore.addBlock(assistantMsg.id, {
+        type: MessageBlockType.MAIN_TEXT,
+        content: text,
+        status: MessageBlockStatus.STREAMING
+      } as any)
+    },
+    onToolStart: (toolName, args) => {
+      chatStore.addBlock(assistantMsg.id, {
+        type: MessageBlockType.TOOL,
+        toolId: uuid(8, true),
+        toolName,
+        arguments: JSON.parse(args),
+        content: '',
+        status: MessageBlockStatus.PENDING
+      } as any)
+    },
+    onToolEnd: (toolName, result) => {
+      const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
+      const lastBlock = blocks[blocks.length - 1]
+      if (lastBlock && lastBlock.type === MessageBlockType.TOOL && lastBlock.toolName === toolName) {
+        chatStore.updateBlock(lastBlock.id, {
+          content: result,
+          status: MessageBlockStatus.SUCCESS,
+          metadata: {
+            rawMcpToolResponse: {
+              id: uuid(8, true),
+              tool: { name: toolName, type: 'builtin' },
+              status: 'done',
+              response: result
+            }
+          }
+        } as any)
       }
-    } as any)
-    // Move to next tool
-    setTimeout(simulateToolCall2, 500)
-  }
-  
-  function simulateToolCall2() {
-    // Second tool block
-    chatStore.addBlock(messageId, {
-      type: MessageBlockType.TOOL,
-      toolId: uuid(8, true),
-      toolName: 'search_database',
-      arguments: { query: '用户问题相关' },
-      content: '[{"id": 1, "content": "相关记录1"}, {"id": 2, "content": "相关记录2"}]',
-      status: MessageBlockStatus.SUCCESS,
-      metadata: {
-        rawMcpToolResponse: {
-          id: uuid(8, true),
-          tool: { name: 'search_database', type: 'builtin' },
-          status: 'done',
-          arguments: { query: '用户问题相关' },
-          response: '[{"id": 1, "content": "相关记录1"}, {"id": 2, "content": "相关记录2"}]'
-        }
-      }
-    } as any)
-    // Move to main text
-    setTimeout(simulateMainText, 500)
-  }
-  
-  function simulateMainText() {
-    // Main text block - PENDING → STREAMING → SUCCESS
-    const textBlock = chatStore.addBlock(messageId, {
-      type: MessageBlockType.MAIN_TEXT,
-      content: '',
-      status: MessageBlockStatus.PENDING
-    } as any)
-    
-    setTimeout(() => {
-      const mainContent = '根据获取到的信息，我来为您分析一下：\n\n1. 天气数据显示北京今天是晴天，气温25度，非常适合户外活动。\n\n2. 数据库查询返回了2条相关记录，可以作为参考依据。\n\n综合以上信息，我的建议是：首先关注天气情况，合理安排出行；其次可以进一步分析数据库中的相关记录来制定具体方案。'
-      
-      let charIndex = 0
-      const textInterval = setInterval(() => {
-        if (charIndex < mainContent.length) {
-          chatStore.updateBlock(textBlock.id, {
-            content: mainContent.slice(0, charIndex + 1),
-            status: MessageBlockStatus.STREAMING
-          })
-          charIndex++
-        } else {
-          clearInterval(textInterval)
-          chatStore.updateBlock(textBlock.id, {
-            status: MessageBlockStatus.SUCCESS
-          })
-          chatStore.completeStreaming()
-        }
-      }, 20)
-    }, 100)
-  }
+    },
+    onComplete: (fullOutput) => {
+      chatStore.completeStreaming('success')
+    },
+    onError: (message) => {
+      chatStore.addBlock(assistantMsg.id, {
+        type: MessageBlockType.ERROR,
+        error: { message }
+      } as any)
+      chatStore.completeStreaming('error')
+    }
+  })
 }
 
 function clearInput() {
@@ -332,6 +298,8 @@ watch(inputText, () => {
 nextTick(() => {
   textareaRef.value?.focus()
 })
+
+onUnmounted(() => chatController.value?.abort())
 </script>
 
 <template>
