@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { ToolMessageBlock } from '@/types/chat'
-import { IconTool, IconCheckCircle, IconCloseCircle } from '@arco-design/web-vue/es/icon'
+import { IconTool, IconCheckCircle, IconCloseCircle, IconDown } from '@arco-design/web-vue/es/icon'
 
 interface Props {
   block: ToolMessageBlock
 }
 
 const props = defineProps<Props>()
+const isExpanded = ref(false)
 
 const isError = computed(() => 
   props.block.status === 'error' || props.block.error
@@ -16,6 +17,10 @@ const isError = computed(() =>
 const isPending = computed(() => 
   props.block.status === 'pending' || props.block.status === 'processing'
 )
+
+function toggleExpand() {
+  isExpanded.value = !isExpanded.value
+}
 
 function formatArguments(args: Record<string, any>): string {
   try {
@@ -37,7 +42,7 @@ function formatResponse(response: string): string {
 
 <template>
   <div class="tool-block" :class="{ 'is-error': isError, 'is-pending': isPending }">
-    <div class="tool-header">
+    <div class="tool-header" @click="toggleExpand">
       <IconTool class="tool-icon" />
       <span class="tool-name">{{ block.toolName || 'Tool' }}</span>
       <span class="tool-status">
@@ -45,9 +50,10 @@ function formatResponse(response: string): string {
         <IconCloseCircle v-else-if="isError" class="status-icon error" />
         <span v-else class="loading-dot">...</span>
       </span>
+      <IconDown class="expand-icon" :class="{ expanded: isExpanded }" />
     </div>
     
-    <div class="tool-content">
+    <div v-show="isExpanded" class="tool-content">
       <div class="tool-section" v-if="block.arguments">
         <div class="section-label">Arguments:</div>
         <pre class="arguments">{{ formatArguments(block.arguments) }}</pre>
@@ -83,8 +89,13 @@ function formatResponse(response: string): string {
     align-items: center;
     gap: 8px;
     padding: 12px 16px;
+    cursor: pointer;
     background-color: var(--color-fill-2);
     border-bottom: 1px solid var(--color-border);
+    
+    &:hover {
+      background-color: var(--color-fill-3);
+    }
     
     .tool-icon {
       width: 16px;
@@ -110,6 +121,17 @@ function formatResponse(response: string): string {
     .loading-dot {
       color: var(--color-text-3);
       animation: pulse 1s infinite;
+    }
+    
+    .expand-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-3);
+      transition: transform 0.2s;
+      
+      &.expanded {
+        transform: rotate(180deg);
+      }
     }
   }
   

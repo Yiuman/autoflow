@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { ThinkingBlock } from '@/types/chat'
 import { IconDown } from '@arco-design/web-vue/es/icon'
 
@@ -8,6 +8,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const isExpanded = ref(false)
 
 const isStreaming = computed(() => props.block.status === 'streaming')
 
@@ -17,20 +18,24 @@ const thinkingTime = computed(() => {
   const seconds = (props.block.thinking_millsec / 1000).toFixed(1)
   return isStreaming.value ? `Thinking ${seconds}s...` : `Thought for ${seconds}s`
 })
+
+function toggleExpand() {
+  isExpanded.value = !isExpanded.value
+}
 </script>
 
 <template>
-  <div class="thinking-block" v-if="block.content || isStreaming">
-    <div class="thinking-header">
+  <div class="thinking-block">
+    <div class="thinking-header" @click="toggleExpand">
       <div class="thinking-indicator">
         <span class="thinking-icon">💭</span>
         <span class="thinking-label">{{ isStreaming ? 'Thinking...' : 'Thought' }}</span>
         <span class="thinking-time" v-if="thinkingTime">{{ thinkingTime }}</span>
       </div>
-      <IconDown class="expand-icon" />
+      <IconDown class="expand-icon" :class="{ expanded: isExpanded }" />
     </div>
     
-    <div class="thinking-content">
+    <div v-show="isExpanded" class="thinking-content">
       <pre>{{ block.content || '...' }}</pre>
     </div>
   </div>
@@ -82,6 +87,10 @@ const thinkingTime = computed(() => {
       height: 16px;
       color: var(--color-text-3);
       transition: transform 0.2s;
+      
+      &.expanded {
+        transform: rotate(180deg);
+      }
     }
   }
   

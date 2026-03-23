@@ -104,9 +104,11 @@ function resizeTextarea() {
   const textarea = textareaRef.value
   if (!textarea) return
   
-  textarea.style.height = 'auto'
-  const newHeight = Math.min(Math.max(textarea.scrollHeight, 30), 500)
-  textarea.style.height = newHeight + 'px'
+  // Only grow if content overflows current height
+  if (textarea.scrollHeight > textarea.offsetHeight) {
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, 30), 500)
+    textarea.style.height = newHeight + 'px'
+  }
 }
 
 function handleDragStart(e: MouseEvent) {
@@ -225,37 +227,93 @@ async function sendMessage() {
 }
 
 function simulateStreaming(messageId: string) {
-  const responses = [
-    "I'm thinking about your question...",
-    "\n\nLet me analyze this step by step.",
-    "\n\nBased on my analysis, here are the key points:",
-    "\n\n1. First, we need to understand the problem",
-    "\n\n2. Then, we can develop a solution",
-    "\n\n3. Finally, we implement and test"
-  ]
-
-  let index = 0
-  const interval = setInterval(() => {
-    if (index < responses.length) {
-      const currentBlock = chatStore.getBlocksByMessage(messageId)[0] as MainTextBlock | undefined
-      if (currentBlock && currentBlock.type === MessageBlockType.MAIN_TEXT) {
-        chatStore.updateBlock(currentBlock.id, {
-          content: (currentBlock.content || '') + responses[index],
-          status: MessageBlockStatus.STREAMING
-        })
-      } else {
-        chatStore.addBlock(messageId, {
-          type: MessageBlockType.MAIN_TEXT,
-          content: responses[index],
-          status: MessageBlockStatus.STREAMING
-        } as any)
+  // Step 1: Thinking block - PENDING → SUCCESS (content hidden until expanded)
+  setTimeout(() => {
+    chatStore.addBlock(messageId, {
+      type: MessageBlockType.THINKING,
+      content: '我需要分析用户的问题。让我思考一下可能的解决方案。首先，我应该查看当前的系统状态。根据分析，我决定调用一个工具来获取更多信息。',
+      status: MessageBlockStatus.SUCCESS,
+      thinking_millsec: 1000
+    } as any)
+    // Move to tool call
+    setTimeout(simulateToolCall1, 500)
+  }, 300)
+  
+  function simulateToolCall1() {
+    // Tool block - PENDING → SUCCESS (result hidden until expanded)
+    chatStore.addBlock(messageId, {
+      type: MessageBlockType.TOOL,
+      toolId: uuid(8, true),
+      toolName: 'get_weather',
+      arguments: { city: '北京' },
+      content: '{"temperature": 25, "weather": "晴天", "humidity": 60}',
+      status: MessageBlockStatus.SUCCESS,
+      metadata: {
+        rawMcpToolResponse: {
+          id: uuid(8, true),
+          tool: { name: 'get_weather', type: 'builtin' },
+          status: 'done',
+          arguments: { city: '北京' },
+          response: '{"temperature": 25, "weather": "晴天", "humidity": 60}'
+        }
       }
-      index++
-    } else {
-      clearInterval(interval)
-      chatStore.completeStreaming()
-    }
-  }, 500)
+    } as any)
+    // Move to next tool
+    setTimeout(simulateToolCall2, 500)
+  }
+  
+  function simulateToolCall2() {
+    // Second tool block
+    chatStore.addBlock(messageId, {
+      type: MessageBlockType.TOOL,
+      toolId: uuid(8, true),
+      toolName: 'search_database',
+      arguments: { query: '用户问题相关' },
+      content: '[{"id": 1, "content": "相关记录1"}, {"id": 2, "content": "相关记录2"}]',
+      status: MessageBlockStatus.SUCCESS,
+      metadata: {
+        rawMcpToolResponse: {
+          id: uuid(8, true),
+          tool: { name: 'search_database', type: 'builtin' },
+          status: 'done',
+          arguments: { query: '用户问题相关' },
+          response: '[{"id": 1, "content": "相关记录1"}, {"id": 2, "content": "相关记录2"}]'
+        }
+      }
+    } as any)
+    // Move to main text
+    setTimeout(simulateMainText, 500)
+  }
+  
+  function simulateMainText() {
+    // Main text block - PENDING → STREAMING → SUCCESS
+    const textBlock = chatStore.addBlock(messageId, {
+      type: MessageBlockType.MAIN_TEXT,
+      content: '',
+      status: MessageBlockStatus.PENDING
+    } as any)
+    
+    setTimeout(() => {
+      const mainContent = '根据获取到的信息，我来为您分析一下：\n\n1. 天气数据显示北京今天是晴天，气温25度，非常适合户外活动。\n\n2. 数据库查询返回了2条相关记录，可以作为参考依据。\n\n综合以上信息，我的建议是：首先关注天气情况，合理安排出行；其次可以进一步分析数据库中的相关记录来制定具体方案。'
+      
+      let charIndex = 0
+      const textInterval = setInterval(() => {
+        if (charIndex < mainContent.length) {
+          chatStore.updateBlock(textBlock.id, {
+            content: mainContent.slice(0, charIndex + 1),
+            status: MessageBlockStatus.STREAMING
+          })
+          charIndex++
+        } else {
+          clearInterval(textInterval)
+          chatStore.updateBlock(textBlock.id, {
+            status: MessageBlockStatus.SUCCESS
+          })
+          chatStore.completeStreaming()
+        }
+      }, 20)
+    }, 100)
+  }
 }
 
 function clearInput() {
@@ -306,7 +364,6 @@ nextTick(() => {
           :disabled="isTranslating"
           @keydown="handleKeyDown"
           @paste="handlePaste"
-          @input="resizeTextarea"
           rows="2"
         ></textarea>
       </div>

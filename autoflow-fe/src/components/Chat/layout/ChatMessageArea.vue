@@ -6,8 +6,22 @@ import ChatInputBar from '../ChatInputBar.vue'
 
 const chatStore = useChatStore()
 const messagesContainerRef = ref<HTMLElement | null>(null)
+const updateTrigger = ref(0)
 
-const messages = computed(() => chatStore.activeMessages)
+const messages = computed(() => {
+  // Trigger re-computation when blockEntities changes
+  void chatStore.blockEntities
+  void updateTrigger.value
+  return chatStore.activeMessages
+})
+
+// Force re-render when block entities change
+watch(
+  () => JSON.stringify(chatStore.blockEntities),
+  () => {
+    updateTrigger.value++
+  }
+)
 
 // Auto-scroll to bottom when new messages arrive
 watch(
@@ -21,6 +35,7 @@ watch(
 )
 
 function getBlocksForMessage(messageId: string) {
+  void updateTrigger.value
   const message = chatStore.getMessageById(messageId)
   if (!message) return []
   return message.blocks
