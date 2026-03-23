@@ -1,13 +1,14 @@
 {
-  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/langchain-reasoner-tools-fix.md",
-  "started_at": "2026-03-19T08:29:02.855Z",
+  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/agent-sse-integration.md",
+  "started_at": "2026-03-20T10:16:44.712Z",
   "session_ids": [
-    "ses_2faec461effe4aqIVWKkqRgnSM",
-    "ses_2fac8c0a5ffe9m8w9VubxoeSx6",
-    "ses_2fabf9edaffeLm7VU7lJtbqtHa",
-    "ses_2fabe7355ffeW3ZGrZ2bbvg5Ov",
-    "ses_2fabcb21bffefmHl3rv13MPsd7"
+    "ses_2f552f0f6ffezslFy1amk1O4np",
+    "ses_2f54041c5ffeLWHejlEZKn92ZQ",
+    "ses_2f5402587ffeyktc4IQAGs7CWc",
+    "ses_2f540093affe0JLbSExartDOle",
+    "ses_2f537c04affe7l9cjG1lyLK1zO",
+    "ses_2f5350ce2ffepNNogUAfVLybcc"
   ],
-  "plan_name": "langchain-reasoner-tools-fix",
+  "plan_name": "agent-sse-integration",
   "agent": "atlas"
 }
