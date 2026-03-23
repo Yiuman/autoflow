@@ -23,6 +23,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .chat-box-page {
   height: 100%;
+  max-height: 100%;
   width: 100%;
   overflow: hidden;
   padding: 20px;

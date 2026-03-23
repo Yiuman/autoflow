@@ -23,9 +23,9 @@ watch(
   }
 )
 
-// Auto-scroll to bottom when new messages arrive
+// Auto-scroll to bottom when messages change or blocks update
 watch(
-  () => messages.value.length,
+  () => JSON.stringify(chatStore.blockEntities),
   async () => {
     await nextTick()
     if (messagesContainerRef.value) {
@@ -70,6 +70,8 @@ function getBlocksForMessage(messageId: string) {
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-height: 100%;
+  overflow: hidden;
   
   .messages-container {
     flex: 1;

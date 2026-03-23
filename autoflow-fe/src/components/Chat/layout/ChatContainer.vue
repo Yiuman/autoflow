@@ -24,10 +24,12 @@ const showSidebar = computed(() => chatStore.topics.length > 0)
 .chat-container {
   display: flex;
   height: 100%;
+  max-height: 100%;
   width: 100%;
   overflow: hidden;
   background-color: #fff;
   border-radius: 8px;
+  box-sizing: border-box;
   
   .chat-sidebar {
     width: 260px;
@@ -42,6 +44,7 @@ const showSidebar = computed(() => chatStore.topics.length > 0)
   
   .chat-main {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
