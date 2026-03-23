@@ -200,10 +200,19 @@ async function sendMessage() {
     chatStore.setActiveTopic(topicId)
   }
 
-  chatStore.addMessage(topicId, {
+  const userMsg = chatStore.addMessage(topicId, {
     role: 'user',
     status: 'done'
   })
+
+  // Add content as a MainTextBlock
+  if (text) {
+    chatStore.addBlock(userMsg.id, {
+      type: MessageBlockType.MAIN_TEXT,
+      content: text,
+      status: MessageBlockStatus.SUCCESS
+    })
+  }
 
   const assistantMsg = chatStore.createStreamingMessage(topicId, 'assistant')
 
