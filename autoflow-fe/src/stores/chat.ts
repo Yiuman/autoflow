@@ -4,7 +4,8 @@ import type {
   MessageBlock,
   Topic,
   MessageBlockType,
-  MessageBlockStatus
+  MessageBlockStatus,
+  FileMetadata
 } from '@/types/chat'
 import { uuid } from '@/utils/util-func'
 
@@ -27,6 +28,9 @@ interface ChatState {
 
   // Selected model (for new messages)
   selectedModelId: string | null
+
+  // Files (attachments)
+  files: FileMetadata[]
 }
 
 export const useChatStore = defineStore('chat', {
@@ -39,7 +43,8 @@ export const useChatStore = defineStore('chat', {
     isStreaming: false,
     isLoading: false,
     streamingMessageId: null,
-    selectedModelId: null
+    selectedModelId: null,
+    files: []
   }),
 
   getters: {
@@ -238,6 +243,19 @@ export const useChatStore = defineStore('chat', {
       this.isStreaming = false
       this.isLoading = false
       this.streamingMessageId = null
+      this.files = []
+    },
+
+    addFile(file: FileMetadata) {
+      this.files.push(file)
+    },
+
+    removeFile(fileId: string) {
+      this.files = this.files.filter(f => f.id !== fileId)
+    },
+
+    clearFiles() {
+      this.files = []
     }
   }
 })
