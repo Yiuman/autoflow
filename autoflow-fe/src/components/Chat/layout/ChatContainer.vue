@@ -23,16 +23,21 @@ const showSidebar = computed(() => chatStore.topics.length > 0)
 <style scoped lang="scss">
 .chat-container {
   display: flex;
-  height: calc(100vh - var(--navbar-height, 60px));
+  height: 100%;
   width: 100%;
   overflow: hidden;
-  background-color: var(--color-bg-1);
+  background-color: #fff;
+  border-radius: 8px;
   
   .chat-sidebar {
     width: 260px;
     flex-shrink: 0;
     border-right: 1px solid var(--color-border);
     overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
   
   .chat-main {
@@ -40,6 +45,8 @@ const showSidebar = computed(() => chatStore.topics.length > 0)
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background-color: #fff;
+    border-radius: 0 8px 8px 0;
   }
 }
 </style>

@@ -87,7 +87,7 @@ function deleteTopic(topicId: string) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--color-fill-1);
+  background-color: #fff;
   
   .sidebar-header {
     display: flex;
@@ -106,6 +106,10 @@ function deleteTopic(topicId: string) {
     flex: 1;
     overflow-y: auto;
     padding: 8px;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
   
   .topic-item {

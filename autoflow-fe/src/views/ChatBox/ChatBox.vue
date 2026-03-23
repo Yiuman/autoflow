@@ -22,8 +22,15 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .chat-box-page {
-  height: calc(100vh - var(--navbar-height, 60px));
+  height: 100%;
   width: 100%;
   overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--color-neutral-1);
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 </style>
