@@ -20,13 +20,15 @@ interface Props {
   hiddenTools: ToolDefinition[]
   onReorderTools?: (tools: ToolDefinition[]) => void
   onToggleTool?: (toolKey: string, visible: boolean) => void
+  onToolClick?: (toolKey: string) => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
   tools: () => [],
   hiddenTools: () => [],
   onReorderTools: () => {},
-  onToggleTool: () => {}
+  onToggleTool: () => {},
+  onToolClick: () => {}
 })
 
 const showHiddenMenu = ref(false)
@@ -42,6 +44,7 @@ const allTools = computed(() => [...props.tools, ...props.hiddenTools])
         :key="tool.key"
         class="tool-button"
         :title="tool.label"
+        @click="onToolClick(tool.key)"
       >
         <component :is="tool.icon" />
       </div>

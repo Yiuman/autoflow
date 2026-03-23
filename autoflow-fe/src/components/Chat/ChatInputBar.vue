@@ -308,6 +308,7 @@ nextTick(() => {
             :tools="getTools()"
             :hidden-tools="getHiddenTools()"
             @toggle-tool="toggleTool"
+            @tool-click="handleToolAction"
           />
         </div>
         
