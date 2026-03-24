@@ -9,8 +9,6 @@ import io.ola.common.http.R;
 import io.ola.crud.query.annotation.Query;
 import io.ola.crud.rest.BaseRESTAPI;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,12 +36,5 @@ public class ChatSessionController implements BaseRESTAPI<ChatSession> {
         chatSessionService.save(session);
         log.info("Created new session: sessionId={}, modelId={}", sessionId, request != null ? request.getModelId() : null);
         return R.ok(sessionId);
-    }
-
-    @DeleteMapping("/{id}")
-    public R<Void> deleteSession(@PathVariable String id) {
-        log.info("Deleting session: {}", id);
-        remove(id);
-        return R.ok();
     }
 }
