@@ -1,14 +1,9 @@
 {
-  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/agent-sse-integration.md",
-  "started_at": "2026-03-20T10:16:44.712Z",
+  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/parse-thinking-content.md",
+  "started_at": "2026-03-24T07:16:52.483Z",
   "session_ids": [
-    "ses_2f552f0f6ffezslFy1amk1O4np",
-    "ses_2f54041c5ffeLWHejlEZKn92ZQ",
-    "ses_2f5402587ffeyktc4IQAGs7CWc",
-    "ses_2f540093affe0JLbSExartDOle",
-    "ses_2f537c04affe7l9cjG1lyLK1zO",
-    "ses_2f5350ce2ffepNNogUAfVLybcc"
+    "ses_2e16ca1c5ffe76WbtaqywOx74z"
   ],
-  "plan_name": "agent-sse-integration",
+  "plan_name": "parse-thinking-content",
   "agent": "atlas"
 }

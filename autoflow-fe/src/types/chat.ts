@@ -110,15 +110,16 @@ export interface Message {
   multiModelMessageStyle?: 'horizontal' | 'vertical' | 'grid' | 'fold'
 }
 
-// Topic interface (for chat sessions)
-export interface Topic {
+// Session interface (for chat sessions)
+export interface Session {
   id: string
-  name: string
+  title: string
   assistantId: string
   messages: string[]  // Array of message IDs
   createdAt: string
   updatedAt?: string
   isNameManuallyEdited?: boolean
+  modelId?: string
 }
 
 // Tool types

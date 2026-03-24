@@ -38,6 +38,9 @@ export function addLocaleMessage(local: string, addMessage: Record<string, strin
 }
 
 export function I18N(messageKey: string, defaultValue?: string): string {
+  if (!messageKey) {
+    return defaultValue ?? ''
+  }
   const message = i18n.global.t(messageKey)
   if (message === messageKey && defaultValue) {
     return defaultValue

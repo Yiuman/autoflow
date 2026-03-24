@@ -6,13 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import io.autoflow.agent.ReActAgent;
 import io.autoflow.agent.NodeExecutor;
 import io.autoflow.agent.executor.NodeExecutorImpl;
-import io.autoflow.agent.memory.InMemoryMemoryStore;
 import io.autoflow.agent.ToolRegistry;
 import io.autoflow.agent.tool.ToolRegistryImpl;
+import io.autoflow.app.repository.DatabaseMemoryStore;
+import io.autoflow.app.service.ModelService;
 import io.autoflow.app.service.PropertyDeserializer;
 import io.autoflow.spi.model.Property;
 import io.ola.crud.serializer.EpochToLocalDateTimeDeserializer;
@@ -73,10 +76,32 @@ public class BeanConfig {
     }
 
     @Bean
-    public ReActAgent reActAgent(OpenAiStreamingChatModel chatModel, ToolRegistry toolRegistry, NodeExecutor nodeExecutor) {
+    public ChatModel chatModel() {
+        return OpenAiChatModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY") != null ? System.getenv("OPENAI_API_KEY") : "dummy")
+                .baseUrl(System.getenv("OPENAI_BASE_URL") != null ? System.getenv("OPENAI_BASE_URL") : "https://api.openai.com/v1")
+                .modelName(System.getenv("OPENAI_MODEL_NAME") != null ? System.getenv("OPENAI_MODEL_NAME") : "gpt-4o-mini")
+                .timeout(Duration.ofSeconds(60))
+                .build();
+    }
+
+    @Bean
+    public DynamicModelRegistry dynamicModelRegistry(ModelService modelService,
+                                                    OpenAiStreamingChatModel defaultStreamingChatModel,
+                                                    ChatModel defaultChatModel) {
+        DynamicModelRegistry registry = new DynamicModelRegistry();
+        registry.setModelService(modelService);
+        registry.setDefaultModel(defaultStreamingChatModel);
+        registry.setDefaultChatModel(defaultChatModel);
+        return registry;
+    }
+
+    @Bean
+    public ReActAgent reActAgent(OpenAiStreamingChatModel chatModel, ToolRegistry toolRegistry,
+                                 NodeExecutor nodeExecutor, DatabaseMemoryStore memoryStore) {
         return ReActAgent.builder()
                 .chatModel(chatModel)
-                .memoryStore(new InMemoryMemoryStore())
+                .memoryStore(memoryStore)
                 .toolRegistry(toolRegistry)
                 .nodeExecutor(nodeExecutor)
                 .maxSteps(10)

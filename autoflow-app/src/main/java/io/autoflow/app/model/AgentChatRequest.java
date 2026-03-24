@@ -16,11 +16,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AgentChatRequest {
-
-    @NotBlank
     private String sessionId;
-
     @NotBlank
     @Size(max = 8192)
     private String input;
+    
+    /**
+     * Optional model ID to use for this chat session.
+     * If null, the default model will be used.
+     */
+    private String modelId;
 }

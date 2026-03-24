@@ -28,7 +28,7 @@ function createMentionSuggestion(
             vueRenderer.destroy()
             vueRenderer = null
           }
-          if(!props.editor.isFocused){
+          if (!props.editor?.isFocused) {
             return
           }
 
@@ -66,7 +66,7 @@ function createMentionSuggestion(
             return true
           }
 
-          return vueRenderer?.ref?.onKeyDown(event) ?? false
+          return vueRenderer?.ref?.onKeyDown(props.event) ?? false
         },
 
         onExit() {

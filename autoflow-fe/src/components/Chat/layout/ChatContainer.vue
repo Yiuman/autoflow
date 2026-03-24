@@ -6,7 +6,7 @@ import { useChatStore } from '@/stores/chat'
 
 const chatStore = useChatStore()
 
-const showSidebar = computed(() => chatStore.topics.length > 0)
+const showSidebar = computed(() => chatStore.sessions.length > 0)
 </script>
 
 <template>

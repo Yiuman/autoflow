@@ -2,42 +2,37 @@ import { defineStore } from 'pinia'
 import type {
   Message,
   MessageBlock,
-  Topic,
+  Session,
   MessageBlockType,
   MessageBlockStatus,
   FileMetadata
 } from '@/types/chat'
 import { uuid } from '@/utils/util-func'
+import { createChatSession, getChatSessions } from '@/api/chat'
 
 interface ChatState {
-  // Topics (chat sessions)
-  topics: Topic[]
-  activeTopicId: string | null
+  sessions: Session[]
+  activeSessionId: string | null
 
-  // Messages by topic
-  messagesByTopic: Record<string, string[]> // topicId -> messageIds
-  messageEntities: Record<string, Message> // messageId -> Message
+  messagesBySession: Record<string, string[]>
+  messageEntities: Record<string, Message>
 
-  // Blocks by message
-  blockEntities: Record<string, MessageBlock> // blockId -> MessageBlock
+  blockEntities: Record<string, MessageBlock>
 
-  // UI State
   isStreaming: boolean
   isLoading: boolean
   streamingMessageId: string | null
 
-  // Selected model (for new messages)
   selectedModelId: string | null
 
-  // Files (attachments)
   files: FileMetadata[]
 }
 
 export const useChatStore = defineStore('chat', {
   state: (): ChatState => ({
-    topics: [],
-    activeTopicId: null,
-    messagesByTopic: {},
+    sessions: [],
+    activeSessionId: null,
+    messagesBySession: {},
     messageEntities: {},
     blockEntities: {},
     isStreaming: false,
@@ -48,13 +43,13 @@ export const useChatStore = defineStore('chat', {
   }),
 
   getters: {
-    activeTopic(state): Topic | undefined {
-      return state.topics.find(t => t.id === state.activeTopicId)
+    activeSession(state): Session | undefined {
+      return state.sessions.find(s => s.id === state.activeSessionId)
     },
 
     activeMessages(state): Message[] {
-      if (!state.activeTopicId) return []
-      const messageIds = state.messagesByTopic[state.activeTopicId] || []
+      if (!state.activeSessionId) return []
+      const messageIds = state.messagesBySession[state.activeSessionId] || []
       return messageIds
         .map(id => state.messageEntities[id])
         .filter(Boolean)
@@ -78,33 +73,56 @@ export const useChatStore = defineStore('chat', {
   },
 
   actions: {
-    // Topic actions
-    createTopic(assistantId: string, name?: string): Topic {
-      const topic: Topic = {
-        id: uuid(8, true),
-        name: name || 'New Chat',
+    async createSession(assistantId: string, title?: string): Promise<Session> {
+      let modelId: string | undefined
+      try {
+        modelId = localStorage.getItem('lastUsedModelId') || undefined
+      } catch (e) {
+        // localStorage not available
+      }
+
+      const sessionId = await createChatSession(modelId)
+      const session: Session = {
+        id: sessionId,
+        title: title || 'New Chat',
         assistantId,
+        modelId,
         messages: [],
         createdAt: new Date().toISOString()
       }
-      this.topics.push(topic)
-      return topic
+      this.sessions.unshift(session)
+      return session
     },
 
-    setActiveTopic(topicId: string) {
-      this.activeTopicId = topicId
-    },
-
-    updateTopic(topicId: string, updates: Partial<Topic>) {
-      const index = this.topics.findIndex(t => t.id === topicId)
-      if (index !== -1) {
-        this.topics[index] = { ...this.topics[index], ...updates }
+    async loadSessions(): Promise<void> {
+      try {
+        const sessions = await getChatSessions()
+        this.sessions = sessions.map(s => ({
+          id: s.id,
+          title: s.title || 'New Chat',
+          assistantId: 'default-assistant',
+          modelId: s.modelId,
+          messages: [],
+          createdAt: s.createTime || new Date().toISOString()
+        }))
+      } catch (error) {
+        console.error('Failed to load sessions:', error)
       }
     },
 
-    deleteTopic(topicId: string) {
-      // Delete all messages and blocks for this topic
-      const messageIds = this.messagesByTopic[topicId] || []
+    setActiveSession(sessionId: string) {
+      this.activeSessionId = sessionId
+    },
+
+    updateSession(sessionId: string, updates: Partial<Session>) {
+      const index = this.sessions.findIndex(s => s.id === sessionId)
+      if (index !== -1) {
+        this.sessions[index] = { ...this.sessions[index], ...updates }
+      }
+    },
+
+    deleteSession(sessionId: string) {
+      const messageIds = this.messagesBySession[sessionId] || []
       messageIds.forEach(msgId => {
         const msg = this.messageEntities[msgId]
         if (msg) {
@@ -114,15 +132,14 @@ export const useChatStore = defineStore('chat', {
         }
         delete this.messageEntities[msgId]
       })
-      delete this.messagesByTopic[topicId]
-      this.topics = this.topics.filter(t => t.id !== topicId)
-      if (this.activeTopicId === topicId) {
-        this.activeTopicId = this.topics[0]?.id || null
+      delete this.messagesBySession[sessionId]
+      this.sessions = this.sessions.filter(s => s.id !== sessionId)
+      if (this.activeSessionId === sessionId) {
+        this.activeSessionId = this.sessions[0]?.id || null
       }
     },
 
-    // Message actions
-    addMessage(topicId: string, message: Omit<Message, 'id' | 'createdAt' | 'blocks'>): Message {
+    addMessage(sessionId: string, message: Omit<Message, 'id' | 'createdAt' | 'blocks'>): Message {
       const msg: Message = {
         ...message,
         id: uuid(8, true),
@@ -130,10 +147,10 @@ export const useChatStore = defineStore('chat', {
         blocks: []
       }
       this.messageEntities[msg.id] = msg
-      if (!this.messagesByTopic[topicId]) {
-        this.messagesByTopic[topicId] = []
+      if (!this.messagesBySession[sessionId]) {
+        this.messagesBySession[sessionId] = []
       }
-      this.messagesByTopic[topicId].push(msg.id)
+      this.messagesBySession[sessionId].push(msg.id)
       return msg
     },
 
@@ -149,19 +166,16 @@ export const useChatStore = defineStore('chat', {
     deleteMessage(messageId: string) {
       const message = this.messageEntities[messageId]
       if (message) {
-        // Delete associated blocks
         message.blocks.forEach(blockId => {
           delete this.blockEntities[blockId]
         })
-        // Remove from topic
-        for (const tid in this.messagesByTopic) {
-          this.messagesByTopic[tid] = this.messagesByTopic[tid].filter(id => id !== messageId)
+        for (const sid in this.messagesBySession) {
+          this.messagesBySession[sid] = this.messagesBySession[sid].filter(id => id !== messageId)
         }
         delete this.messageEntities[messageId]
       }
     },
 
-    // Block actions
     addBlock(messageId: string, block: Omit<MessageBlock, 'id' | 'messageId' | 'createdAt'>): MessageBlock {
       const newBlock: MessageBlock = {
         ...block,
@@ -172,7 +186,6 @@ export const useChatStore = defineStore('chat', {
 
       this.blockEntities[newBlock.id] = newBlock
 
-      // Add block to message
       const message = this.messageEntities[messageId]
       if (message) {
         message.blocks.push(newBlock.id)
@@ -193,7 +206,6 @@ export const useChatStore = defineStore('chat', {
     deleteBlock(blockId: string) {
       const block = this.blockEntities[blockId]
       if (block) {
-        // Remove from message
         const message = this.messageEntities[block.messageId]
         if (message) {
           message.blocks = message.blocks.filter(id => id !== blockId)
@@ -202,7 +214,6 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    // Streaming actions
     startStreaming(messageId: string) {
       this.isStreaming = true
       this.streamingMessageId = messageId
@@ -213,9 +224,8 @@ export const useChatStore = defineStore('chat', {
       this.streamingMessageId = null
     },
 
-    // Helper to create a complete streaming message with blocks
-    createStreamingMessage(topicId: string, role: 'user' | 'assistant'): Message {
-      const message = this.addMessage(topicId, {
+    createStreamingMessage(sessionId: string, role: 'user' | 'assistant'): Message {
+      const message = this.addMessage(sessionId, {
         role,
         status: 'streaming'
       })
@@ -223,7 +233,6 @@ export const useChatStore = defineStore('chat', {
       return message
     },
 
-    // Complete streaming and finalize message
     completeStreaming(finalStatus: 'success' | 'error' = 'success') {
       if (this.streamingMessageId) {
         this.updateMessage(this.streamingMessageId, {
@@ -233,11 +242,10 @@ export const useChatStore = defineStore('chat', {
       this.stopStreaming()
     },
 
-    // Clear all data
     clearAll() {
-      this.topics = []
-      this.activeTopicId = null
-      this.messagesByTopic = {}
+      this.sessions = []
+      this.activeSessionId = null
+      this.messagesBySession = {}
       this.messageEntities = {}
       this.blockEntities = {}
       this.isStreaming = false

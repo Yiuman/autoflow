@@ -1,7 +1,34 @@
 import { type EventSourceMessage, fetchEventSource } from '@microsoft/fetch-event-source'
+import axios from 'axios'
 import { useEnv } from '@/hooks/env'
+import { useChatStore } from '@/stores/chat'
 
 const { VITE_BASE_URL } = useEnv()
+const BASE_URL = VITE_BASE_URL || '/api'
+
+export interface ChatSession {
+  id: string
+  title?: string
+  modelId?: string
+  systemPrompt?: string
+  status: string
+  createTime?: string
+}
+
+export async function createChatSession(modelId?: string): Promise<string> {
+  const response = await axios.post(`${BASE_URL}/chat/session`, { modelId })
+  return response.data.data
+}
+
+export async function getChatSessions(): Promise<ChatSession[]> {
+  const response = await axios.get(`${BASE_URL}/chat/sessions`)
+  return response.data.data?.records || []
+}
+
+export async function getChatMessages(sessionId: string): Promise<any[]> {
+  const response = await axios.get(`${BASE_URL}/chat/messages`, { params: { sessionId } })
+  return response.data.data?.records || []
+}
 
 export interface ChatSSECallbacks {
   onThinking?: (text: string) => void
@@ -14,20 +41,39 @@ export interface ChatSSECallbacks {
 
 export function chatSSE(input: string, callbacks: ChatSSECallbacks): AbortController {
   const ctrl = new AbortController()
-  const url = `${VITE_BASE_URL || '/api'}/chat`
+  const url = `${BASE_URL}/chat`
+
+  const chatStore = useChatStore()
+  const sessionId = chatStore.activeSession?.id
+  const modelId = chatStore.activeSession?.modelId
+
+  if (!sessionId) {
+    callbacks.onError?.('No active session. Please create a new session first.')
+    ctrl.abort()
+    return ctrl
+  }
+
+  const body: Record<string, string> = { input, sessionId }
+  if (modelId) {
+    body.modelId = modelId
+  }
 
   fetchEventSource(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ input }),
+    body: JSON.stringify(body),
     async onmessage(message: EventSourceMessage) {
       switch (message.event) {
-        case 'thinking':
-          callbacks.onThinking?.(message.data)
+        case 'thinking': {
+          const data = JSON.parse(message.data)
+          callbacks.onThinking?.(data.content)
           break
-        case 'token':
-          callbacks.onToken?.(message.data)
+        }
+        case 'token': {
+          const data = JSON.parse(message.data)
+          callbacks.onToken?.(data.content)
           break
+        }
         case 'tool_start': {
           const data = JSON.parse(message.data)
           callbacks.onToolStart?.(data.toolName, data.arguments)
@@ -38,12 +84,16 @@ export function chatSSE(input: string, callbacks: ChatSSECallbacks): AbortContro
           callbacks.onToolEnd?.(data.toolName, data.result)
           break
         }
-        case 'complete':
-          callbacks.onComplete?.(message.data)
+        case 'complete': {
+          const data = JSON.parse(message.data)
+          callbacks.onComplete?.(data.content)
           break
-        case 'error':
-          callbacks.onError?.(message.data)
+        }
+        case 'error': {
+          const data = JSON.parse(message.data)
+          callbacks.onError?.(data.content)
           break
+        }
       }
     },
     signal: ctrl.signal,

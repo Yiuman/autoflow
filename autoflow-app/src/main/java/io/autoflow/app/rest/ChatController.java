@@ -1,9 +1,14 @@
 package io.autoflow.app.rest;
 
+import cn.hutool.core.util.IdUtil;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import io.autoflow.agent.ReActAgent;
+import io.autoflow.app.config.ModelRegistry;
 import io.autoflow.app.listener.ChatStreamListener;
 import io.autoflow.app.model.AgentChatRequest;
+import io.autoflow.app.model.CreateSessionRequest;
 import io.autoflow.app.model.sse.AgentSSEEvent;
+import io.ola.common.http.R;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,9 +28,19 @@ import java.util.concurrent.CompletableFuture;
 public class ChatController {
 
     private final ReActAgent reActAgent;
+    private final ModelRegistry modelRegistry;
 
-    public ChatController(ReActAgent reActAgent) {
+    public ChatController(ReActAgent reActAgent, ModelRegistry modelRegistry) {
         this.reActAgent = reActAgent;
+        this.modelRegistry = modelRegistry;
+    }
+
+
+    @PostMapping("/session")
+    public R<String> createSession(CreateSessionRequest request) {
+        String sessionId = IdUtil.fastSimpleUUID();
+        log.info("Created new session: sessionId={}, modelId={}", sessionId, request != null ? request.getModelId() : null);
+        return R.ok(sessionId);
     }
 
     /**
@@ -34,9 +49,26 @@ public class ChatController {
      * @param request the agent chat request
      * @return SSE emitter for streaming responses
      */
-    @PostMapping("/")
+    @PostMapping
     public SseEmitter chat(@Valid @RequestBody AgentChatRequest request) {
         log.info("Chat session started: sessionId={}", request.getSessionId());
+
+        if (request.getSessionId() == null || request.getSessionId().isBlank()) {
+            log.warn("Chat session rejected: sessionId is required");
+            SseEmitter emitter = new SseEmitter();
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("error")
+                        .data(AgentSSEEvent.builder()
+                                .type("error")
+                                .content("sessionId is required")
+                                .build()));
+            } catch (Exception e) {
+                log.warn("Failed to send error event", e);
+            }
+            emitter.complete();
+            return emitter;
+        }
 
         if (request.getInput() == null || request.getInput().isBlank()) {
             log.warn("Chat session rejected: sessionId={}, reason=blank input", request.getSessionId());
@@ -58,10 +90,14 @@ public class ChatController {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         ChatStreamListener listener = new ChatStreamListener(emitter);
 
+        String modelId = request.getModelId();
+        StreamingChatModel streamingChatModel = modelRegistry.getModel(modelId);
+        log.info("Chat using model: modelId={}, actualModel={}", modelId, streamingChatModel.getClass().getSimpleName());
+
         // Run agent chat asynchronously to avoid blocking the request thread
         CompletableFuture.runAsync(() -> {
             try {
-                reActAgent.chat(request.getSessionId(), request.getInput(), listener);
+                reActAgent.chat(request.getSessionId(), request.getInput(), streamingChatModel, listener);
             } finally {
                 emitter.complete();
                 log.info("Chat session ended: sessionId={}", request.getSessionId());

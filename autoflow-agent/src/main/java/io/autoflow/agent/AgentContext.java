@@ -3,6 +3,7 @@ package io.autoflow.agent;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import io.autoflow.spi.enums.MessageType;
 import io.autoflow.spi.model.ChatMessage;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 /**
  * Agent context holding conversation state for a session.
  */
+@Data
 public class AgentContext {
 
     private String sessionId;
@@ -23,30 +25,6 @@ public class AgentContext {
 
     public AgentContext(String sessionId) {
         this.sessionId = sessionId;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public String getSystemPrompt() {
-        return systemPrompt;
-    }
-
-    public void setSystemPrompt(String systemPrompt) {
-        this.systemPrompt = systemPrompt;
-    }
-
-    public List<ChatMessage> getMessages() {
-        return messages;
-    }
-
-    public Map<String, Object> getVariables() {
-        return variables;
-    }
-
-    public int getStepCount() {
-        return stepCount;
     }
 
     public void addUserMessage(String content) {
@@ -77,11 +55,4 @@ public class AgentContext {
         stepCount++;
     }
 
-    public List<ToolSpecification> getToolSpecifications() {
-        return toolSpecifications;
-    }
-
-    public void setToolSpecifications(List<ToolSpecification> toolSpecifications) {
-        this.toolSpecifications = toolSpecifications;
-    }
 }

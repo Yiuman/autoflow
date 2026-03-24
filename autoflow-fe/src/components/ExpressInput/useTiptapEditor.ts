@@ -234,12 +234,12 @@ export function useTipTapEditor(options: TipTapEditorOptions) {
         HTMLAttributes: { class: MENTION_CONFIG.CLASS_NAME },
         deleteTriggerWithBackspace: MENTION_CONFIG.DELETE_TRIGGER_WITH_BACKSPACE,
         renderText({ node }) {
-          const mentionAttrs = node.attrs as MentionAttrs
-          return mentionAttrs.id?.key || ''
+          const mentionAttrs = node.attrs as MentionAttrs | undefined
+          return mentionAttrs?.id?.key || ''
         },
         renderHTML({ node }) {
-          const mentionAttrs = node.attrs as MentionAttrs
-          const optionValue = mentionAttrs.id
+          const mentionAttrs = node.attrs as MentionAttrs | undefined
+          const optionValue = mentionAttrs?.id
 
           if (!optionValue) return ['span', {}]
 

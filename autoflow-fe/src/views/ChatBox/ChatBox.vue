@@ -5,11 +5,11 @@ import { useChatStore } from '@/stores/chat'
 
 const chatStore = useChatStore()
 
-// Initialize chat - create default topic if none exists
-onMounted(() => {
-  if (!chatStore.activeTopicId && chatStore.topics.length === 0) {
-    const topic = chatStore.createTopic('default-assistant')
-    chatStore.setActiveTopic(topic.id)
+onMounted(async () => {
+  await chatStore.loadSessions()
+  if (!chatStore.activeSessionId && chatStore.sessions.length === 0) {
+    const session = await chatStore.createSession('default-assistant')
+    chatStore.setActiveSession(session.id)
   }
 })
 </script>

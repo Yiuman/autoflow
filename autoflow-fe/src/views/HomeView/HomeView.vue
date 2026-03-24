@@ -64,6 +64,10 @@ function handleMenuClick(key: string) {
           <IconFont type="icon-liaotianzhushou" />
           {{ I18N('menu.chat', 'Chat') }}
         </AMenuItem>
+        <AMenuItem key="models">
+          <IconFont type="icon-workflow_" />
+          {{ I18N('menu.models', 'Models') }}
+        </AMenuItem>
       </AMenu>
 
       <div class="sider-bottom">

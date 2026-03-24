@@ -6,6 +6,7 @@ import GlobalVariables from '@/views/Variables/GlobalVariables.vue'
 import ServicePlugins from '@/views/Plugins/ServicePlugins.vue'
 import Dashboard from '@/views/Dashboard/Dashboard.vue'
 import ChatBox from '@/views/ChatBox/ChatBox.vue'
+import ModelList from '@/views/Model/ModelList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +47,11 @@ const router = createRouter({
           path: '/chat',
           name: 'chat',
           component: ChatBox
+        },
+        {
+          path: '/models',
+          name: 'models',
+          component: ModelList
         }
       ]
     }

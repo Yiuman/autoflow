@@ -1,7 +1,8 @@
 --工作流定义
 CREATE TABLE IF NOT EXISTS af_workflow
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    id
+                  VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
     name          VARCHAR(255) NOT NULL,               -- 不为空的工作流名称
     flow_str      TEXT,                                -- 存储 JSON 数据，推荐使用 JSONB 类型
     tag_ids       VARCHAR(32)[],                       -- UUID 数组，存储标签 ID 集合
@@ -16,7 +17,8 @@ CREATE TABLE IF NOT EXISTS af_workflow
 -- 服务插件
 CREATE TABLE IF NOT EXISTS af_service
 (
-    id                VARCHAR(255) PRIMARY KEY,            -- 主键，UUID 类型，默认值自动生成
+    id
+                      VARCHAR(255) PRIMARY KEY,            -- 主键，UUID 类型，默认值自动生成
     name              VARCHAR(255) NOT NULL,               -- 插件名称
     system            BOOLEAN   DEFAULT TRUE,              -- 是否为系统插件
     jar_file_id       VARCHAR(32),                         -- jar包文件ID
@@ -32,7 +34,8 @@ CREATE TABLE IF NOT EXISTS af_service
 -- 标签
 CREATE TABLE IF NOT EXISTS af_tag
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    id
+                  VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
     name          VARCHAR(255) NOT NULL,               -- 不为空的工作流名称
     creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
     last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
@@ -42,7 +45,8 @@ CREATE TABLE IF NOT EXISTS af_tag
 -- 工作流实例
 CREATE TABLE IF NOT EXISTS af_workflow_inst
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    id
+                  VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
     workflow_id   VARCHAR(32) NOT NULL,                -- 工作流定义主键
     submit_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 提交时间
     start_time    TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 开始时间
@@ -58,7 +62,8 @@ CREATE TABLE IF NOT EXISTS af_workflow_inst
 -- 执行实例
 CREATE TABLE IF NOT EXISTS af_execution_inst
 (
-    id               VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    id
+                     VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
     workflow_id      VARCHAR(32)  NOT NULL,               -- 工作流定义主键
     workflow_inst_id VARCHAR(32)  NOT NULL,               -- 工作流实例主键
     node_id          VARCHAR(32)  NOT NULL,               -- 节点ID
@@ -80,7 +85,8 @@ CREATE TABLE IF NOT EXISTS af_execution_inst
 -- 全局变量
 CREATE TABLE IF NOT EXISTS af_global_var
 (
-    id            VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
+    id
+                  VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型，默认值自动生成
     key           VARCHAR(255) not null,               -- 变量key
     value         TEXT,                                -- 变量值
     creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
@@ -88,3 +94,57 @@ CREATE TABLE IF NOT EXISTS af_global_var
     create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
     update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
 );
+-- AI 模型配置
+CREATE TABLE IF NOT EXISTS af_model
+(
+    id
+                  VARCHAR(32) PRIMARY KEY,             -- 主键，UUID 类型
+    name          VARCHAR(255) NOT NULL,               -- 模型名称
+    base_url      VARCHAR(512),                        -- API 基础 URL
+    api_key       VARCHAR(512),                        -- API 密钥
+    config        TEXT,                                -- 模型配置 (JSON 格式)
+    creator       VARCHAR(32),                         -- 创建者 ID，使用 UUID 类型
+    last_modifier VARCHAR(32),                         -- 最后修改者 ID，使用 UUID 类型
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认当前时间
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 更新时间，默认当前时间
+);
+
+-- Chat Session
+CREATE TABLE IF NOT EXISTS af_chat_session
+(
+    id
+                  VARCHAR(32) PRIMARY KEY,
+    title         VARCHAR(255),
+    model_id      VARCHAR(32),
+    system_prompt TEXT,
+    status        VARCHAR(32) DEFAULT 'ACTIVE',
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Chat Message
+CREATE TABLE IF NOT EXISTS af_chat_message
+(
+    id
+                     VARCHAR(32) PRIMARY KEY,
+    session_id       VARCHAR(32) NOT NULL,
+    role             VARCHAR(32) NOT NULL,
+    content          TEXT,
+    thinking_content TEXT,
+    metadata         TEXT,
+    creator          VARCHAR(32),
+    last_modifier    VARCHAR(32),
+    create_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY
+        (
+         session_id
+            ) REFERENCES af_chat_session
+        (
+         id
+            ) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_message_session ON af_chat_message (session_id);

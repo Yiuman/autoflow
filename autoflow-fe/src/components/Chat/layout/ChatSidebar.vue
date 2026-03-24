@@ -5,32 +5,32 @@ import { IconPlus, IconClose, IconCheck } from '@arco-design/web-vue/es/icon'
 
 const chatStore = useChatStore()
 
-const editingTopicId = ref<string | null>(null)
-const editingName = ref('')
+const editingSessionId = ref<string | null>(null)
+const editingTitle = ref('')
 
-function createNewTopic() {
-  const topic = chatStore.createTopic('default-assistant')
-  chatStore.setActiveTopic(topic.id)
+async function createNewSession() {
+  const session = await chatStore.createSession('default-assistant')
+  chatStore.setActiveSession(session.id)
 }
 
-function selectTopic(topicId: string) {
-  chatStore.setActiveTopic(topicId)
+function selectSession(sessionId: string) {
+  chatStore.setActiveSession(sessionId)
 }
 
-function startEditTopic(topicId: string, currentName: string) {
-  editingTopicId.value = topicId
-  editingName.value = currentName
+function startEditSession(sessionId: string, currentTitle: string) {
+  editingSessionId.value = sessionId
+  editingTitle.value = currentTitle
 }
 
-function saveTopicName() {
-  if (editingTopicId.value) {
-    chatStore.updateTopic(editingTopicId.value, { name: editingName.value })
-    editingTopicId.value = null
+function saveSessionTitle() {
+  if (editingSessionId.value) {
+    chatStore.updateSession(editingSessionId.value, { title: editingTitle.value })
+    editingSessionId.value = null
   }
 }
 
-function deleteTopic(topicId: string) {
-  chatStore.deleteTopic(topicId)
+function deleteSession(sessionId: string) {
+  chatStore.deleteSession(sessionId)
 }
 </script>
 
@@ -38,36 +38,36 @@ function deleteTopic(topicId: string) {
   <div class="chat-sidebar">
     <div class="sidebar-header">
       <span class="sidebar-title">Chats</span>
-      <a-button type="text" @click="createNewTopic" title="New Chat">
+      <a-button type="text" @click="createNewSession" title="New Chat">
         <template #icon>
           <IconPlus />
         </template>
       </a-button>
     </div>
     
-    <div class="topic-list">
+    <div class="session-list">
       <div
-        v-for="topic in chatStore.topics"
-        :key="topic.id"
-        class="topic-item"
-        :class="{ active: topic.id === chatStore.activeTopicId }"
-        @click="selectTopic(topic.id)"
+        v-for="session in chatStore.sessions"
+        :key="session.id"
+        class="session-item"
+        :class="{ active: session.id === chatStore.activeSessionId }"
+        @click="selectSession(session.id)"
       >
-        <template v-if="editingTopicId === topic.id">
+        <template v-if="editingSessionId === session.id">
           <a-input
-            v-model="editingName"
+            v-model="editingTitle"
             size="mini"
-            @press-enter="saveTopicName"
-            @blur="saveTopicName"
+            @press-enter="saveSessionTitle"
+            @blur="saveSessionTitle"
           />
         </template>
         <template v-else>
-          <span class="topic-name">{{ topic.name || 'New Chat' }}</span>
-          <div class="topic-actions">
-            <a-button type="text" size="mini" @click.stop="startEditTopic(topic.id, topic.name)">
+          <span class="session-title">{{ session.title || 'New Chat' }}</span>
+          <div class="session-actions">
+            <a-button type="text" size="mini" @click.stop="startEditSession(session.id, session.title)">
               <IconCheck />
             </a-button>
-            <a-button type="text" size="mini" @click.stop="deleteTopic(topic.id)">
+            <a-button type="text" size="mini" @click.stop="deleteSession(session.id)">
               <IconClose />
             </a-button>
           </div>
@@ -75,9 +75,9 @@ function deleteTopic(topicId: string) {
       </div>
     </div>
     
-    <div v-if="chatStore.topics.length === 0" class="empty-state">
+    <div v-if="chatStore.sessions.length === 0" class="empty-state">
       <p>No chats yet</p>
-      <a-button type="primary" @click="createNewTopic">Start a new chat</a-button>
+      <a-button type="primary" @click="createNewSession">Start a new chat</a-button>
     </div>
   </div>
 </template>
@@ -102,7 +102,7 @@ function deleteTopic(topicId: string) {
     }
   }
   
-  .topic-list {
+  .session-list {
     flex: 1;
     overflow-y: auto;
     padding: 8px;
@@ -112,7 +112,7 @@ function deleteTopic(topicId: string) {
     }
   }
   
-  .topic-item {
+  .session-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -125,7 +125,7 @@ function deleteTopic(topicId: string) {
     &:hover {
       background-color: var(--color-fill-2);
       
-      .topic-actions {
+      .session-actions {
         opacity: 1;
       }
     }
@@ -134,7 +134,7 @@ function deleteTopic(topicId: string) {
       background-color: var(--color-primary-hover, rgba(var(--primary-6), 0.1));
     }
     
-    .topic-name {
+    .session-title {
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -142,7 +142,7 @@ function deleteTopic(topicId: string) {
       font-size: 13px;
     }
     
-    .topic-actions {
+    .session-actions {
       opacity: 0;
       display: flex;
       gap: 4px;
