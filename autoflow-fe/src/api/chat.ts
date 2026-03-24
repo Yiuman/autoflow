@@ -16,7 +16,7 @@ export interface ChatSession {
 }
 
 export async function createChatSession(modelId?: string): Promise<string> {
-  const response = await axios.post(`${BASE_URL}/chat/sessions`, { modelId })
+  const response = await axios.post(`${BASE_URL}/chat/sessions/create`, { modelId })
   return response.data.data
 }
 

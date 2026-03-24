@@ -26,7 +26,7 @@ public class ChatSessionController implements BaseRESTAPI<ChatSession> {
         this.chatSessionService = chatSessionService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public R<String> createSession(@RequestBody CreateSessionRequest request) {
         String sessionId = IdUtil.fastSimpleUUID();
         ChatSession session = new ChatSession();
