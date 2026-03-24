@@ -1,14 +1,11 @@
 package io.autoflow.app.rest;
 
-import cn.hutool.core.util.IdUtil;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import io.autoflow.agent.ReActAgent;
 import io.autoflow.app.config.ModelRegistry;
 import io.autoflow.app.listener.ChatStreamListener;
 import io.autoflow.app.model.AgentChatRequest;
 import io.autoflow.app.model.ChatMessage;
-import io.autoflow.app.model.ChatSession;
-import io.autoflow.app.model.CreateSessionRequest;
 import io.autoflow.app.model.sse.AgentSSEEvent;
 import io.autoflow.app.service.ChatMessageService;
 import io.autoflow.app.service.ChatSessionService;
@@ -42,19 +39,6 @@ public class ChatController {
         this.modelRegistry = modelRegistry;
         this.chatMessageService = chatMessageService;
         this.chatSessionService = chatSessionService;
-    }
-
-
-    @PostMapping("/session")
-    public R<String> createSession(CreateSessionRequest request) {
-        String sessionId = IdUtil.fastSimpleUUID();
-        ChatSession session = new ChatSession();
-        session.setId(sessionId);
-        session.setModelId(request != null ? request.getModelId() : null);
-        session.setStatus("ACTIVE");
-        chatSessionService.save(session);
-        log.info("Created new session: sessionId={}, modelId={}", sessionId, request != null ? request.getModelId() : null);
-        return R.ok(sessionId);
     }
 
     /**
