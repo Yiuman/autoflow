@@ -1,0 +1,37 @@
+package io.autoflow.app.service.impl;
+
+import com.mybatisflex.core.query.QueryWrapper;
+import io.autoflow.app.model.ChatMessage;
+import io.autoflow.app.service.ChatMessageService;
+import io.ola.crud.service.impl.BaseService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class ChatMessageServiceImpl extends BaseService<ChatMessage> implements ChatMessageService {
+    
+    public List<ChatMessage> findBySessionId(String sessionId) {
+        return list(QueryWrapper.create()
+                .eq(ChatMessage::getSessionId, sessionId)
+                .orderBy("create_time", true));
+    }
+
+    @Override
+    public void upsertMessage(String id, String sessionId, String role, String content, String thinkingContent, String status) {
+        ChatMessage existing = getById(id);
+        if (existing != null) {
+            existing.setContent(content);
+            existing.setThinkingContent(thinkingContent);
+            update(existing);
+        } else {
+            ChatMessage newMsg = new ChatMessage();
+            newMsg.setId(id);
+            newMsg.setSessionId(sessionId);
+            newMsg.setRole(role);
+            newMsg.setContent(content);
+            newMsg.setThinkingContent(thinkingContent);
+            save(newMsg);
+        }
+    }
+}
