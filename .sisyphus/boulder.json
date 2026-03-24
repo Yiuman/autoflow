@@ -1,9 +1,11 @@
 {
-  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/parse-thinking-content.md",
-  "started_at": "2026-03-24T07:16:52.483Z",
+  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/sse-session-persistence.md",
+  "started_at": "2026-03-24T09:29:20.728Z",
   "session_ids": [
-    "ses_2e16ca1c5ffe76WbtaqywOx74z"
+    "ses_2e0dafa80ffexeaQnD3V5eE14J",
+    "ses_2e0d1ca9dffefKCD0KArs5NU0K",
+    "ses_2e0cc963cffeoaIIe2iSigCrXz"
   ],
-  "plan_name": "parse-thinking-content",
+  "plan_name": "sse-session-persistence",
   "agent": "atlas"
 }
