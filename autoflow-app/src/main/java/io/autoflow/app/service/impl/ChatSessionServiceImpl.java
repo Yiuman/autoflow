@@ -26,10 +26,10 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
         if (title == null || title.isBlank()) {
             title = getFallbackTitle(firstUserMessage);
         }
-        ChatSession session = getById(sessionId);
+        ChatSession session = get(sessionId);
         if (session != null) {
             session.setTitle(title);
-            update(session);
+            save(session);
         }
     }
 

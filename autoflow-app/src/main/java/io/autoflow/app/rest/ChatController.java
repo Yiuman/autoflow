@@ -6,8 +6,12 @@ import io.autoflow.agent.ReActAgent;
 import io.autoflow.app.config.ModelRegistry;
 import io.autoflow.app.listener.ChatStreamListener;
 import io.autoflow.app.model.AgentChatRequest;
+import io.autoflow.app.model.ChatMessage;
+import io.autoflow.app.model.ChatSession;
 import io.autoflow.app.model.CreateSessionRequest;
 import io.autoflow.app.model.sse.AgentSSEEvent;
+import io.autoflow.app.service.ChatMessageService;
+import io.autoflow.app.service.ChatSessionService;
 import io.ola.common.http.R;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -29,16 +33,26 @@ public class ChatController {
 
     private final ReActAgent reActAgent;
     private final ModelRegistry modelRegistry;
+    private final ChatMessageService chatMessageService;
+    private final ChatSessionService chatSessionService;
 
-    public ChatController(ReActAgent reActAgent, ModelRegistry modelRegistry) {
+    public ChatController(ReActAgent reActAgent, ModelRegistry modelRegistry,
+                          ChatMessageService chatMessageService, ChatSessionService chatSessionService) {
         this.reActAgent = reActAgent;
         this.modelRegistry = modelRegistry;
+        this.chatMessageService = chatMessageService;
+        this.chatSessionService = chatSessionService;
     }
 
 
     @PostMapping("/session")
     public R<String> createSession(CreateSessionRequest request) {
         String sessionId = IdUtil.fastSimpleUUID();
+        ChatSession session = new ChatSession();
+        session.setId(sessionId);
+        session.setModelId(request != null ? request.getModelId() : null);
+        session.setStatus("ACTIVE");
+        chatSessionService.save(session);
         log.info("Created new session: sessionId={}, modelId={}", sessionId, request != null ? request.getModelId() : null);
         return R.ok(sessionId);
     }
@@ -88,7 +102,13 @@ public class ChatController {
         }
 
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        ChatStreamListener listener = new ChatStreamListener(emitter);
+        ChatStreamListener listener = new ChatStreamListener(emitter, request.getSessionId(), chatMessageService, chatSessionService);
+
+        ChatMessage userMessage = new ChatMessage();
+        userMessage.setSessionId(request.getSessionId());
+        userMessage.setRole("USER");
+        userMessage.setContent(request.getInput());
+        chatMessageService.save(userMessage);
 
         String modelId = request.getModelId();
         StreamingChatModel streamingChatModel = modelRegistry.getModel(modelId);

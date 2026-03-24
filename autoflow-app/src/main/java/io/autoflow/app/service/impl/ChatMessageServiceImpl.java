@@ -19,11 +19,11 @@ public class ChatMessageServiceImpl extends BaseService<ChatMessage> implements 
 
     @Override
     public void upsertMessage(String id, String sessionId, String role, String content, String thinkingContent, String status) {
-        ChatMessage existing = getById(id);
+        ChatMessage existing = get(id);
         if (existing != null) {
             existing.setContent(content);
             existing.setThinkingContent(thinkingContent);
-            update(existing);
+            save(existing);
         } else {
             ChatMessage newMsg = new ChatMessage();
             newMsg.setId(id);
