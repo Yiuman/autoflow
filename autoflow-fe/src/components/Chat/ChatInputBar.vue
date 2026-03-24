@@ -9,6 +9,8 @@ import SendMessageButton from './components/SendMessageButton.vue'
 import InputbarTools from './components/InputbarTools.vue'
 import { uuid } from '@/utils/util-func'
 import { chatSSE } from '@/api/chat'
+import { fetchModels } from '@/api/model'
+import type { SelectOptionData } from '@arco-design/web-vue/es/select'
 
 const chatStore = useChatStore()
 
@@ -24,6 +26,60 @@ const isLoading = computed(() => chatStore.isStreaming)
 const hasContent = computed(() => inputText.value.trim().length > 0 || chatStore.files.length > 0)
 const canSend = computed(() => hasContent.value && !isLoading.value)
 const chatController = ref<AbortController | null>(null)
+
+// Model selector state
+const modelOptions = ref<SelectOptionData[]>([])
+const modelsLoading = ref(false)
+const modelsError = ref(false)
+
+const currentModelId = computed(() => chatStore.activeSession?.modelId)
+
+async function loadModels() {
+  modelsLoading.value = true
+  modelsError.value = false
+  try {
+    const models = await fetchModels()
+    modelOptions.value = models.map(m => ({ value: m.id, label: m.name }))
+    
+    // Auto-select first model if none selected and we have models
+    if (models.length > 0) {
+      let modelIdToSelect = chatStore.activeSession?.modelId
+      if (!modelIdToSelect) {
+        // Try to restore from localStorage
+        try {
+          modelIdToSelect = localStorage.getItem('lastUsedModelId')
+        } catch (e) {
+          // localStorage not available
+        }
+      }
+      if (!modelIdToSelect) {
+        modelIdToSelect = models[0].id
+      }
+      if (chatStore.activeSessionId) {
+        chatStore.updateSession(chatStore.activeSessionId, { modelId: modelIdToSelect })
+      }
+    }
+  } catch (e) {
+    modelsError.value = true
+    modelOptions.value = []
+  } finally {
+    modelsLoading.value = false
+  }
+}
+
+function handleModelChange(modelId: string | number | boolean | Record<string, unknown> | (string | number | boolean | Record<string, unknown>)[]) {
+  if (chatStore.activeSessionId && modelId && !chatStore.isStreaming) {
+    chatStore.updateSession(chatStore.activeSessionId, { modelId: modelId as string })
+    try {
+      localStorage.setItem('lastUsedModelId', modelId as string)
+    } catch (e) {
+      // localStorage not available
+    }
+  }
+}
+
+// Load models on mount
+loadModels()
 
 // File handling
 const supportedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.pdf', '.txt', '.md', '.json', '.doc', '.docx', '.xls', '.xlsx']
@@ -197,14 +253,14 @@ async function sendMessage() {
   if (!text && chatStore.files.length === 0) return
   if (isLoading.value) return
 
-  let topicId = chatStore.activeTopicId
-  if (!topicId) {
-    const topic = chatStore.createTopic('default-assistant')
-    topicId = topic.id
-    chatStore.setActiveTopic(topicId)
+  let sessionId = chatStore.activeSessionId
+  if (!sessionId) {
+    const session = await chatStore.createSession('default-assistant')
+    sessionId = session.id
+    chatStore.setActiveSession(sessionId)
   }
 
-  const userMsg = chatStore.addMessage(topicId, {
+  const userMsg = chatStore.addMessage(sessionId, {
     role: 'user',
     status: 'done'
   })
@@ -218,7 +274,7 @@ async function sendMessage() {
     })
   }
 
-  const assistantMsg = chatStore.createStreamingMessage(topicId, 'assistant')
+  const assistantMsg = chatStore.createStreamingMessage(sessionId, 'assistant')
 
   inputText.value = ''
   chatStore.clearFiles()
@@ -227,19 +283,35 @@ async function sendMessage() {
 
   chatController.value = chatSSE(text, {
     onThinking: (text) => {
-      chatStore.addBlock(assistantMsg.id, {
-        type: MessageBlockType.THINKING,
-        content: text,
-        status: MessageBlockStatus.SUCCESS,
-        thinking_millsec: 0
-      } as any)
+      const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
+      const existingThinking = blocks.find(b => b.type === MessageBlockType.THINKING)
+      if (existingThinking) {
+        chatStore.updateBlock(existingThinking.id, {
+          content: existingThinking.content + text,
+        })
+      } else {
+        chatStore.addBlock(assistantMsg.id, {
+          type: MessageBlockType.THINKING,
+          content: text,
+          status: MessageBlockStatus.SUCCESS,
+          thinking_millsec: 0
+        } as any)
+      }
     },
     onToken: (text) => {
-      chatStore.addBlock(assistantMsg.id, {
-        type: MessageBlockType.MAIN_TEXT,
-        content: text,
-        status: MessageBlockStatus.STREAMING
-      } as any)
+      const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
+      const lastTokenBlock = blocks.filter(b => b.type === MessageBlockType.MAIN_TEXT).pop()
+      if (lastTokenBlock) {
+        chatStore.updateBlock(lastTokenBlock.id, {
+          content: lastTokenBlock.content + text,
+        })
+      } else {
+        chatStore.addBlock(assistantMsg.id, {
+          type: MessageBlockType.MAIN_TEXT,
+          content: text,
+          status: MessageBlockStatus.STREAMING
+        } as any)
+      }
     },
     onToolStart: (toolName, args) => {
       chatStore.addBlock(assistantMsg.id, {
@@ -270,6 +342,12 @@ async function sendMessage() {
       }
     },
     onComplete: (fullOutput) => {
+      const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
+      blocks.forEach(block => {
+        if (block.status === MessageBlockStatus.STREAMING) {
+          chatStore.updateBlock(block.id, { status: MessageBlockStatus.SUCCESS })
+        }
+      })
       chatStore.completeStreaming('success')
     },
     onError: (message) => {
@@ -338,6 +416,18 @@ onUnmounted(() => chatController.value?.abort())
 
       <div class="bottom-bar">
         <div class="left-section">
+          <a-select
+            v-if="!modelsError"
+            :model-value="currentModelId"
+            :options="modelOptions"
+            :loading="modelsLoading"
+            :disabled="isLoading"
+            placeholder="Select model"
+            class="model-selector"
+            allow-search
+            placement="top"
+            @change="handleModelChange"
+          />
           <InputbarTools 
             :tools="getTools()"
             :hidden-tools="getHiddenTools()"
@@ -469,8 +559,17 @@ onUnmounted(() => chatController.value?.abort())
       .left-section {
         display: flex;
         align-items: center;
-        flex: 1;
-        min-width: 0;
+        flex: 0 0 auto;
+        gap: 8px;
+
+        .model-selector {
+          width: 180px;
+          flex-shrink: 0;
+
+          :deep(.arco-select-view) {
+            font-size: 12px;
+          }
+        }
       }
 
       .right-section {

@@ -36,6 +36,7 @@ public final class ReActAgent implements AgentEngine {
     private final ToolRetryHandler retryHandler;
     
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingTools = new ConcurrentHashMap<>();
+    private final StringBuilder thinkingBuffer = new StringBuilder();
 
     private ReActAgent(Builder builder) {
         this.memoryStore = builder.memoryStore;
@@ -103,6 +104,10 @@ public final class ReActAgent implements AgentEngine {
 
     @Override
     public void chat(String sessionId, String input, StreamListener listener) {
+        chat(sessionId, input, chatModel, listener);
+    }
+
+    public void chat(String sessionId, String input, StreamingChatModel model, StreamListener listener) {
         log.info("[Agent] chat session={} input={}", sessionId, input);
         StringBuilder fullOutput = new StringBuilder();
         try {
@@ -110,13 +115,13 @@ public final class ReActAgent implements AgentEngine {
             context.setToolSpecifications(toolRegistry.getToolSpecifications());
             retryHandler.clear();
             
-            runReactLoop(context, listener, fullOutput);
+            runReactLoop(context, model, listener, fullOutput);
             
             memoryStore.save(context);
             listener.onComplete(fullOutput.toString());
             log.info("[Agent] chat session={} completed", sessionId);
         } catch (Throwable e) {
-            log.error("[Agent] chat session={} error={}", sessionId, e.getMessage());
+            log.error("[Agent] chat session={}", sessionId, e);
             listener.onError(e);
         }
     }
@@ -131,14 +136,14 @@ public final class ReActAgent implements AgentEngine {
         return context;
     }
 
-    private void runReactLoop(AgentContext context, StreamListener listener, StringBuilder fullOutput) {
+    private void runReactLoop(AgentContext context, StreamingChatModel model, StreamListener listener, StringBuilder fullOutput) {
         for (int step = 0; step < maxSteps; step++) {
             context.incrementStep();
             log.info("[Agent] step={} started", context.getStepCount());
 
             context.setSystemPrompt(promptProvider.getSystemPromptTemplate());
 
-            LlmResult result = callLlm(context, listener, fullOutput);
+            LlmResult result = callLlm(context, model, listener, fullOutput);
             log.info("[Agent] step={} llm_output={}", context.getStepCount(), result.text);
 
             if (result.toolExecutionRequests().isEmpty()) {
@@ -148,7 +153,7 @@ public final class ReActAgent implements AgentEngine {
         }
     }
 
-    private LlmResult callLlm(AgentContext context, StreamListener listener, StringBuilder fullOutput) {
+    private LlmResult callLlm(AgentContext context, StreamingChatModel model, StreamListener listener, StringBuilder fullOutput) {
         List<ChatMessage> messages = buildMessages(context);
         
         ChatRequest request = ChatRequest.builder()
@@ -161,12 +166,49 @@ public final class ReActAgent implements AgentEngine {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> error = new AtomicReference<>();
 
-        chatModel.chat(request, new StreamingChatResponseHandler() {
+        model.chat(request, new StreamingChatResponseHandler() {
             @Override
             public void onPartialResponse(String text) {
-                output.append(text);
-                fullOutput.append(text);
-                listener.onToken(text);
+                if (text == null || text.isBlank()) {
+                    return;
+                }
+
+                // 状态机：累积 thinking 内容
+                if (text.contains("<think>")) {
+                    // 开始 thinking，标签前的内容作为 token
+                    int idx = text.indexOf("<think>");
+                    String before = text.substring(0, idx);
+                    if (!before.isBlank()) {
+                        output.append(before);
+                        fullOutput.append(before);
+                        listener.onToken(before);
+                    }
+                    thinkingBuffer.append(text.substring(idx + "<think>".length()));
+                } else if (text.contains("</think>")) {
+                    // 结束 thinking
+                    int idx = text.indexOf("</think>");
+                    thinkingBuffer.append(text.substring(0, idx));
+                    String thinking = thinkingBuffer.toString();
+                    if (!thinking.isBlank()) {
+                        listener.onThinking(thinking);
+                    }
+                    thinkingBuffer.setLength(0);
+
+                    String after = text.substring(idx + "</think>".length());
+                    if (!after.isBlank()) {
+                        output.append(after);
+                        fullOutput.append(after);
+                        listener.onToken(after);
+                    }
+                } else if (thinkingBuffer.length() > 0) {
+                    // 正在 thinking 模式中，累积内容
+                    thinkingBuffer.append(text);
+                } else {
+                    // 普通 token
+                    output.append(text);
+                    fullOutput.append(text);
+                    listener.onToken(text);
+                }
             }
 
             @Override
@@ -244,8 +286,6 @@ public final class ReActAgent implements AgentEngine {
         for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
             String args = request.arguments();
-            String failureKey = toolName + ":" + args;
-            
             Object result = getToolResult(toolName);
             listener.onToolCallEnd(toolName, result);
 
