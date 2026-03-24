@@ -25,6 +25,10 @@ export async function getChatSessions(): Promise<ChatSession[]> {
   return response.data.data?.records || []
 }
 
+export async function deleteChatSession(sessionId: string): Promise<void> {
+  await axios.delete(`${BASE_URL}/chat/sessions/${sessionId}`)
+}
+
 export async function getChatMessages(sessionId: string): Promise<any[]> {
   const response = await axios.get(`${BASE_URL}/chat/messages`, { params: { sessionId } })
   return response.data.data?.records || []

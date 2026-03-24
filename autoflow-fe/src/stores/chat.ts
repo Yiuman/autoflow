@@ -8,7 +8,7 @@ import type {
   FileMetadata
 } from '@/types/chat'
 import { uuid } from '@/utils/util-func'
-import { createChatSession, getChatSessions } from '@/api/chat'
+import { createChatSession, getChatSessions, deleteChatSession } from '@/api/chat'
 
 interface ChatState {
   sessions: Session[]
@@ -121,7 +121,12 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    deleteSession(sessionId: string) {
+    async deleteSession(sessionId: string) {
+      try {
+        await deleteChatSession(sessionId)
+      } catch (error) {
+        console.error('Failed to delete session from backend:', error)
+      }
       const messageIds = this.messagesBySession[sessionId] || []
       messageIds.forEach(msgId => {
         const msg = this.messageEntities[msgId]
