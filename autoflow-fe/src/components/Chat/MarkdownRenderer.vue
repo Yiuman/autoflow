@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
+import { darkTheme } from '@/hooks/theme'
 
 interface Props {
   content: string
@@ -16,7 +17,7 @@ const markdownContent = computed(() => props.content || '')
 
 <template>
   <div class="markdown-renderer">
-    <MdPreview :model-value="markdownContent" />
+    <MdPreview :model-value="markdownContent" :theme="darkTheme ? 'dark' : 'light'" />
   </div>
 </template>
 

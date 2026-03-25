@@ -96,7 +96,7 @@ function getBlockComponent(block: MessageBlock) {
     align-items: flex-end;
     
     .message-content {
-      background-color: var(--color-primary-hover, rgba(var(--primary-6), 0.1));
+      background-color: var(--color-primary-light-1);
       border-radius: 12px 12px 0 12px;
     }
   }

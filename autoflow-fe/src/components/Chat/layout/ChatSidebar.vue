@@ -131,7 +131,7 @@ function deleteSession(sessionId: string) {
     }
     
     &.active {
-      background-color: var(--color-primary-hover, rgba(var(--primary-6), 0.1));
+      background-color: var(--color-primary-light-1);
     }
     
     .session-title {
