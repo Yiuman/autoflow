@@ -29,8 +29,9 @@ public class ChatStreamListener implements StreamListener {
     private final StringBuilder contentBuffer = new StringBuilder();
     private final List<ToolCallRecord> toolCalls = new ArrayList<>();
 
+    private ToolCallRecord currentToolCall;
+
     private static class ToolCallRecord {
-        String toolId;
         String toolName;
         String arguments;
         StringBuilder resultBuffer = new StringBuilder();
@@ -72,20 +73,26 @@ public class ChatStreamListener implements StreamListener {
     }
 
     @Override
-    public void onToolCallStart(String toolId, String toolName, String arguments) {
+    public void onToolCallStart(String toolName, String arguments) {
+        currentToolCall = new ToolCallRecord();
+        currentToolCall.toolName = toolName;
+        currentToolCall.arguments = arguments;
         sendEvent("tool_start", AgentSSEEvent.builder()
                 .type("tool_start")
-                .toolId(toolId)
                 .toolName(toolName)
                 .arguments(arguments)
                 .build());
     }
 
     @Override
-    public void onToolCallEnd(String toolId, String toolName, Object result) {
+    public void onToolCallEnd(String toolName, Object result) {
+        if (currentToolCall != null) {
+            currentToolCall.resultBuffer.append(result != null ? result.toString() : "");
+            toolCalls.add(currentToolCall);
+            currentToolCall = null;
+        }
         sendEvent("tool_end", AgentSSEEvent.builder()
                 .type("tool_end")
-                .toolId(toolId)
                 .toolName(toolName)
                 .result(result)
                 .build());

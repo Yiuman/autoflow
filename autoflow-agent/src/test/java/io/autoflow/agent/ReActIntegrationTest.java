@@ -286,14 +286,14 @@ class ReActIntegrationTest {
             }
 
             @Override
-            public void onToolCallStart(String toolId, String toolName, String arguments) {
-                System.out.println("\n[TOOL START] " + toolName + " (id=" + toolId + ")");
+            public void onToolCallStart(String toolName, String arguments) {
+                System.out.println("\n[TOOL START] " + toolName);
                 toolCalls.append(toolName).append(",");
             }
 
             @Override
-            public void onToolCallEnd(String toolId, String toolName, Object result) {
-                System.out.println("\n[TOOL END] " + toolName + " (id=" + toolId + ") -> " + result);
+            public void onToolCallEnd(String toolName, Object result) {
+                System.out.println("\n[TOOL END] " + toolName + " -> " + result);
                 results.append(result).append(",");
             }
 
@@ -301,11 +301,6 @@ class ReActIntegrationTest {
             public void onComplete(String fullOutput) {
                 System.out.println("\n[COMPLETE]");
                 completed = true;
-            }
-
-            @Override
-            public void onRoundComplete() {
-                // no-op for testing
             }
 
             @Override

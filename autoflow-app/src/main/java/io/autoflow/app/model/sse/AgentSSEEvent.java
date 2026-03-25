@@ -17,8 +17,6 @@ public class AgentSSEEvent {
 
     private String toolName;
 
-    private String toolId;
-
     private String arguments;
 
     private Object result;

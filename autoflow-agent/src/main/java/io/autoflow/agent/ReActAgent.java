@@ -16,10 +16,8 @@ import io.autoflow.agent.prompt.PromptTemplateProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -38,7 +36,6 @@ public final class ReActAgent implements AgentEngine {
     private final ToolRetryHandler retryHandler;
     
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingTools = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, String> toolIdToName = new ConcurrentHashMap<>();
     private final StringBuilder thinkingBuffer = new StringBuilder();
 
     private ReActAgent(Builder builder) {
@@ -226,14 +223,12 @@ public final class ReActAgent implements AgentEngine {
             @Override
             public void onCompleteToolCall(CompleteToolCall completeToolCall) {
                 ToolExecutionRequest req = completeToolCall.toolExecutionRequest();
-                String toolId = UUID.randomUUID().toString();  // 生成唯一 ID
-                toolIdToName.put(toolId, req.name());  // 追踪映射
-                listener.onToolCallStart(toolId, req.name(), req.arguments());
+                listener.onToolCallStart(req.name(), req.arguments());
                 
                 CompletableFuture<Object> future = CompletableFuture.supplyAsync(() ->
                         executeTool(req.name(), req.arguments())
                 );
-                pendingTools.put(toolId, future);  // 用 toolId 而非 toolName 作为 key
+                pendingTools.put(req.name(), future);
             }
 
             @Override
@@ -288,33 +283,13 @@ public final class ReActAgent implements AgentEngine {
         }
 
         CompletableFuture.allOf(pendingTools.values().toArray(new CompletableFuture[0])).join();
-
         List<ToolExecutionRequest> retryList = new ArrayList<>();
-
-        Map<String, String> workingMap = new HashMap<>(toolIdToName);
-        List<String> processedToolIds = new ArrayList<>();
 
         for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
             String args = request.arguments();
-
-            String toolId = null;
-            for (Map.Entry<String, String> entry : workingMap.entrySet()) {
-                if (entry.getValue().equals(toolName)) {
-                    toolId = entry.getKey();
-                    workingMap.remove(toolId);
-                    break;
-                }
-            }
-
-            if (toolId == null) {
-                log.warn("[Agent] toolId not found for tool={}", toolName);
-                continue;
-            }
-
-            Object result = getToolResultById(toolId);
-            listener.onToolCallEnd(toolId, toolName, result);
-            processedToolIds.add(toolId);
+            Object result = getToolResult(toolName);
+            listener.onToolCallEnd(toolName, result);
 
             if (isError(result)) {
                 String errorMsg = result.toString();
@@ -334,14 +309,13 @@ public final class ReActAgent implements AgentEngine {
                 context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
                 log.info("[Agent] tool={} result={}", toolName, result);
             }
-
-            pendingTools.remove(toolId);
-            toolIdToName.remove(toolId);
+            
+            pendingTools.remove(toolName);
         }
 
         if (!retryList.isEmpty()) {
             log.info("[Agent] scheduling {} tool retries", retryList.size());
-            retryList.forEach(req ->
+            retryList.forEach(req -> 
                     context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments())
             );
         }
@@ -350,15 +324,6 @@ public final class ReActAgent implements AgentEngine {
     private Object getToolResult(String toolName) {
         try {
             return pendingTools.get(toolName).get();
-        } catch (Exception e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
-            return "Error: " + cause.getMessage();
-        }
-    }
-
-    private Object getToolResultById(String toolId) {
-        try {
-            return pendingTools.get(toolId).get();
         } catch (Exception e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
             return "Error: " + cause.getMessage();

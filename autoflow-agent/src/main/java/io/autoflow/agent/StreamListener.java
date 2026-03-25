@@ -18,19 +18,17 @@ public interface StreamListener {
 
     /**
      * Called when a tool execution starts.
-     * @param toolId the id of the tool
      * @param toolName the name of the tool
      * @param arguments the tool arguments as JSON string
      */
-    void onToolCallStart(String toolId, String toolName, String arguments);
+    void onToolCallStart(String toolName, String arguments);
 
     /**
      * Called when a tool execution completes.
-     * @param toolId the id of the tool
      * @param toolName the name of the tool
      * @param result the execution result
      */
-    void onToolCallEnd(String toolId, String toolName, Object result);
+    void onToolCallEnd(String toolName, Object result);
 
     /**
      * Called when the entire chat session completes.
