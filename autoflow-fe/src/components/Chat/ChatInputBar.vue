@@ -315,28 +315,28 @@ async function sendMessage() {
         status: MessageBlockStatus.STREAMING
       } as any)
     },
-    onToolStart: (toolName, args) => {
+    onToolStart: (toolId, toolName, args) => {
       lastEventWasToken = false  // break token streak
       chatStore.addBlock(assistantMsg.id, {
         type: MessageBlockType.TOOL,
-        toolId: uuid(8, true),
+        toolId,  // 使用传入的 toolId，而非生成新的
         toolName,
         arguments: JSON.parse(args),
         content: '',
         status: MessageBlockStatus.PENDING
       } as any)
     },
-    onToolEnd: (toolName, result) => {
+    onToolEnd: (toolId, toolName, result) => {
       lastEventWasToken = false  // break token streak
       const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolName === toolName)
+      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolId === toolId)  // 用 toolId 匹配
       if (toolBlock) {
         chatStore.updateBlock(toolBlock.id, {
           content: result,
           status: MessageBlockStatus.SUCCESS,
           metadata: {
             rawMcpToolResponse: {
-              id: uuid(8, true),
+              id: toolId,  // 使用传入的 toolId
               tool: { name: toolName, type: 'builtin' },
               status: 'done',
               response: result
