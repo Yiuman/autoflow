@@ -1,5 +1,5 @@
-import type { Node as VueFlowCordNode } from '@vue-flow/core'
-import type { Component } from 'vue'
+import type {Node as VueFlowCordNode} from '@vue-flow/core'
+import type {Component} from 'vue'
 
 interface Flow {
   id: string
@@ -221,7 +221,5 @@ export type {
   ChatMessage,
   GenericType,
   ThreadPoolData,
-  MetricData,
-  NodeElementData,
-  VueFlowNode
+  MetricData
 }
