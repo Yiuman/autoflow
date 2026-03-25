@@ -26,6 +26,8 @@ interface ChatState {
   selectedModelId: string | null
 
   files: FileMetadata[]
+
+  blockSequence: number
 }
 
 export const useChatStore = defineStore('chat', {
@@ -39,7 +41,8 @@ export const useChatStore = defineStore('chat', {
     isLoading: false,
     streamingMessageId: null,
     selectedModelId: null,
-    files: []
+    files: [],
+    blockSequence: 0
   }),
 
   getters: {
@@ -181,19 +184,25 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    addBlock(messageId: string, block: Omit<MessageBlock, 'id' | 'messageId' | 'createdAt'>): MessageBlock {
+    addBlock(messageId: string, block: Omit<MessageBlock, 'id' | 'messageId' | 'createdAt'>, append = true): MessageBlock {
+      this.blockSequence++
       const newBlock: MessageBlock = {
         ...block,
         id: uuid(8, true),
         messageId,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        sequence: this.blockSequence
       } as MessageBlock
 
       this.blockEntities[newBlock.id] = newBlock
 
       const message = this.messageEntities[messageId]
       if (message) {
-        message.blocks.push(newBlock.id)
+        if (append) {
+          message.blocks.push(newBlock.id)
+        } else {
+          message.blocks.unshift(newBlock.id)
+        }
       }
 
       return newBlock

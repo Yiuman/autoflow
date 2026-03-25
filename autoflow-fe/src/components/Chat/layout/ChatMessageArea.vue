@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch, nextTick } from 'vue'
 import { useChatStore } from '@/stores/chat'
-import MessageGroup from './MessageGroup.vue'
+import ChatMessageGroup from '@/components/Chat/layout/ChatMessageGroup.vue'
 import ChatInputBar from '../ChatInputBar.vue'
 
 const chatStore = useChatStore()
@@ -52,7 +52,7 @@ function getBlocksForMessage(messageId: string) {
       </div>
       
       <div v-else class="messages-list">
-        <MessageGroup
+        <ChatMessageGroup
           v-for="message in messages"
           :key="message.id"
           :message="message"

@@ -55,6 +55,7 @@ declare module 'vue' {
     ChatInputBar: typeof import('./src/components/Chat/ChatInputBar.vue')['default']
     ChatMessage: typeof import('./src/components/ChatMessage/ChatMessage.vue')['default']
     ChatMessageArea: typeof import('./src/components/Chat/layout/ChatMessageArea.vue')['default']
+    ChatMessageGroup: typeof import('./src/components/Chat/layout/ChatMessageGroup.vue')['default']
     ChatSidebar: typeof import('./src/components/Chat/layout/ChatSidebar.vue')['default']
     CodeInput: typeof import('./src/components/CodeInput/CodeInput.vue')['default']
     ConditionFilter: typeof import('./src/components/ConditionFilter/ConditionFilter.vue')['default']

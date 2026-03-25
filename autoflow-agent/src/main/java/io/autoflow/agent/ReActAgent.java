@@ -200,7 +200,7 @@ public final class ReActAgent implements AgentEngine {
                         fullOutput.append(after);
                         listener.onToken(after);
                     }
-                } else if (thinkingBuffer.length() > 0) {
+                } else if (!thinkingBuffer.isEmpty()) {
                     // 正在 thinking 模式中，累积内容
                     thinkingBuffer.append(text);
                 } else {
@@ -339,7 +339,7 @@ public final class ReActAgent implements AgentEngine {
             return nodeExecutor.execute(nodeId, args);
         } catch (Exception e) {
             log.error("[Agent] tool={} execution error={}", toolName, e.getMessage());
-            throw e;
+            return "Error: " + e.getMessage();
         }
     }
 

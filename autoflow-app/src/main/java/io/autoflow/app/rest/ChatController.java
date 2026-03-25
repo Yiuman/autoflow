@@ -9,12 +9,11 @@ import io.autoflow.app.model.ChatMessage;
 import io.autoflow.app.model.sse.AgentSSEEvent;
 import io.autoflow.app.service.ChatMessageService;
 import io.autoflow.app.service.ChatSessionService;
-import io.ola.common.http.R;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -41,6 +40,8 @@ public class ChatController {
         this.chatSessionService = chatSessionService;
     }
 
+    private static final String ERROR_TYPE = "error";
+
     /**
      * Chat endpoint with SSE streaming.
      *
@@ -51,63 +52,78 @@ public class ChatController {
     public SseEmitter chat(@Valid @RequestBody AgentChatRequest request) {
         log.info("Chat session started: sessionId={}", request.getSessionId());
 
-        if (request.getSessionId() == null || request.getSessionId().isBlank()) {
-            log.warn("Chat session rejected: sessionId is required");
-            SseEmitter emitter = new SseEmitter();
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("error")
-                        .data(AgentSSEEvent.builder()
-                                .type("error")
-                                .content("sessionId is required")
-                                .build()));
-            } catch (Exception e) {
-                log.warn("Failed to send error event", e);
-            }
-            emitter.complete();
+        SseEmitter emitter = validateAndCreateEmitter(request);
+        if (emitter != null) {
             return emitter;
+        }
+
+        String sessionId = request.getSessionId();
+        ChatMessage userMessage = createUserMessage(sessionId, request.getInput());
+        chatMessageService.save(userMessage);
+
+        SseEmitter streamingEmitter = new SseEmitter(Long.MAX_VALUE);
+        StreamingChatModel chatModel = resolveChatModel(request.getModelId());
+        runAsyncChat(sessionId, request.getInput(), chatModel, streamingEmitter);
+
+        return streamingEmitter;
+    }
+
+    private SseEmitter validateAndCreateEmitter(AgentChatRequest request) {
+        String sessionId = request.getSessionId();
+
+        if (sessionId == null || sessionId.isBlank()) {
+            log.warn("Chat session rejected: sessionId is required");
+            return sendErrorAndComplete("sessionId is required");
         }
 
         if (request.getInput() == null || request.getInput().isBlank()) {
-            log.warn("Chat session rejected: sessionId={}, reason=blank input", request.getSessionId());
-            SseEmitter emitter = new SseEmitter();
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("error")
-                        .data(AgentSSEEvent.builder()
-                                .type("error")
-                                .content("Input cannot be blank")
-                                .build()));
-            } catch (Exception e) {
-                log.warn("Failed to send error event", e);
-            }
-            emitter.complete();
-            return emitter;
+            log.warn("Chat session rejected: sessionId={}, reason=blank input", sessionId);
+            return sendErrorAndComplete("Input cannot be blank");
         }
 
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        ChatStreamListener listener = new ChatStreamListener(emitter, request.getSessionId(), chatMessageService, chatSessionService);
+        return null;
+    }
 
-        ChatMessage userMessage = new ChatMessage();
-        userMessage.setSessionId(request.getSessionId());
-        userMessage.setRole("USER");
-        userMessage.setContent(request.getInput());
-        chatMessageService.save(userMessage);
+    private ChatMessage createUserMessage(String sessionId, String content) {
+        ChatMessage message = new ChatMessage();
+        message.setSessionId(sessionId);
+        message.setRole("USER");
+        message.setContent(content);
+        return message;
+    }
 
-        String modelId = request.getModelId();
-        StreamingChatModel streamingChatModel = modelRegistry.getModel(modelId);
-        log.info("Chat using model: modelId={}, actualModel={}", modelId, streamingChatModel.getClass().getSimpleName());
+    private StreamingChatModel resolveChatModel(String modelId) {
+        StreamingChatModel chatModel = modelRegistry.getModel(modelId);
+        log.info("Chat using model: modelId={}, actualModel={}", modelId, chatModel.getClass().getSimpleName());
+        return chatModel;
+    }
 
-        // Run agent chat asynchronously to avoid blocking the request thread
+    private void runAsyncChat(String sessionId, String input, StreamingChatModel chatModel, SseEmitter emitter) {
+        ChatStreamListener listener = new ChatStreamListener(emitter, sessionId, chatMessageService, chatSessionService);
+
         CompletableFuture.runAsync(() -> {
             try {
-                reActAgent.chat(request.getSessionId(), request.getInput(), streamingChatModel, listener);
+                reActAgent.chat(sessionId, input, chatModel, listener);
             } finally {
                 emitter.complete();
-                log.info("Chat session ended: sessionId={}", request.getSessionId());
+                log.info("Chat session ended: sessionId={}", sessionId);
             }
         });
+    }
 
+    private SseEmitter sendErrorAndComplete(String errorMessage) {
+        SseEmitter emitter = new SseEmitter();
+        try {
+            emitter.send(SseEmitter.event()
+                    .name(ERROR_TYPE)
+                    .data(AgentSSEEvent.builder()
+                            .type(ERROR_TYPE)
+                            .content(errorMessage)
+                            .build()));
+        } catch (Exception e) {
+            log.warn("Failed to send error event", e);
+        }
+        emitter.complete();
         return emitter;
     }
 }

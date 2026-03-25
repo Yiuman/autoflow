@@ -281,39 +281,41 @@ async function sendMessage() {
   textareaHeight.value = undefined
   nextTick(() => resizeTextarea())
 
+  // Track if we're in a consecutive token streak
+  let lastEventWasToken = false
+
   chatController.value = chatSSE(text, {
     onThinking: (text) => {
-      const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-      const existingThinking = blocks.find(b => b.type === MessageBlockType.THINKING)
-      if (existingThinking) {
-        chatStore.updateBlock(existingThinking.id, {
-          content: existingThinking.content + text,
-        })
-      } else {
-        chatStore.addBlock(assistantMsg.id, {
-          type: MessageBlockType.THINKING,
-          content: text,
-          status: MessageBlockStatus.SUCCESS,
-          thinking_millsec: 0
-        } as any)
-      }
+      lastEventWasToken = false  // break token streak
+      chatStore.addBlock(assistantMsg.id, {
+        type: MessageBlockType.THINKING,
+        content: text,
+        status: MessageBlockStatus.SUCCESS,
+        thinking_millsec: 0
+      } as any)
     },
     onToken: (text) => {
       const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-      const lastTokenBlock = blocks.filter(b => b.type === MessageBlockType.MAIN_TEXT).pop()
-      if (lastTokenBlock) {
-        chatStore.updateBlock(lastTokenBlock.id, {
-          content: lastTokenBlock.content + text,
-        })
-      } else {
-        chatStore.addBlock(assistantMsg.id, {
-          type: MessageBlockType.MAIN_TEXT,
-          content: text,
-          status: MessageBlockStatus.STREAMING
-        } as any)
+      // Only merge with last MAIN_TEXT if the previous event was also a token
+      if (lastEventWasToken) {
+        const lastMainText = blocks.filter(b => b.type === MessageBlockType.MAIN_TEXT).at(-1)
+        if (lastMainText) {
+          chatStore.updateBlock(lastMainText.id, {
+            content: lastMainText.content + text,
+          })
+          return
+        }
       }
+      // Create new MAIN_TEXT block
+      lastEventWasToken = true
+      chatStore.addBlock(assistantMsg.id, {
+        type: MessageBlockType.MAIN_TEXT,
+        content: text,
+        status: MessageBlockStatus.STREAMING
+      } as any)
     },
     onToolStart: (toolName, args) => {
+      lastEventWasToken = false  // break token streak
       chatStore.addBlock(assistantMsg.id, {
         type: MessageBlockType.TOOL,
         toolId: uuid(8, true),
@@ -324,10 +326,11 @@ async function sendMessage() {
       } as any)
     },
     onToolEnd: (toolName, result) => {
+      lastEventWasToken = false  // break token streak
       const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-      const lastBlock = blocks[blocks.length - 1]
-      if (lastBlock && lastBlock.type === MessageBlockType.TOOL && lastBlock.toolName === toolName) {
-        chatStore.updateBlock(lastBlock.id, {
+      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolName === toolName)
+      if (toolBlock) {
+        chatStore.updateBlock(toolBlock.id, {
           content: result,
           status: MessageBlockStatus.SUCCESS,
           metadata: {

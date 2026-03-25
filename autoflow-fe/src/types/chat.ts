@@ -32,6 +32,7 @@ export interface BaseMessageBlock {
   status: MessageBlockStatus
   createdAt: string
   updatedAt?: string
+  sequence?: number
 }
 
 // MainTextBlock
