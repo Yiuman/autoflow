@@ -73,7 +73,11 @@ function getBlockComponent(block: MessageBlock) {
       <!-- Empty state -->
       <div v-if="blocks.length === 0" class="empty-block">
         <template v-if="message.status === 'streaming'">
-          <span class="loading-dots">Waiting for response</span>
+          <div class="thinking-loader">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
         </template>
         <template v-else>
           No content
@@ -113,19 +117,37 @@ function getBlockComponent(block: MessageBlock) {
     .empty-block {
       color: var(--color-text-3);
       font-size: 13px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .thinking-loader {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0;
       
-      .loading-dots {
-        &::after {
-          content: '';
-          animation: loading-dots 1.5s infinite;
-        }
+      .dot {
+        width: 6px;
+        height: 6px;
+        background-color: var(--color-text-3, #999);
+        border-radius: 50%;
+        animation: bounce 1.4s ease-in-out infinite both;
+        
+        &:nth-child(1) { animation-delay: -0.32s; }
+        &:nth-child(2) { animation-delay: -0.16s; }
       }
     }
     
-    @keyframes loading-dots {
-      0%, 20% { content: '.'; }
-      40% { content: '..'; }
-      60%, 100% { content: '...'; }
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
     
     .plain-text-content {

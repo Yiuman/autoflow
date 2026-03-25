@@ -37,8 +37,8 @@ export async function getChatMessages(sessionId: string): Promise<any[]> {
 export interface ChatSSECallbacks {
   onThinking?: (text: string) => void
   onToken?: (text: string) => void
-  onToolStart?: (toolName: string, toolArgs: string) => void
-  onToolEnd?: (toolName: string, result: any) => void
+  onToolStart?: (toolId: string, toolName: string, toolArgs: string) => void
+  onToolEnd?: (toolId: string, toolName: string, result: any) => void
   onComplete?: (fullOutput: string) => void
   onError?: (message: string) => void
 }
@@ -80,12 +80,12 @@ export function chatSSE(input: string, callbacks: ChatSSECallbacks): AbortContro
         }
         case 'tool_start': {
           const data = JSON.parse(message.data)
-          callbacks.onToolStart?.(data.toolName, data.arguments)
+          callbacks.onToolStart?.(data.toolId, data.toolName, data.arguments)
           break
         }
         case 'tool_end': {
           const data = JSON.parse(message.data)
-          callbacks.onToolEnd?.(data.toolName, data.result)
+          callbacks.onToolEnd?.(data.toolId, data.toolName, data.result)
           break
         }
         case 'complete': {

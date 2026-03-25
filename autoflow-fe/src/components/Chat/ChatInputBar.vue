@@ -315,28 +315,28 @@ async function sendMessage() {
         status: MessageBlockStatus.STREAMING
       } as any)
     },
-    onToolStart: (toolName, args) => {
-      lastEventWasToken = false  // break token streak
+    onToolStart: (toolId, toolName, args) => {
+      lastEventWasToken = false
       chatStore.addBlock(assistantMsg.id, {
         type: MessageBlockType.TOOL,
-        toolId: uuid(8, true),
+        toolId,
         toolName,
         arguments: JSON.parse(args),
         content: '',
         status: MessageBlockStatus.PENDING
       } as any)
     },
-    onToolEnd: (toolName, result) => {
-      lastEventWasToken = false  // break token streak
+    onToolEnd: (toolId, toolName, result) => {
+      lastEventWasToken = false
       const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolName === toolName)
+      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolId === toolId)
       if (toolBlock) {
         chatStore.updateBlock(toolBlock.id, {
           content: result,
           status: MessageBlockStatus.SUCCESS,
           metadata: {
             rawMcpToolResponse: {
-              id: uuid(8, true),
+              id: toolId,
               tool: { name: toolName, type: 'builtin' },
               status: 'done',
               response: result

@@ -16,8 +16,10 @@ import io.autoflow.agent.prompt.PromptTemplateProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -36,6 +38,7 @@ public final class ReActAgent implements AgentEngine {
     private final ToolRetryHandler retryHandler;
     
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingTools = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> toolIdToName = new ConcurrentHashMap<>();
     private final StringBuilder thinkingBuffer = new StringBuilder();
 
     private ReActAgent(Builder builder) {
@@ -223,12 +226,14 @@ public final class ReActAgent implements AgentEngine {
             @Override
             public void onCompleteToolCall(CompleteToolCall completeToolCall) {
                 ToolExecutionRequest req = completeToolCall.toolExecutionRequest();
-                listener.onToolCallStart(req.name(), req.arguments());
+                String toolId = UUID.randomUUID().toString();
+                toolIdToName.put(toolId, req.name());
+                listener.onToolCallStart(toolId, req.name(), req.arguments());
                 
                 CompletableFuture<Object> future = CompletableFuture.supplyAsync(() ->
                         executeTool(req.name(), req.arguments())
                 );
-                pendingTools.put(req.name(), future);
+                pendingTools.put(toolId, future);
             }
 
             @Override
@@ -283,13 +288,31 @@ public final class ReActAgent implements AgentEngine {
         }
 
         CompletableFuture.allOf(pendingTools.values().toArray(new CompletableFuture[0])).join();
+
         List<ToolExecutionRequest> retryList = new ArrayList<>();
+
+        Map<String, String> workingMap = new HashMap<>(toolIdToName);
 
         for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
             String args = request.arguments();
-            Object result = getToolResult(toolName);
-            listener.onToolCallEnd(toolName, result);
+
+            String toolId = null;
+            for (Map.Entry<String, String> entry : workingMap.entrySet()) {
+                if (entry.getValue().equals(toolName)) {
+                    toolId = entry.getKey();
+                    workingMap.remove(toolId);
+                    break;
+                }
+            }
+
+            if (toolId == null) {
+                log.warn("[Agent] toolId not found for tool={}", toolName);
+                continue;
+            }
+
+            Object result = getToolResultById(toolId);
+            listener.onToolCallEnd(toolId, toolName, result);
 
             if (isError(result)) {
                 String errorMsg = result.toString();
@@ -309,15 +332,25 @@ public final class ReActAgent implements AgentEngine {
                 context.addAssistantMessage("Tool: " + toolName + " Result: " + result);
                 log.info("[Agent] tool={} result={}", toolName, result);
             }
-            
-            pendingTools.remove(toolName);
+
+            pendingTools.remove(toolId);
+            toolIdToName.remove(toolId);
         }
 
         if (!retryList.isEmpty()) {
             log.info("[Agent] scheduling {} tool retries", retryList.size());
-            retryList.forEach(req -> 
+            retryList.forEach(req ->
                     context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments())
             );
+        }
+    }
+
+    private Object getToolResultById(String toolId) {
+        try {
+            return pendingTools.get(toolId).get();
+        } catch (Exception e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            return "Error: " + cause.getMessage();
         }
     }
 

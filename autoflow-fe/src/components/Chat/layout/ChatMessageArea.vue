@@ -14,7 +14,7 @@ interface RenderItem {
   blocks: MessageBlock[]
 }
 
-const renderItems = computed(() => {
+  const renderItems = computed(() => {
   void chatStore.blockEntities
   void updateTrigger.value
   const messages = chatStore.activeMessages
@@ -22,6 +22,7 @@ const renderItems = computed(() => {
   const result: RenderItem[] = []
   let currentAssistantBlocks: MessageBlock[] = []
   let lastConvId: string | null = null
+  let lastAssistantStatus: string | null = null
   
   for (const msg of messages) {
     const convId = msg.conversationId || msg.id
@@ -33,10 +34,11 @@ const renderItems = computed(() => {
       // Flush pending assistant blocks
       if (currentAssistantBlocks.length > 0) {
         result.push({
-          message: { id: 'merged-assistant', role: 'assistant', blocks: [], conversationId: lastConvId } as Message,
+          message: { id: 'merged-assistant', role: 'assistant', status: lastAssistantStatus ?? undefined, blocks: [], conversationId: lastConvId } as Message,
           blocks: currentAssistantBlocks
         })
         currentAssistantBlocks = []
+        lastAssistantStatus = null
       }
       // USER message as separate item
       result.push({ message: msg, blocks: msgBlocks })
@@ -49,20 +51,21 @@ const renderItems = computed(() => {
         // Flush previous
         if (currentAssistantBlocks.length > 0) {
           result.push({
-            message: { id: 'merged-assistant', role: 'assistant', blocks: [], conversationId: lastConvId } as Message,
+            message: { id: 'merged-assistant', role: 'assistant', status: lastAssistantStatus ?? undefined, blocks: [], conversationId: lastConvId } as Message,
             blocks: currentAssistantBlocks
           })
         }
         currentAssistantBlocks = msgBlocks
         lastConvId = convId
       }
+      lastAssistantStatus = msg.status
     }
   }
   
-  // Flush remaining
-  if (currentAssistantBlocks.length > 0) {
+  // Flush remaining — push assistant if it exists, even with no blocks (for streaming placeholder)
+  if (currentAssistantBlocks.length > 0 || lastAssistantStatus === 'streaming') {
     result.push({
-      message: { id: 'merged-assistant', role: 'assistant', blocks: [], conversationId: lastConvId } as Message,
+      message: { id: 'merged-assistant', role: 'assistant', status: lastAssistantStatus ?? undefined, blocks: [], conversationId: lastConvId } as Message,
       blocks: currentAssistantBlocks
     })
   }
