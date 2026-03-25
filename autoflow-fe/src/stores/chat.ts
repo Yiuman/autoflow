@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
-import type {
-  Message,
-  MessageBlock,
-  Session,
+import {
+  type Message,
+  type MessageBlock,
+  type Session,
+  type FileMetadata,
   MessageBlockType,
-  MessageBlockStatus,
-  FileMetadata
+  MessageBlockStatus
 } from '@/types/chat'
 import { uuid } from '@/utils/util-func'
-import { createChatSession, getChatSessions, deleteChatSession } from '@/api/chat'
+import { createChatSession, getChatSessions, deleteChatSession, getChatMessages } from '@/api/chat'
 
 interface ChatState {
   sessions: Session[]
@@ -113,8 +113,149 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    async loadSessionMessages(sessionId: string): Promise<void> {
+      try {
+        const messages = await getChatMessages(sessionId)
+        console.log('[loadSessionMessages] sessionId:', sessionId, 'messages count:', messages.length, 'first msg conversationId:', messages[0]?.conversationId)
+        
+        if (!this.messagesBySession[sessionId]) {
+          this.messagesBySession[sessionId] = []
+        }
+        
+        for (const msg of messages) {
+          const messageId = msg.id || uuid(8, true)
+          const messageEntity: Message = {
+            id: messageId,
+            conversationId: msg.conversationId,
+            role: msg.role?.toLowerCase() === 'user' ? 'user' : 'assistant',
+            type: msg.type,
+            blocks: [],
+            createdAt: msg.createTime ? new Date(msg.createTime).toISOString() : (msg.createdAt || new Date().toISOString()),
+            updatedAt: msg.updatedAt,
+            status: msg.status,
+            model: msg.model,
+            assistantId: msg.assistantId,
+            agentSessionId: msg.agentSessionId
+          }
+          
+          this.messageEntities[messageId] = messageEntity
+          this.messagesBySession[sessionId].push(messageId)
+          
+          if (msg.blocks && Array.isArray(msg.blocks) && msg.blocks.length > 0) {
+            for (const block of msg.blocks) {
+              this.blockSequence++
+              const blockId = block.id || uuid(8, true)
+              
+              const blockEntity: MessageBlock = {
+                id: blockId,
+                messageId: messageId,
+                type: block.type || MessageBlockType.UNKNOWN,
+                status: block.status || MessageBlockStatus.SUCCESS,
+                content: block.content,
+                createdAt: block.createTime ? new Date(block.createTime).toISOString() : (block.createdAt || new Date().toISOString()),
+                updatedAt: block.updatedAt,
+                sequence: this.blockSequence,
+                ...block
+              } as MessageBlock
+              
+              this.blockEntities[blockId] = blockEntity
+              messageEntity.blocks.push(blockId)
+            }
+          } else {
+            const role = msg.role?.toUpperCase()
+            const content = msg.content || ''
+            const thinkingContent = msg.thinkingContent
+            
+            if (role === 'USER') {
+              this.blockSequence++
+              const blockId = uuid(8, true)
+              const blockEntity: MessageBlock = {
+                id: blockId,
+                messageId: messageId,
+                type: MessageBlockType.MAIN_TEXT,
+                status: MessageBlockStatus.SUCCESS,
+                content: content,
+                createdAt: messageEntity.createdAt,
+                sequence: this.blockSequence
+              } as MessageBlock
+              
+              this.blockEntities[blockId] = blockEntity
+              messageEntity.blocks.push(blockId)
+            } else if (role === 'ASSISTANT') {
+              if (thinkingContent) {
+                this.blockSequence++
+                const thinkBlockId = uuid(8, true)
+                const thinkBlockEntity: MessageBlock = {
+                  id: thinkBlockId,
+                  messageId: messageId,
+                  type: MessageBlockType.THINKING,
+                  status: MessageBlockStatus.SUCCESS,
+                  content: thinkingContent,
+                  createdAt: messageEntity.createdAt,
+                  sequence: this.blockSequence
+                } as MessageBlock
+                
+                this.blockEntities[thinkBlockId] = thinkBlockEntity
+                messageEntity.blocks.push(thinkBlockId)
+              }
+              
+              if (msg.metadata) {
+                try {
+                  const metadata = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : msg.metadata
+                  if (metadata.toolCalls && Array.isArray(metadata.toolCalls)) {
+                    for (const toolCall of metadata.toolCalls) {
+                      this.blockSequence++
+                      const toolBlockId = uuid(8, true)
+                      const toolBlockEntity: MessageBlock = {
+                        id: toolBlockId,
+                        messageId: messageId,
+                        type: MessageBlockType.TOOL,
+                        status: MessageBlockStatus.SUCCESS,
+                        toolName: toolCall.toolName,
+                        arguments: toolCall.arguments,
+                        content: toolCall.result,
+                        createdAt: messageEntity.createdAt,
+                        sequence: this.blockSequence
+                      } as MessageBlock
+                      
+                      this.blockEntities[toolBlockId] = toolBlockEntity
+                      messageEntity.blocks.push(toolBlockId)
+                    }
+                  }
+                } catch (e) {
+                  console.error('Failed to parse metadata.toolCalls:', e)
+                }
+              }
+              
+              if (content) {
+                this.blockSequence++
+                const textBlockId = uuid(8, true)
+                const textBlockEntity: MessageBlock = {
+                  id: textBlockId,
+                  messageId: messageId,
+                  type: MessageBlockType.MAIN_TEXT,
+                  status: MessageBlockStatus.SUCCESS,
+                  content: content,
+                  createdAt: messageEntity.createdAt,
+                  sequence: this.blockSequence
+                } as MessageBlock
+                
+                this.blockEntities[textBlockId] = textBlockEntity
+                messageEntity.blocks.push(textBlockId)
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load session messages:', error)
+      }
+    },
+
     setActiveSession(sessionId: string) {
       this.activeSessionId = sessionId
+      if (!this.messagesBySession[sessionId]?.length) {
+        this.loadSessionMessages(sessionId)
+      }
     },
 
     updateSession(sessionId: string, updates: Partial<Session>) {

@@ -235,6 +235,7 @@ function handlePaste(e: ClipboardEvent) {
 
 // Keyboard handling
 function handleKeyDown(e: KeyboardEvent) {
+  if (e.isComposing) return  // 等待 IME 输入确认
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault()
     if (canSend.value) {

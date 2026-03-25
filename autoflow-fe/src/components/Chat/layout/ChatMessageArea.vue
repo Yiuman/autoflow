@@ -3,16 +3,71 @@ import { computed, ref, watch, nextTick } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import ChatMessageGroup from '@/components/Chat/layout/ChatMessageGroup.vue'
 import ChatInputBar from '../ChatInputBar.vue'
+import type { Message, MessageBlock } from '@/types/chat'
 
 const chatStore = useChatStore()
 const messagesContainerRef = ref<HTMLElement | null>(null)
 const updateTrigger = ref(0)
 
-const messages = computed(() => {
-  // Trigger re-computation when blockEntities changes
+interface RenderItem {
+  message: Message
+  blocks: MessageBlock[]
+}
+
+const renderItems = computed(() => {
   void chatStore.blockEntities
   void updateTrigger.value
-  return chatStore.activeMessages
+  const messages = chatStore.activeMessages
+  
+  const result: RenderItem[] = []
+  let currentAssistantBlocks: MessageBlock[] = []
+  let lastConvId: string | null = null
+  
+  for (const msg of messages) {
+    const convId = msg.conversationId || msg.id
+    const msgBlocks = (msg.blocks || [])
+      .map(blockId => chatStore.getBlockById(blockId))
+      .filter((block): block is NonNullable<typeof block> => block != null)
+    
+    if (msg.role === 'user') {
+      // Flush pending assistant blocks
+      if (currentAssistantBlocks.length > 0) {
+        result.push({
+          message: { id: 'merged-assistant', role: 'assistant', blocks: [], conversationId: lastConvId } as Message,
+          blocks: currentAssistantBlocks
+        })
+        currentAssistantBlocks = []
+      }
+      // USER message as separate item
+      result.push({ message: msg, blocks: msgBlocks })
+      lastConvId = null
+    } else {
+      // ASSISTANT: merge blocks if same convId
+      if (lastConvId === convId) {
+        currentAssistantBlocks.push(...msgBlocks)
+      } else {
+        // Flush previous
+        if (currentAssistantBlocks.length > 0) {
+          result.push({
+            message: { id: 'merged-assistant', role: 'assistant', blocks: [], conversationId: lastConvId } as Message,
+            blocks: currentAssistantBlocks
+          })
+        }
+        currentAssistantBlocks = msgBlocks
+        lastConvId = convId
+      }
+    }
+  }
+  
+  // Flush remaining
+  if (currentAssistantBlocks.length > 0) {
+    result.push({
+      message: { id: 'merged-assistant', role: 'assistant', blocks: [], conversationId: lastConvId } as Message,
+      blocks: currentAssistantBlocks
+    })
+  }
+  
+  return result
 })
 
 // Force re-render when block entities change
@@ -33,30 +88,21 @@ watch(
     }
   }
 )
-
-function getBlocksForMessage(messageId: string) {
-  void updateTrigger.value
-  const message = chatStore.getMessageById(messageId)
-  if (!message) return []
-  return message.blocks
-    .map(blockId => chatStore.getBlockById(blockId))
-    .filter((block): block is NonNullable<typeof block> => block != null)
-}
 </script>
 
 <template>
   <div class="chat-message-area">
     <div class="messages-container" ref="messagesContainerRef">
-      <div v-if="messages.length === 0" class="empty-messages">
+      <div v-if="renderItems.length === 0" class="empty-messages">
         <p>Send a message to start chatting</p>
       </div>
       
       <div v-else class="messages-list">
         <ChatMessageGroup
-          v-for="message in messages"
-          :key="message.id"
-          :message="message"
-          :blocks="getBlocksForMessage(message.id)"
+          v-for="(item, index) in renderItems"
+          :key="index"
+          :message="item.message"
+          :blocks="item.blocks"
         />
       </div>
     </div>

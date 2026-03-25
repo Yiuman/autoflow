@@ -96,6 +96,7 @@ export type MessageBlock = MainTextBlock | ThinkingBlock | ToolMessageBlock | Er
 // Message interface
 export interface Message {
   id: string
+  conversationId?: string
   role: 'user' | 'assistant'
   type?: 'user' | 'assistant' | 'system' | 'clear'
   askId?: string  // ID of user message this is responding to

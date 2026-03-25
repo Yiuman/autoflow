@@ -21,6 +21,7 @@ public class ChatStreamListener implements StreamListener {
 
     private final SseEmitter sseEmitter;
     private final String sessionId;
+    private final String conversationId;
     private final ChatMessageService chatMessageService;
     private final ChatSessionService chatSessionService;
 
@@ -39,14 +40,16 @@ public class ChatStreamListener implements StreamListener {
     public ChatStreamListener(SseEmitter sseEmitter) {
         this.sseEmitter = sseEmitter;
         this.sessionId = null;
+        this.conversationId = null;
         this.chatMessageService = null;
         this.chatSessionService = null;
     }
 
-    public ChatStreamListener(SseEmitter sseEmitter, String sessionId,
+    public ChatStreamListener(SseEmitter sseEmitter, String sessionId, String conversationId,
                               ChatMessageService chatMessageService, ChatSessionService chatSessionService) {
         this.sseEmitter = sseEmitter;
         this.sessionId = sessionId;
+        this.conversationId = conversationId;
         this.chatMessageService = chatMessageService;
         this.chatSessionService = chatSessionService;
     }
@@ -98,20 +101,20 @@ public class ChatStreamListener implements StreamListener {
     @Override
     public void onComplete(String fullOutput) {
         try {
-            if (!toolCalls.isEmpty()) {
-                contentBuffer.append("\n\n[Tool Calls]\n");
-                for (ToolCallRecord tool : toolCalls) {
-                    contentBuffer.append(String.format("- %s(%s) => %s\n",
-                        tool.toolName, tool.arguments, tool.resultBuffer));
+            if (thinkingBuffer.isEmpty() && contentBuffer.isEmpty()) {
+                log.debug("onComplete: buffers already saved by onRoundComplete, skipping");
+            } else {
+                ChatMessage aiMsg = new ChatMessage();
+                aiMsg.setSessionId(sessionId);
+                aiMsg.setConversationId(conversationId);
+                aiMsg.setRole("ASSISTANT");
+                aiMsg.setContent(contentBuffer.toString());
+                aiMsg.setThinkingContent(thinkingBuffer.toString());
+                if (!toolCalls.isEmpty()) {
+                    aiMsg.setMetadata(buildToolCallsJson());
                 }
+                chatMessageService.save(aiMsg);
             }
-
-            ChatMessage aiMsg = new ChatMessage();
-            aiMsg.setSessionId(sessionId);
-            aiMsg.setRole("ASSISTANT");
-            aiMsg.setContent(contentBuffer.toString());
-            aiMsg.setThinkingContent(thinkingBuffer.toString());
-            chatMessageService.save(aiMsg);
 
             ChatSession session = chatSessionService.get(sessionId);
             if (session != null) {
@@ -129,6 +132,10 @@ public class ChatStreamListener implements StreamListener {
                     .type("error")
                     .content("Failed to save message: " + e.getMessage())
                     .build());
+        } finally {
+            thinkingBuffer.setLength(0);
+            contentBuffer.setLength(0);
+            toolCalls.clear();
         }
     }
 
@@ -156,6 +163,30 @@ public class ChatStreamListener implements StreamListener {
         }
     }
 
+    @Override
+    public void onRoundComplete() {
+        if (thinkingBuffer.isEmpty() && contentBuffer.isEmpty()) {
+            return;
+        }
+        try {
+            ChatMessage aiMsg = new ChatMessage();
+            aiMsg.setSessionId(sessionId);
+            aiMsg.setConversationId(conversationId);
+            aiMsg.setRole("ASSISTANT");
+            aiMsg.setContent(contentBuffer.toString());
+            aiMsg.setThinkingContent(thinkingBuffer.toString());
+            if (!toolCalls.isEmpty()) {
+                aiMsg.setMetadata(buildToolCallsJson());
+            }
+            chatMessageService.save(aiMsg);
+            thinkingBuffer.setLength(0);
+            contentBuffer.setLength(0);
+            toolCalls.clear();
+        } catch (Exception e) {
+            log.error("Failed to save AI message on round complete: {}", e.getMessage(), e);
+        }
+    }
+
     private void sendEvent(String eventName, AgentSSEEvent event) {
         try {
             sseEmitter.send(SseEmitter.event()
@@ -164,5 +195,30 @@ public class ChatStreamListener implements StreamListener {
         } catch (IOException e) {
             log.warn("SSE send failed for event {}: {}", eventName, e.getMessage());
         }
+    }
+    
+    private String buildToolCallsJson() {
+        StringBuilder json = new StringBuilder();
+        json.append("{\"toolCalls\":[");
+        for (int i = 0; i < toolCalls.size(); i++) {
+            ToolCallRecord tool = toolCalls.get(i);
+            if (i > 0) json.append(",");
+            json.append("{");
+            json.append("\"toolName\":\"").append(escapeJson(tool.toolName)).append("\",");
+            json.append("\"arguments\":\"").append(escapeJson(tool.arguments)).append("\",");
+            json.append("\"result\":\"").append(escapeJson(tool.resultBuffer.toString())).append("\"");
+            json.append("}");
+        }
+        json.append("]}");
+        return json.toString();
+    }
+    
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\")
+                   .replace("\"", "\\\"")
+                   .replace("\n", "\\n")
+                   .replace("\r", "\\r")
+                   .replace("\t", "\\t");
     }
 }

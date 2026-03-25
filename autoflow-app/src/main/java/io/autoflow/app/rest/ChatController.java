@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -58,12 +59,14 @@ public class ChatController {
         }
 
         String sessionId = request.getSessionId();
-        ChatMessage userMessage = createUserMessage(sessionId, request.getInput());
+        String conversationId = UUID.randomUUID().toString().replace("-", "");
+        String input = request.getInput();
+        ChatMessage userMessage = createUserMessage(sessionId, conversationId, input);
         chatMessageService.save(userMessage);
 
         SseEmitter streamingEmitter = new SseEmitter(Long.MAX_VALUE);
         StreamingChatModel chatModel = resolveChatModel(request.getModelId());
-        runAsyncChat(sessionId, request.getInput(), chatModel, streamingEmitter);
+        runAsyncChat(sessionId, conversationId, input, chatModel, streamingEmitter);
 
         return streamingEmitter;
     }
@@ -84,9 +87,10 @@ public class ChatController {
         return null;
     }
 
-    private ChatMessage createUserMessage(String sessionId, String content) {
+    private ChatMessage createUserMessage(String sessionId, String conversationId, String content) {
         ChatMessage message = new ChatMessage();
         message.setSessionId(sessionId);
+        message.setConversationId(conversationId);
         message.setRole("USER");
         message.setContent(content);
         return message;
@@ -98,8 +102,8 @@ public class ChatController {
         return chatModel;
     }
 
-    private void runAsyncChat(String sessionId, String input, StreamingChatModel chatModel, SseEmitter emitter) {
-        ChatStreamListener listener = new ChatStreamListener(emitter, sessionId, chatMessageService, chatSessionService);
+    private void runAsyncChat(String sessionId, String conversationId, String input, StreamingChatModel chatModel, SseEmitter emitter) {
+        ChatStreamListener listener = new ChatStreamListener(emitter, sessionId, conversationId, chatMessageService, chatSessionService);
 
         CompletableFuture.runAsync(() -> {
             try {

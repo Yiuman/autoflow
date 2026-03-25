@@ -37,6 +37,12 @@ public interface StreamListener {
     void onComplete(String fullOutput);
 
     /**
+     * Called when a ReAct round completes (after tool execution, before next round).
+     * This allows saving intermediate ASSISTANT messages in multi-round conversations.
+     */
+    void onRoundComplete();
+
+    /**
      * Called when an error occurs.
      * @param e the error
      */

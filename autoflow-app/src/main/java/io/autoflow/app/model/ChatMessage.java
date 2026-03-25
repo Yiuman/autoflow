@@ -15,6 +15,7 @@ public class ChatMessage extends BaseEntity<String> {
     @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
     private String id;
     private String sessionId;
+    private String conversationId;
     private String role;
     private String content;
     private String thinkingContent;

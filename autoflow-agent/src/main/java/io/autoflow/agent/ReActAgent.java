@@ -146,6 +146,8 @@ public final class ReActAgent implements AgentEngine {
             LlmResult result = callLlm(context, model, listener, fullOutput);
             log.info("[Agent] step={} llm_output={}", context.getStepCount(), result.text);
 
+            listener.onRoundComplete();
+
             if (result.toolExecutionRequests().isEmpty()) {
                 log.info("[Agent] step={} no tool calls, stopping", context.getStepCount());
                 break;
