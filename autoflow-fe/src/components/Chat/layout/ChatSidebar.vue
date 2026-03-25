@@ -87,7 +87,7 @@ function deleteSession(sessionId: string) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-bg-2);
   
   .sidebar-header {
     display: flex;

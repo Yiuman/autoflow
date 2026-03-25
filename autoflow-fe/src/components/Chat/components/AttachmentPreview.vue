@@ -97,7 +97,7 @@ const isEmpty = computed(() => props.files.length === 0)
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #37a5aa;
+    color: var(--color-primary);
     font-size: 16px;
   }
 

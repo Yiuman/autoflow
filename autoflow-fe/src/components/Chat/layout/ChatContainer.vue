@@ -27,7 +27,7 @@ const showSidebar = computed(() => chatStore.sessions.length > 0)
   max-height: 100%;
   width: 100%;
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--color-bg-2);
   border-radius: 8px;
   box-sizing: border-box;
   
@@ -48,7 +48,7 @@ const showSidebar = computed(() => chatStore.sessions.length > 0)
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: #fff;
+    background-color: var(--color-bg-2);
     border-radius: 0 8px 8px 0;
   }
 }

@@ -130,7 +130,7 @@ function getBlockComponent(block: MessageBlock) {
       .dot {
         width: 6px;
         height: 6px;
-        background-color: var(--color-text-3, #999);
+        background-color: var(--color-text-3);
         border-radius: 50%;
         animation: bounce 1.4s ease-in-out infinite both;
         
