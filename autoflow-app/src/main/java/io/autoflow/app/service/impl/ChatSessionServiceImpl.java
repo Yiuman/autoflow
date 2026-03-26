@@ -12,9 +12,20 @@ import io.ola.crud.service.impl.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class ChatSessionServiceImpl extends BaseService<ChatSession> implements ChatSessionService {
+
+    private static final String TITLE_GENERATION_TEMPLATE = """
+            Based on this conversation, generate a short title (max 30 Chinese characters).
+            Only return the title, nothing else.
+            
+            User: %s
+            Assistant: %s
+            
+            Title:""";
 
     private final ModelRegistry modelRegistry;
     private final ChatMessageService chatMessageService;
@@ -31,11 +42,20 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
             return;
         }
 
-        ChatMessage userMsg = chatMessageService.findFirstUserMessage(sessionId);
-        String firstUserMessage = userMsg != null ? userMsg.getContent() : "";
+        List<ChatMessage> messages = chatMessageService.findBySessionId(sessionId);
+        String firstUserMessage = "";
+        String firstAiResponse = "";
 
-        ChatMessage aiMsg = chatMessageService.findFirstAiMessage(sessionId);
-        String firstAiResponse = aiMsg != null ? aiMsg.getContent() : "";
+        for (ChatMessage msg : messages) {
+            if ("USER".equals(msg.getRole()) && firstUserMessage.isEmpty()) {
+                firstUserMessage = msg.getContent();
+            } else if ("ASSISTANT".equals(msg.getRole()) && firstAiResponse.isEmpty()) {
+                firstAiResponse = msg.getContent();
+            }
+            if (!firstUserMessage.isEmpty() && !firstAiResponse.isEmpty()) {
+                break;
+            }
+        }
 
         String title = generateTitleFromLlm(firstUserMessage, firstAiResponse);
         if (title == null || title.isBlank()) {
@@ -54,10 +74,7 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
                 log.warn("No ChatModel available for title generation");
                 return null;
             }
-            String prompt = "Based on this conversation, generate a short title (max 30 Chinese characters):\n"
-                          + "User: " + firstUserMessage + "\n"
-                          + "Assistant: " + firstAiResponse + "\n"
-                          + "Title:";
+            String prompt = String.format(TITLE_GENERATION_TEMPLATE, firstUserMessage, firstAiResponse);
             ChatResponse response = chatModel.chat(UserMessage.from(prompt));
             String title = response.aiMessage().text();
             if (title != null) {
