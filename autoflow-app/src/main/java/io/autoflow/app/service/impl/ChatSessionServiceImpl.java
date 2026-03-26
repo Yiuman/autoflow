@@ -12,8 +12,6 @@ import io.ola.crud.service.impl.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Slf4j
 @Service
 public class ChatSessionServiceImpl extends BaseService<ChatSession> implements ChatSessionService {
@@ -42,18 +40,19 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
             return;
         }
 
-        List<ChatMessage> messages = chatMessageService.findBySessionId(sessionId);
-        String firstUserMessage = "";
+        ChatMessage userMsg = chatMessageService.findFirstUserMessage(sessionId);
+        if (userMsg == null) {
+            return;
+        }
+
+        String firstUserMessage = userMsg.getContent();
+        String conversationId = userMsg.getConversationId();
         String firstAiResponse = "";
 
-        for (ChatMessage msg : messages) {
-            if ("USER".equals(msg.getRole()) && firstUserMessage.isEmpty()) {
-                firstUserMessage = msg.getContent();
-            } else if ("ASSISTANT".equals(msg.getRole()) && firstAiResponse.isEmpty()) {
-                firstAiResponse = msg.getContent();
-            }
-            if (!firstUserMessage.isEmpty() && !firstAiResponse.isEmpty()) {
-                break;
+        if (conversationId != null) {
+            ChatMessage aiMsg = chatMessageService.findFirstAiMessageByConversationId(conversationId);
+            if (aiMsg != null) {
+                firstAiResponse = aiMsg.getContent();
             }
         }
 

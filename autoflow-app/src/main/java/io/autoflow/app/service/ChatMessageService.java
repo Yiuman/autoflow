@@ -17,5 +17,5 @@ public interface ChatMessageService extends CrudService<ChatMessage> {
 
     ChatMessage findFirstUserMessage(String sessionId);
 
-    ChatMessage findFirstAiMessage(String sessionId);
+    ChatMessage findFirstAiMessageByConversationId(String conversationId);
 }
