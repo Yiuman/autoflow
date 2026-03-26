@@ -1,16 +1,15 @@
 package io.autoflow.agent;
 
 /**
- * Agent engine interface for handling chat conversations.
+ * SPI interface for agent implementations.
  */
 public interface AgentEngine {
 
     /**
-     * Send a chat message to the agent.
+     * Run a chat turn with the agent.
      *
-     * @param sessionId the session identifier
-     * @param input     the user input message
-     * @param listener  callback for streaming events
+     * @param request  the chat request containing input and history
+     * @param listener callback for streaming events
      */
-    void chat(String sessionId, String input, StreamListener listener);
+    void chat(ChatRequest request, StreamListener listener);
 }

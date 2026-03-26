@@ -13,9 +13,25 @@ public interface ChatMessageService extends CrudService<ChatMessage> {
                 .eq(ChatMessage::getSessionId, sessionId));
     }
 
-    void upsertMessage(String id, String sessionId, String role, String content, String thinkingContent, String status);
+    default ChatMessage findFirstUserMessage(String sessionId) {
+        return get(
+                QueryWrapper.create()
+                        .eq(ChatMessage::getSessionId, sessionId)
+                        .eq(ChatMessage::getRole, "USER")
+                        .orderBy(ChatMessage::getCreateTime)
+                        .asc()
+        );
 
-    ChatMessage findFirstUserMessage(String sessionId);
+    }
 
-    List<ChatMessage> findAiMessagesByConversationId(String conversationId);
+    default List<ChatMessage> findAiMessagesByConversationId(String conversationId) {
+        return list(
+                QueryWrapper.create()
+                        .eq(ChatMessage::getConversationId, conversationId)
+                        .eq(ChatMessage::getRole, "ASSISTANT")
+                        .orderBy(ChatMessage::getCreateTime)
+                        .asc()
+        );
+    }
+
 }

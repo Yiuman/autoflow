@@ -1,5 +1,6 @@
 package io.autoflow.app.listener;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.agent.StreamListener;
 import io.autoflow.app.model.ChatMessage;
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Bridges StreamListener callbacks from ReActAgent to SSE events.
@@ -105,13 +105,6 @@ public class ChatStreamListener implements StreamListener {
 
             ChatSession session = chatSessionService.get(sessionId);
             if (session != null) {
-                // Generate title asynchronously if not exists
-                if (session.getTitle() == null) {
-                    CompletableFuture.runAsync(() -> {
-                        chatSessionService.generateTitle(sessionId);
-                        log.info("Title generation triggered for session: {}", sessionId);
-                    });
-                }
                 session.setStatus("COMPLETED");
                 chatSessionService.save(session);
             }
@@ -120,6 +113,7 @@ public class ChatStreamListener implements StreamListener {
                     .type(SSEEventType.COMPLETE.getValue())
                     .content(fullOutput)
                     .build());
+            ThreadUtil.execute(() -> chatSessionService.generateTitle(sessionId));
         } catch (Exception e) {
             log.error("Failed to save AI message on complete: {}", e.getMessage(), e);
             sendEvent(SSEEventType.ERROR, AgentSSEEvent.builder()

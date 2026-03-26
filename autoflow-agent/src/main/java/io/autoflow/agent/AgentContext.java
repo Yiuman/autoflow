@@ -6,25 +6,28 @@ import io.autoflow.spi.model.ChatMessage;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Agent context holding conversation state for a session.
+ * Runtime state for a single ReAct loop execution.
+ * Not persisted across requests - the caller manages history.
  */
 @Data
 public class AgentContext {
 
-    private String sessionId;
     private String systemPrompt;
     private List<ChatMessage> messages = new ArrayList<>();
-    private Map<String, Object> variables = new HashMap<>();
     private int stepCount = 0;
     private List<ToolSpecification> toolSpecifications;
 
-    public AgentContext(String sessionId) {
-        this.sessionId = sessionId;
+    public static AgentContext from(ChatRequest request) {
+        AgentContext context = new AgentContext();
+        if (request.getHistory() != null) {
+            context.messages.addAll(request.getHistory());
+        }
+        context.addUserMessage(request.getInput());
+        context.systemPrompt = request.getSystemPrompt();
+        return context;
     }
 
     public void addUserMessage(String content) {
@@ -41,18 +44,7 @@ public class AgentContext {
         messages.add(message);
     }
 
-    public ChatMessage getLastUserMessage() {
-        for (int i = messages.size() - 1; i >= 0; i--) {
-            ChatMessage msg = messages.get(i);
-            if (msg.getType() == MessageType.USER) {
-                return msg;
-            }
-        }
-        return null;
-    }
-
     public void incrementStep() {
         stepCount++;
     }
-
 }

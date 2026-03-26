@@ -14,7 +14,6 @@ import io.autoflow.agent.NodeExecutor;
 import io.autoflow.agent.executor.NodeExecutorImpl;
 import io.autoflow.agent.ToolRegistry;
 import io.autoflow.agent.tool.ToolRegistryImpl;
-import io.autoflow.app.repository.DatabaseMemoryStore;
 import io.autoflow.app.service.ModelService;
 import io.autoflow.app.service.PropertyDeserializer;
 import io.autoflow.spi.model.Property;
@@ -98,10 +97,9 @@ public class BeanConfig {
 
     @Bean
     public ReActAgent reActAgent(OpenAiStreamingChatModel chatModel, ToolRegistry toolRegistry,
-                                 NodeExecutor nodeExecutor, DatabaseMemoryStore memoryStore) {
+                                 NodeExecutor nodeExecutor) {
         return ReActAgent.builder()
                 .chatModel(chatModel)
-                .memoryStore(memoryStore)
                 .toolRegistry(toolRegistry)
                 .nodeExecutor(nodeExecutor)
                 .maxSteps(10)

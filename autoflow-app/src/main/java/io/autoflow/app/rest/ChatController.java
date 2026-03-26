@@ -1,6 +1,7 @@
 package io.autoflow.app.rest;
 
 import dev.langchain4j.model.chat.StreamingChatModel;
+import io.autoflow.agent.ChatRequest;
 import io.autoflow.agent.ReActAgent;
 import io.autoflow.app.config.ModelRegistry;
 import io.autoflow.app.listener.ChatStreamListener;
@@ -9,6 +10,7 @@ import io.autoflow.app.model.ChatMessage;
 import io.autoflow.app.model.sse.AgentSSEEvent;
 import io.autoflow.app.service.ChatMessageService;
 import io.autoflow.app.service.ChatSessionService;
+import io.autoflow.spi.enums.MessageType;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -107,12 +110,30 @@ public class ChatController {
 
         CompletableFuture.runAsync(() -> {
             try {
-                reActAgent.chat(sessionId, input, chatModel, listener);
+                List<io.autoflow.spi.model.ChatMessage> history = loadHistory(sessionId);
+                ChatRequest chatRequest = new ChatRequest(input, history);
+                reActAgent.chat(chatRequest, chatModel, listener);
             } finally {
                 emitter.complete();
                 log.info("Chat session ended: sessionId={}", sessionId);
             }
         });
+    }
+
+    private List<io.autoflow.spi.model.ChatMessage> loadHistory(String sessionId) {
+        return chatMessageService.findBySessionId(sessionId).stream()
+                .filter(msg -> !"ERROR".equals(msg.getRole()))
+                .map(dbMsg -> {
+                    io.autoflow.spi.model.ChatMessage spiMsg = new io.autoflow.spi.model.ChatMessage();
+                    spiMsg.setContent(dbMsg.getContent());
+                    if ("USER".equals(dbMsg.getRole())) {
+                        spiMsg.setType(MessageType.USER);
+                    } else if ("ASSISTANT".equals(dbMsg.getRole())) {
+                        spiMsg.setType(MessageType.ASSISTANT);
+                    }
+                    return spiMsg;
+                })
+                .toList();
     }
 
     private SseEmitter sendErrorAndComplete(String errorMessage) {
