@@ -83,7 +83,7 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
             ChatResponse response = chatModel.chat(UserMessage.from(prompt));
             String title = response.aiMessage().text();
             if (title != null) {
-                title = title.trim();
+                title = title.replaceAll("(?s)<think>.*?</think>", "").trim();
             }
             return title;
         } catch (Exception e) {
