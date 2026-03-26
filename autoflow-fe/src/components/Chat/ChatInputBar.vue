@@ -32,7 +32,7 @@ const modelOptions = ref<SelectOptionData[]>([])
 const modelsLoading = ref(false)
 const modelsError = ref(false)
 
-const currentModelId = computed(() => chatStore.activeSession?.modelId)
+const currentModelId = computed(() => chatStore.activeSession?.modelId || modelOptions.value[0]?.value)
 
 async function loadModels() {
   modelsLoading.value = true
