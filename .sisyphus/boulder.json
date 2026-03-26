@@ -1,11 +1,13 @@
 {
-  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/sse-session-persistence.md",
-  "started_at": "2026-03-24T09:29:20.728Z",
+  "active_plan": "/Users/ganyaowen/codespace/github/autoflow/.sisyphus/plans/chat-dark-theme.md",
+  "started_at": "2026-03-25T10:19:23.428Z",
   "session_ids": [
-    "ses_2e0dafa80ffexeaQnD3V5eE14J",
-    "ses_2e0d1ca9dffefKCD0KArs5NU0K",
-    "ses_2e0cc963cffeoaIIe2iSigCrXz"
+    "ses_2db850c9dffeDVspg192wZL9BL",
+    "ses_2db7de6b8ffeNeH3HGqD59XUkX",
+    "ses_2db7e07f5ffefNXvSuXtnt74Zc",
+    "ses_2db7df767ffeQMc12eSK1TtcCD",
+    "ses_2db7e1b1cffeDKI4pDSfFjdkTv"
   ],
-  "plan_name": "sse-session-persistence",
+  "plan_name": "chat-dark-theme",
   "agent": "atlas"
 }

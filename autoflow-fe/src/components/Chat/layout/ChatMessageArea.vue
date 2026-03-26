@@ -126,10 +126,6 @@ watch(
     flex: 1;
     overflow-y: auto;
     padding: 16px;
-    
-    &::-webkit-scrollbar {
-      display: none;
-    }
   }
   
   .empty-messages {
