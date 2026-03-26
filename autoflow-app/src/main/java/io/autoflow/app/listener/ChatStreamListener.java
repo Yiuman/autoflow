@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Bridges StreamListener callbacks from ReActAgent to SSE events.
@@ -104,6 +105,13 @@ public class ChatStreamListener implements StreamListener {
 
             ChatSession session = chatSessionService.get(sessionId);
             if (session != null) {
+                // Generate title asynchronously if not exists
+                if (session.getTitle() == null) {
+                    CompletableFuture.runAsync(() -> {
+                        chatSessionService.generateTitle(sessionId);
+                        log.info("Title generation triggered for session: {}", sessionId);
+                    });
+                }
                 session.setStatus("COMPLETED");
                 chatSessionService.save(session);
             }

@@ -4,7 +4,9 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import io.autoflow.app.config.ModelRegistry;
+import io.autoflow.app.model.ChatMessage;
 import io.autoflow.app.model.ChatSession;
+import io.autoflow.app.service.ChatMessageService;
 import io.autoflow.app.service.ChatSessionService;
 import io.ola.crud.service.impl.BaseService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,32 +17,47 @@ import org.springframework.stereotype.Service;
 public class ChatSessionServiceImpl extends BaseService<ChatSession> implements ChatSessionService {
 
     private final ModelRegistry modelRegistry;
+    private final ChatMessageService chatMessageService;
 
-    public ChatSessionServiceImpl(ModelRegistry modelRegistry) {
+    public ChatSessionServiceImpl(ModelRegistry modelRegistry, ChatMessageService chatMessageService) {
         this.modelRegistry = modelRegistry;
+        this.chatMessageService = chatMessageService;
     }
 
     @Override
-    public void generateTitle(String sessionId, String firstUserMessage) {
-        String title = generateTitleFromLlm(firstUserMessage);
+    public void generateTitle(String sessionId) {
+        ChatSession session = get(sessionId);
+        if (session == null || session.getTitle() != null) {
+            return;
+        }
+
+        ChatMessage userMsg = chatMessageService.findFirstUserMessage(sessionId);
+        String firstUserMessage = userMsg != null ? userMsg.getContent() : "";
+
+        ChatMessage aiMsg = chatMessageService.findFirstAiMessage(sessionId);
+        String firstAiResponse = aiMsg != null ? aiMsg.getContent() : "";
+
+        String title = generateTitleFromLlm(firstUserMessage, firstAiResponse);
         if (title == null || title.isBlank()) {
             title = getFallbackTitle(firstUserMessage);
         }
-        ChatSession session = get(sessionId);
-        if (session != null) {
-            session.setTitle(title);
-            save(session);
-        }
+
+        session.setTitle(title);
+        save(session);
+        log.info("Title generated for session {}: {}", sessionId, title);
     }
 
-    private String generateTitleFromLlm(String firstUserMessage) {
+    private String generateTitleFromLlm(String firstUserMessage, String firstAiResponse) {
         try {
             ChatModel chatModel = modelRegistry.getDefaultChatModel();
             if (chatModel == null) {
                 log.warn("No ChatModel available for title generation");
                 return null;
             }
-            String prompt = "Given this user message, generate a short title (max 30 Chinese characters) for this chat session. Only return the title, nothing else. Message: '" + firstUserMessage + "' Title:";
+            String prompt = "Based on this conversation, generate a short title (max 30 Chinese characters):\n"
+                          + "User: " + firstUserMessage + "\n"
+                          + "Assistant: " + firstAiResponse + "\n"
+                          + "Title:";
             ChatResponse response = chatModel.chat(UserMessage.from(prompt));
             String title = response.aiMessage().text();
             if (title != null) {

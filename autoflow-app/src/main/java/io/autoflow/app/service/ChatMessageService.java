@@ -14,4 +14,8 @@ public interface ChatMessageService extends CrudService<ChatMessage> {
     }
 
     void upsertMessage(String id, String sessionId, String role, String content, String thinkingContent, String status);
+
+    ChatMessage findFirstUserMessage(String sessionId);
+
+    ChatMessage findFirstAiMessage(String sessionId);
 }

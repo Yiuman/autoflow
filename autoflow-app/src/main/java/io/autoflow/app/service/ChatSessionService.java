@@ -5,5 +5,5 @@ import io.ola.crud.service.CrudService;
 
 public interface ChatSessionService extends CrudService<ChatSession> {
 
-    void generateTitle(String sessionId, String firstUserMessage);
+    void generateTitle(String sessionId);
 }

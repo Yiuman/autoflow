@@ -34,4 +34,24 @@ public class ChatMessageServiceImpl extends BaseService<ChatMessage> implements 
             save(newMsg);
         }
     }
+
+    @Override
+    public ChatMessage findFirstUserMessage(String sessionId) {
+        List<ChatMessage> messages = list(QueryWrapper.create()
+                .eq(ChatMessage::getSessionId, sessionId)
+                .eq(ChatMessage::getRole, "USER")
+                .orderBy("create_time", true)
+                .limit(1));
+        return messages.isEmpty() ? null : messages.get(0);
+    }
+
+    @Override
+    public ChatMessage findFirstAiMessage(String sessionId) {
+        List<ChatMessage> messages = list(QueryWrapper.create()
+                .eq(ChatMessage::getSessionId, sessionId)
+                .eq(ChatMessage::getRole, "ASSISTANT")
+                .orderBy("create_time", true)
+                .limit(1));
+        return messages.isEmpty() ? null : messages.get(0);
+    }
 }
