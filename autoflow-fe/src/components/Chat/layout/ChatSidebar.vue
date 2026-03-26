@@ -99,6 +99,7 @@ function deleteSession(sessionId: string) {
     .sidebar-title {
       font-weight: 600;
       font-size: 14px;
+      color: var(--color-text-1);
     }
   }
   
@@ -140,6 +141,7 @@ function deleteSession(sessionId: string) {
       text-overflow: ellipsis;
       white-space: nowrap;
       font-size: 13px;
+      color: var(--color-text-1);
     }
     
     .session-actions {
