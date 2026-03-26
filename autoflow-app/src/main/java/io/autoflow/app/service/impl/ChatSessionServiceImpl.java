@@ -59,7 +59,8 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
                     .collect(Collectors.joining("\n"));
         }
 
-        String title = generateTitleFromLlm(firstUserMessage, firstAiResponse);
+        String modelId = session.getModelId();
+        String title = generateTitleFromLlm(modelId, firstUserMessage, firstAiResponse);
         if (title == null || title.isBlank()) {
             title = getFallbackTitle(firstUserMessage);
         }
@@ -69,11 +70,13 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
         log.info("Title generated for session {}: {}", sessionId, title);
     }
 
-    private String generateTitleFromLlm(String firstUserMessage, String firstAiResponse) {
+    private String generateTitleFromLlm(String modelId, String firstUserMessage, String firstAiResponse) {
         try {
-            ChatModel chatModel = modelRegistry.getDefaultChatModel();
+            ChatModel chatModel = modelId != null
+                    ? modelRegistry.getChatModel(modelId)
+                    : modelRegistry.getDefaultChatModel();
             if (chatModel == null) {
-                log.warn("No ChatModel available for title generation");
+                log.warn("No ChatModel available for title generation, modelId={}", modelId);
                 return null;
             }
             String prompt = String.format(TITLE_GENERATION_TEMPLATE, firstUserMessage, firstAiResponse);
