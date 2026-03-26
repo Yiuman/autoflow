@@ -1,22 +1,29 @@
 package io.autoflow.app.listener;
 
+import cn.hutool.json.JSONUtil;
 import io.autoflow.agent.StreamListener;
 import io.autoflow.app.model.ChatMessage;
 import io.autoflow.app.model.ChatSession;
+import io.autoflow.app.model.ToolCallRecord;
 import io.autoflow.app.model.sse.AgentSSEEvent;
+import io.autoflow.app.model.sse.SSEEventType;
 import io.autoflow.app.service.ChatMessageService;
 import io.autoflow.app.service.ChatSessionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Bridges StreamListener callbacks from ReActAgent to SSE events.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class ChatStreamListener implements StreamListener {
 
     private final SseEmitter sseEmitter;
@@ -24,40 +31,16 @@ public class ChatStreamListener implements StreamListener {
     private final String conversationId;
     private final ChatMessageService chatMessageService;
     private final ChatSessionService chatSessionService;
-
     private final StringBuilder thinkingBuffer = new StringBuilder();
     private final StringBuilder contentBuffer = new StringBuilder();
     private final List<ToolCallRecord> toolCalls = new ArrayList<>();
-
-    private static class ToolCallRecord {
-        String toolId;
-        String toolName;
-        String arguments;
-        String result;
-    }
-
-    public ChatStreamListener(SseEmitter sseEmitter) {
-        this.sseEmitter = sseEmitter;
-        this.sessionId = null;
-        this.conversationId = null;
-        this.chatMessageService = null;
-        this.chatSessionService = null;
-    }
-
-    public ChatStreamListener(SseEmitter sseEmitter, String sessionId, String conversationId,
-                              ChatMessageService chatMessageService, ChatSessionService chatSessionService) {
-        this.sseEmitter = sseEmitter;
-        this.sessionId = sessionId;
-        this.conversationId = conversationId;
-        this.chatMessageService = chatMessageService;
-        this.chatSessionService = chatSessionService;
-    }
+    private final Map<String, ToolCallRecord> toolCallsMap = new LinkedHashMap<>();
 
     @Override
     public void onThinking(String thinking) {
         thinkingBuffer.append(thinking);
-        sendEvent("thinking", AgentSSEEvent.builder()
-                .type("thinking")
+        sendEvent(SSEEventType.THINKING, AgentSSEEvent.builder()
+                .type(SSEEventType.THINKING.getValue())
                 .content(thinking)
                 .build());
     }
@@ -65,8 +48,8 @@ public class ChatStreamListener implements StreamListener {
     @Override
     public void onToken(String token) {
         contentBuffer.append(token);
-        sendEvent("token", AgentSSEEvent.builder()
-                .type("token")
+        sendEvent(SSEEventType.TOKEN, AgentSSEEvent.builder()
+                .type(SSEEventType.TOKEN.getValue())
                 .content(token)
                 .build());
     }
@@ -74,12 +57,13 @@ public class ChatStreamListener implements StreamListener {
     @Override
     public void onToolCallStart(String toolId, String toolName, String arguments) {
         ToolCallRecord record = new ToolCallRecord();
-        record.toolId = toolId;
-        record.toolName = toolName;
-        record.arguments = arguments;
+        record.setToolId(toolId);
+        record.setToolName(toolName);
+        record.setArguments(arguments);
         toolCalls.add(record);
-        sendEvent("tool_start", AgentSSEEvent.builder()
-                .type("tool_start")
+        toolCallsMap.put(toolId, record);
+        sendEvent(SSEEventType.TOOL_START, AgentSSEEvent.builder()
+                .type(SSEEventType.TOOL_START.getValue())
                 .toolId(toolId)
                 .toolName(toolName)
                 .arguments(arguments)
@@ -88,8 +72,12 @@ public class ChatStreamListener implements StreamListener {
 
     @Override
     public void onToolCallEnd(String toolId, String toolName, Object result) {
-        sendEvent("tool_end", AgentSSEEvent.builder()
-                .type("tool_end")
+        ToolCallRecord record = toolCallsMap.get(toolId);
+        if (record != null) {
+            record.setResult(result);
+        }
+        sendEvent(SSEEventType.TOOL_END, AgentSSEEvent.builder()
+                .type(SSEEventType.TOOL_END.getValue())
                 .toolId(toolId)
                 .toolName(toolName)
                 .result(result)
@@ -120,20 +108,21 @@ public class ChatStreamListener implements StreamListener {
                 chatSessionService.save(session);
             }
 
-            sendEvent("complete", AgentSSEEvent.builder()
-                    .type("complete")
+            sendEvent(SSEEventType.COMPLETE, AgentSSEEvent.builder()
+                    .type(SSEEventType.COMPLETE.getValue())
                     .content(fullOutput)
                     .build());
         } catch (Exception e) {
             log.error("Failed to save AI message on complete: {}", e.getMessage(), e);
-            sendEvent("error", AgentSSEEvent.builder()
-                    .type("error")
+            sendEvent(SSEEventType.ERROR, AgentSSEEvent.builder()
+                    .type(SSEEventType.ERROR.getValue())
                     .content("Failed to save message: " + e.getMessage())
                     .build());
         } finally {
             thinkingBuffer.setLength(0);
             contentBuffer.setLength(0);
             toolCalls.clear();
+            toolCallsMap.clear();
         }
     }
 
@@ -152,8 +141,8 @@ public class ChatStreamListener implements StreamListener {
                 chatSessionService.save(session);
             }
 
-            sendEvent("error", AgentSSEEvent.builder()
-                    .type("error")
+            sendEvent(SSEEventType.ERROR, AgentSSEEvent.builder()
+                    .type(SSEEventType.ERROR.getValue())
                     .content(e.getMessage())
                     .build());
         } catch (Exception ex) {
@@ -180,44 +169,24 @@ public class ChatStreamListener implements StreamListener {
             thinkingBuffer.setLength(0);
             contentBuffer.setLength(0);
             toolCalls.clear();
+            toolCallsMap.clear();
         } catch (Exception e) {
             log.error("Failed to save AI message on round complete: {}", e.getMessage(), e);
         }
     }
 
-    private void sendEvent(String eventName, AgentSSEEvent event) {
+    private void sendEvent(SSEEventType eventType, AgentSSEEvent event) {
         try {
             sseEmitter.send(SseEmitter.event()
-                    .name(eventName)
+                    .name(eventType.getValue())
                     .data(event));
         } catch (IOException e) {
-            log.warn("SSE send failed for event {}: {}", eventName, e.getMessage());
+            log.warn("SSE send failed for event {}: {}", eventType, e.getMessage());
         }
     }
-    
+
     private String buildToolCallsJson() {
-        StringBuilder json = new StringBuilder();
-        json.append("{\"toolCalls\":[");
-        for (int i = 0; i < toolCalls.size(); i++) {
-            ToolCallRecord tool = toolCalls.get(i);
-            if (i > 0) json.append(",");
-            json.append("{");
-            json.append("\"toolId\":\"").append(escapeJson(tool.toolId)).append("\",");
-            json.append("\"toolName\":\"").append(escapeJson(tool.toolName)).append("\",");
-            json.append("\"arguments\":\"").append(escapeJson(tool.arguments)).append("\",");
-            json.append("\"result\":\"").append(escapeJson(tool.result != null ? tool.result : "")).append("\"");
-            json.append("}");
-        }
-        json.append("]}");
-        return json.toString();
-    }
-    
-    private String escapeJson(String value) {
-        if (value == null) return "";
-        return value.replace("\\", "\\\\")
-                   .replace("\"", "\\\"")
-                   .replace("\n", "\\n")
-                   .replace("\r", "\\r")
-                   .replace("\t", "\\t");
+        Map<String, Object> wrapper = Map.of("toolCalls", toolCalls);
+        return JSONUtil.toJsonStr(wrapper);
     }
 }
