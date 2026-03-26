@@ -58,6 +58,12 @@ async function loadModels() {
       if (chatStore.activeSessionId) {
         chatStore.updateSession(chatStore.activeSessionId, { modelId: modelIdToSelect })
       }
+      // Save to localStorage so that createSession will pick it up
+      try {
+        localStorage.setItem('lastUsedModelId', modelIdToSelect)
+      } catch (e) {
+        // localStorage not available
+      }
     }
   } catch (e) {
     modelsError.value = true
