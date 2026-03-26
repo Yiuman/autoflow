@@ -64,12 +64,13 @@ public class ChatController {
         String sessionId = request.getSessionId();
         String conversationId = UUID.randomUUID().toString().replace("-", "");
         String input = request.getInput();
+        List<io.autoflow.spi.model.ChatMessage> history = loadHistory(sessionId);
         ChatMessage userMessage = createUserMessage(sessionId, conversationId, input);
         chatMessageService.save(userMessage);
 
         SseEmitter streamingEmitter = new SseEmitter(Long.MAX_VALUE);
         StreamingChatModel chatModel = resolveChatModel(request.getModelId());
-        runAsyncChat(sessionId, conversationId, input, chatModel, streamingEmitter);
+        runAsyncChat(sessionId, conversationId, input, chatModel, streamingEmitter, history);
 
         return streamingEmitter;
     }
@@ -105,12 +106,12 @@ public class ChatController {
         return chatModel;
     }
 
-    private void runAsyncChat(String sessionId, String conversationId, String input, StreamingChatModel chatModel, SseEmitter emitter) {
+    private void runAsyncChat(String sessionId, String conversationId, String input, StreamingChatModel chatModel, SseEmitter emitter,
+                              List<io.autoflow.spi.model.ChatMessage> history) {
         ChatStreamListener listener = new ChatStreamListener(emitter, sessionId, conversationId, chatMessageService, chatSessionService);
 
         CompletableFuture.runAsync(() -> {
             try {
-                List<io.autoflow.spi.model.ChatMessage> history = loadHistory(sessionId);
                 ChatRequest chatRequest = new ChatRequest(input, history);
                 reActAgent.chat(chatRequest, chatModel, listener);
             } finally {
