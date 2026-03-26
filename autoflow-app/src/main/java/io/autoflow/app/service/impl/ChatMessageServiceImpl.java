@@ -46,12 +46,10 @@ public class ChatMessageServiceImpl extends BaseService<ChatMessage> implements 
     }
 
     @Override
-    public ChatMessage findFirstAiMessageByConversationId(String conversationId) {
-        List<ChatMessage> messages = list(QueryWrapper.create()
+    public List<ChatMessage> findAiMessagesByConversationId(String conversationId) {
+        return list(QueryWrapper.create()
                 .eq(ChatMessage::getConversationId, conversationId)
                 .eq(ChatMessage::getRole, "ASSISTANT")
-                .orderBy("create_time", true)
-                .limit(1));
-        return messages.isEmpty() ? null : messages.get(0);
+                .orderBy("create_time", true));
     }
 }

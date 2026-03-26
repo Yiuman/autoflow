@@ -12,6 +12,9 @@ import io.ola.crud.service.impl.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class ChatSessionServiceImpl extends BaseService<ChatSession> implements ChatSessionService {
@@ -50,10 +53,10 @@ public class ChatSessionServiceImpl extends BaseService<ChatSession> implements 
         String firstAiResponse = "";
 
         if (conversationId != null) {
-            ChatMessage aiMsg = chatMessageService.findFirstAiMessageByConversationId(conversationId);
-            if (aiMsg != null) {
-                firstAiResponse = aiMsg.getContent();
-            }
+            List<ChatMessage> aiMessages = chatMessageService.findAiMessagesByConversationId(conversationId);
+            firstAiResponse = aiMessages.stream()
+                    .map(ChatMessage::getContent)
+                    .collect(Collectors.joining("\n"));
         }
 
         String title = generateTitleFromLlm(firstUserMessage, firstAiResponse);
