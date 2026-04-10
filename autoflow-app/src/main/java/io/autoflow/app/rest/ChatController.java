@@ -1,5 +1,7 @@
 package io.autoflow.app.rest;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import io.autoflow.agent.ChatRequest;
 import io.autoflow.agent.ReActAgent;
@@ -7,10 +9,16 @@ import io.autoflow.app.config.ModelRegistry;
 import io.autoflow.app.listener.ChatStreamListener;
 import io.autoflow.app.model.AgentChatRequest;
 import io.autoflow.app.model.ChatMessage;
+import io.autoflow.app.model.FileResourceStream;
 import io.autoflow.app.model.sse.AgentSSEEvent;
 import io.autoflow.app.service.ChatMessageService;
 import io.autoflow.app.service.ChatSessionService;
+import io.autoflow.app.service.FileResourceService;
+import io.autoflow.plugin.textextractor.TextExtractParameter;
+import io.autoflow.plugin.textextractor.TextExtractResult;
+import io.autoflow.plugin.textextractor.TextExtractor;
 import io.autoflow.spi.enums.MessageType;
+import io.autoflow.spi.model.FileData;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,13 +45,16 @@ public class ChatController {
     private final ModelRegistry modelRegistry;
     private final ChatMessageService chatMessageService;
     private final ChatSessionService chatSessionService;
+    private final FileResourceService fileResourceService;
 
     public ChatController(ReActAgent reActAgent, ModelRegistry modelRegistry,
-                          ChatMessageService chatMessageService, ChatSessionService chatSessionService) {
+                          ChatMessageService chatMessageService, ChatSessionService chatSessionService,
+                          FileResourceService fileResourceService) {
         this.reActAgent = reActAgent;
         this.modelRegistry = modelRegistry;
         this.chatMessageService = chatMessageService;
         this.chatSessionService = chatSessionService;
+        this.fileResourceService = fileResourceService;
     }
 
     private static final String ERROR_TYPE = "error";
@@ -64,13 +77,21 @@ public class ChatController {
         String sessionId = request.getSessionId();
         String conversationId = UUID.randomUUID().toString().replace("-", "");
         String input = request.getInput();
-        List<io.autoflow.spi.model.ChatMessage> history = loadHistory(sessionId);
-        ChatMessage userMessage = createUserMessage(sessionId, conversationId, input);
+        List<String> fileIds = request.getFileIds();
+
+        // Save user message with original input and fileIds in metadata (for display)
+        ChatMessage userMessage = createUserMessage(sessionId, conversationId, input, fileIds);
         chatMessageService.save(userMessage);
+
+        // Load history and enrich with file contents for agent context
+        List<io.autoflow.spi.model.ChatMessage> history = loadHistory(sessionId);
+
+        // Enrich current input with file contents for this turn
+        String enrichedInput = enrichInputWithFiles(input, fileIds);
 
         SseEmitter streamingEmitter = new SseEmitter(Long.MAX_VALUE);
         StreamingChatModel chatModel = resolveChatModel(request.getModelId());
-        runAsyncChat(sessionId, conversationId, input, chatModel, streamingEmitter, history);
+        runAsyncChat(sessionId, conversationId, enrichedInput, chatModel, streamingEmitter, history);
 
         return streamingEmitter;
     }
@@ -91,12 +112,72 @@ public class ChatController {
         return null;
     }
 
-    private ChatMessage createUserMessage(String sessionId, String conversationId, String content) {
+    /**
+     * Enriches the input text with content extracted from attached files.
+     *
+     * @param input the original input text
+     * @param fileIds list of file IDs to extract text from
+     * @return enriched input with file contents appended
+     */
+    private String enrichInputWithFiles(String input, List<String> fileIds) {
+        if (CollUtil.isEmpty(fileIds)) {
+            return input;
+        }
+
+        List<String> fileContents = new ArrayList<>();
+        TextExtractor textExtractor = new TextExtractor();
+
+        for (String fileId : fileIds) {
+            try {
+                FileResourceStream fileStream = fileResourceService.download(fileId);
+                FileData fileData = new FileData(fileStream.getFilename(), fileStream.getBytes());
+                TextExtractParameter param = new TextExtractParameter();
+                param.setFile(fileData);
+                TextExtractResult result = textExtractor.execute(param);
+                if (StrUtil.isNotBlank(result.getText())) {
+                    fileContents.add(StrUtil.format("--- File: {} ---\n{}\n", fileStream.getFilename(), result.getText()));
+                }
+                log.info("Extracted text from file: fileId={}, filename={}", fileId, fileStream.getFilename());
+            } catch (Exception e) {
+                log.warn("Failed to extract text from file: fileId={}, error={}", fileId, e.getMessage());
+            }
+        }
+
+        if (fileContents.isEmpty()) {
+            return input;
+        }
+
+        return input + "\n\n" + String.join("\n", fileContents);
+    }
+
+    private ChatMessage createUserMessage(String sessionId, String conversationId, String content, List<String> fileIds) {
         ChatMessage message = new ChatMessage();
         message.setSessionId(sessionId);
         message.setConversationId(conversationId);
         message.setRole("USER");
         message.setContent(content);
+        if (CollUtil.isNotEmpty(fileIds)) {
+            Map<String, Object> metadata = new java.util.HashMap<>();
+            metadata.put("fileIds", fileIds);
+            // Enrich with file info for display
+            Map<String, Map<String, Object>> filesInfo = new java.util.HashMap<>();
+            for (String fileId : fileIds) {
+                try {
+                    io.autoflow.app.model.FileResource fileResource = fileResourceService.getInfo(fileId);
+                    if (fileResource != null) {
+                        Map<String, Object> fileInfo = new java.util.HashMap<>();
+                        fileInfo.put("name", fileResource.getFilename());
+                        fileInfo.put("size", fileResource.getSize());
+                        fileInfo.put("mimeType", fileResource.getContentType());
+                        filesInfo.put(fileId, fileInfo);
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to get file info: fileId={}", fileId, e);
+                }
+            }
+            metadata.put("files", filesInfo);
+            message.setMetadata(cn.hutool.json.JSONUtil.toJsonStr(metadata));
+        }
         return message;
     }
 
@@ -126,7 +207,20 @@ public class ChatController {
                 .filter(msg -> !"ERROR".equals(msg.getRole()))
                 .map(dbMsg -> {
                     io.autoflow.spi.model.ChatMessage spiMsg = new io.autoflow.spi.model.ChatMessage();
-                    spiMsg.setContent(dbMsg.getContent());
+                    String content = dbMsg.getContent();
+                    // Enrich USER messages that have fileIds in metadata
+                    if ("USER".equals(dbMsg.getRole()) && StrUtil.isNotBlank(dbMsg.getMetadata())) {
+                        try {
+                            cn.hutool.json.JSONObject metaJson = cn.hutool.json.JSONUtil.parseObj(dbMsg.getMetadata());
+                            List<String> metaFileIds = metaJson.getBeanList("fileIds", String.class);
+                            if (CollUtil.isNotEmpty(metaFileIds)) {
+                                content = enrichInputWithFiles(content, metaFileIds);
+                            }
+                        } catch (Exception e) {
+                            log.warn("Failed to parse metadata for message: {}", dbMsg.getId(), e);
+                        }
+                    }
+                    spiMsg.setContent(content);
                     if ("USER".equals(dbMsg.getRole())) {
                         spiMsg.setType(MessageType.USER);
                     } else if ("ASSISTANT".equals(dbMsg.getRole())) {

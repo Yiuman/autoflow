@@ -43,7 +43,7 @@ export interface ChatSSECallbacks {
   onError?: (message: string) => void
 }
 
-export function chatSSE(input: string, callbacks: ChatSSECallbacks): AbortController {
+export function chatSSE(input: string, callbacks: ChatSSECallbacks, fileIds?: string[]): AbortController {
   const ctrl = new AbortController()
   const url = `${BASE_URL}/chat`
 
@@ -57,9 +57,12 @@ export function chatSSE(input: string, callbacks: ChatSSECallbacks): AbortContro
     return ctrl
   }
 
-  const body: Record<string, string> = { input, sessionId }
+  const body: Record<string, any> = { input, sessionId }
   if (modelId) {
     body.modelId = modelId
+  }
+  if (fileIds && fileIds.length > 0) {
+    body.fileIds = fileIds
   }
 
   fetchEventSource(url, {

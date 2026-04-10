@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * Agent chat request DTO.
  *
@@ -20,10 +22,16 @@ public class AgentChatRequest {
     @NotBlank
     @Size(max = 8192)
     private String input;
-    
+
     /**
      * Optional model ID to use for this chat session.
      * If null, the default model will be used.
      */
     private String modelId;
+
+    /**
+     * Optional file IDs to attach to this chat request.
+     * Files will be extracted as text and appended to the input.
+     */
+    private List<String> fileIds;
 }

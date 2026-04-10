@@ -6,6 +6,7 @@ import ThinkingBlockComponent from '@/components/Chat/blocks/ThinkingBlock.vue'
 import ToolBlockComponent from '@/components/Chat/blocks/ToolBlock.vue'
 import MainTextBlockComponent from '@/components/Chat/blocks/MainTextBlock.vue'
 import ErrorBlockComponent from '@/components/Chat/blocks/ErrorBlock.vue'
+import FileBlockComponent from '@/components/Chat/blocks/FileBlock.vue'
 
 interface Props {
   message: Message
@@ -48,6 +49,8 @@ function getBlockComponent(block: MessageBlock) {
       return ToolBlockComponent
     case MessageBlockType.ERROR:
       return ErrorBlockComponent
+    case MessageBlockType.FILE:
+      return FileBlockComponent
     case MessageBlockType.MAIN_TEXT:
     default:
       return MainTextBlockComponent

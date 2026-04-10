@@ -167,20 +167,53 @@ export const useChatStore = defineStore('chat', {
             const thinkingContent = msg.thinkingContent
             
             if (role === 'USER') {
-              this.blockSequence++
-              const blockId = uuid(8, true)
-              const blockEntity: MessageBlock = {
-                id: blockId,
-                messageId: messageId,
-                type: MessageBlockType.MAIN_TEXT,
-                status: MessageBlockStatus.SUCCESS,
-                content: content,
-                createdAt: messageEntity.createdAt,
-                sequence: this.blockSequence
-              } as MessageBlock
-              
-              this.blockEntities[blockId] = blockEntity
-              messageEntity.blocks.push(blockId)
+              // Add MAIN_TEXT block for content
+              if (content) {
+                this.blockSequence++
+                const blockId = uuid(8, true)
+                const blockEntity: MessageBlock = {
+                  id: blockId,
+                  messageId: messageId,
+                  type: MessageBlockType.MAIN_TEXT,
+                  status: MessageBlockStatus.SUCCESS,
+                  content: content,
+                  createdAt: messageEntity.createdAt,
+                  sequence: this.blockSequence
+                } as MessageBlock
+
+                this.blockEntities[blockId] = blockEntity
+                messageEntity.blocks.push(blockId)
+              }
+
+              // Add FILE blocks for attachments from metadata
+              if (msg.metadata) {
+                try {
+                  const metadata = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : msg.metadata
+                  if (metadata.fileIds && Array.isArray(metadata.fileIds)) {
+                    for (const fileId of metadata.fileIds) {
+                      this.blockSequence++
+                      const fileBlockId = uuid(8, true)
+                      const fileBlockEntity: MessageBlock = {
+                        id: fileBlockId,
+                        messageId: messageId,
+                        type: MessageBlockType.FILE,
+                        status: MessageBlockStatus.SUCCESS,
+                        fileId: fileId,
+                        name: metadata.fileNames?.[fileId] || fileId,
+                        size: metadata.fileSizes?.[fileId] || 0,
+                        mimeType: metadata.fileMimeTypes?.[fileId],
+                        createdAt: messageEntity.createdAt,
+                        sequence: this.blockSequence
+                      } as MessageBlock
+
+                      this.blockEntities[fileBlockId] = fileBlockEntity
+                      messageEntity.blocks.push(fileBlockId)
+                    }
+                  }
+                } catch (e) {
+                  console.error('Failed to parse metadata.fileIds:', e)
+                }
+              }
             } else if (role === 'ASSISTANT') {
               if (thinkingContent) {
                 this.blockSequence++

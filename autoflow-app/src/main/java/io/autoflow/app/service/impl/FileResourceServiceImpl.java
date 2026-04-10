@@ -33,7 +33,7 @@ public class FileResourceServiceImpl extends BaseService<FileResource> implement
         FileResource fileResource = get(id);
         Downloader download = fileStorageService.download(new FileInfo()
                 .setPlatform(fileResource.getPlatform())
-                .setUrl(fileResource.getPath()));
+                .setFilename(fileResource.getPath()));
         FileResourceStream fileResourceStream = FlowMapper.INSTANCE.toFileResourceStream(fileResource);
         fileResourceStream.setBytes(download.bytes());
         return fileResourceStream;
@@ -44,8 +44,13 @@ public class FileResourceServiceImpl extends BaseService<FileResource> implement
         FileResource fileResource = get(id);
         fileStorageService.delete(new FileInfo()
                 .setPlatform(fileResource.getPlatform())
-                .setUrl(fileResource.getPath()));
+                .setFilename(fileResource.getPath()));
         delete(id);
+    }
+
+    @Override
+    public FileResource getInfo(String id) {
+        return get(id);
     }
 
     private FileResource toFileResource(FileInfo fileInfo) {

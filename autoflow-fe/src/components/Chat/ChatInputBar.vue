@@ -10,6 +10,7 @@ import InputbarTools from './components/InputbarTools.vue'
 import { uuid } from '@/utils/util-func'
 import { chatSSE } from '@/api/chat'
 import { fetchModels } from '@/api/model'
+import request from '@/utils/request'
 import type { SelectOptionData } from '@arco-design/web-vue/es/select'
 
 const chatStore = useChatStore()
@@ -152,7 +153,8 @@ function handleFiles(fileList: File[]) {
       path: (file as any).path || file.name,
       size: file.size,
       ext: '.' + file.name.split('.').pop()?.toLowerCase(),
-      mimeType: file.type
+      mimeType: file.type,
+      file: file
     }
     chatStore.addFile(fileMeta)
   }
@@ -267,6 +269,10 @@ async function sendMessage() {
     chatStore.setActiveSession(sessionId)
   }
 
+  // Save files from store before clearing
+  const files = [...chatStore.files]
+
+  // Create user message first
   const userMsg = chatStore.addMessage(sessionId, {
     role: 'user',
     status: 'done'
@@ -279,6 +285,34 @@ async function sendMessage() {
       content: text,
       status: MessageBlockStatus.SUCCESS
     })
+  }
+
+  // Upload files and add FILE blocks
+  const fileIds: string[] = []
+  for (const fileMeta of files) {
+    if (fileMeta.file) {
+      try {
+        const res = await request.uploadFile<{ data: string }>('/files/upload', {
+          file: fileMeta.file,
+          name: 'file'
+        })
+        // Response is { code: 0, data: "fileId", msg: "ok" }
+        const fileId = (res as any)?.data
+        if (fileId) {
+          fileIds.push(fileId)
+          chatStore.addBlock(userMsg.id, {
+            type: MessageBlockType.FILE,
+            fileId: fileId,
+            name: fileMeta.name,
+            size: fileMeta.size,
+            mimeType: fileMeta.mimeType,
+            status: MessageBlockStatus.SUCCESS
+          } as any)
+        }
+      } catch (e) {
+        console.error('Failed to upload file:', fileMeta.name, e)
+      }
+    }
   }
 
   const assistantMsg = chatStore.createStreamingMessage(sessionId, 'assistant')
@@ -367,7 +401,7 @@ async function sendMessage() {
       } as any)
       chatStore.completeStreaming('error')
     }
-  })
+  }, fileIds)
 }
 
 function clearInput() {

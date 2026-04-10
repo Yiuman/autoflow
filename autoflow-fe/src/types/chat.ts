@@ -90,8 +90,17 @@ export interface ErrorBlock extends BaseMessageBlock {
   }
 }
 
+// FileBlock
+export interface FileBlock extends BaseMessageBlock {
+  type: MessageBlockType.FILE
+  fileId: string
+  name: string
+  size: number
+  mimeType?: string
+}
+
 // Union type for all block types
-export type MessageBlock = MainTextBlock | ThinkingBlock | ToolMessageBlock | ErrorBlock
+export type MessageBlock = MainTextBlock | ThinkingBlock | ToolMessageBlock | ErrorBlock | FileBlock
 
 // Message interface
 export interface Message {
@@ -146,6 +155,7 @@ export interface FileMetadata {
   type?: string
   ext?: string
   mimeType?: string
+  file?: File
 }
 
 // InputBarToolType for toolbar tools

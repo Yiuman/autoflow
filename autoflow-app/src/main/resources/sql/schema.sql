@@ -148,3 +148,19 @@ CREATE TABLE IF NOT EXISTS af_chat_message
 );
 
 CREATE INDEX IF NOT EXISTS idx_message_session ON af_chat_message (session_id);
+
+-- File Resource
+CREATE TABLE IF NOT EXISTS af_file
+(
+    id            VARCHAR(32) PRIMARY KEY,
+    filename      VARCHAR(255),
+    size          BIGINT,
+    path          VARCHAR(512),
+    metadata      TEXT,
+    platform      VARCHAR(64),
+    content_type  VARCHAR(128),
+    creator       VARCHAR(32),
+    last_modifier VARCHAR(32),
+    create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

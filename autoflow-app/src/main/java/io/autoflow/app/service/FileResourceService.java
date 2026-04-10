@@ -15,4 +15,6 @@ public interface FileResourceService {
     FileResourceStream download(String id);
 
     void remove(String id);
+
+    FileResource getInfo(String id);
 }
