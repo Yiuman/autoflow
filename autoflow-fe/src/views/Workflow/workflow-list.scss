@@ -56,7 +56,7 @@
 
 .workflow-list {
   display: grid;
-  grid-gap: 20px;
+  gap: 20px;
   padding: 20px 0;
   grid-template-columns: repeat(auto-fill, 275px); // 自动填充一行的卡片个数
 
@@ -64,6 +64,7 @@
     border-radius: 5px;
     border: none;
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 
     &:hover {
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -87,7 +88,18 @@
   .workflow-card-item {
     overflow: hidden;
     height: 190px;
+    opacity: 0;
+    animation: cardFadeIn 0.3s ease-out forwards;
   }
+
+  // Stagger delays for card animations (skip first which is add-card)
+  .workflow-list > .workflow-card-item:nth-child(2) { animation-delay: 0ms; }
+  .workflow-list > .workflow-card-item:nth-child(3) { animation-delay: 40ms; }
+  .workflow-list > .workflow-card-item:nth-child(4) { animation-delay: 80ms; }
+  .workflow-list > .workflow-card-item:nth-child(5) { animation-delay: 120ms; }
+  .workflow-list > .workflow-card-item:nth-child(6) { animation-delay: 160ms; }
+  .workflow-list > .workflow-card-item:nth-child(7) { animation-delay: 200ms; }
+  .workflow-list > .workflow-card-item:nth-child(8) { animation-delay: 240ms; }
 
   .workflow-add-btn {
     align-items: center;
@@ -110,10 +122,18 @@
 
   :global(.upload-workflow-modal-body) {
     padding: 5px !important;
-    //height: 150px !important;
   }
+}
 
-
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .upload-workflow-draggable {

@@ -11,6 +11,7 @@ import useTheme from '@/hooks/theme'
 import { IconFont } from '@/hooks/iconfont'
 import { I18N } from '@/locales/i18n'
 import I18nSwitch from '@/components/I18nSwitch/I18nSwitch.vue'
+import PageTransition from '@/components/PageTransition/PageTransition.vue'
 
 const [collapsed, toggleCollapsed] = useToggle(true)
 
@@ -127,7 +128,9 @@ function handleMenuClick(key: string) {
       </div>
 
       <ALayoutContent>
-        <RouterView />
+        <PageTransition>
+          <RouterView />
+        </PageTransition>
       </ALayoutContent>
     </ALayout>
   </ALayout>
@@ -135,4 +138,25 @@ function handleMenuClick(key: string) {
 
 <style lang="scss" scoped>
 @use 'home-view';
+</style>
+
+<style>
+/* Page transition animations - only affects content area */
+.page-transition-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.page-transition-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.page-transition-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.page-transition-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
 </style>

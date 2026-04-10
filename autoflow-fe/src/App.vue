@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import {RouterView} from 'vue-router'
 import {useServiceStore} from '@/stores/service' //初始化数据
 import {arcoLocale} from '@/locales/i18n'
+import '@/assets/main.css'
+import LoadingAnimator from '@/components/LoadingAnimator/LoadingAnimator.vue'
 
 const [initialized, toggleInitialized] = useToggle(false)
+
 onBeforeMount(async () => {
   //初始化数据
   const serviceStore = useServiceStore()
@@ -14,23 +16,18 @@ onBeforeMount(async () => {
 
 <template>
   <AConfigProvider :global="true" :locale="arcoLocale">
-    <ALayout class="layout">
-      <ASpin :loading="!initialized" class="layout-spin" dot>
-        <ALayoutContent v-if="initialized">
-          <RouterView/>
+    <LoadingAnimator :is-loading="!initialized">
+      <ALayout class="layout">
+        <ALayoutContent>
+          <RouterView />
         </ALayoutContent>
-      </ASpin>
-    </ALayout>
+      </ALayout>
+    </LoadingAnimator>
   </AConfigProvider>
 </template>
 
-<style lang="scss" scoped>
-@import "./assets/main.css";
+<style scoped>
 .layout {
   height: 100%;
-
-  .layout-spin {
-    height: 100%;
-  }
 }
 </style>

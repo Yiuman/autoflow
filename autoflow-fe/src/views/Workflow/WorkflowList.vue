@@ -10,7 +10,6 @@ import TagSelector from '@/components/TagSelector/TagSelector.vue'
 import { useRouter } from 'vue-router'
 import { downloadByData } from '@/utils/download'
 import { debounce } from 'lodash'
-import useDelayedLoading from '@/hooks/delayLoading'
 import { I18N } from '@/locales/i18n'
 
 const iconfontUrl = new URL('/src/assets/iconfont.js', import.meta.url).href
@@ -130,7 +129,6 @@ async function saveUploadWorkflow(cover: boolean) {
   fetch()
 }
 
-const delayLoading = useDelayedLoading(loading)
 </script>
 
 <template>
@@ -147,8 +145,7 @@ const delayLoading = useDelayedLoading(loading)
         :placeholder="I18N('workflow.list.form.label.placeholder', 'select tag')"
       />
     </div>
-    <ASpin :loading="delayLoading" dot>
-      <div class="workflow-list">
+    <div class="workflow-list">
         <ACard
           :bordered="false"
           :title="I18N('workflow.list.createNewWorkflow', 'Create a new workflow')"
@@ -343,7 +340,6 @@ const delayLoading = useDelayedLoading(loading)
           </template>
         </AModal>
       </div>
-    </ASpin>
 
     <APagination
       v-model:current="queryObj.pageNumber"
