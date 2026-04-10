@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import useCRUD, { type CrudProps } from '@/hooks/crud'
-import { computed } from 'vue'
-import useDelayedLoading from '@/hooks/delayLoading'
+import { computed, ref, watch } from 'vue'
 
 interface CrudCmpProps extends CrudProps {
   rowKey?: string
@@ -31,28 +30,46 @@ const slotColumns = computed(() => {
     .map((column) => column.slotName as string)
 })
 
-const spinLoading = useDelayedLoading(loading)
+const tableVisible = ref(false)
+watch(
+  () => loading.value,
+  (isLoading) => {
+    if (!isLoading && pageRecord.value.records.length > 0) {
+      tableVisible.value = true
+    }
+  }
+)
 </script>
 <template>
   <div class="crud">
-    <ASpin :loading="spinLoading" class="curd-table-spin" dot>
-      <ATable
-        :bordered="true"
-        :columns="columns as []"
-        :data="pageRecord.records"
-        :pagination="pagination"
-        :row-key="rowKey as string"
-        :scrollbar="true"
-        column-resizable
-        size="large"
-        @page-change="pageChange"
-      >
-        <template v-for="slotColumn in slotColumns" :key="slotColumn" #[slotColumn]="{ record }">
-          <slot :name="slotColumn" :record="record" />
-        </template>
-      </ATable>
+    <ASpin :loading="loading && !tableVisible" class="curd-table-spin" dot>
+      <Transition name="fade">
+        <ATable
+          v-if="tableVisible"
+          :bordered="true"
+          :columns="columns as []"
+          :data="pageRecord.records"
+          :pagination="pagination"
+          :row-key="rowKey as string"
+          :scrollbar="true"
+          column-resizable
+          size="large"
+          @page-change="pageChange"
+        >
+          <template v-for="slotColumn in slotColumns" :key="slotColumn" #[slotColumn]="{ record }">
+            <slot :name="slotColumn" :record="record" />
+          </template>
+        </ATable>
+      </Transition>
     </ASpin>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.fade-enter-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+}
+</style>

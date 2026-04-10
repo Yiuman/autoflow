@@ -16,7 +16,7 @@ export default function useCRUD(props: CrudProps) {
   const pageRecord = ref<PageRecord<any>>({
     records: [],
     pageNumber: props.queryObject?.pageNumber || 1,
-    pageSize: props.queryObject?.pageNumber || 10
+    pageSize: props.queryObject?.pageSize || 10
   })
   const crudService = computed(() => createCrudRequest(props.uri || ''))
 
@@ -26,7 +26,7 @@ export default function useCRUD(props: CrudProps) {
     ...props.queryObject
   })
 
-  const { loading, toggle: toggleLoading } = useLoading()
+  const { loading, setLoading } = useLoading()
 
   const fetchPageViewData = async () => {
     pageRecord.value = await crudService.value.page({
@@ -36,11 +36,16 @@ export default function useCRUD(props: CrudProps) {
     })
   }
 
-  const fetch = useDebounceFn(async () => {
-    toggleLoading()
-    await fetchPageViewData()
-    toggleLoading()
-  })
+  const doFetch = async () => {
+    setLoading(true)
+    try {
+      await fetchPageViewData()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetch = useDebounceFn(doFetch)
 
   watch(
     () => [crudService.value, pageParams, props.queryObject],
