@@ -177,6 +177,7 @@ const isConnect = ref<boolean>(false)
 const basicEdgeProps = {
   data: {},
   type: 'edge',
+  animated: true,
   markerEnd: {
     type: MarkerType.ArrowClosed
     // color: 'rgba(var(--primary-4))'
@@ -345,6 +346,7 @@ function doParseJson(json: string) {
   }) as VueFlowNode[]
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({
     ...toGraphEdge(connection),
+    animated: true,
     markerEnd: basicEdgeProps.markerEnd,
     style: basicEdgeProps.style
   })) as GraphEdge[]

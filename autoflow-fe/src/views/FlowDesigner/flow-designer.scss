@@ -9,8 +9,8 @@
 }
 
 .vue-flow__node.dark {
-  background: #557;
-  color: #f8f8f8;
+  background: #292524;
+  color: #fffffb;
 }
 
 .vue-flow__node-selectorNode {
@@ -38,7 +38,7 @@
 
 
 .vue-flow-basic.dark {
-  background: #57534e;
+  background: #292524;
   color: #fffffb
 }
 
@@ -127,4 +127,17 @@
   bottom: 0;
   width: 500px !important;
   height: calc(100% - 80px) !important;
+}
+
+.vue-flow__edge.animated {
+  path {
+    stroke-dasharray: 5;
+    animation: dash 0.5s linear infinite;
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
 }
