@@ -21,7 +21,7 @@ export async function createChatSession(modelId?: string): Promise<string> {
 }
 
 export async function getChatSessions(): Promise<ChatSession[]> {
-  const response = await axios.get(`${BASE_URL}/chat/sessions`)
+  const response = await axios.get(`${BASE_URL}/chat/sessions`, { params: { sort: '-createTime' } })
   return response.data.data?.records || []
 }
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
-import { IconSend, IconDelete, IconFaceSmileFill, IconSettings, IconImage, IconFile } from '@arco-design/web-vue/es/icon'
+import { IconSend, IconDelete, IconFile } from '@arco-design/web-vue/es/icon'
 import { MessageBlockType, MessageBlockStatus } from '@/types/chat'
 import type { MainTextBlock, FileMetadata } from '@/types/chat'
 import AttachmentPreview from './components/AttachmentPreview.vue'
@@ -92,14 +92,10 @@ loadModels()
 const supportedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.pdf', '.txt', '.md', '.json', '.doc', '.docx', '.xls', '.xlsx']
 
 const visibleTools = ref([
-  { key: 'image', label: 'Add Image', icon: IconImage, visible: true },
-  { key: 'file', label: 'Add File', icon: IconFile, visible: true },
-  { key: 'emoji', label: 'Emoji', icon: IconFaceSmileFill, visible: true }
+  { key: 'file', label: 'Add File', icon: IconFile, visible: true }
 ])
 
-const hiddenTools = ref([
-  { key: 'settings', label: 'Settings', icon: IconSettings, visible: false }
-])
+const hiddenTools = ref([])
 
 function getTools() {
   return visibleTools.value.filter(t => t.visible)
@@ -117,17 +113,8 @@ function toggleTool(key: string, visible: boolean) {
 }
 
 function handleToolAction(toolKey: string) {
-  switch (toolKey) {
-    case 'image':
-    case 'file':
-      triggerFileInput(toolKey)
-      break
-    case 'emoji':
-      // TODO: Implement emoji picker
-      break
-    case 'settings':
-      // TODO: Implement settings panel
-      break
+  if (toolKey === 'file') {
+    triggerFileInput(toolKey)
   }
 }
 

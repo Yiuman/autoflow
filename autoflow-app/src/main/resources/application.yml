@@ -33,6 +33,11 @@ spring:
           corePoolSize: 10
           maximumPoolSize: 20
           queueCapacity: 2000
+        - threadPoolName: chat_file_extract_pool
+          executorType: eager
+          corePoolSize: 10
+          maximumPoolSize: 20
+          queueCapacity: 2000
 management:
   endpoints:
     web:
