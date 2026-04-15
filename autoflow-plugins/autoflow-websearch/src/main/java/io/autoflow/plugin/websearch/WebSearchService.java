@@ -1,11 +1,14 @@
 package io.autoflow.plugin.websearch;
 
 import io.autoflow.plugin.websearch.constant.SearchResult;
-import io.autoflow.plugin.websearch.provider.DuckDuckGoProvider;
 import io.autoflow.plugin.websearch.model.WebSearchParameter;
 import io.autoflow.plugin.websearch.model.WebSearchResult;
+import io.autoflow.plugin.websearch.provider.DuckDuckGoProvider;
+import io.autoflow.plugin.websearch.provider.TavilyProvider;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.impl.BaseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -17,14 +20,42 @@ import java.util.List;
  */
 public class WebSearchService extends BaseService<WebSearchParameter, WebSearchResult> {
 
+    private static final Logger log = LoggerFactory.getLogger(WebSearchService.class);
+
+    private static final String PROVIDER_TYPE_KEY = "autoflow.websearch.provider";
+    private static final String TAVILY_API_KEY_KEY = "autoflow.websearch.tavily.api-key";
+
+    private static final String PROVIDER_DUCKDUCKGO = "duckduckgo";
+    private static final String PROVIDER_TAVILY = "tavily";
+
     private final WebSearchProvider provider;
 
     public WebSearchService() {
-        this.provider = new DuckDuckGoProvider();
+        this.provider = createProvider();
     }
 
     public WebSearchService(WebSearchProvider provider) {
         this.provider = provider;
+    }
+
+    private WebSearchProvider createProvider() {
+        String providerType = System.getProperty(PROVIDER_TYPE_KEY, PROVIDER_DUCKDUCKGO);
+
+        return switch (providerType.toLowerCase()) {
+            case PROVIDER_TAVILY -> {
+                String apiKey = System.getProperty(TAVILY_API_KEY_KEY);
+                if (apiKey == null || apiKey.isBlank()) {
+                    log.warn("Tavily API key not configured, falling back to DuckDuckGo");
+                    yield new DuckDuckGoProvider();
+                }
+                log.info("Using Tavily web search provider");
+                yield new TavilyProvider(apiKey);
+            }
+            default -> {
+                log.info("Using DuckDuckGo web search provider");
+                yield new DuckDuckGoProvider();
+            }
+        };
     }
 
     @Override

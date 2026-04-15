@@ -24,5 +24,10 @@
             <artifactId>langchain4j-community-web-search-engine-duckduckgo</artifactId>
             <version>${langchain4j-community.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
     </dependencies>
 </project>
