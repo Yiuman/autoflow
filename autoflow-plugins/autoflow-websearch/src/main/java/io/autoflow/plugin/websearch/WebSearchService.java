@@ -1,6 +1,7 @@
 package io.autoflow.plugin.websearch;
 
 import io.autoflow.plugin.websearch.constant.SearchResult;
+import io.autoflow.plugin.websearch.provider.DuckDuckGoProvider;
 import io.autoflow.plugin.websearch.model.WebSearchParameter;
 import io.autoflow.plugin.websearch.model.WebSearchResult;
 import io.autoflow.spi.context.ExecutionContext;
