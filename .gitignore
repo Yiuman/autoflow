@@ -40,3 +40,6 @@ build/
 
 ### Worktrees ###
 .worktrees/
+
+### Maven ###
+.flattened-pom.xml
