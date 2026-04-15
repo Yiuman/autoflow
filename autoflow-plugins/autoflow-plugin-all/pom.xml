@@ -109,5 +109,11 @@
             <artifactId>autoflow-function</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-websearch</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>
