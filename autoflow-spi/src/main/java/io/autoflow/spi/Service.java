@@ -1,9 +1,13 @@
 package io.autoflow.spi;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import io.autoflow.spi.context.ExecutionContext;
 import io.autoflow.spi.model.Property;
+import io.autoflow.spi.utils.I18nUtils;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * 节点定义信息
@@ -20,6 +24,18 @@ public interface Service<OUTPUT> {
      * @return id值，默认为全类名
      */
     default String getId() {
+        return getClass().getName();
+    }
+
+    default String getDescription() {
+        Map<String, Properties> i18n = I18nUtils.getI18n(getClass());
+        if (MapUtil.isNotEmpty(i18n)) {
+            Properties properties = Optional.ofNullable(i18n.get("zh_CN"))
+                    .orElseGet(() -> CollUtil.getFirst(i18n.values()));
+            if (Objects.nonNull(properties)) {
+                return properties.getProperty(StrUtil.format("{}.description", getClass().getName()));
+            }
+        }
         return getClass().getName();
     }
 

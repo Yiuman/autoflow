@@ -21,7 +21,7 @@ public class ToolSpecificationConverter {
         
         ToolSpecification spec = ToolSpecification.builder()
             .name(service.getName())
-            .description("Service: " + service.getName())
+            .description(service.getDescription())
             .parameters(convertParameters(service.getProperties()))
             .build();
         
