@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class WebSearchService extends BaseService<WebSearchParameter, WebSearchResult> {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSearchService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSearchService.class);
 
     private static final String PROVIDER_TYPE_KEY = "autoflow.websearch.provider";
     private static final String TAVILY_API_KEY_KEY = "autoflow.websearch.tavily.api-key";
@@ -45,14 +45,14 @@ public class WebSearchService extends BaseService<WebSearchParameter, WebSearchR
             case PROVIDER_TAVILY -> {
                 String apiKey = System.getProperty(TAVILY_API_KEY_KEY);
                 if (apiKey == null || apiKey.isBlank()) {
-                    log.warn("Tavily API key not configured, falling back to DuckDuckGo");
+                    LOG.warn("Tavily API key not configured, falling back to DuckDuckGo");
                     yield new DuckDuckGoProvider();
                 }
-                log.info("Using Tavily web search provider");
+                LOG.info("Using Tavily web search provider");
                 yield new TavilyProvider(apiKey);
             }
             default -> {
-                log.info("Using DuckDuckGo web search provider");
+                LOG.info("Using DuckDuckGo web search provider");
                 yield new DuckDuckGoProvider();
             }
         };
