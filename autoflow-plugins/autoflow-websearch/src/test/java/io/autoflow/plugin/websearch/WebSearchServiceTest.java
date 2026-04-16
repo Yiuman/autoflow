@@ -25,7 +25,7 @@ class WebSearchServiceTest {
     public void testDuckDuckGoSearch() {
         WebSearchService service = new WebSearchService();
         WebSearchParameter parameter = new WebSearchParameter();
-        parameter.setQuery("Java 17 features");
+        parameter.setQuery("中华人民共和国民法典第十二条");
         parameter.setMaxResults(3);
 
         WebSearchResult result = service.execute(parameter, null);

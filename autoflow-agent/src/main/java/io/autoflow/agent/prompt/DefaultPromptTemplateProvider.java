@@ -47,7 +47,7 @@ public class DefaultPromptTemplateProvider implements PromptTemplateProvider {
 
         Example of self-correction after tool failure:
         ```
-        Thought: The calculator returned "Error: division by zero". 
+        Thought: The calculator returned "Error: division by zero".\s
         Reflection: I tried to divide by zero. I need to check if the divisor is valid before dividing.
         Action: evaluate
         Action Input: {"expression": "if(b != 0, a / b, 'undefined')", "a": 10, "b": 0}
@@ -57,7 +57,7 @@ public class DefaultPromptTemplateProvider implements PromptTemplateProvider {
         ## Important
         - When you have completed the task, provide your Final Answer
         - Maximum 3 reflection attempts per failed tool call
-        """;
+       \s""";
 
     @Override
     public String getSystemPromptTemplate() {
