@@ -65,6 +65,8 @@ import {getResultData} from '@/utils/flow'
 import {I18N} from '@/locales/i18n'
 import {executeFlowSSE} from '@/views/FlowDesigner/flowsse'
 import {useProvideNodeDataStore} from '@/hooks/useNodeDataStore'
+import FloatingChatButton from '@/components/FloatingWorkflowChat/FloatingChatButton.vue'
+import FloatingChatPanel from '@/components/FloatingWorkflowChat/FloatingChatPanel.vue'
 
 
 const [theme] = useTheme()
@@ -403,6 +405,14 @@ const vueFlowEl = computed(() => {
   return unrefElement(vueFlow);
 })
 
+//---------------------------- 气泡聊天面板状态 ----------------------------
+const [chatPanelVisible, toggleChatPanel] = useToggle(false)
+
+function handleWorkflowModified(flow: Flow) {
+  const jsonStr = JSON.stringify(flow)
+  doParseJson(jsonStr)
+  Notification.success('Workflow updated')
+}
 
 </script>
 
@@ -502,6 +512,17 @@ const vueFlowEl = computed(() => {
         :bodyClass="'vue-flow-node-drawer'"
     />
   </VueFlow>
+
+  <!-- 气泡聊天按钮 -->
+  <FloatingChatButton @click="toggleChatPanel" />
+
+  <!-- 气泡聊天面板 -->
+  <FloatingChatPanel
+      v-model:visible="chatPanelVisible"
+      :workflow-id="(route.query.flowId as string) || ''"
+      :current-flow="elementsToFlow(elements)"
+      @workflow-modified="handleWorkflowModified"
+  />
 </template>
 
 <style scoped lang="scss">
