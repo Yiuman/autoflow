@@ -340,10 +340,14 @@ function doParseJson(json: string) {
   if (!flowNodes || !flowNodes.length) {
     return
   }
-  const nodes: VueFlowNode[] = flowNodes?.map((node) => {
+  const nodes: VueFlowNode[] = flowNodes?.map((node, index) => {
     const graphNode = toGraphNode(node)
     graphNode.events = defaultEvents
     graphNode.data.service = serviceStore.getServiceById(graphNode.data.serviceId)
+    // Add default position if not present
+    if (!graphNode.position || (!graphNode.position.x && !graphNode.position.y)) {
+      graphNode.position = { x: 100 + (index % 5) * 250, y: 100 + Math.floor(index / 5) * 150 }
+    }
     return graphNode
   }) as VueFlowNode[]
   const edges: GraphEdge[] = flowDefine.connections?.map((connection) => ({
@@ -352,7 +356,11 @@ function doParseJson(json: string) {
     markerEnd: basicEdgeProps.markerEnd,
     style: basicEdgeProps.style
   })) as GraphEdge[]
+  // Replace all elements to avoid accumulating
   elements.value = [...nodes, ...edges]
+  nextTick(() => {
+    fitView({ maxZoom: 1 })
+  })
 }
 
 //---------------------------- 节点搜索弹窗逻辑 ----------------------------

@@ -18,7 +18,7 @@ export function useWorkflowChat(options: UseWorkflowChatOptions) {
 
   // Create a dedicated session for workflow chat
   async function createSession(): Promise<string> {
-    const session = await chatStore.createSession('workflow-assistant', 'Workflow Chat')
+    const session = await chatStore.createSession('workflow-assistant', 'Workflow Chat', 'workflow-designer')
     sessionId.value = session.id
     chatStore.setActiveSession(session.id)
     return session.id
@@ -26,7 +26,12 @@ export function useWorkflowChat(options: UseWorkflowChatOptions) {
 
   // Ensure we have a session
   async function ensureSession(): Promise<string> {
-    if (!sessionId.value || !chatStore.sessions.find(s => s.id === sessionId.value)) {
+    const existingSession = chatStore.sessions.find(s => s.id === sessionId.value)
+    if (!sessionId.value || !existingSession) {
+      return await createSession()
+    }
+    // If existing session doesn't have agentConfigId, create a new one
+    if (!existingSession.agentConfigId) {
       return await createSession()
     }
     return sessionId.value
@@ -107,12 +112,12 @@ export function useWorkflowChat(options: UseWorkflowChatOptions) {
             status: MessageBlockStatus.SUCCESS
           } as any)
 
-          // Handle workflow modification tool
-          if (toolName === 'modify_workflow') {
+          // Handle AutoFlowDesigner tool
+          if (toolName === 'AutoFlowDesigner') {
             try {
-              const parsedResult = typeof result === 'string' ? JSON.parse(result) : result
-              if (parsedResult.flow) {
-                options.onWorkflowModified?.(parsedResult.flow)
+              const flow = typeof result === 'string' ? JSON.parse(result) : result
+              if (flow && flow.nodes) {
+                options.onWorkflowModified?.(flow)
               }
             } catch (e) {
               console.error('Failed to parse workflow modification result:', e)
@@ -162,6 +167,7 @@ export function useWorkflowChat(options: UseWorkflowChatOptions) {
     sendMessage,
     stopStreaming,
     clearHistory,
+    ensureSession,
     createSession
   }
 }

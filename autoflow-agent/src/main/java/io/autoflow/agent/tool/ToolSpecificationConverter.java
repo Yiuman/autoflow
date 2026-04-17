@@ -19,9 +19,10 @@ public class ToolSpecificationConverter {
             return List.of();
         }
         
+        String description = service.getDescription() + " [serviceId: " + service.getId() + "]";
         ToolSpecification spec = ToolSpecification.builder()
             .name(service.getName())
-            .description(service.getDescription())
+            .description(description)
             .parameters(convertParameters(service.getProperties()))
             .build();
         

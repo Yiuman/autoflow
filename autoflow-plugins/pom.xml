@@ -29,6 +29,7 @@
         <module>autoflow-shell</module>
         <module>autoflow-uncompress</module>
         <module>autoflow-function</module>
+        <module>autoflow-designer</module>
         <module>autoflow-websearch</module>
     </modules>
 

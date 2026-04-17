@@ -4,7 +4,7 @@ import type { Flow } from '@/types/flow'
  * 工作流聊天上下文类型
  */
 export interface WorkflowChatContext {
-  type: 'modify_workflow'
+  type: 'AutoFlowDesigner'
   workflowId: string
   currentFlow: Flow
 }

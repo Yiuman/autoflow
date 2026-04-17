@@ -112,6 +112,12 @@
 
         <dependency>
             <groupId>io.autoflow</groupId>
+            <artifactId>autoflow-designer</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.autoflow</groupId>
             <artifactId>autoflow-websearch</artifactId>
             <version>${revision}</version>
         </dependency>

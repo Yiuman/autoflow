@@ -36,7 +36,7 @@ const quickSuggestions = [
 ]
 
 // Initialize workflow chat
-const { isLoading, sendMessage, sessionId } = useWorkflowChat({
+const { isLoading, sendMessage, sessionId, ensureSession } = useWorkflowChat({
   workflowId: props.workflowId,
   currentFlow: props.currentFlow,
   onWorkflowModified: (flow: Flow) => {
@@ -44,12 +44,12 @@ const { isLoading, sendMessage, sessionId } = useWorkflowChat({
   }
 })
 
-// Set this session as active when visible
-watch(() => props.visible, async (visible) => {
-  if (visible && sessionId.value) {
-    chatStore.setActiveSession(sessionId.value)
-  }
-}, { immediate: true })
+// Wrapper that ensures session before sending
+async function handleSend(text: string, files: any[]) {
+  const sid = await ensureSession()
+  chatStore.setActiveSession(sid)
+  sendMessage(text)
+}
 
 // Watch for tool blocks to handle workflow modification
 let processedToolBlocks = new Set<string>()
@@ -59,15 +59,15 @@ watch(
     for (const block of Object.values(entities)) {
       if (
         block.type === MessageBlockType.TOOL &&
-        block.toolName === 'modify_workflow' &&
+        block.toolName === 'AutoFlowDesigner' &&
         !processedToolBlocks.has(block.id) &&
         block.content
       ) {
         processedToolBlocks.add(block.id)
         try {
-          const parsed = typeof block.content === 'string' ? JSON.parse(block.content) : block.content
-          if (parsed.flow) {
-            emit('workflow-modified', parsed.flow)
+          const flow = typeof block.content === 'string' ? JSON.parse(block.content) : block.content
+          if (flow && flow.nodes) {
+            emit('workflow-modified', flow)
           }
         } catch (e) {
           console.error('Failed to parse workflow modification:', e)
@@ -228,7 +228,7 @@ function handleSuggestionClick(text: string) {
       </div>
 
       <!-- ChatInputBar (reused) -->
-      <ChatInputBar />
+      <ChatInputBar :onSend="handleSend" />
     </div>
   </Transition>
 </template>
