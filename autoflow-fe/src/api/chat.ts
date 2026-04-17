@@ -43,7 +43,9 @@ export interface ToolCall {
 }
 
 export interface ChatSSECallbacks {
+  onThinkStart?: () => void
   onThinking?: (text: string) => void
+  onThinkEnd?: () => void
   onToken?: (text: string) => void
   onToolStart?: (toolId: string, toolName: string, toolArgs: string) => void
   onToolEnd?: (toolCall: ToolCall) => void
@@ -82,9 +84,17 @@ export function chatSSE(input: string, callbacks: ChatSSECallbacks, fileIds?: st
     body: JSON.stringify(body),
     async onmessage(message: EventSourceMessage) {
       switch (message.event) {
+        case 'think_start': {
+          callbacks.onThinkStart?.()
+          break
+        }
         case 'thinking': {
           const data = JSON.parse(message.data)
           callbacks.onThinking?.(data.content)
+          break
+        }
+        case 'think_end': {
+          callbacks.onThinkEnd?.()
           break
         }
         case 'token': {

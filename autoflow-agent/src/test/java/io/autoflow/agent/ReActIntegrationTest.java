@@ -240,7 +240,17 @@ class ReActIntegrationTest {
 
         StreamListener listener = new StreamListener() {
             @Override
+            public void onThinkStart() {
+                System.out.println("[THINK START]");
+            }
+
+            @Override
             public void onThinking(String thinking) {
+            }
+
+            @Override
+            public void onThinkEnd() {
+                System.out.println("[THINK END]");
             }
 
             @Override

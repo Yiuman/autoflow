@@ -326,16 +326,37 @@ async function sendMessage() {
 
   // Track if we're in a consecutive token streak
   let lastEventWasToken = false
+  let thinkingBlockId: string | null = null
 
   chatController.value = chatSSE(text, {
-    onThinking: (text) => {
-      lastEventWasToken = false  // break token streak
-      chatStore.addBlock(assistantMsg.id, {
+    onThinkStart: () => {
+      lastEventWasToken = false
+      // Create thinking block
+      const block = chatStore.addBlock(assistantMsg.id, {
         type: MessageBlockType.THINKING,
-        content: text,
-        status: MessageBlockStatus.SUCCESS,
+        content: '',
+        status: MessageBlockStatus.STREAMING,
         thinking_millsec: 0
       } as any)
+      thinkingBlockId = block.id
+    },
+    onThinking: (text) => {
+      lastEventWasToken = false
+      if (thinkingBlockId) {
+        // Update existing thinking block (typewriter effect)
+        chatStore.updateBlock(thinkingBlockId, {
+          content: text,
+          status: MessageBlockStatus.STREAMING
+        })
+      }
+    },
+    onThinkEnd: () => {
+      if (thinkingBlockId) {
+        chatStore.updateBlock(thinkingBlockId, {
+          status: MessageBlockStatus.SUCCESS
+        })
+        thinkingBlockId = null
+      }
     },
     onToken: (text) => {
       const blocks = chatStore.getBlocksByMessage(assistantMsg.id)

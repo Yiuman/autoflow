@@ -62,16 +62,37 @@ export function useWorkflowChat(options: UseWorkflowChatOptions) {
 
     // Track consecutive tokens for merging
     let lastEventWasToken = false
+    let thinkingBlockId: string | null = null
 
     const callbacks: ChatSSECallbacks = {
-      onThinking: (content: string) => {
+      onThinkStart: () => {
         lastEventWasToken = false
-        chatStore.addBlock(assistantMsg.id, {
+        // Create thinking block
+        const block = chatStore.addBlock(assistantMsg.id, {
           type: MessageBlockType.THINKING,
-          content,
-          status: MessageBlockStatus.SUCCESS,
+          content: '',
+          status: MessageBlockStatus.STREAMING,
           thinking_millsec: 0
         } as any)
+        thinkingBlockId = block.id
+      },
+      onThinking: (content: string) => {
+        lastEventWasToken = false
+        if (thinkingBlockId) {
+          // Update existing thinking block (typewriter effect)
+          chatStore.updateBlock(thinkingBlockId, {
+            content,
+            status: MessageBlockStatus.STREAMING
+          })
+        }
+      },
+      onThinkEnd: () => {
+        if (thinkingBlockId) {
+          chatStore.updateBlock(thinkingBlockId, {
+            status: MessageBlockStatus.SUCCESS
+          })
+          thinkingBlockId = null
+        }
       },
       onToken: (content: string) => {
         const blocks = chatStore.getBlocksByMessage(assistantMsg.id)

@@ -7,9 +7,19 @@ package io.autoflow.agent;
 public interface StreamListener {
 
     /**
+     * Called when thinking/reasoning process starts.
+     */
+    void onThinkStart();
+
+    /**
      * Called when LLM is thinking (reasoning process streaming).
      */
     void onThinking(String thinking);
+
+    /**
+     * Called when thinking/reasoning process ends.
+     */
+    void onThinkEnd();
 
     /**
      * Called for each output token from LLM.

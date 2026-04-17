@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum SSEEventType {
     THINKING("thinking"),
+    THINK_START("think_start"),
+    THINK_END("think_end"),
     TOKEN("token"),
     TOOL_START("tool_start"),
     TOOL_END("tool_end"),

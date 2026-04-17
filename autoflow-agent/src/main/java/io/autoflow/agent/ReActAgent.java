@@ -87,6 +87,7 @@ public final class ReActAgent implements AgentEngine {
     private final ConcurrentHashMap<String, String> toolIdToName = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ToolCall> toolIdToToolCall = new ConcurrentHashMap<>();
     private final StringBuilder thinkingBuffer = new StringBuilder();
+    private volatile boolean isThinking = false;
 
     private ReActAgent(Builder builder) {
         this.chatModel = builder.chatModel;
@@ -229,6 +230,10 @@ public final class ReActAgent implements AgentEngine {
             @Override
             public void onPartialThinking(dev.langchain4j.model.chat.response.PartialThinking partialThinking) {
                 if (partialThinking != null && partialThinking.text() != null) {
+                    if (!isThinking) {
+                        isThinking = true;
+                        listener.onThinkStart();
+                    }
                     listener.onThinking(partialThinking.text());
                 }
             }
@@ -265,6 +270,11 @@ public final class ReActAgent implements AgentEngine {
                 } catch (Throwable t) {
                     error.set(t);
                 } finally {
+                    // End thinking if still in thinking state (for onPartialThinking path)
+                    if (isThinking) {
+                        isThinking = false;
+                        listener.onThinkEnd();
+                    }
                     latch.countDown();
                 }
             }
@@ -289,6 +299,8 @@ public final class ReActAgent implements AgentEngine {
                 fullOutput.append(before);
                 listener.onToken(before);
             }
+            // Start of thinking
+            listener.onThinkStart();
             thinkingBuffer.append(text.substring(idx + "<think>".length()));
         } else if (text.contains("</think>")) {
             int idx = text.indexOf("</think>");
@@ -298,6 +310,8 @@ public final class ReActAgent implements AgentEngine {
                 listener.onThinking(thinking);
             }
             thinkingBuffer.setLength(0);
+            // End of thinking
+            listener.onThinkEnd();
             String after = text.substring(idx + "</think>".length());
             if (!after.isBlank()) {
                 output.append(after);
@@ -305,7 +319,11 @@ public final class ReActAgent implements AgentEngine {
                 listener.onToken(after);
             }
         } else if (!thinkingBuffer.isEmpty()) {
+            // Streaming thinking content - send incrementally
             thinkingBuffer.append(text);
+            if (!text.isBlank()) {
+                listener.onThinking(text);
+            }
         } else {
             output.append(text);
             fullOutput.append(text);

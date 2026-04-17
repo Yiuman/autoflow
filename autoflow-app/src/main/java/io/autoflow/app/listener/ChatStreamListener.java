@@ -39,11 +39,25 @@ public class ChatStreamListener implements StreamListener {
     private final Map<String, ToolCallRecord> toolCallsMap = new LinkedHashMap<>();
 
     @Override
+    public void onThinkStart() {
+        sendEvent(SSEEventType.THINK_START, AgentSSEEvent.builder()
+                .type(SSEEventType.THINK_START.getValue())
+                .build());
+    }
+
+    @Override
     public void onThinking(String thinking) {
         thinkingBuffer.append(thinking);
         sendEvent(SSEEventType.THINKING, AgentSSEEvent.builder()
                 .type(SSEEventType.THINKING.getValue())
                 .content(thinking)
+                .build());
+    }
+
+    @Override
+    public void onThinkEnd() {
+        sendEvent(SSEEventType.THINK_END, AgentSSEEvent.builder()
+                .type(SSEEventType.THINK_END.getValue())
                 .build());
     }
 
