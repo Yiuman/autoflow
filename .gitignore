@@ -43,3 +43,8 @@ build/
 
 ### Maven ###
 .flattened-pom.xml
+
+### Claude & Sisyphus ###
+.claude/
+.sisyphus/
+.playwright-mcp/
