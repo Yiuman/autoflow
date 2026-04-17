@@ -76,7 +76,7 @@ export const useChatStore = defineStore('chat', {
   },
 
   actions: {
-    async createSession(assistantId: string, title?: string): Promise<Session> {
+    async createSession(assistantId: string, title?: string, agentConfigId?: string): Promise<Session> {
       let modelId: string | undefined
       try {
         modelId = localStorage.getItem('lastUsedModelId') || undefined
@@ -84,12 +84,13 @@ export const useChatStore = defineStore('chat', {
         // localStorage not available
       }
 
-      const sessionId = await createChatSession(modelId)
+      const sessionId = await createChatSession(modelId, agentConfigId)
       const session: Session = {
         id: sessionId,
         title: title || 'New Chat',
         assistantId,
         modelId,
+        agentConfigId,
         messages: [],
         createdAt: new Date().toISOString()
       }
@@ -105,6 +106,7 @@ export const useChatStore = defineStore('chat', {
           title: s.title || 'New Chat',
           assistantId: 'default-assistant',
           modelId: s.modelId,
+          agentConfigId: s.agentConfigId,
           messages: [],
           createdAt: s.createTime || new Date().toISOString()
         }))

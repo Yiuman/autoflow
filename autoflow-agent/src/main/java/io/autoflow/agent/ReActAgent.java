@@ -12,7 +12,6 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.CompleteToolCall;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import io.autoflow.agent.prompt.PromptTemplateProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -28,11 +27,59 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public final class ReActAgent implements AgentEngine {
 
+    private static final String DEFAULT_SYSTEM_PROMPT = """
+        You are a helpful AI assistant with access to tools.
+
+        ## Guidelines
+        1. Think step-by-step before taking action - use Thought to reason through the problem
+        2. Use tools only when necessary - if you know the answer, respond directly
+        3. When a tool fails, acknowledge the error, reflect on what went wrong, and try alternative approaches
+        4. Be concise but thorough in your reasoning
+
+        ## Response Format
+        When using tools, follow this format:
+
+        Question: {user_question}
+        Thought: [Describe your reasoning - what you know, what you need to find out, and your plan]
+        Action: [Tool name from available tools, only if needed]
+        Action Input: [Arguments in JSON format]
+        Observation: [Result will appear here after tool execution]
+        ... (Thought/Action/Observation can repeat as needed)
+
+        Thought: Based on my reasoning and observations, I now have the answer.
+        Final Answer: [Your concise response to the user]
+
+        ## Self-Correction
+        If a tool fails or returns an unexpected result:
+
+        1. **Reflect**: Analyze what went wrong:
+           - Was the tool called with wrong arguments?
+           - Is there a different tool that could achieve the same goal?
+           - Is the task even possible with available tools?
+
+        2. **Plan Fix**: Determine an alternative approach
+
+        3. **Retry**: Call a different tool or same tool with corrected arguments
+
+        Example of self-correction after tool failure:
+        ```
+        Thought: The calculator returned "Error: division by zero".\
+        Reflection: I tried to divide by zero. I need to check if the divisor is valid before dividing.
+        Action: evaluate
+        Action Input: {"expression": "if(b != 0, a / b, 'undefined')", "a": 10, "b": 0}
+        ...
+        ```
+
+        ## Important
+        - When you have completed the task, provide your Final Answer
+        - Maximum 3 reflection attempts per failed tool call
+        """;
+
     private final StreamingChatModel chatModel;
     private final NodeExecutor nodeExecutor;
     private final ToolRegistry toolRegistry;
     private final int maxSteps;
-    private final PromptTemplateProvider promptProvider;
+    private final String systemPrompt;
     private final ObjectMapper objectMapper;
     private final ToolRetryHandler retryHandler;
 
@@ -44,7 +91,7 @@ public final class ReActAgent implements AgentEngine {
         this.chatModel = builder.chatModel;
         this.nodeExecutor = builder.nodeExecutor;
         this.toolRegistry = builder.toolRegistry;
-        this.promptProvider = builder.promptProvider;
+        this.systemPrompt = builder.systemPrompt;
         this.maxSteps = builder.maxSteps;
         this.objectMapper = new ObjectMapper();
         this.retryHandler = new ToolRetryHandler(builder.maxToolRetries);
@@ -58,7 +105,7 @@ public final class ReActAgent implements AgentEngine {
         private StreamingChatModel chatModel;
         private NodeExecutor nodeExecutor;
         private ToolRegistry toolRegistry;
-        private PromptTemplateProvider promptProvider = new io.autoflow.agent.prompt.DefaultPromptTemplateProvider();
+        private String systemPrompt;
         private int maxSteps = 10;
         private int maxToolRetries = 3;
 
@@ -77,8 +124,8 @@ public final class ReActAgent implements AgentEngine {
             return this;
         }
 
-        public Builder promptProvider(PromptTemplateProvider promptProvider) {
-            this.promptProvider = promptProvider;
+        public Builder systemPrompt(String systemPrompt) {
+            this.systemPrompt = systemPrompt;
             return this;
         }
 
@@ -93,6 +140,9 @@ public final class ReActAgent implements AgentEngine {
         }
 
         public ReActAgent build() {
+            if (systemPrompt == null || systemPrompt.isBlank()) {
+                systemPrompt = DEFAULT_SYSTEM_PROMPT;
+            }
             return new ReActAgent(this);
         }
     }
@@ -109,7 +159,7 @@ public final class ReActAgent implements AgentEngine {
             AgentContext context = AgentContext.from(request);
             context.setToolSpecifications(toolRegistry.getToolSpecifications());
             if (context.getSystemPrompt() == null || context.getSystemPrompt().isBlank()) {
-                context.setSystemPrompt(promptProvider.getSystemPromptTemplate());
+                context.setSystemPrompt(systemPrompt);
             }
             retryHandler.clear();
 
@@ -263,10 +313,10 @@ public final class ReActAgent implements AgentEngine {
                 .map(this::toLangChainMessage)
                 .toList();
 
-        String systemPrompt = context.getSystemPrompt();
-        if (systemPrompt != null && !systemPrompt.isBlank()) {
+        String ctxSystemPrompt = context.getSystemPrompt();
+        if (ctxSystemPrompt != null && !ctxSystemPrompt.isBlank()) {
             List<ChatMessage> withSystem = new ArrayList<>();
-            withSystem.add(SystemMessage.from(systemPrompt));
+            withSystem.add(SystemMessage.from(ctxSystemPrompt));
             withSystem.addAll(messages);
             return withSystem;
         }
@@ -278,32 +328,38 @@ public final class ReActAgent implements AgentEngine {
             return;
         }
 
-        CompletableFuture.allOf(pendingTools.values().toArray(new CompletableFuture[0])).join();
-
-        List<ToolExecutionRequest> retryList = new ArrayList<>();
-
-        Map<String, String> workingMap = new HashMap<>(toolIdToName);
-
+        // Register whenComplete callbacks to send tool_end immediately when each tool completes
         for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
-            String args = request.arguments();
-
-            String toolId = null;
-            for (Map.Entry<String, String> entry : workingMap.entrySet()) {
-                if (entry.getValue().equals(toolName)) {
-                    toolId = entry.getKey();
-                    workingMap.remove(toolId);
-                    break;
-                }
-            }
-
+            String toolId = findToolIdByName(toolName);
             if (toolId == null) {
                 log.warn("[Agent] toolId not found for tool={}", toolName);
                 continue;
             }
 
+            pendingTools.get(toolId).whenComplete((result, ex) -> {
+                if (ex != null) {
+                    result = "Error: " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+                }
+                listener.onToolCallEnd(toolId, toolName, result);
+            });
+        }
+
+        // Wait for all tools to complete before processing results and retries
+        CompletableFuture.allOf(pendingTools.values().toArray(new CompletableFuture[0])).join();
+
+        List<ToolExecutionRequest> retryList = new ArrayList<>();
+
+        for (ToolExecutionRequest request : toolCalls) {
+            String toolName = request.name();
+            String args = request.arguments();
+            String toolId = findToolIdByName(toolName);
+
+            if (toolId == null) {
+                continue;
+            }
+
             Object result = getToolResultById(toolId);
-            listener.onToolCallEnd(toolId, toolName, result);
 
             if (isError(result)) {
                 String errorMsg = result.toString();
@@ -334,6 +390,15 @@ public final class ReActAgent implements AgentEngine {
                     context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments())
             );
         }
+    }
+
+    private String findToolIdByName(String toolName) {
+        for (Map.Entry<String, String> entry : toolIdToName.entrySet()) {
+            if (entry.getValue().equals(toolName)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     private Object getToolResultById(String toolId) {

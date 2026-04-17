@@ -1,16 +1,18 @@
 package io.autoflow.app.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import com.mybatisflex.core.query.QueryWrapper;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import io.autoflow.agent.ChatRequest;
+import io.autoflow.agent.NodeExecutor;
 import io.autoflow.agent.ReActAgent;
+import io.autoflow.agent.ToolRegistry;
 import io.autoflow.app.config.ModelRegistry;
 import io.autoflow.app.listener.ChatStreamListener;
 import io.autoflow.app.model.AgentChatRequest;
 import io.autoflow.app.model.ChatMessage;
+import io.autoflow.app.model.ChatSession;
 import io.autoflow.app.model.FileResourceStream;
 import io.autoflow.app.model.sse.AgentSSEEvent;
 import io.autoflow.app.service.ChatMessageService;
@@ -47,8 +49,9 @@ public class ChatServiceImpl implements ChatService {
 
     private static final String ERROR_TYPE = "error";
 
-    private final ReActAgent reActAgent;
     private final ModelRegistry modelRegistry;
+    private final ToolRegistry toolRegistry;
+    private final NodeExecutor nodeExecutor;
     private final ChatMessageService chatMessageService;
     private final ChatSessionService chatSessionService;
     private final FileResourceService fileResourceService;
@@ -67,6 +70,11 @@ public class ChatServiceImpl implements ChatService {
         String input = request.getInput();
         List<String> fileIds = request.getFileIds();
 
+        // Load session to get system prompt
+        ChatSession session = chatSessionService.list(QueryWrapper.create()
+                .eq(ChatSession::getId, sessionId)).stream().findFirst().orElse(null);
+        String systemPrompt = session != null ? session.getSystemPrompt() : null;
+
         // Load history before saving current message to avoid including it
         List<io.autoflow.spi.model.ChatMessage> history = loadHistory(sessionId);
         String enrichedInput = enrichInputWithFiles(input, fileIds);
@@ -76,7 +84,7 @@ public class ChatServiceImpl implements ChatService {
 
         SseEmitter streamingEmitter = new SseEmitter(Long.MAX_VALUE);
         StreamingChatModel chatModel = resolveChatModel(request.getModelId());
-        runAsyncChat(sessionId, conversationId, enrichedInput, chatModel, streamingEmitter, history);
+        runAsyncChat(sessionId, conversationId, enrichedInput, systemPrompt, chatModel, streamingEmitter, history);
 
         return streamingEmitter;
     }
@@ -90,8 +98,7 @@ public class ChatServiceImpl implements ChatService {
         DtpExecutor executor = DtpRegistry.getDtpExecutor(ChatService.CHAT_FILE_EXTRACT_THREAD_POOL);
         List<CompletableFuture<String>> futures = new ArrayList<>();
 
-        for (int i = 0; i < fileIds.size(); i++) {
-            String fileId = fileIds.get(i);
+        for (String fileId : fileIds) {
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
                 FileResourceStream fileStream = fileResourceService.download(fileId);
                 try {
@@ -183,14 +190,24 @@ public class ChatServiceImpl implements ChatService {
         return chatModel;
     }
 
-    private void runAsyncChat(String sessionId, String conversationId, String input, StreamingChatModel chatModel, SseEmitter emitter,
+    private void runAsyncChat(String sessionId, String conversationId, String input, String systemPrompt,
+                              StreamingChatModel chatModel, SseEmitter emitter,
                               List<io.autoflow.spi.model.ChatMessage> history) {
         ChatStreamListener listener = new ChatStreamListener(emitter, sessionId, conversationId, chatMessageService, chatSessionService);
+
+        ReActAgent agent = ReActAgent.builder()
+                .chatModel(chatModel)
+                .systemPrompt(systemPrompt)
+                .toolRegistry(toolRegistry)
+                .nodeExecutor(nodeExecutor)
+                .maxSteps(10)
+                .maxToolRetries(3)
+                .build();
 
         CompletableFuture.runAsync(() -> {
             try {
                 ChatRequest chatRequest = new ChatRequest(input, history);
-                reActAgent.chat(chatRequest, chatModel, listener);
+                agent.chat(chatRequest, chatModel, listener);
             } finally {
                 emitter.complete();
                 log.info("Chat session ended: sessionId={}", sessionId);

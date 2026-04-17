@@ -131,6 +131,7 @@ export interface Session {
   updatedAt?: string
   isNameManuallyEdited?: boolean
   modelId?: string
+  agentConfigId?: string
 }
 
 // Tool types

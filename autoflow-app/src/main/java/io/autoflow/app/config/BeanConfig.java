@@ -9,7 +9,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import io.autoflow.agent.ReActAgent;
 import io.autoflow.agent.NodeExecutor;
 import io.autoflow.agent.executor.NodeExecutorImpl;
 import io.autoflow.agent.ToolRegistry;
@@ -93,18 +92,6 @@ public class BeanConfig {
         registry.setDefaultModel(defaultStreamingChatModel);
         registry.setDefaultChatModel(defaultChatModel);
         return registry;
-    }
-
-    @Bean
-    public ReActAgent reActAgent(OpenAiStreamingChatModel chatModel, ToolRegistry toolRegistry,
-                                 NodeExecutor nodeExecutor) {
-        return ReActAgent.builder()
-                .chatModel(chatModel)
-                .toolRegistry(toolRegistry)
-                .nodeExecutor(nodeExecutor)
-                .maxSteps(10)
-                .maxToolRetries(3)
-                .build();
     }
 
     @Bean

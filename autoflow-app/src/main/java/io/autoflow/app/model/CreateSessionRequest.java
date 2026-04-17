@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateSessionRequest {
     private String modelId;
+    private String agentConfigId;
 }

@@ -15,6 +15,11 @@ import type { SelectOptionData } from '@arco-design/web-vue/es/select'
 
 const chatStore = useChatStore()
 
+// Optional external send handler - when provided, use it instead of internal handling
+const props = defineProps<{
+  onSend?: (text: string, files: FileMetadata[]) => Promise<void>
+}>()
+
 const inputText = ref('')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const textareaHeight = ref<number | undefined>(undefined)
@@ -248,6 +253,16 @@ async function sendMessage() {
   const text = inputText.value.trim()
   if (!text && chatStore.files.length === 0) return
   if (isLoading.value) return
+
+  // If external handler provided, use it
+  if (props.onSend) {
+    await props.onSend(text, [...chatStore.files])
+    inputText.value = ''
+    chatStore.clearFiles()
+    textareaHeight.value = undefined
+    nextTick(() => resizeTextarea())
+    return
+  }
 
   let sessionId = chatStore.activeSessionId
   if (!sessionId) {
