@@ -97,25 +97,26 @@ export function useWorkflowChat(options: UseWorkflowChatOptions) {
           type: MessageBlockType.TOOL,
           toolId,
           toolName,
-          arguments: JSON.parse(args),
+          arguments: args ? JSON.parse(args) : {},
           content: '',
           status: MessageBlockStatus.PENDING
         } as any)
       },
-      onToolEnd: (toolId: string, toolName: string, result: any) => {
+      onToolEnd: (toolCall: { toolId: string; toolName: string; arguments: string; result: any }) => {
         lastEventWasToken = false
         const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-        const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolId === toolId)
+        const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolId === toolCall.toolId)
         if (toolBlock) {
           chatStore.updateBlock(toolBlock.id, {
-            content: result,
+            arguments: toolCall.arguments ? JSON.parse(toolCall.arguments) : {},
+            content: toolCall.result,
             status: MessageBlockStatus.SUCCESS
           } as any)
 
           // Handle AutoFlowDesigner tool
-          if (toolName === 'AutoFlowDesigner') {
+          if (toolCall.toolName === 'AutoFlowDesigner') {
             try {
-              const flow = typeof result === 'string' ? JSON.parse(result) : result
+              const flow = typeof toolCall.result === 'string' ? JSON.parse(toolCall.result) : toolCall.result
               if (flow && flow.nodes) {
                 options.onWorkflowModified?.(flow)
               }

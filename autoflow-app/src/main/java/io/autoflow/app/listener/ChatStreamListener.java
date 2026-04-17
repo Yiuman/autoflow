@@ -3,6 +3,7 @@ package io.autoflow.app.listener;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.json.JSONUtil;
 import io.autoflow.agent.StreamListener;
+import io.autoflow.agent.ToolCall;
 import io.autoflow.app.model.ChatMessage;
 import io.autoflow.app.model.ChatSession;
 import io.autoflow.app.model.ToolCallRecord;
@@ -72,16 +73,18 @@ public class ChatStreamListener implements StreamListener {
     }
 
     @Override
-    public void onToolCallEnd(String toolId, String toolName, Object result) {
+    public void onToolCallEnd(ToolCall toolCall) {
+        String toolId = toolCall.toolId();
         ToolCallRecord record = toolCallsMap.get(toolId);
         if (record != null) {
-            record.setResult(result);
+            record.setResult(toolCall.result());
         }
         sendEvent(SSEEventType.TOOL_END, AgentSSEEvent.builder()
                 .type(SSEEventType.TOOL_END.getValue())
                 .toolId(toolId)
-                .toolName(toolName)
-                .result(result)
+                .toolName(toolCall.toolName())
+                .arguments(toolCall.arguments())
+                .result(toolCall.result())
                 .build());
     }
 

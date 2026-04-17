@@ -363,25 +363,26 @@ async function sendMessage() {
         type: MessageBlockType.TOOL,
         toolId,
         toolName,
-        arguments: JSON.parse(args),
+        arguments: args ? JSON.parse(args) : {},
         content: '',
         status: MessageBlockStatus.PENDING
       } as any)
     },
-    onToolEnd: (toolId, toolName, result) => {
+    onToolEnd: (toolCall) => {
       lastEventWasToken = false
       const blocks = chatStore.getBlocksByMessage(assistantMsg.id)
-      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolId === toolId)
+      const toolBlock = blocks.find(b => b.type === MessageBlockType.TOOL && b.toolId === toolCall.toolId)
       if (toolBlock) {
         chatStore.updateBlock(toolBlock.id, {
-          content: result,
+          arguments: toolCall.arguments ? JSON.parse(toolCall.arguments) : {},
+          content: toolCall.result,
           status: MessageBlockStatus.SUCCESS,
           metadata: {
             rawMcpToolResponse: {
-              id: toolId,
-              tool: { name: toolName, type: 'builtin' },
+              id: toolCall.toolId,
+              tool: { name: toolCall.toolName, type: 'builtin' },
               status: 'done',
-              response: result
+              response: toolCall.result
             }
           }
         } as any)

@@ -35,11 +35,18 @@ export async function getChatMessages(sessionId: string): Promise<any[]> {
   return response.data.data?.records || []
 }
 
+export interface ToolCall {
+  toolId: string
+  toolName: string
+  arguments: string
+  result: any
+}
+
 export interface ChatSSECallbacks {
   onThinking?: (text: string) => void
   onToken?: (text: string) => void
   onToolStart?: (toolId: string, toolName: string, toolArgs: string) => void
-  onToolEnd?: (toolId: string, toolName: string, result: any) => void
+  onToolEnd?: (toolCall: ToolCall) => void
   onComplete?: (fullOutput: string) => void
   onError?: (message: string) => void
 }
@@ -92,7 +99,12 @@ export function chatSSE(input: string, callbacks: ChatSSECallbacks, fileIds?: st
         }
         case 'tool_end': {
           const data = JSON.parse(message.data)
-          callbacks.onToolEnd?.(data.toolId, data.toolName, data.result)
+          callbacks.onToolEnd?.({
+            toolId: data.toolId,
+            toolName: data.toolName,
+            arguments: data.arguments,
+            result: data.result
+          })
           break
         }
         case 'complete': {

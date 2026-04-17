@@ -258,9 +258,9 @@ class ReActIntegrationTest {
             }
 
             @Override
-            public void onToolCallEnd(String toolId, String toolName, Object result) {
-                System.out.println("\n[TOOL END] " + toolName + " (id=" + toolId + ") -> " + result);
-                results.append(result).append(",");
+            public void onToolCallEnd(ToolCall toolCall) {
+                System.out.println("\n[TOOL END] " + toolCall.toolName() + " (id=" + toolCall.toolId() + ", args=" + toolCall.arguments() + ") -> " + toolCall.result());
+                results.append(toolCall.result()).append(",");
             }
 
             @Override

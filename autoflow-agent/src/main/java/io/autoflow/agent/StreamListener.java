@@ -25,11 +25,9 @@ public interface StreamListener {
 
     /**
      * Called when a tool execution completes.
-     * @param toolId the unique id of the tool invocation
-     * @param toolName the name of the tool
-     * @param result the execution result
+     * @param toolCall the completed tool call with result
      */
-    void onToolCallEnd(String toolId, String toolName, Object result);
+    void onToolCallEnd(ToolCall toolCall);
 
     /**
      * Called when the entire chat session completes.

@@ -10,12 +10,12 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.CompleteToolCall;
+import dev.langchain4j.model.chat.response.PartialToolCall;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -85,6 +85,7 @@ public final class ReActAgent implements AgentEngine {
 
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingTools = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> toolIdToName = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ToolCall> toolIdToToolCall = new ConcurrentHashMap<>();
     private final StringBuilder thinkingBuffer = new StringBuilder();
 
     private ReActAgent(Builder builder) {
@@ -233,6 +234,22 @@ public final class ReActAgent implements AgentEngine {
             }
 
             @Override
+            public void onPartialToolCall(PartialToolCall partialToolCall) {
+                if (partialToolCall == null) {
+                    return;
+                }
+                String toolId = partialToolCall.id();
+                String toolName = partialToolCall.name();
+
+                // Only emit tool_start once when we first see this tool
+                // tool_start has no arguments - full args come at tool_end
+                if (toolId != null && !toolIdToName.containsKey(toolId)) {
+                    toolIdToName.put(toolId, toolName);
+                    listener.onToolCallStart(toolId, toolName, "");
+                }
+            }
+
+            @Override
             public void onCompleteToolCall(CompleteToolCall completeToolCall) {
                 handleCompleteToolCall(completeToolCall, listener);
             }
@@ -298,9 +315,21 @@ public final class ReActAgent implements AgentEngine {
 
     private void handleCompleteToolCall(CompleteToolCall completeToolCall, StreamListener listener) {
         ToolExecutionRequest req = completeToolCall.toolExecutionRequest();
-        String toolId = UUID.randomUUID().toString();
-        toolIdToName.put(toolId, req.name());
-        listener.onToolCallStart(toolId, req.name(), req.arguments());
+        String toolId = req.id();
+
+        // Use req.id() or generate one if not available
+        if (toolId == null || toolId.isBlank()) {
+            toolId = UUID.randomUUID().toString();
+        }
+
+        // Emit tool_start if not already emitted via onPartialToolCall
+        if (!toolIdToName.containsKey(toolId)) {
+            toolIdToName.put(toolId, req.name());
+            listener.onToolCallStart(toolId, req.name(), "");
+        }
+
+        // Store ToolCall for later use in processToolResults
+        toolIdToToolCall.put(toolId, new ToolCall(toolId, req.name(), req.arguments(), null));
 
         CompletableFuture<Object> future = CompletableFuture.supplyAsync(() ->
                 executeTool(req.name(), req.arguments())
@@ -329,33 +358,49 @@ public final class ReActAgent implements AgentEngine {
         }
 
         // Register whenComplete callbacks to send tool_end immediately when each tool completes
-        for (ToolExecutionRequest request : toolCalls) {
-            String toolName = request.name();
-            String toolId = findToolIdByName(toolName);
-            if (toolId == null) {
-                log.warn("[Agent] toolId not found for tool={}", toolName);
-                continue;
-            }
+        for (Map.Entry<String, ToolCall> entry : toolIdToToolCall.entrySet()) {
+            String toolId = entry.getKey();
+            ToolCall toolCall = entry.getValue();
 
             pendingTools.get(toolId).whenComplete((result, ex) -> {
                 if (ex != null) {
                     result = "Error: " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
                 }
-                listener.onToolCallEnd(toolId, toolName, result);
+                listener.onToolCallEnd(new ToolCall(toolId, toolCall.toolName(), toolCall.arguments(), result));
             });
         }
 
         // Wait for all tools to complete before processing results and retries
         CompletableFuture.allOf(pendingTools.values().toArray(new CompletableFuture[0])).join();
 
+        List<ToolExecutionRequest> retryList = handleToolRetriesAndResults(toolCalls, context);
+
+        // Clear tracking maps
+        pendingTools.clear();
+        toolIdToName.clear();
+        toolIdToToolCall.clear();
+
+        if (!retryList.isEmpty()) {
+            log.info("[Agent] scheduling {} tool retries", retryList.size());
+            retryList.forEach(req ->
+                    context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments())
+            );
+        }
+    }
+
+    private List<ToolExecutionRequest> handleToolRetriesAndResults(List<ToolExecutionRequest> toolCalls, AgentContext context) {
         List<ToolExecutionRequest> retryList = new ArrayList<>();
 
         for (ToolExecutionRequest request : toolCalls) {
             String toolName = request.name();
             String args = request.arguments();
-            String toolId = findToolIdByName(toolName);
+            // Use request.id() if available, otherwise look up by name
+            String toolId = request.id();
+            if (toolId == null || toolId.isBlank()) {
+                toolId = findToolIdByName(toolName);
+            }
 
-            if (toolId == null) {
+            if (toolId == null || !pendingTools.containsKey(toolId)) {
                 continue;
             }
 
@@ -390,6 +435,7 @@ public final class ReActAgent implements AgentEngine {
                     context.addAssistantMessage("Retry: " + req.name() + " with arguments: " + req.arguments())
             );
         }
+        return retryList;
     }
 
     private String findToolIdByName(String toolName) {
