@@ -91,6 +91,7 @@ public class ChatStreamListener implements StreamListener {
         String toolId = toolCall.toolId();
         ToolCallRecord record = toolCallsMap.get(toolId);
         if (record != null) {
+            record.setArguments(toolCall.arguments());
             record.setResult(toolCall.result());
         }
         sendEvent(SSEEventType.TOOL_END, AgentSSEEvent.builder()
