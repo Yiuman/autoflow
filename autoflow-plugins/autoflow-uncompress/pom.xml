@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <commons-compress.version>1.26.1</commons-compress.version>
         <sevenzipjbinding.version>16.02-2.01</sevenzipjbinding.version>
-        <junrar.version>7.5.0</junrar.version>
+        <junrar.version>7.5.10</junrar.version>
     </properties>
 
     <dependencies>
